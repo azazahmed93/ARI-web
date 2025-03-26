@@ -691,10 +691,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
         st.markdown(pdf_link, unsafe_allow_html=True)
         
+        # Close the Enterprise Analytics section and add the Schedule Demo button
         st.markdown("""
-                </div>
-            </div>
-            
             <div style="margin-top: 30px; text-align: center;">
                 <div style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">Want to see how we can help your business?</div>
                 <div style="display: inline-block; background: white; border: 1px solid #5865f2; color: #5865f2; padding: 8px 20px; border-radius: 6px; font-weight: 500; cursor: pointer;">
