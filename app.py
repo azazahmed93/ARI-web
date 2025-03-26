@@ -141,9 +141,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """Display the ARI analysis results."""
     st.markdown("---")
     
-    # Display brand information header
+    # Display brand information header with centered title
     if brand_name != "Unknown":
-        st.markdown(f"## {brand_name} Audience Resonance Index™ Scorecard")
+        st.markdown(f"<h2 style='text-align: center;'>{brand_name} Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
         
         # Display brand info summary
         brand_info_col1, brand_info_col2 = st.columns(2)
@@ -154,7 +154,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             
         st.markdown("---")
     else:
-        st.markdown("## Audience Resonance Index™ Scorecard")
+        st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
     
     # Display metrics as a radar chart
     display_radar_chart(scores)
