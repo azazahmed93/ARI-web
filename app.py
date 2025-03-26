@@ -433,28 +433,25 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
-            # Render each metric card with premium styling
-            st.markdown(f"""
-            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-                        padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-weight: 600; font-size: 1.05rem; color: #333;">{metric}</div>
-                    <div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; 
-                                border-radius: 4px; font-weight: 500;">{label}</div>
-                </div>
+            # Create container for the metric card
+            metric_container = st.container()
+            with metric_container:
+                # Using columns for header
+                header_col1, header_col2 = st.columns([4, 1])
+                header_col1.markdown(f"**{metric}**")
+                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                        <div style="width: {score*10}%; background: {color}; height: 100%;"></div>
-                    </div>
-                    <div style="margin-left: 10px; font-weight: 600; color: {color};">{score}/10</div>
-                </div>
+                # Progress bar
+                st.progress(score/10, color)
                 
-                <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
-                    {METRICS[metric][get_score_level(score)]}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                # Score display
+                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
+                
+                # Description
+                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin-top: 10px;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
+                
+                # Add some space between cards
+                st.markdown("<br>", unsafe_allow_html=True)
     
     with col2:
         for metric, score in metrics[half:]:
@@ -472,28 +469,25 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
-            # Render each metric card with premium styling
-            st.markdown(f"""
-            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-                        padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-weight: 600; font-size: 1.05rem; color: #333;">{metric}</div>
-                    <div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; 
-                                border-radius: 4px; font-weight: 500;">{label}</div>
-                </div>
+            # Create container for the metric card
+            metric_container = st.container()
+            with metric_container:
+                # Using columns for header
+                header_col1, header_col2 = st.columns([4, 1])
+                header_col1.markdown(f"**{metric}**")
+                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                        <div style="width: {score*10}%; background: {color}; height: 100%;"></div>
-                    </div>
-                    <div style="margin-left: 10px; font-weight: 600; color: {color};">{score}/10</div>
-                </div>
+                # Progress bar
+                st.progress(score/10, color)
                 
-                <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
-                    {METRICS[metric][get_score_level(score)]}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                # Score display
+                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
+                
+                # Description
+                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin-top: 10px;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
+                
+                # Add some space between cards
+                st.markdown("<br>", unsafe_allow_html=True)
     
     # Benchmark comparison with premium enterprise styling
     st.markdown('<h3 style="margin-top: 40px; margin-bottom: 20px;">Competitive Benchmarking</h3>', unsafe_allow_html=True)
