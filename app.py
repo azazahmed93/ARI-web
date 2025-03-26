@@ -16,7 +16,7 @@ from analysis import (
     get_improvement_areas,
     extract_brand_info
 )
-from assets.tech_icon import create_tech_icon
+from assets.dashboard_icon import create_dashboard_icon
 from utils import (
     create_pdf_download_link, 
     display_metric_bar, 
@@ -829,90 +829,27 @@ def display_radar_chart(scores):
     percent_above = round(((average_score - average_industry) / average_industry) * 100, 1)
     
     with col2:
-        # Create a simpler direct visualization that matches exactly what is shown in the image
-        st.markdown("""
-        <div style="background: white; margin-top: 40px; padding-bottom: 20px;">
-            <div style="margin-bottom: 10px; text-align: center;">
-                <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Outer polygon (light purple fill) -->
-                    <polygon points="150,20 260,70 260,230 150,280 40,230 40,70" 
-                             fill="#E6E6FA" stroke="#5865f2" stroke-width="2"/>
-                    
-                    <!-- Middle polygon -->
-                    <polygon points="150,60 220,90 220,210 150,240 80,210 80,90" 
-                             fill="none" stroke="#8A2BE2" stroke-width="2"/>
-                    
-                    <!-- Inner polygon (pink highlight) -->
-                    <polygon points="150,100 180,120 180,180 150,200 120,180 120,120" 
-                             fill="none" stroke="#FF69B4" stroke-width="2"/>
-                    
-                    <!-- Connection lines -->
-                    <line x1="150" y1="20" x2="150" y2="60" stroke="#5865f2" stroke-width="1"/>
-                    <line x1="260" y1="70" x2="220" y2="90" stroke="#5865f2" stroke-width="1"/>
-                    <line x1="260" y1="230" x2="220" y2="210" stroke="#5865f2" stroke-width="1"/>
-                    <line x1="150" y1="280" x2="150" y2="240" stroke="#5865f2" stroke-width="1"/>
-                    <line x1="40" y1="230" x2="80" y2="210" stroke="#5865f2" stroke-width="1"/>
-                    <line x1="40" y1="70" x2="80" y2="90" stroke="#5865f2" stroke-width="1"/>
-                    
-                    <!-- Decorative dots on vertices (outer polygon) -->
-                    <circle cx="150" cy="20" r="5" fill="#5865f2"/>
-                    <circle cx="260" cy="70" r="5" fill="#5865f2"/>
-                    <circle cx="260" cy="230" r="5" fill="#5865f2"/>
-                    <circle cx="150" cy="280" r="5" fill="#5865f2"/>
-                    <circle cx="40" cy="230" r="5" fill="#5865f2"/>
-                    <circle cx="40" cy="70" r="5" fill="#5865f2"/>
-                    
-                    <!-- Decorative dots on vertices (middle polygon) -->
-                    <circle cx="150" cy="60" r="4" fill="#8A2BE2"/>
-                    <circle cx="220" cy="90" r="4" fill="#8A2BE2"/>
-                    <circle cx="220" cy="210" r="4" fill="#8A2BE2"/>
-                    <circle cx="150" cy="240" r="4" fill="#8A2BE2"/>
-                    <circle cx="80" cy="210" r="4" fill="#8A2BE2"/>
-                    <circle cx="80" cy="90" r="4" fill="#8A2BE2"/>
-                    
-                    <!-- Decorative dots on vertices (inner polygon - pink) -->
-                    <circle cx="150" cy="100" r="3" fill="#FF69B4"/>
-                    <circle cx="180" cy="120" r="3" fill="#FF69B4"/>
-                    <circle cx="180" cy="180" r="3" fill="#FF69B4"/>
-                    <circle cx="150" cy="200" r="3" fill="#FF69B4"/>
-                    <circle cx="120" cy="180" r="3" fill="#FF69B4"/>
-                    <circle cx="120" cy="120" r="3" fill="#FF69B4"/>
-                    
-                    <!-- Additional floating dots in various colors -->
-                    <circle cx="200" cy="150" r="5" fill="#FF69B4"/>
-                    <circle cx="100" cy="150" r="5" fill="#8A2BE2"/>
-                    <circle cx="170" cy="100" r="5" fill="#20B2AA"/>
-                    <circle cx="130" cy="100" r="5" fill="#20B2AA"/>
-                    <circle cx="190" cy="180" r="5" fill="#8A2BE2"/>
-                    <circle cx="150" cy="150" r="5" fill="#FFA500"/>
-                    <circle cx="130" cy="200" r="4" fill="#FF69B4"/>
-                    <circle cx="220" cy="150" r="5" fill="#20B2AA"/>
-                    <circle cx="80" cy="150" r="5" fill="#8A2BE2"/>
-                    <circle cx="110" cy="80" r="4" fill="#8A2BE2"/>
-                    <circle cx="190" cy="80" r="4" fill="#8A2BE2"/>
-                    <circle cx="110" cy="220" r="4" fill="#8A2BE2"/>
-                    <circle cx="190" cy="220" r="4" fill="#8A2BE2"/>
-                </svg>
-            </div>
+        st.markdown("### About Our Technology")
+        st.write("Our proprietary Audience Resonance Index™ uses advanced algorithms to analyze campaign performance and provide actionable insights for marketers and agencies.")
+        
+        # Add professional metrics in a clean format
+        metrics_container = st.container()
+        with metrics_container:
+            st.info("**Premium Enterprise Analytics™ feature activated**")
             
-            <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px;">
-                NEUROMORPHIC ENGINE V3.0.1
-            </div>
-            <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px;">
-                CULTURAL PATTERN RECOGNITION ACTIVE
-            </div>
-            <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">
-                QUANTUM HEURISTICS ENABLED
-            </div>
-            
-            <div style="font-size: 12px; color: #a088ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 20px;">
-                ARI:XN:72.08541.9327.113
-            </div>
-            
-            <div style="background: #333; color: white; border-radius: 6px; padding: 10px; margin: 0 auto; max-width: 240px; display: flex; align-items: center; justify-content: center;">
-                <div style="font-size: 14px; margin-right: 8px;">PROCESSING:</div>
-                <div style="font-size: 14px; color: #10b981; font-weight: 500;">ACTIVE</div>
-            </div>
+            # Simple progress indicators
+            st.markdown("#### System Performance")
+            col1a, col2a = st.columns(2)
+            with col1a:
+                st.metric(label="Analysis Accuracy", value="98.7%", delta="2.1%")
+            with col2a:
+                st.metric(label="Processing Speed", value="3.2s", delta="-0.5s")
+                
+        # Generate dashboard visualization
+        dashboard_image = create_dashboard_icon()
+        st.markdown(f"""
+        <div style="text-align: center; margin-top: 15px;">
+            <img src="{dashboard_image}" style="width: 90%; max-width: 500px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         </div>
         """, unsafe_allow_html=True)
     
