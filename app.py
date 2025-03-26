@@ -127,12 +127,6 @@ def display_results(scores, percentile, improvement_areas):
     st.markdown("---")
     st.markdown("## Audience Resonance Index™ Scorecard")
     
-    # Display a random data visualization image
-    viz_image_url = random.choice(STOCK_PHOTOS["data_visualization"])
-    response = requests.get(viz_image_url)
-    image = Image.open(BytesIO(response.content))
-    st.image(image, width=300)
-    
     # Display metrics as a radar chart
     display_radar_chart(scores)
     
@@ -182,12 +176,17 @@ def display_results(scores, percentile, improvement_areas):
     
     for i, site in enumerate(MEDIA_AFFINITY_SITES):
         with cols[i % 5]:
+            # Truncate site name if it's too long
+            name_display = site['name']
+            if len(name_display) > 18:
+                name_display = name_display[:15] + "..."
+                
             st.markdown(f"""
-            <div style="background:#e0edff; padding:10px; border-radius:10px; height:120px; margin-bottom:10px;">
-                <strong>{site['name']}</strong>
-                <div style="font-size:0.9rem;">{site['category']}</div>
-                <div style="font-weight:bold; color:#3b82f6;">QVI: {site['qvi']}</div>
-                <div style="font-size:0.8rem; margin-top:5px;">
+            <div style="background:#e0edff; padding:10px; border-radius:10px; height:130px; margin-bottom:10px; overflow:hidden;">
+                <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
+                <div style="font-size:0.85rem; margin-bottom:5px;">{site['category']}</div>
+                <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">QVI: {site['qvi']}</div>
+                <div style="font-size:0.8rem;">
                     <a href="{site['url']}" target="_blank">Visit Site</a>
                 </div>
             </div>
@@ -202,10 +201,15 @@ def display_results(scores, percentile, improvement_areas):
     
     for i, network in enumerate(TV_NETWORKS):
         with cols[i % 5]:
+            # Truncate network name if it's too long
+            name_display = network['name']
+            if len(name_display) > 14:
+                name_display = name_display[:11] + "..."
+                
             st.markdown(f"""
-            <div style="background:#dbeafe; padding:10px; border-radius:10px; height:100px; margin-bottom:10px;">
-                <strong>{network['name']}</strong>
-                <div style="font-size:0.9rem;">{network['category']}</div>
+            <div style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
+                <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
+                <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{network['category']}</div>
                 <div style="font-weight:bold; color:#1e88e5;">QVI: {network['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -219,10 +223,15 @@ def display_results(scores, percentile, improvement_areas):
     
     for i, platform in enumerate(STREAMING_PLATFORMS):
         with cols[i % 3]:
+            # Truncate platform name if it's too long
+            name_display = platform['name']
+            if len(name_display) > 18:
+                name_display = name_display[:15] + "..."
+                
             st.markdown(f"""
-            <div style="background:#d1fae5; padding:10px; border-radius:10px; height:100px; margin-bottom:10px;">
-                <strong>{platform['name']}</strong>
-                <div style="font-size:0.9rem;">{platform['category']}</div>
+            <div style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
+                <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
+                <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform['category']}</div>
                 <div style="font-weight:bold; color:#059669;">QVI: {platform['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
