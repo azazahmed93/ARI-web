@@ -21,7 +21,6 @@ from utils import (
     display_metric_bar, 
     get_tone_of_brief
 )
-from utils_metrics import render_metric_card
 from assets.styles import apply_styles, header_section, render_footer
 from assets.content import (
     METRICS, 
@@ -409,8 +408,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """, unsafe_allow_html=True)
     
     # Add a header for the detailed metrics with properly styled CSS-only approach
-    with st.container():
-        st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
     
     # Create a more professional two-column layout
     col1, col2 = st.columns(2)
@@ -421,13 +419,81 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     with col1:
         for metric, score in metrics[:half]:
-            # Use the render_metric_card function to render each metric
-            render_metric_card(metric, score, METRICS, get_score_level)
+            # Define color based on score
+            if score >= 7:
+                color = "#10b981"  # green
+                emoji = "🔥"
+                label = "STRONG"
+            elif score >= 5:
+                color = "#3b82f6"  # blue
+                emoji = "✓"
+                label = "GOOD"
+            else:
+                color = "#f43f5e"  # red
+                emoji = "⚠️"
+                label = "NEEDS IMPROVEMENT"
+            
+            # Render each metric card with premium styling
+            st.markdown(f"""
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+                        padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 600; font-size: 1.05rem; color: #333;">{metric}</div>
+                    <div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; 
+                                border-radius: 4px; font-weight: 500;">{label}</div>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="width: {score*10}%; background: {color}; height: 100%;"></div>
+                    </div>
+                    <div style="margin-left: 10px; font-weight: 600; color: {color};">{score}/10</div>
+                </div>
+                
+                <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+                    {METRICS[metric][get_score_level(score)]}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     
     with col2:
         for metric, score in metrics[half:]:
-            # Use the render_metric_card function to render each metric
-            render_metric_card(metric, score, METRICS, get_score_level)
+            # Define color based on score
+            if score >= 7:
+                color = "#10b981"  # green
+                emoji = "🔥"
+                label = "STRONG"
+            elif score >= 5:
+                color = "#3b82f6"  # blue
+                emoji = "✓"
+                label = "GOOD"
+            else:
+                color = "#f43f5e"  # red
+                emoji = "⚠️"
+                label = "NEEDS IMPROVEMENT"
+            
+            # Render each metric card with premium styling
+            st.markdown(f"""
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+                        padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 600; font-size: 1.05rem; color: #333;">{metric}</div>
+                    <div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; 
+                                border-radius: 4px; font-weight: 500;">{label}</div>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="width: {score*10}%; background: {color}; height: 100%;"></div>
+                    </div>
+                    <div style="margin-left: 10px; font-weight: 600; color: {color};">{score}/10</div>
+                </div>
+                
+                <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+                    {METRICS[metric][get_score_level(score)]}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Benchmark comparison with premium enterprise styling
     st.markdown('<h3 style="margin-top: 40px; margin-bottom: 20px;">Competitive Benchmarking</h3>', unsafe_allow_html=True)
@@ -593,43 +659,44 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """)
     
     # Premium investor-focused call-to-action section
-    with st.container():
-        st.markdown("""
-        <div style="margin-top: 40px; padding: 25px; background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); border: 1px solid #e5e7eb; border-radius: 8px;">
-            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-                <div style="flex: 3; min-width: 300px; margin-bottom: 20px;">
-                    <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px; background: rgba(88, 101, 242, 0.08); display: inline-block; padding: 4px 10px; border-radius: 4px;">Enterprise Analytics</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #333; margin-bottom: 15px;">Ready to take your marketing to the next level?</div>
-                    <div style="color: #555; line-height: 1.6; margin-bottom: 20px;">
-                        Download our comprehensive enterprise report with detailed metrics, actionable insights, and competitive benchmarking to optimize your campaign performance.
-                    </div>
-                    
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
-                            <span style="color: #10b981; margin-right: 5px;">✓</span> Advanced Metrics
-                        </div>
-                        <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
-                            <span style="color: #10b981; margin-right: 5px;">✓</span> Competitive Analysis
-                        </div>
-                        <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
-                            <span style="color: #10b981; margin-right: 5px;">✓</span> Executive Summary
-                        </div>
-                    </div>
+    st.markdown("""
+    <div style="margin-top: 40px; padding: 25px; background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); border: 1px solid #e5e7eb; border-radius: 8px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+            <div style="flex: 3; min-width: 300px; margin-bottom: 20px;">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px; background: rgba(88, 101, 242, 0.08); display: inline-block; padding: 4px 10px; border-radius: 4px;">Enterprise Analytics</div>
+                <div style="font-size: 1.4rem; font-weight: 700; color: #333; margin-bottom: 15px;">Ready to take your marketing to the next level?</div>
+                <div style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+                    Download our comprehensive enterprise report with detailed metrics, actionable insights, and competitive benchmarking to optimize your campaign performance.
                 </div>
                 
-                <div style="flex: 1; min-width: 200px; text-align: center;">
-        """, unsafe_allow_html=True)
-        
-        pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
-        st.markdown(pdf_link, unsafe_allow_html=True)
-        
-        # Close the Enterprise Analytics section and add the Schedule Demo button
-        st.markdown("""
-            <div style="margin-top: 30px; text-align: center;">
-                <div style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">Want to see how we can help your business?</div>
-                <div style="display: inline-block; background: white; border: 1px solid #5865f2; color: #5865f2; padding: 8px 20px; border-radius: 6px; font-weight: 500; cursor: pointer;">
-                    Schedule a Demo
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
+                        <span style="color: #10b981; margin-right: 5px;">✓</span> Advanced Metrics
+                    </div>
+                    <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
+                        <span style="color: #10b981; margin-right: 5px;">✓</span> Competitive Analysis
+                    </div>
+                    <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
+                        <span style="color: #10b981; margin-right: 5px;">✓</span> Executive Summary
+                    </div>
                 </div>
+            </div>
+            
+            <div style="flex: 1; min-width: 200px; text-align: center;">
+                """, unsafe_allow_html=True)
+    
+    pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
+    st.markdown(pdf_link, unsafe_allow_html=True)
+    
+    st.markdown("""
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <div style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">Want to see how we can help your business?</div>
+            <div style="display: inline-block; background: white; border: 1px solid #5865f2; color: #5865f2; padding: 8px 20px; border-radius: 6px; font-weight: 500; cursor: pointer;">
+                Schedule a Demo
             </div>
         </div>
         """, unsafe_allow_html=True)
