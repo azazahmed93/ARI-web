@@ -16,6 +16,7 @@ from analysis import (
     get_improvement_areas,
     extract_brand_info
 )
+from assets.tech_icon import create_tech_icon
 from utils import (
     create_pdf_download_link, 
     display_metric_bar, 
@@ -828,76 +829,53 @@ def display_radar_chart(scores):
     percent_above = round(((average_score - average_industry) / average_industry) * 100, 1)
     
     with col2:
-        # Create tech-savvy AI visualization panel
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #151823 0%, #1e2131 100%); 
-                   border-radius: 12px; padding: 18px; height: 430px; color: white; 
-                   box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-top: 40px;">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <div style="width: 150px; height: 150px; margin: 0 auto;">
-                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Outer hexagon -->
-                        <polygon points="100,10 185,50 185,150 100,190 15,150 15,50" 
-                                 fill="none" stroke="#5865f2" stroke-width="1.5" opacity="0.4"/>
-                        
-                        <!-- Inner hexagon -->
-                        <polygon points="100,40 150,65 150,125 100,150 50,125 50,65" 
-                                 fill="none" stroke="#5865f2" stroke-width="2" opacity="0.6"/>
-                        
-                        <!-- Innermost hexagon (pulse effect) -->
-                        <polygon points="100,70 125,85 125,115 100,130 75,115 75,85" 
-                                 fill="none" stroke="#ff4d8f" stroke-width="2.5" opacity="0.9">
-                            <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2s" repeatCount="indefinite"/>
-                        </polygon>
-                        
-                        <!-- Connection lines -->
-                        <line x1="100" y1="10" x2="100" y2="40" stroke="#5865f2" stroke-width="1" opacity="0.3"/>
-                        <line x1="185" y1="50" x2="150" y2="65" stroke="#5865f2" stroke-width="1" opacity="0.3"/>
-                        <line x1="185" y1="150" x2="150" y2="125" stroke="#5865f2" stroke-width="1" opacity="0.3"/>
-                        <line x1="100" y1="190" x2="100" y2="150" stroke="#5865f2" stroke-width="1" opacity="0.3"/>
-                        <line x1="15" y1="150" x2="50" y2="125" stroke="#5865f2" stroke-width="1" opacity="0.3"/>
-                        <line x1="15" y1="50" x2="50" y2="65" stroke="#5865f2" stroke-width="1" opacity="0.3"/>
-                        
-                        <!-- Decorative dots -->
-                        <circle cx="100" cy="10" r="3" fill="#5865f2" opacity="0.8"/>
-                        <circle cx="185" cy="50" r="3" fill="#5865f2" opacity="0.8"/>
-                        <circle cx="185" cy="150" r="3" fill="#5865f2" opacity="0.8"/>
-                        <circle cx="100" cy="190" r="3" fill="#5865f2" opacity="0.8"/>
-                        <circle cx="15" cy="150" r="3" fill="#5865f2" opacity="0.8"/>
-                        <circle cx="15" cy="50" r="3" fill="#5865f2" opacity="0.8"/>
-                        
-                        <!-- Random decorative elements -->
-                        <circle cx="150" cy="25" r="4" fill="#10b981" opacity="0.7"/>
-                        <circle cx="50" cy="30" r="3" fill="#3b82f6" opacity="0.7"/>
-                        <circle cx="170" cy="100" r="4" fill="#f59e0b" opacity="0.7"/>
-                        <circle cx="30" cy="100" r="3" fill="#f59e0b" opacity="0.7"/>
-                        <circle cx="60" cy="160" r="4" fill="#3b82f6" opacity="0.7"/>
-                        <circle cx="140" cy="170" r="3" fill="#10b981" opacity="0.7"/>
-                    </svg>
+        # Create tech-savvy AI visualization panel using standard components
+        tech_container = st.container()
+        with tech_container:
+            # Get a technology icon
+            tech_icon_data = create_tech_icon()
+            
+            # Main panel container
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #151823 0%, #1e2131 100%); 
+                      border-radius: 12px; padding: 20px; color: white; 
+                      box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-top: 40px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="{tech_icon_data}" style="width: 120px; height: 120px;">
+                </div>
+                
+                <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px;">
+                    NEUROMORPHIC ENGINE V3.0.1
+                </div>
+                <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px;">
+                    CULTURAL PATTERN RECOGNITION ACTIVE
+                </div>
+                <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">
+                    QUANTUM HEURISTICS ENABLED
+                </div>
+                
+                <div style="font-size: 12px; color: #a088ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 20px;">
+                    ARI:XN:72.08541.9327.113
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center;">
+                    <div style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; margin-right: 8px;"></div>
+                    <div style="font-size: 14px; color: #ffffff; letter-spacing: 0.5px; margin-right: 5px;">PROCESSING:</div>
+                    <div style="font-size: 14px; color: #10b981; letter-spacing: 0.5px; font-weight: 500;">ACTIVE</div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: #7ac7ff; 
+                            letter-spacing: 1px; text-transform: uppercase;">
+                        PERF: 98.7%
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: #10b981; 
+                            letter-spacing: 1px; text-transform: uppercase;">
+                        SYS: OPTIMAL
+                    </div>
                 </div>
             </div>
-            
-            <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px;">
-                NEUROMORPHIC ENGINE V3.0.1
-            </div>
-            <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 4px;">
-                CULTURAL PATTERN RECOGNITION ACTIVE
-            </div>
-            <div style="font-size: 12px; color: #7ac7ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">
-                QUANTUM HEURISTICS ENABLED
-            </div>
-            
-            <div style="font-size: 12px; color: #a088ff; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 20px;">
-                ARI:XN:72.08541.9327.113
-            </div>
-            
-            <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center;">
-                <div style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; margin-right: 8px;"></div>
-                <div style="font-size: 14px; color: #ffffff; letter-spacing: 0.5px; margin-right: 5px;">PROCESSING:</div>
-                <div style="font-size: 14px; color: #10b981; letter-spacing: 0.5px; font-weight: 500;">ACTIVE</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
     
     st.markdown(f"""
     <div style="background: linear-gradient(90deg, rgba(88, 101, 242, 0.1) 0%, rgba(255, 255, 255, 0) 100%); 
