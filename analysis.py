@@ -168,11 +168,6 @@ def analyze_campaign_brief(brief_text):
     # Extract brand information
     brand_name, industry, product_type = extract_brand_info(brief_text)
     
-    # Special case handling for Nike
-    if brand_name.lower() == "nike":
-        industry = "Apparel/Retail"
-        product_type = "Footwear & Apparel"
-    
     # Initialize sentiment analyzer
     sia = SentimentIntensityAnalyzer()
     
@@ -255,10 +250,6 @@ def analyze_campaign_brief(brief_text):
         "Fashion": {
             "representation": 1.7, "cultural": 1.8, "platform": 1.5, "vernacular": 1.6,
             "equity": 1.4, "authority": 1.3, "buzz": 1.6, "commerce": 1.5, "geo": 1.3
-        },
-        "Apparel/Retail": {
-            "representation": 1.8, "cultural": 1.7, "platform": 1.6, "vernacular": 1.5,
-            "equity": 1.4, "authority": 1.5, "buzz": 1.6, "commerce": 1.8, "geo": 1.4
         },
         "Food & Beverage": {
             "representation": 1.4, "cultural": 1.5, "platform": 1.3, "vernacular": 1.4,

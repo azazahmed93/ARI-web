@@ -143,8 +143,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # Display brand information header
     if brand_name != "Unknown":
-        # First display the brand name prominently
-        st.markdown(f"## {brand_name}")
+        st.markdown(f"## {brand_name} Audience Resonance Index™ Scorecard")
         
         # Display brand info summary
         brand_info_col1, brand_info_col2 = st.columns(2)
@@ -152,9 +151,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.markdown(f"**Industry:** {industry}")
         with brand_info_col2:
             st.markdown(f"**Product Type:** {product_type}")
-        
-        # Then display the scorecard title
-        st.markdown("### Audience Resonance Index™ Scorecard")
+            
         st.markdown("---")
     else:
         st.markdown("## Audience Resonance Index™ Scorecard")
