@@ -409,7 +409,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """, unsafe_allow_html=True)
     
     # Add a header for the detailed metrics with properly styled CSS-only approach
-    st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
+    with st.container():
+        st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
     
     # Create a more professional two-column layout
     col1, col2 = st.columns(2)
