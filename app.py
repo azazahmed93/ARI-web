@@ -421,15 +421,15 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         for metric, score in metrics[:half]:
             # Define color based on score
             if score >= 8:
-                color = "#10b981"
+                metric_color = "#10b981"  # Strong green
                 emoji = "🔥"
                 label = "STRONG"
             elif score >= 6:
-                color = "#3b82f6"
+                metric_color = "#3b82f6"  # Good blue
                 emoji = "✓"
                 label = "GOOD"
             else:
-                color = "#f43f5e"
+                metric_color = "#f43f5e"  # Needs improvement red
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
