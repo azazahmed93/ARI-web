@@ -97,7 +97,7 @@ def header_section():
     """Render the header section of the app."""
     st.markdown('<h1 class="main-header">Audience Resonance Index <span style="font-weight: 500; font-size: 1.2rem;">(ARI)</span></h1>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">A proprietary framework by <strong>Digital Culture Group</strong></p>', unsafe_allow_html=True)
-    st.markdown('<p class="description"><strong>Audience Resonance Index™ (ARI)</strong> measures how effectively a campaign connects with relevant signals, strategic platforms, and audience values. It helps marketers understand their campaign's ability to generate relevance, authenticity, and emotional resonance.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="description"><strong>Audience Resonance Index™ (ARI)</strong> measures how effectively a campaign connects with relevant signals, strategic platforms, and audience values. It helps marketers understand their campaign\'s ability to generate relevance, authenticity, and emotional resonance.</p>', unsafe_allow_html=True)
 
 def render_footer():
     """Render the footer section of the app."""
