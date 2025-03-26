@@ -69,63 +69,117 @@ def main():
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        # Create an animated data visualization that appears to be computing
-        # Generate random data
+        # Create an animated data visualization that looks more sophisticated
         import numpy as np
+        import time
+        from datetime import datetime
         
-        # Create data for animated visualization
-        np.random.seed(42)  # For reproducibility
-        categories = ['Culture', 'Audience', 'Platforms', 'Creative', 'Media', 'Resonance']
-        values = np.random.uniform(low=60, high=95, size=len(categories))
-        colors = ['#5865f2', '#7983f5', '#8f9af7', '#a3aff9', '#c7cdfb', '#daddfd']
+        # Create a more sophisticated network-style visualization
+        # Generate nodes and connections for network visualization
+        np.random.seed(int(time.time()) % 100)  # Change seed each time for animation effect
         
-        # Create animated bar chart
-        fig = go.Figure(data=[
-            go.Bar(
-                x=values,
-                y=categories,
-                orientation='h',
-                marker=dict(
-                    color=colors,
-                    line=dict(color='rgba(0, 0, 0, 0)', width=0)
-                )
-            )
-        ])
+        # Create a scatterpolar chart that looks like a network/radar
+        theta = np.linspace(0, 2*np.pi, 12, endpoint=False)
+        r_outer = np.random.uniform(0.7, 1.0, size=len(theta))
+        r_inner = np.random.uniform(0.3, 0.6, size=len(theta))
+        r_center = np.random.uniform(0.1, 0.2, size=len(theta))
         
-        # Update layout for a more dashboard/tech look
+        # Modern color scheme
+        colors = ['#4F46E5', '#7C3AED', '#EC4899', '#F97316', '#3B82F6', '#10B981']
+        
+        # Create the main radar/network figure
+        fig = go.Figure()
+        
+        # Add outer ring
+        fig.add_trace(go.Scatterpolar(
+            r=r_outer,
+            theta=theta * 180/np.pi,
+            fill='toself',
+            fillcolor='rgba(79, 70, 229, 0.2)',  # Using rgba format for transparency
+            line=dict(color=colors[0], width=2),
+            name='Cultural Reach',
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        
+        # Add middle ring
+        fig.add_trace(go.Scatterpolar(
+            r=r_inner,
+            theta=theta * 180/np.pi,
+            fill='toself',
+            fillcolor='rgba(124, 58, 237, 0.2)',  # Using rgba format for transparency
+            line=dict(color=colors[1], width=2),
+            name='Audience Engagement',
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        
+        # Add inner ring
+        fig.add_trace(go.Scatterpolar(
+            r=r_center,
+            theta=theta * 180/np.pi,
+            fill='toself',
+            fillcolor='rgba(236, 72, 153, 0.2)',  # Using rgba format for transparency
+            line=dict(color=colors[2], width=2),
+            name='Core Performance',
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        
+        # Add some connecting lines for network effect
+        for i in range(len(theta)):
+            if np.random.random() > 0.3:  # Only add some connections
+                fig.add_trace(go.Scatterpolar(
+                    r=[r_center[i], r_outer[i]],
+                    theta=[theta[i] * 180/np.pi, theta[i] * 180/np.pi],
+                    mode='lines',
+                    line=dict(color=f'rgba(100, 100, 200, 0.4)', width=1),
+                    showlegend=False,
+                    hoverinfo='skip'
+                ))
+        
+        # Add some points that look like data nodes
+        for _ in range(15):
+            r_point = np.random.uniform(0.1, 0.9)
+            theta_point = np.random.uniform(0, 360)
+            size = np.random.uniform(6, 12)
+            color_idx = np.random.randint(0, len(colors))
+            
+            fig.add_trace(go.Scatterpolar(
+                r=[r_point],
+                theta=[theta_point],
+                mode='markers',
+                marker=dict(size=size, color=colors[color_idx]),
+                showlegend=False,
+                hoverinfo='skip'
+            ))
+        
+        # Update layout for a clean, modern look
         fig.update_layout(
-            margin=dict(l=0, r=15, t=0, b=0),
+            polar=dict(
+                radialaxis=dict(visible=False),
+                angularaxis=dict(visible=False)
+            ),
+            margin=dict(l=0, r=0, t=0, b=0),
             height=300,
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(
-                showgrid=True,
-                gridcolor='rgba(211, 211, 211, 0.3)',
-                showticklabels=True,
-                tickfont=dict(size=10),
-                title=None,
-                range=[0, 100]
-            ),
-            yaxis=dict(
-                showgrid=False,
-                showline=False,
-                showticklabels=True,
-                tickfont=dict(size=12, color="#444"),
-                title=None
-            ),
-            bargap=0.2
         )
         
-        # Add customized hover information
-        fig.update_traces(
-            hovertemplate="<b>%{y}</b><br>Score: %{x:.1f}%<br><extra></extra>",
-            texttemplate='%{x:.0f}%', 
-            textposition='outside',
-            cliponaxis=False
-        )
+        # Add realtime metrics display
+        current_time = datetime.now().strftime("%H:%M:%S")
+        metrics_html = f"""
+        <div style="position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.7); 
+                    padding: 8px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 11px;">
+            <div style="color: #4F46E5; margin-bottom: 2px;">REALTIME ANALYSIS · {current_time}</div>
+            <div>Profiles: <span style="color: #3B82F6; font-weight: bold;">230M+</span> · Devices: <span style="color: #10B981; font-weight: bold;">600M+</span></div>
+            <div>Processing: <span style="color: #F97316; font-weight: bold;">ACTIVE</span> · Status: <span style="color: #10B981; font-weight: bold;">ONLINE</span></div>
+        </div>
+        """
         
-        # Display the chart
+        # Display the visualization with metrics overlay
         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        st.markdown(metrics_html, unsafe_allow_html=True)
     
     with col2:
         # Brief description and input area
