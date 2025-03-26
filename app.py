@@ -421,42 +421,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     with col1:
         for metric, score in metrics[:half]:
-            # Define color based on score
-            if score >= 7:
-                color = "#10b981"  # green
-                emoji = "🔥"
-                label = "STRONG"
-            elif score >= 5:
-                color = "#3b82f6"  # blue
-                emoji = "✓"
-                label = "GOOD"
-            else:
-                color = "#f43f5e"  # red
-                emoji = "⚠️"
-                label = "NEEDS IMPROVEMENT"
-            
-            # Render each metric card with premium styling
-            st.markdown(f"""
-            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-                        padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-weight: 600; font-size: 1.05rem; color: #333;">{metric}</div>
-                    <div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; 
-                                border-radius: 4px; font-weight: 500;">{label}</div>
-                </div>
-                
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                        <div style="width: {score*10}%; background: {color}; height: 100%;"></div>
-                    </div>
-                    <div style="margin-left: 10px; font-weight: 600; color: {color};">{score}/10</div>
-                </div>
-                
-                <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
-                    {METRICS[metric][get_score_level(score)]}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            # Use the render_metric_card function to render each metric
+            render_metric_card(metric, score, METRICS, get_score_level)
     
     with col2:
         for metric, score in metrics[half:]:
