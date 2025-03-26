@@ -219,6 +219,7 @@ def header_section():
 
 def render_footer():
     """Render the footer section of the app."""
+    # Company information and investors section
     st.markdown("""
     <div style="margin-top: 60px; border-top: 1px solid #f0f0f0; padding-top: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
@@ -228,26 +229,32 @@ def render_footer():
                     Transforming marketing analytics with AI-powered cultural intelligence since 2019.
                 </div>
             </div>
-            
-            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div style="text-align: center; margin-bottom: 10px;">
-                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #777;">BACKED BY</div>
-                    <div style="display: flex; gap: 15px; margin-top: 5px;">
-                        <div style="background: #f5f7fa; border-radius: 5px; padding: 5px 10px; font-weight: 500; color: #333;">Sequoia</div>
-                        <div style="background: #f5f7fa; border-radius: 5px; padding: 5px 10px; font-weight: 500; color: #333;">Andreessen</div>
-                        <div style="background: #f5f7fa; border-radius: 5px; padding: 5px 10px; font-weight: 500; color: #333;">Accel</div>
-                    </div>
-                </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Investors section
+    st.markdown("""
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+        <div style="text-align: center;">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #777;">BACKED BY</div>
+            <div style="display: flex; gap: 15px; margin-top: 5px;">
+                <div style="background: #f5f7fa; border-radius: 5px; padding: 5px 10px; font-weight: 500; color: #333;">Sequoia</div>
+                <div style="background: #f5f7fa; border-radius: 5px; padding: 5px 10px; font-weight: 500; color: #333;">Andreessen</div>
+                <div style="background: #f5f7fa; border-radius: 5px; padding: 5px 10px; font-weight: 500; color: #333;">Accel</div>
             </div>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 0.8rem; color: #777;">
-            <div>© 2023 Digital Culture Group, Inc. All rights reserved.</div>
-            <div>
-                <span style="margin-right: 15px;">Privacy Policy</span>
-                <span style="margin-right: 15px;">Terms of Service</span>
-                <span>Contact</span>
-            </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Copyright and links
+    st.markdown("""
+    <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 0.8rem; color: #777;">
+        <div>© 2023 Digital Culture Group, Inc. All rights reserved.</div>
+        <div>
+            <span style="margin-right: 15px;">Privacy Policy</span>
+            <span style="margin-right: 15px;">Terms of Service</span>
+            <span>Contact</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
