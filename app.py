@@ -225,8 +225,8 @@ def main():
                 position: absolute;
                 bottom: 20px;
                 right: 15px;
-                border: 1px solid rgba(79, 70, 229, 0.6);
-                background: rgba(0,0,0,0.5);
+                border: 2px solid #10b981; /* Thicker green border matching the indicator color */
+                background: rgba(0,0,0,0.8); /* Darker background for better contrast */
                 padding: 5px;
                 font-size: 9px;
                 color: rgba(236, 72, 153, 0.9);
