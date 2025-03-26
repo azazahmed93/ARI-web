@@ -66,7 +66,7 @@ def main():
         analytics_image_url = random.choice(STOCK_PHOTOS["business_analytics"])
         response = requests.get(analytics_image_url)
         image = Image.open(BytesIO(response.content))
-        st.image(image, use_column_width=True)
+        st.image(image, use_container_width=True)
     
     with col2:
         # Brief description and input area
