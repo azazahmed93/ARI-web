@@ -212,18 +212,9 @@ def header_section():
     </div>
     """, unsafe_allow_html=True)
     
-    # Add a trust signal bar with logos
+    # Adding some extra space after the description
     st.markdown("""
-    <div style="margin: 20px 0 30px 0; text-align: center;">
-        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 10px;">TRUSTED BY GLOBAL BRANDS</div>
-        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-            <div style="font-weight: 700; color: #333; opacity: 0.7;">NIKE</div>
-            <div style="font-weight: 700; color: #333; opacity: 0.7;">AMEX</div>
-            <div style="font-weight: 700; color: #333; opacity: 0.7;">META</div>
-            <div style="font-weight: 700; color: #333; opacity: 0.7;">DISNEY</div>
-            <div style="font-weight: 700; color: #333; opacity: 0.7;">AMAZON</div>
-        </div>
-    </div>
+    <div style="margin-bottom: 30px;"></div>
     """, unsafe_allow_html=True)
 
 def render_footer():
