@@ -296,7 +296,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # PDF Download
     st.markdown("### Download Report")
-    pdf_link = create_pdf_download_link(scores, improvement_areas, percentile)
+    pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
     st.markdown(pdf_link, unsafe_allow_html=True)
 
 def display_radar_chart(scores):

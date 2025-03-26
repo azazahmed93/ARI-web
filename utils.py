@@ -27,7 +27,7 @@ def strip_html(text):
     """Remove HTML tags from a string."""
     return re.sub('<[^<]+?>', '', text).strip()
 
-def create_pdf_download_link(scores, improvement_areas, percentile):
+def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="Unknown", industry="General", product_type="Product"):
     """
     Create a PDF report and return a download link.
     
@@ -35,6 +35,9 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         scores (dict): Dictionary of ARI scores
         improvement_areas (list): List of improvement areas
         percentile (float): Benchmark percentile
+        brand_name (str): Name of the brand
+        industry (str): Industry of the brand
+        product_type (str): Type of product being promoted
         
     Returns:
         str: HTML link for downloading the PDF
@@ -61,7 +64,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         parent=styles['Title'],
         fontSize=18,
         alignment=TA_CENTER,
-        spaceAfter=12
+        spaceAfter=12,
+        textColor=colors.black
     )
     
     heading1_style = ParagraphStyle(
@@ -103,9 +107,18 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
     # Build content
     content = []
     
-    # Add title
-    content.append(Paragraph("Audience Resonance Index™ Scorecard", title_style))
+    # Add title with brand name if available
+    if brand_name != "Unknown":
+        content.append(Paragraph(f"{brand_name} Audience Resonance Index™ Scorecard", title_style))
+    else:
+        content.append(Paragraph("Audience Resonance Index™ Scorecard", title_style))
     content.append(Spacer(1, 12))
+    
+    # Add brand info if available
+    if brand_name != "Unknown" and industry != "General":
+        content.append(Paragraph(f"Industry: {industry} | Product Type: {product_type}", 
+                               ParagraphStyle('BrandInfo', parent=normal_style, alignment=TA_CENTER)))
+        content.append(Spacer(1, 12))
     
     # Metric Breakdown
     content.append(Paragraph("Metric Breakdown", heading1_style))
@@ -116,9 +129,17 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
     # Add headers
     headers = ["Metric", "Score", "Description"]
     
-    # Row style for alternating colors
+    # Create a header for the table
+    metrics_data.append([
+        Paragraph("<b>Metric</b>", normal_style),
+        Paragraph("<b>Score</b>", normal_style),
+        Paragraph("<b>Description</b>", normal_style)
+    ])
+    
+    # Row styles
     row_styles = [
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+        # Header row styling
+        ('BACKGROUND', (0, 0), (-1, 0), HexColor('#dbeafe')),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -129,18 +150,19 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
     ]
     
-    # Add alternating row colors
+    # Add metrics data with alternating row colors
     for i, (metric, score) in enumerate(scores.items()):
         level = "high" if score >= 7 else "medium" if score >= 4 else "low"
         description = METRICS[metric][level]
         
+        # All text should be normal black with consistent styling
         metrics_data.append([
             Paragraph(f"<b>{metric}</b>", normal_style),
             Paragraph(f"<b>{score}/10</b>", normal_style),
             Paragraph(description, description_style)
         ])
         
-        # Add row color
+        # Add alternating row colors
         if i % 2 == 0:
             row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#e0edff')))
         else:
@@ -156,19 +178,29 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
     # Benchmark section
     content.append(Paragraph("Benchmark Comparison", heading1_style))
     
-    benchmark_text = (f"This campaign ranks in the top {percentile}% of Gen Z-facing national campaigns "
-                    f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
-                    f"peer campaigns in relevance, authenticity, and emotional connection — based on "
-                    f"Digital Culture Group's analysis of 300+ national efforts.")
-    
-    improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
+    # Create custom benchmark text based on brand information
+    if brand_name != "Unknown" and industry != "General":
+        benchmark_text = (f"This {brand_name} campaign ranks in the top {percentile}% of {industry} campaigns "
+                        f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
+                        f"peer campaigns in relevance, authenticity, and emotional connection — based on "
+                        f"Digital Culture Group's analysis of 300+ {industry.lower()} efforts.")
+        
+        improvement_text = (f"<b>Biggest opportunity areas for a {product_type} in the {industry} industry:</b> "
+                         f"{', '.join(improvement_areas)}")
+    else:
+        benchmark_text = (f"This campaign ranks in the top {percentile}% of Gen Z-facing national campaigns "
+                        f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
+                        f"peer campaigns in relevance, authenticity, and emotional connection — based on "
+                        f"Digital Culture Group's analysis of 300+ national efforts.")
+        
+        improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
     
     content.append(Paragraph(benchmark_text, normal_style))
     content.append(Spacer(1, 6))
     content.append(Paragraph(improvement_text, normal_style))
     content.append(Spacer(1, 12))
     
-    # Media Affinity section
+    # Media Affinity section - use the same title_style for consistent centering
     content.append(Paragraph("Media Affinities & Audience Insights", title_style))
     content.append(Spacer(1, 12))
     
