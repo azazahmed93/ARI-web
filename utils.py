@@ -32,7 +32,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         # Header section
         ax_header = fig.add_subplot(gs[0:2, 0:12])
         ax_header.axis('off')
-        ax_header.text(0.5, 0.5, 'Audience Resonance Index™ (ARI)', 
+        ax_header.text(0.5, 0.5, 'Audience Resonance Index (ARI)', 
                 fontsize=22, ha='center', fontweight='bold')
         ax_header.text(0.5, 0.0, 'A proprietary framework by Digital Culture Group', 
                 fontsize=12, ha='center', color='#555555')
@@ -41,8 +41,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         ax_desc = fig.add_subplot(gs[2:3, 2:10])
         ax_desc.axis('off')
         ax_desc.text(0.5, 0.5, 
-                'ARI measures how effectively a campaign connects with relevant signals, strategic platforms, and audience values.',
-                fontsize=9, ha='center', color='#666666')
+                'ARI measures how effectively a campaign connects with audiences.',
+                fontsize=9, ha='center', color='#666666', wrap=True)
         
         # Create radar chart
         ax_radar = fig.add_subplot(gs[3:9, 1:11], polar=True)
@@ -51,19 +51,31 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         categories = list(scores.keys())
         values = list(scores.values())
         
+        # Shorten category names if needed to fit on radar chart
+        short_categories = []
+        for cat in categories:
+            if len(cat) > 15:
+                parts = cat.split()
+                if len(parts) > 1:
+                    short_categories.append(parts[0] + "\n" + " ".join(parts[1:]))
+                else:
+                    short_categories.append(cat[:12] + "...")
+            else:
+                short_categories.append(cat)
+                
         # Add the first value at the end to close the loop
-        categories.append(categories[0])
+        short_categories.append(short_categories[0])
         values.append(values[0])
         
         # Number of variables
-        N = len(categories) - 1
+        N = len(categories)
         
-        # What will be the angle of each axis in the plot (divide the plot / number of variables)
+        # What will be the angle of each axis in the plot
         angles = [n / float(N) * 2 * 3.14159 for n in range(N)]
         angles += [angles[0]]
         
         # Draw one axis per variable + add labels
-        plt.xticks(angles[:-1], categories[:-1], color='grey', size=8)
+        plt.xticks(angles[:-1], short_categories[:-1], color='grey', size=7)
         
         # Draw ylabels
         ax_radar.set_rlabel_position(0)
@@ -86,9 +98,14 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         padding = bar_height * 0.2  # Padding between bars
         
         for metric, score in scores.items():
+            # Truncate long metric names
+            display_metric = metric
+            if len(metric) > 25:
+                display_metric = metric[:22] + "..."
+                
             # Draw metric name
-            ax_metrics.text(0.01, y_pos - bar_height/2 - 0.01, metric, fontsize=9, fontweight='bold')
-            ax_metrics.text(0.95, y_pos - bar_height/2 - 0.01, f'{score}/10', fontsize=9, ha='right')
+            ax_metrics.text(0.01, y_pos - bar_height/2 - 0.01, display_metric, fontsize=8, fontweight='bold')
+            ax_metrics.text(0.95, y_pos - bar_height/2 - 0.01, f'{score}/10', fontsize=8, ha='right')
             
             # Draw background bar
             ax_metrics.barh(y_pos - bar_height/2, 0.9, height=bar_height - padding,
@@ -106,11 +123,17 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         ax_benchmark.axis('off')
         ax_benchmark.text(0.01, 0.8, 'Benchmark Comparison:', fontsize=10, fontweight='bold')
         ax_benchmark.text(0.01, 0.4, 
-                    f'This campaign ranks in the top {percentile}% of Gen Z-facing national campaigns for ARI.',
+                    f'This campaign ranks in the top {percentile}% of Gen Z campaigns.',
                     fontsize=9)
+        
+        # Format improvement areas text to ensure it fits
+        improvement_text = ", ".join(improvement_areas)
+        if len(improvement_text) > 70:
+            improvement_text = improvement_text[:67] + "..."
+            
         ax_benchmark.text(0.01, 0.1, 
-                    f'Top improvement areas: {", ".join(improvement_areas)}', 
-                    fontsize=9)
+                    f'Top improvement areas: {improvement_text}', 
+                    fontsize=9, wrap=True)
         
         # Add a styled box around benchmark
         benchmark_box = plt.Rectangle((0.005, 0.05), 0.99, 0.85, 
@@ -122,7 +145,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         # Psychographic Highlights
         ax_psycho = fig.add_subplot(gs[16:18, 1:11])
         ax_psycho.axis('off')
-        ax_psycho.text(0.01, 0.8, '🧠 Psychographic Highlights', fontsize=10, fontweight='bold')
+        ax_psycho.text(0.01, 0.8, 'Psychographic Highlights', fontsize=10, fontweight='bold')
         ax_psycho.text(0.01, 0.4, 
                  'This audience is highly motivated by wealth, admiration, and excitement.',
                  fontsize=9)
@@ -140,8 +163,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         ax_footer.text(0.5, 0.5, 'Powered by Digital Culture Group', 
                  fontsize=8, ha='center', color='#555555')
         
-        # Adjust layout
-        fig.tight_layout(rect=[0, 0, 1, 0.97])
+        # Adjust layout using tight_layout with custom parameters
+        plt.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.05, hspace=0.3)
         
         # Save the page
         pdf.savefig(fig)
@@ -157,13 +180,13 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         # Header section
         ax_header = fig.add_subplot(gs[0:2, 0:12])
         ax_header.axis('off')
-        ax_header.text(0.5, 0.5, 'Audience Resonance Index™ (ARI) - Media Affinities', 
+        ax_header.text(0.5, 0.5, 'ARI - Media Affinities', 
                 fontsize=18, ha='center', fontweight='bold')
         
         # Media Affinity title
         ax_media_title = fig.add_subplot(gs[2:3, 1:11])
         ax_media_title.axis('off')
-        ax_media_title.text(0.01, 0.5, '🔥 Top Media Affinity Sites', fontsize=12, fontweight='bold')
+        ax_media_title.text(0.01, 0.5, 'Top Media Affinity Sites', fontsize=12, fontweight='bold')
         ax_media_title.text(0.5, 0.1, 'QVI = Quality Visit Index, a score indicating audience engagement strength', 
                      fontsize=8, color='#666666')
         
@@ -185,8 +208,12 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
             ax_site = fig.add_subplot(gs[3+row*2:5+row*2, 1+col*4:4+col*4])
             ax_site.axis('off')
             
-            # Draw site info
-            ax_site.text(0.5, 0.7, site['name'], fontsize=9, fontweight='bold', ha='center')
+            # Draw site info - ensure text fits
+            site_name = site['name']
+            if len(site_name) > 20:
+                site_name = site_name[:17] + "..."
+                
+            ax_site.text(0.5, 0.7, site_name, fontsize=9, fontweight='bold', ha='center')
             ax_site.text(0.5, 0.5, site['category'], fontsize=8, ha='center')
             ax_site.text(0.5, 0.3, f"QVI: {site['qvi']}", fontsize=9, fontweight='bold', ha='center', color='#3b82f6')
             
@@ -200,7 +227,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         # TV Network title
         ax_tv_title = fig.add_subplot(gs[8:9, 1:11])
         ax_tv_title.axis('off')
-        ax_tv_title.text(0.01, 0.5, '📺 Top TV Network Affinities', fontsize=12, fontweight='bold')
+        ax_tv_title.text(0.01, 0.5, 'Top TV Network Affinities', fontsize=12, fontweight='bold')
         
         # Placeholder TV networks
         tv_networks = [
@@ -234,15 +261,17 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         # Audience Summary
         ax_audience = fig.add_subplot(gs[12:14, 1:11])
         ax_audience.axis('off')
-        ax_audience.text(0.01, 0.8, '👥 Audience Summary', fontsize=10, fontweight='bold')
-        ax_audience.text(0.01, 0.55, 
-                  'This audience skews young, male, and single with a strong affinity for sports,',
+        ax_audience.text(0.01, 0.8, 'Audience Summary', fontsize=10, fontweight='bold')
+        
+        # Break text into multiple lines to ensure it fits
+        ax_audience.text(0.01, 0.6, 
+                  'This audience skews young, male, and single with a', 
                   fontsize=9)
-        ax_audience.text(0.01, 0.35, 
-                  'education tools, and socially driven platforms. They\'re highly motivated by',
+        ax_audience.text(0.01, 0.4, 
+                  'strong affinity for sports, education tools, and', 
                   fontsize=9)
-        ax_audience.text(0.01, 0.15, 
-                  'admiration, status, and excitement.',
+        ax_audience.text(0.01, 0.2, 
+                  'social platforms. Motivated by admiration and status.',
                   fontsize=9)
         
         # Add a styled box around audience summary
@@ -255,7 +284,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         # What's Next
         ax_next = fig.add_subplot(gs[15:17, 1:11])
         ax_next.axis('off')
-        ax_next.text(0.01, 0.8, '🔧 What\'s Next?', fontsize=10, fontweight='bold')
+        ax_next.text(0.01, 0.8, 'What\'s Next?', fontsize=10, fontweight='bold')
         ax_next.text(0.01, 0.5, 
                 'Digital Culture Group offers solutions to lift your lowest scoring areas.', 
                 fontsize=9)
@@ -269,8 +298,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         ax_footer.text(0.5, 0.5, 'Powered by Digital Culture Group', 
                  fontsize=8, ha='center', color='#555555')
         
-        # Adjust layout
-        fig.tight_layout(rect=[0, 0, 1, 0.97])
+        # Adjust layout using custom parameters instead of tight_layout
+        plt.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.05, hspace=0.3)
         
         # Save the page
         pdf.savefig(fig)
