@@ -274,9 +274,9 @@ def main():
             # Display the main visualization
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             
-            # Add tech overlays with red active indicators for better visibility
+            # Add tech overlays with all red indicators for better visibility
             st.markdown("""
-            <div class="status-indicator">
+            <div class="status-indicator" style="color: #ff4d4d;">
                 <div class="indicator-dot" style="background-color: #ff4d4d;"></div>
                 PROCESSING: <span style="color: #ff4d4d; font-weight: bold; margin-left: 4px;">ACTIVE</span>
             </div>
