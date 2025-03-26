@@ -9,6 +9,16 @@ import random
 import time
 import nltk
 
+# Download necessary NLTK data packages
+print("Downloading NLTK packages...")
+try:
+    nltk.download('punkt')
+    nltk.download('stopwords')
+    nltk.download('wordnet')
+    print("NLTK packages downloaded successfully")
+except Exception as e:
+    print(f"Error downloading NLTK packages: {e}")
+
 from analysis import (
     analyze_campaign_brief, 
     get_score_level, 
