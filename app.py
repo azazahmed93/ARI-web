@@ -166,20 +166,142 @@ def main():
             plot_bgcolor='rgba(0,0,0,0)',
         )
         
-        # Add realtime metrics display
-        current_time = datetime.now().strftime("%H:%M:%S")
-        metrics_html = f"""
-        <div style="position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.7); 
-                    padding: 8px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 11px;">
-            <div style="color: #4F46E5; margin-bottom: 2px;">REALTIME ANALYSIS · {current_time}</div>
-            <div>Profiles: <span style="color: #3B82F6; font-weight: bold;">230M+</span> · Devices: <span style="color: #10B981; font-weight: bold;">600M+</span></div>
-            <div>Processing: <span style="color: #F97316; font-weight: bold;">ACTIVE</span> · Status: <span style="color: #10B981; font-weight: bold;">ONLINE</span></div>
+        # Create a more technical-looking metrics overlay
+        overlay_html = f"""
+        <style>
+            @keyframes pulse {{
+                0% {{ opacity: 0.7; }}
+                50% {{ opacity: 1; }}
+                100% {{ opacity: 0.7; }}
+            }}
+            @keyframes shift {{
+                0% {{ transform: translateX(0); }}
+                100% {{ transform: translateX(10px); }}
+            }}
+            @keyframes fadeInOut {{
+                0% {{ opacity: 0.4; }}
+                50% {{ opacity: 0.8; }}
+                100% {{ opacity: 0.4; }}
+            }}
+            @keyframes blink {{
+                0% {{ opacity: 1; }}
+                49% {{ opacity: 1; }}
+                50% {{ opacity: 0; }}
+                100% {{ opacity: 0; }}
+            }}
+            .tech-overlay {{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                font-family: 'Courier New', monospace;
+            }}
+            .status-indicator {{
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: rgba(0,0,0,0.7);
+                border: 1px solid rgba(79, 70, 229, 0.6);
+                border-radius: 4px;
+                padding: 10px;
+                color: #fff;
+                font-size: 11px;
+                display: flex;
+                align-items: center;
+            }}
+            .indicator-dot {{
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #F97316;
+                margin-right: 6px;
+                animation: pulse 1.5s infinite ease-in-out;
+            }}
+            .module-names {{
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                color: rgba(59, 130, 246, 0.9);
+                font-size: 9px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }}
+            .module-names div {{
+                margin-bottom: 3px;
+            }}
+            .corner-box {{
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                border: 1px solid rgba(79, 70, 229, 0.6);
+                background: rgba(0,0,0,0.5);
+                padding: 5px;
+                font-size: 9px;
+                color: rgba(236, 72, 153, 0.9);
+                border-radius: 3px;
+                animation: fadeInOut 3s infinite ease-in-out;
+            }}
+            .grid-lines {{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: 
+                    linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+                background-size: 20px 20px;
+            }}
+            .scanning-line {{
+                position: absolute; 
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 1px;
+                background: linear-gradient(to right, transparent, rgba(236, 72, 153, 0.7), transparent);
+                animation: scanDown 4s infinite linear;
+                opacity: 0.6;
+            }}
+            @keyframes scanDown {{
+                0% {{ top: 0; }}
+                100% {{ top: 100%; }}
+            }}
+            .status-code {{
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                font-family: 'Courier New', monospace;
+                font-size: 10px;
+                color: rgba(79, 70, 229, 0.9);
+            }}
+            .status-code .blink {{
+                animation: blink 1s infinite;
+            }}
+        </style>
+        <div class="tech-overlay">
+            <div class="grid-lines"></div>
+            <div class="scanning-line"></div>
+            <div class="status-indicator">
+                <div class="indicator-dot"></div>
+                PROCESSING: <span style="color: #F97316; font-weight: bold; margin-left: 4px;">ACTIVE</span>
+            </div>
+            <div class="corner-box">SYSTEM INTEGRITY: 99.7%</div>
+            <div class="module-names">
+                <div>NEUROMORPHIC ENGINE V3.0.1</div>
+                <div>CULTURAL PATTERN RECOGNITION ACTIVE</div>
+                <div>QUANTUM HEURISTICS ENABLED</div>
+            </div>
+            <div class="status-code">
+                ARI:XN:72.9:0:CT<span class="blink">_</span>
+            </div>
         </div>
         """
         
         # Display the visualization with metrics overlay
         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-        st.markdown(metrics_html, unsafe_allow_html=True)
+        st.markdown(overlay_html, unsafe_allow_html=True)
     
     with col2:
         # Brief description and input area
