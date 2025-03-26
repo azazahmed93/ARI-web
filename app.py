@@ -216,7 +216,7 @@ def main():
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background-color: #F97316;
+                background-color: #10b981; /* Changed to green */
                 margin-right: 6px;
                 animation: pulse 1.5s infinite ease-in-out;
             }
@@ -274,11 +274,11 @@ def main():
             # Display the main visualization
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             
-            # Add tech overlays
+            # Add tech overlays with green active indicators
             st.markdown("""
             <div class="status-indicator">
-                <div class="indicator-dot"></div>
-                PROCESSING: <span style="color: #F97316; font-weight: bold; margin-left: 4px;">ACTIVE</span>
+                <div class="indicator-dot" style="background-color: #10b981;"></div>
+                PROCESSING: <span style="color: #10b981; font-weight: bold; margin-left: 4px;">ACTIVE</span>
             </div>
             <div class="corner-box">SYSTEM INTEGRITY: 99.7%</div>
             <div class="module-names">
@@ -296,8 +296,8 @@ def main():
     
     with col2:
         # Brief description and input area
-        st.markdown("### Campaign Brief Analysis")
-        st.markdown("Paste your marketing campaign brief below to evaluate how well it will resonate with your target audience using our proprietary Audience Resonance Index™ framework.")
+        st.markdown("### Campaign RFP Analysis")
+        st.markdown("Paste your marketing campaign RFP (Request for Proposal) below to identify gaps and provide actionable solutions for better outcomes. Our proprietary Audience Resonance Index™ framework analyzes how well your campaign will resonate with your target audience and identifies opportunities for improvement.")
         
         # Text input for campaign brief
         brief_text = st.text_area(
@@ -407,8 +407,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     </div>
     """, unsafe_allow_html=True)
     
-    # Add a header for the detailed metrics
-    st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px;">DETAILED METRICS BREAKDOWN</div>', unsafe_allow_html=True)
+    # Add a header for the detailed metrics with properly styled CSS-only approach
+    st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
     
     # Create a more professional two-column layout
     col1, col2 = st.columns(2)
@@ -531,7 +531,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Add an informative benchmark section
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px;">COMPARATIVE ANALYSIS</div>
+        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Campaign Intelligence</div>
     """, unsafe_allow_html=True)
     
     # Customize benchmark text based on brand information
