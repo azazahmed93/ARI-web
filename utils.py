@@ -1,14 +1,17 @@
 import base64
 import io
 import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.patches as patches
-from matplotlib.gridspec import GridSpec
-import numpy as np
-from PIL import Image
-import requests
+import re
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.units import inch
+from reportlab.graphics.shapes import Drawing, Wedge, Line, Circle, String
+from reportlab.graphics.charts.legends import Legend
+from reportlab.lib.colors import HexColor
 from assets.content import (
     MEDIA_AFFINITY_SITES, 
     TV_NETWORKS, 
@@ -22,7 +25,6 @@ from assets.content import (
 # Remove HTML tags from a string
 def strip_html(text):
     """Remove HTML tags from a string."""
-    import re
     return re.sub('<[^<]+?>', '', text).strip()
 
 def create_pdf_download_link(scores, improvement_areas, percentile):
