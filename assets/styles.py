@@ -165,15 +165,15 @@ def header_section():
         </div>
         """, unsafe_allow_html=True)
     
-    # Add investor metrics that show the company's potential value
+    # Add more realistic business metrics for a marketing analytics SaaS platform
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown("""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">ARR</div>
-            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">$42M</div>
-            <div style="font-size: 0.8rem; color: #10b981; font-weight: 500;">+78% YoY</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">CAMPAIGNS</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">1,200+</div>
+            <div style="font-size: 0.8rem; color: #555;">Analyzed Monthly</div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -189,18 +189,18 @@ def header_section():
     with col3:
         st.markdown("""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">ENTERPRISE</div>
-            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">300+</div>
-            <div style="font-size: 0.8rem; color: #555;">Global Clients</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">CLIENTS</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">85+</div>
+            <div style="font-size: 0.8rem; color: #555;">Fortune 500 Brands</div>
         </div>
         """, unsafe_allow_html=True)
         
     with col4:
         st.markdown("""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">VALUATION</div>
-            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">$4.7B</div>
-            <div style="font-size: 0.8rem; color: #555;">Series E</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">DATA POINTS</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">250M+</div>
+            <div style="font-size: 0.8rem; color: #555;">Analyzed Daily</div>
         </div>
         """, unsafe_allow_html=True)
     
