@@ -13,7 +13,8 @@ from analysis import (
     analyze_campaign_brief, 
     get_score_level, 
     calculate_benchmark_percentile, 
-    get_improvement_areas
+    get_improvement_areas,
+    extract_brand_info
 )
 from utils import (
     create_pdf_download_link, 
@@ -52,6 +53,12 @@ if 'percentile' not in st.session_state:
     st.session_state.percentile = None
 if 'improvement_areas' not in st.session_state:
     st.session_state.improvement_areas = None
+if 'brand_name' not in st.session_state:
+    st.session_state.brand_name = None
+if 'industry' not in st.session_state:
+    st.session_state.industry = None
+if 'product_type' not in st.session_state:
+    st.session_state.product_type = None
 
 # Define main function
 def main():
@@ -90,11 +97,13 @@ def main():
                     time.sleep(1.5)
                     
                     # Analyze the brief
-                    scores = analyze_campaign_brief(brief_text)
+                    result = analyze_campaign_brief(brief_text)
                     
-                    if not scores:
+                    if not result:
                         st.error("Could not analyze the brief. Please provide more content.")
                     else:
+                        scores, brand_name, industry, product_type = result
+                        
                         # Calculate benchmark percentile and improvement areas
                         percentile = calculate_benchmark_percentile(scores)
                         improvement_areas = get_improvement_areas(scores)
@@ -104,6 +113,9 @@ def main():
                         st.session_state.scores = scores
                         st.session_state.percentile = percentile
                         st.session_state.improvement_areas = improvement_areas
+                        st.session_state.brand_name = brand_name
+                        st.session_state.industry = industry
+                        st.session_state.product_type = product_type
                         
                         # Show success message
                         st.success("Analysis complete! See results below.")
@@ -116,16 +128,33 @@ def main():
         display_results(
             st.session_state.scores,
             st.session_state.percentile,
-            st.session_state.improvement_areas
+            st.session_state.improvement_areas,
+            st.session_state.brand_name,
+            st.session_state.industry,
+            st.session_state.product_type
         )
     
     # Footer
     render_footer()
 
-def display_results(scores, percentile, improvement_areas):
+def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product"):
     """Display the ARI analysis results."""
     st.markdown("---")
-    st.markdown("## Audience Resonance Index™ Scorecard")
+    
+    # Display brand information header
+    if brand_name != "Unknown":
+        st.markdown(f"## {brand_name} Audience Resonance Index™ Scorecard")
+        
+        # Display brand info summary
+        brand_info_col1, brand_info_col2 = st.columns(2)
+        with brand_info_col1:
+            st.markdown(f"**Industry:** {industry}")
+        with brand_info_col2:
+            st.markdown(f"**Product Type:** {product_type}")
+            
+        st.markdown("---")
+    else:
+        st.markdown("## Audience Resonance Index™ Scorecard")
     
     # Display metrics as a radar chart
     display_radar_chart(scores)
@@ -158,13 +187,26 @@ def display_results(scores, percentile, improvement_areas):
     
     # Benchmark comparison
     st.markdown("### 📊 Benchmark Comparison")
-    st.markdown(f"""
-    This campaign ranks in the top **{percentile}% of Gen Z-facing national campaigns** 
-    for Audience Resonance Index™ (ARI). That means it outperforms the majority of 
-    peer campaigns in relevance, authenticity, and emotional connection — based on 
-    Digital Culture Group's analysis of 300+ national efforts. Biggest opportunity areas: 
-    **{", ".join(improvement_areas)}**.
-    """)
+    
+    # Customize benchmark text based on brand information
+    if brand_name != "Unknown" and industry != "General":
+        st.markdown(f"""
+        This {brand_name} campaign ranks in the top **{percentile}% of {industry} campaigns** 
+        for Audience Resonance Index™ (ARI). That means it outperforms the majority of 
+        peer campaigns in relevance, authenticity, and emotional connection — based on 
+        Digital Culture Group's analysis of 300+ {industry.lower()} efforts. 
+        
+        For a {product_type} in the {industry} industry, the biggest opportunity areas are: 
+        **{", ".join(improvement_areas)}**.
+        """)
+    else:
+        st.markdown(f"""
+        This campaign ranks in the top **{percentile}% of Gen Z-facing national campaigns** 
+        for Audience Resonance Index™ (ARI). That means it outperforms the majority of 
+        peer campaigns in relevance, authenticity, and emotional connection — based on 
+        Digital Culture Group's analysis of 300+ national efforts. Biggest opportunity areas: 
+        **{", ".join(improvement_areas)}**.
+        """)
     
     # Media Affinity section
     st.markdown("### 🔥 Top Media Affinity Sites")
