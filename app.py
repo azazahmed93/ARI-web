@@ -653,47 +653,46 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """)
     
     # Premium investor-focused call-to-action section
-    st.markdown("""
-    <div style="margin-top: 40px; padding: 25px; background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); border: 1px solid #e5e7eb; border-radius: 8px;">
-        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-            <div style="flex: 3; min-width: 300px; margin-bottom: 20px;">
-                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px; background: rgba(88, 101, 242, 0.08); display: inline-block; padding: 4px 10px; border-radius: 4px;">Enterprise Analytics</div>
-                <div style="font-size: 1.4rem; font-weight: 700; color: #333; margin-bottom: 15px;">Ready to take your marketing to the next level?</div>
-                <div style="color: #555; line-height: 1.6; margin-bottom: 20px;">
-                    Download our comprehensive enterprise report with detailed metrics, actionable insights, and competitive benchmarking to optimize your campaign performance.
-                </div>
-                
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
-                        <span style="color: #10b981; margin-right: 5px;">✓</span> Advanced Metrics
-                    </div>
-                    <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
-                        <span style="color: #10b981; margin-right: 5px;">✓</span> Competitive Analysis
-                    </div>
-                    <div style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
-                        <span style="color: #10b981; margin-right: 5px;">✓</span> Executive Summary
-                    </div>
-                </div>
-            </div>
-            
-            <div style="flex: 1; min-width: 200px; text-align: center;">
-                """, unsafe_allow_html=True)
+    st.markdown("---")
     
-    pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
-    st.markdown(pdf_link, unsafe_allow_html=True)
+    # Create container with custom CSS for styling
+    st.markdown('<div class="premium-container"></div>', unsafe_allow_html=True)
+    premium_container = st.container()
     
-    st.markdown("""
-                </div>
-            </div>
-        </div>
+    with premium_container:
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        <div style="margin-top: 30px; text-align: center;">
-            <div style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">Want to see how we can help your business?</div>
-            <div style="display: inline-block; background: white; border: 1px solid #5865f2; color: #5865f2; padding: 8px 20px; border-radius: 6px; font-weight: 500; cursor: pointer;">
-                Schedule a Demo
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Create two columns for the layout
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            st.markdown('<span class="tag-enterprise">Enterprise Analytics</span>', unsafe_allow_html=True)
+            st.markdown("### Ready to take your marketing to the next level?")
+            st.write("Download our comprehensive enterprise report with detailed metrics, actionable insights, and competitive benchmarking to optimize your campaign performance.")
+            
+            # Create a container for the checkmarks
+            check_container = st.container()
+            with check_container:
+                # Use columns for the checkmarks
+                check1, check2, check3 = st.columns(3)
+                with check1:
+                    st.markdown("✓ Advanced Metrics")
+                with check2:
+                    st.markdown("✓ Competitive Analysis")
+                with check3:
+                    st.markdown("✓ Executive Summary")
+        
+        with col2:
+            # Generate and display the PDF download link
+            pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
+            st.markdown(pdf_link, unsafe_allow_html=True)
+    
+    # Add the demo section
+    demo_container = st.container()
+    with demo_container:
+        st.markdown("<div style='text-align: center; margin-top: 20px;'>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.85rem; color: #777;'>Want to see how we can help your business?</p>", unsafe_allow_html=True)
+        st.button("Schedule a Demo")
 
 def display_radar_chart(scores):
     """

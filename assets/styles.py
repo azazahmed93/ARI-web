@@ -132,6 +132,28 @@ def apply_styles():
         color: #555;
         margin-top: 2rem;
     }
+    
+    /* Premium section styling */
+    .premium-container {
+        background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 25px;
+        margin-top: 40px;
+    }
+    
+    .tag-enterprise {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        color: #5865f2;
+        background: rgba(88, 101, 242, 0.08);
+        padding: 4px 10px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
