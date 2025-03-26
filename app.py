@@ -424,17 +424,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 color_code = "#10b981"  # green color
                 emoji = "🔥"
                 label = "STRONG"
-                progress_color = "green"
             elif score >= 6:
                 color_code = "#3b82f6"  # blue color
                 emoji = "✓"
                 label = "GOOD"
-                progress_color = "blue"
             else:
                 color_code = "#f43f5e"  # red color
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
-                progress_color = "red"
             
             # Create container for the metric card
             metric_container = st.container()
@@ -444,8 +441,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 header_col1.markdown(f"**{metric}**")
                 header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
-                # Progress bar
-                st.progress(score/10, progress_color)
+                # Custom progress bar using HTML/CSS instead of st.progress
+                progress_width = score * 10  # Convert score to percentage
+                st.markdown(f"""
+                <div style="background-color: #f0f0f0; border-radius: 10px; height: 10px; margin: 10px 0;">
+                    <div style="background-color: {color_code}; width: {progress_width}%; height: 10px; border-radius: 10px;"></div>
+                </div>
+                """, unsafe_allow_html=True)
                 
                 # Score display
                 st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
@@ -463,17 +465,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 color_code = "#10b981"  # green color
                 emoji = "🔥"
                 label = "STRONG"
-                progress_color = "green"
             elif score >= 6:
                 color_code = "#3b82f6"  # blue color
                 emoji = "✓"
                 label = "GOOD"
-                progress_color = "blue"
             else:
                 color_code = "#f43f5e"  # red color
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
-                progress_color = "red"
             
             # Create container for the metric card
             metric_container = st.container()
@@ -483,8 +482,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 header_col1.markdown(f"**{metric}**")
                 header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
-                # Progress bar
-                st.progress(score/10, progress_color)
+                # Custom progress bar using HTML/CSS instead of st.progress
+                progress_width = score * 10  # Convert score to percentage
+                st.markdown(f"""
+                <div style="background-color: #f0f0f0; border-radius: 10px; height: 10px; margin: 10px 0;">
+                    <div style="background-color: {color_code}; width: {progress_width}%; height: 10px; border-radius: 10px;"></div>
+                </div>
+                """, unsafe_allow_html=True)
                 
                 # Score display
                 st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
