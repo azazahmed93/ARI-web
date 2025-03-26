@@ -441,6 +441,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 header_col1.markdown(f"**{metric}**")
                 header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
+                # Description right under the metric name
+                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin: 5px 0 15px 0;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
+                
                 # Custom progress bar using HTML/CSS instead of st.progress
                 progress_width = score * 10  # Convert score to percentage
                 st.markdown(f"""
@@ -451,9 +454,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 
                 # Score display
                 st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
-                
-                # Description
-                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin-top: 10px;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
                 
                 # Add some space between cards
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -482,6 +482,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 header_col1.markdown(f"**{metric}**")
                 header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
+                # Description right under the metric name
+                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin: 5px 0 15px 0;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
+                
                 # Custom progress bar using HTML/CSS instead of st.progress
                 progress_width = score * 10  # Convert score to percentage
                 st.markdown(f"""
@@ -492,9 +495,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 
                 # Score display
                 st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
-                
-                # Description
-                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin-top: 10px;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
                 
                 # Add some space between cards
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -786,33 +786,25 @@ def display_radar_chart(scores):
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         font=dict(family="Inter, sans-serif"),
-        title=dict(
-            text="<b>Campaign Performance vs. Industry Average</b>",
-            font=dict(size=16, family="Inter, sans-serif", color="#333"),
-            x=0.5,
-            y=0.98,
-            xanchor="center"
-        )
+        title={
+            'text': '<b>Campaign Performance vs. Industry Average</b>',
+            'y': 0.97,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': dict(size=16, family="Inter, sans-serif", color="#333")
+        },
     )
     
-    # Display chart with annotation
-    st.plotly_chart(fig, use_container_width=True)
+    # Center the title
+    st.markdown('<div style="text-align: center;"><h4>Campaign Performance vs. Industry Average</h4></div>', unsafe_allow_html=True)
     
-    # Add insight callout for investors
-    average_score = sum(list(scores.values())) / len(scores)
-    average_industry = sum(industry_avg[:-1]) / len(industry_avg[:-1])  # Exclude the duplicated closing point
-    percent_above = round(((average_score - average_industry) / average_industry) * 100, 1)
-    
-    st.markdown(f"""
-    <div style="background: linear-gradient(90deg, rgba(88, 101, 242, 0.1) 0%, rgba(255, 255, 255, 0) 100%); 
-    border-left: 3px solid #5865f2; padding: 15px; margin: 10px 0 25px 0; border-radius: 4px;">
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 5px;">AI INSIGHT</div>
-        <div style="font-weight: 500; color: #333; margin-bottom: 5px;">This campaign outperforms industry average by <span style="color: #5865f2; font-weight: 600;">{percent_above}%</span></div>
-        <div style="font-size: 0.9rem; color: #555;">
-            Campaigns with similar profiles typically see a 16-23% higher conversion rate and 1.8x better audience engagement metrics.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Display the chart
+    st.plotly_chart(fig, use_container_width=True, config={
+        'displayModeBar': False,
+        'responsive': True
+    })
 
+# Run the app
 if __name__ == "__main__":
     main()
