@@ -1,0 +1,114 @@
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 68.0%; background: #3b82f6; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #3b82f6;">6.8/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Limited representation of the intended audience or cultural perspective.
+</div>
+
+Cultural Relevance
+STRONG
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 70.0%; background: #10b981; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #10b981;">7.0/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Relevant ideas are present, but stronger emotional or lifestyle ties could be made.
+</div>
+
+Platform Relevance
+GOOD
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 65.0%; background: #3b82f6; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #3b82f6;">6.5/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Platform mix doesn't align with where this audience actually spends time.
+</div>
+
+Cultural Vernacular
+STRONG
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 75.0%; background: #10b981; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #10b981;">7.5/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Language is mostly appropriate but could feel more native or playful.
+</div>
+
+Media Ownership Equity
+GOOD
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 60.0%; background: #3b82f6; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #3b82f6;">6.0/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    No clear support for audience-owned or representative media channels.
+</div>
+
+Cultural Authority
+STRONG
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 75.0%; background: #10b981; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #10b981;">7.5/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Familiar cultural symbols are present but not deeply integrated.
+</div>
+
+Buzz & Conversation
+STRONG
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 72.0%; background: #10b981; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #10b981;">7.2/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Could create conversation but needs stronger creative moments.
+</div>
+
+Commerce Bridge
+STRONG
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 80.0%; background: #10b981; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #10b981;">8.0/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Product tie-in is visible but not strongly action-oriented.
+</div>
+
+Geo-Cultural Fit
+STRONG
+<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="flex-grow: 1; background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+        <div style="width: 70.0%; background: #10b981; height: 100%;"></div>
+    </div>
+    <div style="margin-left: 10px; font-weight: 600; color: #10b981;">7.0/10</div>
+</div>
+
+<div style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+    Covers key markets but could add local nuances.
+</div>
