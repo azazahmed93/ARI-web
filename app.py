@@ -21,6 +21,7 @@ from utils import (
     display_metric_bar, 
     get_tone_of_brief
 )
+from utils_metrics import render_metric_card
 from assets.styles import apply_styles, header_section, render_footer
 from assets.content import (
     METRICS, 
