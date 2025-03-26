@@ -19,6 +19,12 @@ from assets.content import (
     METRICS
 )
 
+# Remove HTML tags from a string
+def strip_html(text):
+    """Remove HTML tags from a string."""
+    import re
+    return re.sub('<[^<]+?>', '', text).strip()
+
 def create_pdf_download_link(scores, improvement_areas, percentile):
     """
     Create a PDF report and return a download link.
@@ -45,35 +51,23 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         fig.patch.set_facecolor('#ffffff')
         
         # Set up grid for layout
-        gs = GridSpec(24, 12, figure=fig)
+        gs = GridSpec(30, 12, figure=fig)
         
         # Header section
         ax_header = fig.add_subplot(gs[0:2, 0:12])
         ax_header.axis('off')
-        ax_header.text(0.5, 0.7, 'Audience Resonance Index™ Scorecard', 
+        ax_header.text(0.5, 0.5, 'Audience Resonance Index™ Scorecard', 
                 fontsize=22, ha='center', fontweight='bold', color='#111827')
-        ax_header.text(0.5, 0.3, 'Digital Culture Group - Proprietary Measurement Framework', 
-                fontsize=10, ha='center', color='#4B5563')
         
         # Create radar chart
-        ax_radar = fig.add_subplot(gs[2:9, 1:11], polar=True)
+        ax_radar = fig.add_subplot(gs[2:8, 1:11], polar=True)
         
         # Prepare data for radar chart
         categories = list(scores.keys())
         values = list(scores.values())
         
-        # Shorten category names if needed to fit on radar chart
-        short_categories = []
-        for cat in categories:
-            words = cat.split()
-            if len(words) > 1:
-                short_categories.append(words[0] + "\n" + " ".join(words[1:]))
-            else:
-                short_categories.append(cat)
-                
         # Add the first value at the end to close the loop
         categories.append(categories[0])
-        short_categories.append(short_categories[0])
         values.append(values[0])
         
         # Number of variables
@@ -84,7 +78,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         angles += [angles[0]]
         
         # Draw one axis per variable + add labels
-        plt.xticks(angles[:-1], short_categories[:-1], color='#4B5563', size=8, fontweight='bold')
+        plt.xticks(angles[:-1], categories[:-1], color='#4B5563', size=8)
         
         # Draw ylabels
         ax_radar.set_rlabel_position(0)
@@ -101,10 +95,10 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         ax_radar.spines['polar'].set_visible(False)
         ax_radar.grid(color='#E5E7EB', linestyle='-', linewidth=0.5, alpha=0.7)
         
-        # Add metrics bars section title
-        ax_metrics_title = fig.add_subplot(gs[9:10, 1:11])
+        # Add metrics breakdown section title
+        ax_metrics_title = fig.add_subplot(gs[8:9, 1:11])
         ax_metrics_title.axis('off')
-        ax_metrics_title.text(0.01, 0.5, "Metric Breakdown", fontsize=14, fontweight='bold', color='#111827')
+        ax_metrics_title.text(0.5, 0.5, "Metric Breakdown", fontsize=16, fontweight='bold', color='#111827', ha='center')
         
         # Metrics layout - 2 columns
         metrics_items = list(scores.items())
@@ -112,111 +106,76 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         right_metrics = metrics_items[len(metrics_items)//2 + len(metrics_items)%2:]
         
         # Left column metrics
-        ax_metrics_left = fig.add_subplot(gs[10:15, 1:6])
+        ax_metrics_left = fig.add_subplot(gs[9:18, 1:6])
         ax_metrics_left.axis('off')
         
         # Right column metrics
-        ax_metrics_right = fig.add_subplot(gs[10:15, 6:11])
+        ax_metrics_right = fig.add_subplot(gs[9:18, 6:11])
         ax_metrics_right.axis('off')
         
-        # Display each metric with a colored bar in left column
+        # Display each metric with a colored background in left column
         y_pos = 1.0
-        bar_height = 1.0 / (len(left_metrics) + 0.5)
-        padding = bar_height * 0.15
+        metric_height = 1.0 / (len(left_metrics))
+        padding = 0.05
         
         for i, (metric, score) in enumerate(left_metrics):
             # Get level description
             level = "high" if score >= 7 else "medium" if score >= 4 else "low"
             description = METRICS[metric][level]
             
+            # Background color based on metric level
+            bg_color = '#e0edff' if i % 2 == 0 else '#f0f9ff'
+            
+            # Draw background
+            rect = patches.Rectangle((0, y_pos - metric_height + padding), 
+                                    1, metric_height - padding, 
+                                    facecolor=bg_color, edgecolor='none', alpha=0.7)
+            ax_metrics_left.add_patch(rect)
+            
             # Draw metric name and score
-            ax_metrics_left.text(0.01, y_pos - padding/2, f"{metric}: {score}/10", 
+            ax_metrics_left.text(0.02, y_pos - metric_height/5, f"{metric}: {score}/10", 
                               fontsize=9, fontweight='bold', color='#111827')
             
-            # Draw background bar
-            ax_metrics_left.barh(y_pos - bar_height/2 - padding, 0.95, height=bar_height/2,
-                              left=0.03, color='#E5E7EB', zorder=0)
+            # Draw description
+            ax_metrics_left.text(0.02, y_pos - metric_height/2, description, 
+                              fontsize=7, color='#4B5563')
             
-            # Draw score bar
-            score_width = 0.95 * (score / 10)
-            ax_metrics_left.barh(y_pos - bar_height/2 - padding, score_width, height=bar_height/2,
-                             left=0.03, color='#5865f2', alpha=0.7, zorder=1)
-            
-            # Draw description (wrapped to fit)
-            desc_lines = []
-            words = description.split()
-            current_line = ""
-            for word in words:
-                if len(current_line + " " + word) <= 40:
-                    current_line += " " + word if current_line else word
-                else:
-                    desc_lines.append(current_line)
-                    current_line = word
-            if current_line:
-                desc_lines.append(current_line)
-                
-            # Draw description lines
-            for j, line in enumerate(desc_lines):
-                ax_metrics_left.text(0.03, y_pos - bar_height/2 - padding*2 - j*0.045, line,
-                                 fontsize=7, color='#4B5563')
-            
-            y_pos -= bar_height
+            y_pos -= metric_height
         
-        # Display each metric with a colored bar in right column
+        # Display each metric with a colored background in right column
         y_pos = 1.0
-        bar_height = 1.0 / (len(right_metrics) + 0.5)
+        metric_height = 1.0 / (len(right_metrics))
         
         for i, (metric, score) in enumerate(right_metrics):
             # Get level description
             level = "high" if score >= 7 else "medium" if score >= 4 else "low"
             description = METRICS[metric][level]
             
+            # Background color based on metric level
+            bg_color = '#e0edff' if i % 2 == 0 else '#f0f9ff'
+            
+            # Draw background
+            rect = patches.Rectangle((0, y_pos - metric_height + padding), 
+                                    1, metric_height - padding, 
+                                    facecolor=bg_color, edgecolor='none', alpha=0.7)
+            ax_metrics_right.add_patch(rect)
+            
             # Draw metric name and score
-            ax_metrics_right.text(0.01, y_pos - padding/2, f"{metric}: {score}/10", 
+            ax_metrics_right.text(0.02, y_pos - metric_height/5, f"{metric}: {score}/10", 
                                fontsize=9, fontweight='bold', color='#111827')
             
-            # Draw background bar
-            ax_metrics_right.barh(y_pos - bar_height/2 - padding, 0.95, height=bar_height/2,
-                               left=0.03, color='#E5E7EB', zorder=0)
+            # Draw description
+            ax_metrics_right.text(0.02, y_pos - metric_height/2, description, 
+                               fontsize=7, color='#4B5563')
             
-            # Draw score bar
-            score_width = 0.95 * (score / 10)
-            ax_metrics_right.barh(y_pos - bar_height/2 - padding, score_width, height=bar_height/2,
-                              left=0.03, color='#5865f2', alpha=0.7, zorder=1)
-            
-            # Draw description (wrapped to fit)
-            desc_lines = []
-            words = description.split()
-            current_line = ""
-            for word in words:
-                if len(current_line + " " + word) <= 40:
-                    current_line += " " + word if current_line else word
-                else:
-                    desc_lines.append(current_line)
-                    current_line = word
-            if current_line:
-                desc_lines.append(current_line)
-                
-            # Draw description lines
-            for j, line in enumerate(desc_lines):
-                ax_metrics_right.text(0.03, y_pos - bar_height/2 - padding*2 - j*0.045, line,
-                                  fontsize=7, color='#4B5563')
-            
-            y_pos -= bar_height
+            y_pos -= metric_height
         
         # Benchmark section
-        ax_benchmark = fig.add_subplot(gs[15:17, 1:11])
+        ax_benchmark = fig.add_subplot(gs[18:21, 1:11])
         ax_benchmark.axis('off')
         
-        # Add a styled box around benchmark
-        benchmark_box = patches.FancyBboxPatch((0.005, 0.05), 0.99, 0.9, 
-                                    boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                    fill=True, color='#f8fafc', 
-                                    transform=ax_benchmark.transAxes, zorder=-1,
-                                    linewidth=1, edgecolor='#cbd5e1')
-        ax_benchmark.add_patch(benchmark_box)
-        
-        ax_benchmark.text(0.02, 0.8, '📊 Benchmark Comparison', fontsize=12, fontweight='bold', color='#111827')
+        # Draw section title
+        ax_benchmark.text(0.01, 0.9, 'Benchmark Comparison', fontsize=12, fontweight='bold', color='#111827')
         
         # Formatted benchmark text
         benchmark_text = (f"This campaign ranks in the top {percentile}% of Gen Z-facing national campaigns "
@@ -239,11 +198,11 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
             
         # Draw each line
         for i, line in enumerate(benchmark_lines):
-            ax_benchmark.text(0.02, 0.65 - i*0.12, line, fontsize=8, color='#4B5563')
+            ax_benchmark.text(0.01, 0.75 - i*0.12, line, fontsize=8, color='#4B5563')
             
         # Add improvement areas
         improvement_text = f"Biggest opportunity areas: {', '.join(improvement_areas)}"
-        ax_benchmark.text(0.02, 0.2, improvement_text, fontsize=8, color='#4B5563', fontweight='bold')
+        ax_benchmark.text(0.01, 0.3, improvement_text, fontsize=8, color='#4B5563', fontweight='bold')
         
         # Save the first page
         pdf.savefig(fig)
@@ -263,127 +222,201 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
                 fontsize=18, ha='center', fontweight='bold', color='#111827')
         
         # Top Media Affinity Sites
-        ax_sites_title = fig.add_subplot(gs[2:3, 1:11])
+        ax_sites_title = fig.add_subplot(gs[2:3, 0:12])
         ax_sites_title.axis('off')
-        ax_sites_title.text(0.01, 0.6, '🔥 Top Media Affinity Sites', 
+        ax_sites_title.text(0.1, 0.6, 'Top Media Affinity Sites', 
                      fontsize=14, fontweight='bold', color='#111827')
-        ax_sites_title.text(0.01, 0.2, 'QVI = Quality Visit Index, a score indicating audience engagement strength', 
+        ax_sites_title.text(0.1, 0.2, 'QVI = Quality Visit Index, a score indicating audience engagement strength', 
                      fontsize=8, color='#4B5563')
         
         # Draw media site boxes - 5 sites in a row
+        site_width = 0.17
+        site_margin = 0.01
+        
         for i, site in enumerate(MEDIA_AFFINITY_SITES):
-            col = i % 5
-            
             # Calculate position
-            ax_site = fig.add_subplot(gs[3:6, 1+col*2:3+col*2])
-            ax_site.axis('off')
+            left = 0.1 + i * (site_width + site_margin)
             
-            # Draw box
-            site_box = patches.FancyBboxPatch((0.05, 0.05), 0.9, 0.9, 
-                                   boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                   fill=True, color='#e0edff', 
-                                   transform=ax_site.transAxes, zorder=-1,
-                                   linewidth=1, edgecolor='#bfdbfe')
-            ax_site.add_patch(site_box)
+            # Site box in light blue
+            rect = patches.Rectangle((left, 0.75), site_width, 0.15, 
+                                   facecolor='#e0edff', edgecolor='none',
+                                   transform=ax_sites_title.transAxes)
+            ax_sites_title.add_patch(rect)
             
-            # Draw site info
+            # Site info
             site_name = site['name']
             if len(site_name) > 20:
                 site_name = site_name[:17] + "..."
                 
-            ax_site.text(0.5, 0.8, site_name, fontsize=9, fontweight='bold', ha='center', color='#111827')
-            ax_site.text(0.5, 0.6, site['category'], fontsize=8, ha='center', color='#4B5563')
-            ax_site.text(0.5, 0.4, f"QVI: {site['qvi']}", fontsize=9, fontweight='bold', ha='center', color='#3b82f6')
-            ax_site.text(0.5, 0.2, "Visit Site", fontsize=8, ha='center', color='#3b82f6')
+            # Center of the box
+            center_x = left + site_width/2
+            
+            ax_sites_title.text(center_x, 0.85, site_name, 
+                             fontsize=8, ha='center', va='center', 
+                             fontweight='bold', color='#111827', 
+                             transform=ax_sites_title.transAxes)
+            
+            ax_sites_title.text(center_x, 0.81, site['category'], 
+                             fontsize=7, ha='center', va='center', 
+                             color='#4B5563', transform=ax_sites_title.transAxes)
+            
+            ax_sites_title.text(center_x, 0.77, f"QVI: {site['qvi']}", 
+                             fontsize=7, ha='center', va='center', 
+                             fontweight='bold', color='#3b82f6', 
+                             transform=ax_sites_title.transAxes)
+            
+            ax_sites_title.text(center_x, 0.73, "Visit Site", 
+                             fontsize=7, ha='center', va='center', 
+                             color='#3b82f6', transform=ax_sites_title.transAxes)
         
         # TV Network Affinities
-        ax_tv_title = fig.add_subplot(gs[7:8, 1:11])
+        ax_tv_title = fig.add_subplot(gs[5:6, 0:12])
         ax_tv_title.axis('off')
-        ax_tv_title.text(0.01, 0.5, '📺 Top TV Network Affinities', 
+        ax_tv_title.text(0.1, 0.6, 'Top TV Network Affinities', 
                   fontsize=14, fontweight='bold', color='#111827')
         
-        # Draw TV network boxes - 5 networks in a row
+        # Draw network boxes
         for i, network in enumerate(TV_NETWORKS):
-            col = i % 5
-            
             # Calculate position
-            ax_network = fig.add_subplot(gs[8:11, 1+col*2:3+col*2])
-            ax_network.axis('off')
+            left = 0.1 + i * (site_width + site_margin)
             
-            # Draw box
-            network_box = patches.FancyBboxPatch((0.05, 0.05), 0.9, 0.9, 
-                                      boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                      fill=True, color='#dbeafe', 
-                                      transform=ax_network.transAxes, zorder=-1,
-                                      linewidth=1, edgecolor='#bfdbfe')
-            ax_network.add_patch(network_box)
+            # Network box in light blue
+            rect = patches.Rectangle((left, 0.25), site_width, 0.15, 
+                                   facecolor='#dbeafe', edgecolor='none',
+                                   transform=ax_tv_title.transAxes)
+            ax_tv_title.add_patch(rect)
             
-            # Draw network info
+            # Network info
             network_name = network['name']
             if len(network_name) > 15:
                 network_name = network_name[:12] + "..."
-                
-            ax_network.text(0.5, 0.7, network_name, fontsize=9, fontweight='bold', ha='center', color='#111827')
-            ax_network.text(0.5, 0.5, network['category'], fontsize=8, ha='center', color='#4B5563')
-            ax_network.text(0.5, 0.3, f"QVI: {network['qvi']}", fontsize=9, fontweight='bold', ha='center', color='#1e88e5')
+            
+            # Center of the box
+            center_x = left + site_width/2
+            
+            ax_tv_title.text(center_x, 0.35, network_name, 
+                          fontsize=8, ha='center', va='center', 
+                          fontweight='bold', color='#111827', 
+                          transform=ax_tv_title.transAxes)
+            
+            ax_tv_title.text(center_x, 0.3, network['category'], 
+                          fontsize=7, ha='center', va='center', 
+                          color='#4B5563', transform=ax_tv_title.transAxes)
+            
+            ax_tv_title.text(center_x, 0.25, f"QVI: {network['qvi']}", 
+                          fontsize=7, ha='center', va='center', 
+                          fontweight='bold', color='#1e88e5', 
+                          transform=ax_tv_title.transAxes)
         
         # Streaming Platforms
-        ax_stream_title = fig.add_subplot(gs[12:13, 1:11])
+        ax_stream_title = fig.add_subplot(gs[9:10, 0:12])
         ax_stream_title.axis('off')
-        ax_stream_title.text(0.01, 0.5, '📶 Top Streaming Platforms', 
+        ax_stream_title.text(0.1, 0.6, 'Top Streaming Platforms', 
                       fontsize=14, fontweight='bold', color='#111827')
         
-        # Draw streaming platform boxes - 3 platforms in a row, potentially 2 rows
-        for i, platform in enumerate(STREAMING_PLATFORMS):
-            col = i % 3
-            row = i // 3
-            
+        # Draw streaming platform boxes - 3 in a row, bigger boxes
+        platform_width = 0.26
+        platform_margin = 0.02
+        
+        # First row
+        platforms_first_row = STREAMING_PLATFORMS[:3]
+        
+        for i, platform in enumerate(platforms_first_row):
             # Calculate position
-            ax_platform = fig.add_subplot(gs[13+row*3:16+row*3, 1+col*4:4+col*4])
-            ax_platform.axis('off')
+            left = 0.1 + i * (platform_width + platform_margin)
             
-            # Draw box
-            platform_box = patches.FancyBboxPatch((0.05, 0.05), 0.9, 0.9, 
-                                       boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                       fill=True, color='#d1fae5', 
-                                       transform=ax_platform.transAxes, zorder=-1,
-                                       linewidth=1, edgecolor='#a7f3d0')
-            ax_platform.add_patch(platform_box)
+            # Platform box in light green
+            rect = patches.Rectangle((left, 0.2), platform_width, 0.2, 
+                                   facecolor='#d1fae5', edgecolor='none',
+                                   transform=ax_stream_title.transAxes)
+            ax_stream_title.add_patch(rect)
             
-            # Draw platform info
+            # Platform info
             platform_name = platform['name']
             if len(platform_name) > 18:
                 platform_name = platform_name[:15] + "..."
+            
+            # Center of the box
+            center_x = left + platform_width/2
+            
+            ax_stream_title.text(center_x, 0.35, platform_name, 
+                              fontsize=8, ha='center', va='center', 
+                              fontweight='bold', color='#111827', 
+                              transform=ax_stream_title.transAxes)
+            
+            ax_stream_title.text(center_x, 0.3, platform['category'], 
+                              fontsize=7, ha='center', va='center', 
+                              color='#4B5563', transform=ax_stream_title.transAxes)
+            
+            ax_stream_title.text(center_x, 0.25, f"QVI: {platform['qvi']}", 
+                              fontsize=7, ha='center', va='center', 
+                              fontweight='bold', color='#059669', 
+                              transform=ax_stream_title.transAxes)
+        
+        # Second row if needed
+        if len(STREAMING_PLATFORMS) > 3:
+            ax_stream_row2 = fig.add_subplot(gs[12:13, 0:12])
+            ax_stream_row2.axis('off')
+            
+            platforms_second_row = STREAMING_PLATFORMS[3:6]
+            
+            for i, platform in enumerate(platforms_second_row):
+                # Calculate position
+                left = 0.1 + i * (platform_width + platform_margin)
                 
-            ax_platform.text(0.5, 0.7, platform_name, fontsize=9, fontweight='bold', ha='center', color='#111827')
-            ax_platform.text(0.5, 0.5, platform['category'], fontsize=8, ha='center', color='#4B5563')
-            ax_platform.text(0.5, 0.3, f"QVI: {platform['qvi']}", fontsize=9, fontweight='bold', ha='center', color='#059669')
+                # Platform box in light green
+                rect = patches.Rectangle((left, 0.2), platform_width, 0.2, 
+                                       facecolor='#d1fae5', edgecolor='none',
+                                       transform=ax_stream_row2.transAxes)
+                ax_stream_row2.add_patch(rect)
+                
+                # Platform info
+                platform_name = platform['name']
+                if len(platform_name) > 18:
+                    platform_name = platform_name[:15] + "..."
+                
+                # Center of the box
+                center_x = left + platform_width/2
+                
+                ax_stream_row2.text(center_x, 0.35, platform_name, 
+                                  fontsize=8, ha='center', va='center', 
+                                  fontweight='bold', color='#111827', 
+                                  transform=ax_stream_row2.transAxes)
+                
+                ax_stream_row2.text(center_x, 0.3, platform['category'], 
+                                  fontsize=7, ha='center', va='center', 
+                                  color='#4B5563', transform=ax_stream_row2.transAxes)
+                
+                ax_stream_row2.text(center_x, 0.25, f"QVI: {platform['qvi']}", 
+                                  fontsize=7, ha='center', va='center', 
+                                  fontweight='bold', color='#059669', 
+                                  transform=ax_stream_row2.transAxes)
+            
+            # Adjust y-position for next sections
+            y_position = 16
+        else:
+            y_position = 13
         
         # Psychographic Highlights
-        y_position = 19
-        if len(STREAMING_PLATFORMS) > 3:
-            y_position = 22
-            
-        ax_psycho = fig.add_subplot(gs[y_position:y_position+3, 1:11])
+        ax_psycho = fig.add_subplot(gs[y_position:y_position+4, 1:11])
         ax_psycho.axis('off')
         
-        # Draw box
-        psycho_box = patches.FancyBboxPatch((0.005, 0.05), 0.99, 0.9, 
-                                  boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                  fill=True, color='#fff7ed', 
-                                  transform=ax_psycho.transAxes, zorder=-1,
-                                  linewidth=1, edgecolor='#fed7aa')
-        ax_psycho.add_patch(psycho_box)
+        # Draw background
+        psycho_rect = patches.Rectangle((0, 0), 1, 1, 
+                                       facecolor='#fff7ed', edgecolor='none',
+                                       transform=ax_psycho.transAxes)
+        ax_psycho.add_patch(psycho_rect)
         
-        ax_psycho.text(0.02, 0.8, '🧠 Psychographic Highlights', fontsize=12, fontweight='bold', color='#111827')
+        # Title and content
+        ax_psycho.text(0.02, 0.9, 'Psychographic Highlights', 
+                     fontsize=12, fontweight='bold', color='#111827')
         
-        # Clean HTML tags from text
-        psycho_text = PSYCHOGRAPHIC_HIGHLIGHTS.replace('<strong>', '').replace('</strong>', '').strip()
-        
-        # Format the text to wrap at appropriate points
+        # Clean HTML tags from content and format text
+        psycho_text = strip_html(PSYCHOGRAPHIC_HIGHLIGHTS)
         psycho_lines = []
         words = psycho_text.split()
         line = ""
+        
         for word in words:
             if len(line + " " + word) <= 95:
                 line += " " + word if line else word
@@ -393,32 +426,30 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         if line:
             psycho_lines.append(line)
             
-        # Draw each line
+        # Draw text
         for i, line in enumerate(psycho_lines):
-            ax_psycho.text(0.02, 0.6 - i*0.15, line, fontsize=8, color='#4B5563')
+            ax_psycho.text(0.02, 0.8 - i*0.1, line, fontsize=8, color='#4B5563')
         
         # Audience Summary
-        y_position += 4
-        ax_audience = fig.add_subplot(gs[y_position:y_position+4, 1:11])
+        ax_audience = fig.add_subplot(gs[y_position+5:y_position+9, 1:11])
         ax_audience.axis('off')
         
-        # Draw box
-        audience_box = patches.FancyBboxPatch((0.005, 0.05), 0.99, 0.9, 
-                                   boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                   fill=True, color='#f0f9ff', 
-                                   transform=ax_audience.transAxes, zorder=-1,
-                                   linewidth=1, edgecolor='#bae6fd')
-        ax_audience.add_patch(audience_box)
+        # Draw background
+        audience_rect = patches.Rectangle((0, 0), 1, 1, 
+                                        facecolor='#f0f9ff', edgecolor='none',
+                                        transform=ax_audience.transAxes)
+        ax_audience.add_patch(audience_rect)
         
-        ax_audience.text(0.02, 0.85, '👥 Audience Summary', fontsize=12, fontweight='bold', color='#111827')
+        # Title and content
+        ax_audience.text(0.02, 0.9, 'Audience Summary', 
+                       fontsize=12, fontweight='bold', color='#111827')
         
-        # Clean HTML tags from text
-        audience_text = AUDIENCE_SUMMARY.replace('<strong>', '').replace('</strong>', '').strip()
-        
-        # Format the text to wrap at appropriate points
+        # Clean HTML tags from content and format text
+        audience_text = strip_html(AUDIENCE_SUMMARY)
         audience_lines = []
         words = audience_text.split()
         line = ""
+        
         for word in words:
             if len(line + " " + word) <= 95:
                 line += " " + word if line else word
@@ -428,32 +459,30 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         if line:
             audience_lines.append(line)
             
-        # Draw each line
+        # Draw text
         for i, line in enumerate(audience_lines):
-            ax_audience.text(0.02, 0.7 - i*0.12, line, fontsize=8, color='#4B5563')
+            ax_audience.text(0.02, 0.8 - i*0.1, line, fontsize=8, color='#4B5563')
         
         # What's Next section
-        y_position += 5
-        ax_next = fig.add_subplot(gs[y_position:y_position+3, 1:11])
+        ax_next = fig.add_subplot(gs[y_position+10:y_position+14, 1:11])
         ax_next.axis('off')
         
-        # Draw box with light blue background
-        next_box = patches.FancyBboxPatch((0.005, 0.05), 0.99, 0.9, 
-                                boxstyle=patches.BoxStyle("Round", pad=0.02, rounding_size=0.05),
-                                fill=True, color='#eff6ff', 
-                                transform=ax_next.transAxes, zorder=-1,
-                                linewidth=1, edgecolor='#bfdbfe')
-        ax_next.add_patch(next_box)
+        # Draw background
+        next_rect = patches.Rectangle((0, 0), 1, 1, 
+                                     facecolor='#eff6ff', edgecolor='none',
+                                     transform=ax_next.transAxes)
+        ax_next.add_patch(next_rect)
         
-        ax_next.text(0.02, 0.8, '🔧 What\'s Next?', fontsize=12, fontweight='bold', color='#111827')
+        # Title and content
+        ax_next.text(0.02, 0.9, 'What\'s Next?', 
+                   fontsize=12, fontweight='bold', color='#111827')
         
-        # Clean HTML tags from text
-        next_text = NEXT_STEPS.replace('<strong>', '').replace('</strong>', '').strip()
-        
-        # Format the text to wrap at appropriate points
+        # Clean HTML tags from content and format text
+        next_text = strip_html(NEXT_STEPS)
         next_lines = []
         words = next_text.split()
         line = ""
+        
         for word in words:
             if len(line + " " + word) <= 95:
                 line += " " + word if line else word
@@ -463,21 +492,21 @@ def create_pdf_download_link(scores, improvement_areas, percentile):
         if line:
             next_lines.append(line)
             
-        # Draw each line
+        # Draw text
         for i, line in enumerate(next_lines):
-            ax_next.text(0.02, 0.6 - i*0.15, line, fontsize=8, color='#4B5563')
+            ax_next.text(0.02, 0.8 - i*0.1, line, fontsize=8, color='#4B5563')
             
-        # Add additional text
-        ax_next.text(0.02, 0.3, "Let's build a breakthrough growth strategy — Digital Culture Group has proven tactics", 
-                 fontsize=8, color='#5865f2')
-        ax_next.text(0.02, 0.2, "that boost underperforming areas.", 
-                 fontsize=8, color='#5865f2')
+        # Additional text
+        ax_next.text(0.02, 0.5, "Let's build a breakthrough growth strategy — Digital Culture Group has proven tactics", 
+                   fontsize=8, color='#5865f2')
+        ax_next.text(0.02, 0.4, "that boost underperforming areas.", 
+                   fontsize=8, color='#5865f2')
         
         # Footer
         ax_footer = fig.add_subplot(gs[33:35, 0:12])
         ax_footer.axis('off')
         ax_footer.text(0.5, 0.5, 'Powered by Digital Culture Group © 2023', 
-                 fontsize=8, ha='center', color='#6B7280')
+                     fontsize=8, ha='center', color='#6B7280')
         
         # Save the second page
         pdf.savefig(fig)
