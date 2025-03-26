@@ -663,7 +663,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     <div style="margin-top: 40px; padding: 25px; background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); border: 1px solid #e5e7eb; border-radius: 8px;">
         <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
             <div style="flex: 3; min-width: 300px; margin-bottom: 20px;">
-                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">ENTERPRISE ANALYTICS</div>
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px; background: rgba(88, 101, 242, 0.08); display: inline-block; padding: 4px 10px; border-radius: 4px;">Enterprise Analytics</div>
                 <div style="font-size: 1.4rem; font-weight: 700; color: #333; margin-bottom: 15px;">Ready to take your marketing to the next level?</div>
                 <div style="color: #555; line-height: 1.6; margin-bottom: 20px;">
                     Download our comprehensive enterprise report with detailed metrics, actionable insights, and competitive benchmarking to optimize your campaign performance.
@@ -787,7 +787,8 @@ def display_radar_chart(scores):
             text="<b>Campaign Performance vs. Industry Average</b>",
             font=dict(size=16, family="Inter, sans-serif", color="#333"),
             x=0.5,
-            y=0.98
+            y=0.98,
+            xanchor="center"
         )
     )
     
