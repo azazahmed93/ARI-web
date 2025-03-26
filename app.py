@@ -421,17 +421,20 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         for metric, score in metrics[:half]:
             # Define color based on score
             if score >= 8:
-                color = "green"  # Using named colors instead of hex
+                color_code = "#10b981"  # green color
                 emoji = "🔥"
                 label = "STRONG"
+                progress_color = "green"
             elif score >= 6:
-                color = "blue"
+                color_code = "#3b82f6"  # blue color
                 emoji = "✓"
                 label = "GOOD"
+                progress_color = "blue"
             else:
-                color = "red"
+                color_code = "#f43f5e"  # red color
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
+                progress_color = "red"
             
             # Create container for the metric card
             metric_container = st.container()
@@ -439,13 +442,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 # Using columns for header
                 header_col1, header_col2 = st.columns([4, 1])
                 header_col1.markdown(f"**{metric}**")
-                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
+                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
                 # Progress bar
-                st.progress(score/10, color)
+                st.progress(score/10, progress_color)
                 
                 # Score display
-                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
                 
                 # Description
                 st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin-top: 10px;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
@@ -457,17 +460,20 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         for metric, score in metrics[half:]:
             # Define color based on score
             if score >= 8:
-                color = "green"
+                color_code = "#10b981"  # green color
                 emoji = "🔥"
                 label = "STRONG"
+                progress_color = "green"
             elif score >= 6:
-                color = "blue"
+                color_code = "#3b82f6"  # blue color
                 emoji = "✓"
                 label = "GOOD"
+                progress_color = "blue"
             else:
-                color = "red"
+                color_code = "#f43f5e"  # red color
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
+                progress_color = "red"
             
             # Create container for the metric card
             metric_container = st.container()
@@ -475,13 +481,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 # Using columns for header
                 header_col1, header_col2 = st.columns([4, 1])
                 header_col1.markdown(f"**{metric}**")
-                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
+                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
                 
                 # Progress bar
-                st.progress(score/10, color)
+                st.progress(score/10, progress_color)
                 
                 # Score display
-                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
                 
                 # Description
                 st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin-top: 10px;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
@@ -585,7 +591,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             <div style="background:#e0edff; padding:10px; border-radius:10px; height:130px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px;">{site['category']}</div>
-                <div style="font-weight:bold; color:blue; margin-bottom:5px;">QVI: {site['qvi']}</div>
+                <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">QVI: {site['qvi']}</div>
                 <div style="font-size:0.8rem;">
                     <a href="{site['url']}" target="_blank">Visit Site</a>
                 </div>
@@ -610,7 +616,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             <div style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{network['category']}</div>
-                <div style="font-weight:bold; color:blue;">QVI: {network['qvi']}</div>
+                <div style="font-weight:bold; color:#3b82f6;">QVI: {network['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
     
@@ -632,7 +638,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             <div style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform['category']}</div>
-                <div style="font-weight:bold; color:green;">QVI: {platform['qvi']}</div>
+                <div style="font-weight:bold; color:#10b981;">QVI: {platform['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
     
