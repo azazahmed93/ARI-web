@@ -44,6 +44,16 @@ st.set_page_config(
 # Apply custom styles
 apply_styles()
 
+# Add custom CSS to hide the color codes in progress bars
+st.markdown("""
+<style>
+/* Hide color code text that appears before progress bars */
+.stProgress > div > div > div > div:first-child {
+    display: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # Initialize session state for storing analysis results
 if 'has_analyzed' not in st.session_state:
     st.session_state.has_analyzed = False
