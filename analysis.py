@@ -368,9 +368,9 @@ def get_score_level(score):
     Returns:
         str: Level descriptor
     """
-    if score >= 9.0:
+    if score >= 8.0:
         return "high"
-    elif score >= 7.0:
+    elif score >= 6.0:
         return "medium"
     else:
         return "low"

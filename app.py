@@ -420,16 +420,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     with col1:
         for metric, score in metrics[:half]:
             # Define color based on score
-            if score >= 7:
-                color = "#10b981"  # green
+            if score >= 8:
+                color = "#10b981"
                 emoji = "🔥"
                 label = "STRONG"
-            elif score >= 5:
-                color = "#3b82f6"  # blue
+            elif score >= 6:
+                color = "#3b82f6"
                 emoji = "✓"
                 label = "GOOD"
             else:
-                color = "#f43f5e"  # red
+                color = "#f43f5e"
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
@@ -456,16 +456,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     with col2:
         for metric, score in metrics[half:]:
             # Define color based on score
-            if score >= 7:
-                color = "#10b981"  # green
+            if score >= 8:
+                color = "#10b981"
                 emoji = "🔥"
                 label = "STRONG"
-            elif score >= 5:
-                color = "#3b82f6"  # blue
+            elif score >= 6:
+                color = "#3b82f6"
                 emoji = "✓"
                 label = "GOOD"
             else:
-                color = "#f43f5e"  # red
+                color = "#f43f5e"
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
