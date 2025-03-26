@@ -17,6 +17,13 @@ except LookupError:
     nltk.download('vader_lexicon')
     nltk.download('stopwords')
 
+# Ensure punkt_tab is downloaded
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    # Since punkt_tab might not be directly downloadable, we'll modify our code to use punkt instead
+    pass
+
 def analyze_campaign_brief(brief_text):
     """
     Analyze a campaign brief text and return ARI metrics scores.
@@ -36,8 +43,14 @@ def analyze_campaign_brief(brief_text):
     # Initialize sentiment analyzer
     sia = SentimentIntensityAnalyzer()
     
-    # Tokenize text
-    tokens = word_tokenize(brief_text.lower())
+    # Tokenize text - simple implementation to avoid punkt_tab dependency
+    # Use a simple regex-based tokenizer instead of NLTK's word_tokenize
+    text = brief_text.lower()
+    # Replace punctuation with spaces
+    for punct in '.,;:!?()[]{}"\'':
+        text = text.replace(punct, ' ')
+    # Split on whitespace
+    tokens = text.split()
     
     # Remove stopwords
     stop_words = set(stopwords.words('english'))
