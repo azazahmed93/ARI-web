@@ -421,15 +421,15 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         for metric, score in metrics[:half]:
             # Define color based on score
             if score >= 8:
-                color = "#10b981"
+                color = "green"  # Using named colors instead of hex
                 emoji = "🔥"
                 label = "STRONG"
             elif score >= 6:
-                color = "#3b82f6"
+                color = "blue"
                 emoji = "✓"
                 label = "GOOD"
             else:
-                color = "#f43f5e"
+                color = "red"
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
@@ -457,15 +457,15 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         for metric, score in metrics[half:]:
             # Define color based on score
             if score >= 8:
-                color = "#10b981"
+                color = "green"
                 emoji = "🔥"
                 label = "STRONG"
             elif score >= 6:
-                color = "#3b82f6"
+                color = "blue"
                 emoji = "✓"
                 label = "GOOD"
             else:
-                color = "#f43f5e"
+                color = "red"
                 emoji = "⚠️"
                 label = "NEEDS IMPROVEMENT"
             
@@ -585,7 +585,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             <div style="background:#e0edff; padding:10px; border-radius:10px; height:130px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px;">{site['category']}</div>
-                <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">QVI: {site['qvi']}</div>
+                <div style="font-weight:bold; color:blue; margin-bottom:5px;">QVI: {site['qvi']}</div>
                 <div style="font-size:0.8rem;">
                     <a href="{site['url']}" target="_blank">Visit Site</a>
                 </div>
@@ -610,7 +610,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             <div style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{network['category']}</div>
-                <div style="font-weight:bold; color:#1e88e5;">QVI: {network['qvi']}</div>
+                <div style="font-weight:bold; color:blue;">QVI: {network['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
     
@@ -632,7 +632,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             <div style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform['category']}</div>
-                <div style="font-weight:bold; color:#059669;">QVI: {platform['qvi']}</div>
+                <div style="font-weight:bold; color:green;">QVI: {platform['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
     
