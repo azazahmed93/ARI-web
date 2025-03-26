@@ -69,11 +69,63 @@ def main():
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        # Display a random stock photo
-        analytics_image_url = random.choice(STOCK_PHOTOS["business_analytics"])
-        response = requests.get(analytics_image_url)
-        image = Image.open(BytesIO(response.content))
-        st.image(image, use_container_width=True)
+        # Create an animated data visualization that appears to be computing
+        # Generate random data
+        import numpy as np
+        
+        # Create data for animated visualization
+        np.random.seed(42)  # For reproducibility
+        categories = ['Culture', 'Audience', 'Platforms', 'Creative', 'Media', 'Resonance']
+        values = np.random.uniform(low=60, high=95, size=len(categories))
+        colors = ['#5865f2', '#7983f5', '#8f9af7', '#a3aff9', '#c7cdfb', '#daddfd']
+        
+        # Create animated bar chart
+        fig = go.Figure(data=[
+            go.Bar(
+                x=values,
+                y=categories,
+                orientation='h',
+                marker=dict(
+                    color=colors,
+                    line=dict(color='rgba(0, 0, 0, 0)', width=0)
+                )
+            )
+        ])
+        
+        # Update layout for a more dashboard/tech look
+        fig.update_layout(
+            margin=dict(l=0, r=15, t=0, b=0),
+            height=300,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            xaxis=dict(
+                showgrid=True,
+                gridcolor='rgba(211, 211, 211, 0.3)',
+                showticklabels=True,
+                tickfont=dict(size=10),
+                title=None,
+                range=[0, 100]
+            ),
+            yaxis=dict(
+                showgrid=False,
+                showline=False,
+                showticklabels=True,
+                tickfont=dict(size=12, color="#444"),
+                title=None
+            ),
+            bargap=0.2
+        )
+        
+        # Add customized hover information
+        fig.update_traces(
+            hovertemplate="<b>%{y}</b><br>Score: %{x:.1f}%<br><extra></extra>",
+            texttemplate='%{x:.0f}%', 
+            textposition='outside',
+            cliponaxis=False
+        )
+        
+        # Display the chart
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
     with col2:
         # Brief description and input area
