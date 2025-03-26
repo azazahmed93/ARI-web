@@ -166,39 +166,38 @@ def main():
             plot_bgcolor='rgba(0,0,0,0)',
         )
         
-        # Create a more technical-looking metrics overlay
-        overlay_html = f"""
+        # Enhanced premium visualization with custom CSS for futuristic tech elements
+        
+        # First, create custom CSS with tech overlays
+        st.markdown("""
         <style>
-            @keyframes pulse {{
-                0% {{ opacity: 0.7; }}
-                50% {{ opacity: 1; }}
-                100% {{ opacity: 0.7; }}
-            }}
-            @keyframes shift {{
-                0% {{ transform: translateX(0); }}
-                100% {{ transform: translateX(10px); }}
-            }}
-            @keyframes fadeInOut {{
-                0% {{ opacity: 0.4; }}
-                50% {{ opacity: 0.8; }}
-                100% {{ opacity: 0.4; }}
-            }}
-            @keyframes blink {{
-                0% {{ opacity: 1; }}
-                49% {{ opacity: 1; }}
-                50% {{ opacity: 0; }}
-                100% {{ opacity: 0; }}
-            }}
-            .tech-overlay {{
-                position: absolute;
-                top: 0;
-                left: 0;
+            /* Styles for tech overlay elements */
+            @keyframes pulse {
+                0% { opacity: 0.7; }
+                50% { opacity: 1; }
+                100% { opacity: 0.7; }
+            }
+            
+            @keyframes blink {
+                0% { opacity: 1; }
+                49% { opacity: 1; }
+                50% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+            
+            @keyframes fadeInOut {
+                0% { opacity: 0.4; }
+                50% { opacity: 0.8; }
+                100% { opacity: 0.4; }
+            }
+            
+            .tech-container {
+                position: relative;
                 width: 100%;
-                height: 100%;
-                pointer-events: none;
-                font-family: 'Courier New', monospace;
-            }}
-            .status-indicator {{
+                margin-bottom: 20px;
+            }
+            
+            .status-indicator {
                 position: absolute;
                 top: 15px;
                 right: 15px;
@@ -210,31 +209,22 @@ def main():
                 font-size: 11px;
                 display: flex;
                 align-items: center;
-            }}
-            .indicator-dot {{
+                z-index: 100;
+            }
+            
+            .indicator-dot {
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
                 background-color: #F97316;
                 margin-right: 6px;
                 animation: pulse 1.5s infinite ease-in-out;
-            }}
-            .module-names {{
+            }
+            
+            .corner-box {
                 position: absolute;
-                bottom: 10px;
-                left: 10px;
-                color: rgba(59, 130, 246, 0.9);
-                font-size: 9px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }}
-            .module-names div {{
-                margin-bottom: 3px;
-            }}
-            .corner-box {{
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
+                bottom: 20px;
+                right: 15px;
                 border: 1px solid rgba(79, 70, 229, 0.6);
                 background: rgba(0,0,0,0.5);
                 padding: 5px;
@@ -242,47 +232,50 @@ def main():
                 color: rgba(236, 72, 153, 0.9);
                 border-radius: 3px;
                 animation: fadeInOut 3s infinite ease-in-out;
-            }}
-            .grid-lines {{
+                z-index: 100;
+            }
+            
+            .module-names {
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: 
-                    linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-                background-size: 20px 20px;
-            }}
-            .scanning-line {{
-                position: absolute; 
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 1px;
-                background: linear-gradient(to right, transparent, rgba(236, 72, 153, 0.7), transparent);
-                animation: scanDown 4s infinite linear;
-                opacity: 0.6;
-            }}
-            @keyframes scanDown {{
-                0% {{ top: 0; }}
-                100% {{ top: 100%; }}
-            }}
-            .status-code {{
+                bottom: 20px;
+                left: 15px;
+                color: rgba(59, 130, 246, 0.9);
+                font-size: 9px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                z-index: 100;
+            }
+            
+            .module-names div {
+                margin-bottom: 3px;
+            }
+            
+            .status-code {
                 position: absolute;
-                top: 10px;
-                left: 10px;
+                top: 15px;
+                left: 15px;
                 font-family: 'Courier New', monospace;
                 font-size: 10px;
                 color: rgba(79, 70, 229, 0.9);
-            }}
-            .status-code .blink {{
+                z-index: 100;
+            }
+            
+            .status-code .blink {
                 animation: blink 1s infinite;
-            }}
+            }
         </style>
-        <div class="tech-overlay">
-            <div class="grid-lines"></div>
-            <div class="scanning-line"></div>
+        """, unsafe_allow_html=True)
+        
+        # Create a container for our visualization
+        with st.container():
+            # Add a div to establish relative positioning
+            st.markdown('<div class="tech-container">', unsafe_allow_html=True)
+            
+            # Display the main visualization
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            
+            # Add tech overlays
+            st.markdown("""
             <div class="status-indicator">
                 <div class="indicator-dot"></div>
                 PROCESSING: <span style="color: #F97316; font-weight: bold; margin-left: 4px;">ACTIVE</span>
@@ -296,12 +289,10 @@ def main():
             <div class="status-code">
                 ARI:XN:72.9:0:CT<span class="blink">_</span>
             </div>
-        </div>
-        """
-        
-        # Display the visualization with metrics overlay
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-        st.markdown(overlay_html, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+            
+            # Close the container div
+            st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
         # Brief description and input area
