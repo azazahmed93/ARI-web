@@ -65,8 +65,236 @@ def main():
     # Display header
     header_section()
     
-    # Single column layout for the RFP Analysis
-    with st.container():
+    # Two-column layout for the banner image
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        # Create an animated data visualization that looks more sophisticated
+        import numpy as np
+        import time
+        from datetime import datetime
+        
+        # Create a more sophisticated network-style visualization
+        # Generate nodes and connections for network visualization
+        np.random.seed(int(time.time()) % 100)  # Change seed each time for animation effect
+        
+        # Create a scatterpolar chart that looks like a network/radar
+        theta = np.linspace(0, 2*np.pi, 12, endpoint=False)
+        r_outer = np.random.uniform(0.7, 1.0, size=len(theta))
+        r_inner = np.random.uniform(0.3, 0.6, size=len(theta))
+        r_center = np.random.uniform(0.1, 0.2, size=len(theta))
+        
+        # Modern color scheme
+        colors = ['#4F46E5', '#7C3AED', '#EC4899', '#F97316', '#3B82F6', '#10B981']
+        
+        # Create the main radar/network figure
+        fig = go.Figure()
+        
+        # Add outer ring
+        fig.add_trace(go.Scatterpolar(
+            r=r_outer,
+            theta=theta * 180/np.pi,
+            fill='toself',
+            fillcolor='rgba(79, 70, 229, 0.2)',  # Using rgba format for transparency
+            line=dict(color=colors[0], width=2),
+            name='Cultural Reach',
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        
+        # Add middle ring
+        fig.add_trace(go.Scatterpolar(
+            r=r_inner,
+            theta=theta * 180/np.pi,
+            fill='toself',
+            fillcolor='rgba(124, 58, 237, 0.2)',  # Using rgba format for transparency
+            line=dict(color=colors[1], width=2),
+            name='Audience Engagement',
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        
+        # Add inner ring
+        fig.add_trace(go.Scatterpolar(
+            r=r_center,
+            theta=theta * 180/np.pi,
+            fill='toself',
+            fillcolor='rgba(236, 72, 153, 0.2)',  # Using rgba format for transparency
+            line=dict(color=colors[2], width=2),
+            name='Core Performance',
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        
+        # Add some connecting lines for network effect
+        for i in range(len(theta)):
+            if np.random.random() > 0.3:  # Only add some connections
+                fig.add_trace(go.Scatterpolar(
+                    r=[r_center[i], r_outer[i]],
+                    theta=[theta[i] * 180/np.pi, theta[i] * 180/np.pi],
+                    mode='lines',
+                    line=dict(color=f'rgba(100, 100, 200, 0.4)', width=1),
+                    showlegend=False,
+                    hoverinfo='skip'
+                ))
+        
+        # Add some points that look like data nodes
+        for _ in range(15):
+            r_point = np.random.uniform(0.1, 0.9)
+            theta_point = np.random.uniform(0, 360)
+            size = np.random.uniform(6, 12)
+            color_idx = np.random.randint(0, len(colors))
+            
+            fig.add_trace(go.Scatterpolar(
+                r=[r_point],
+                theta=[theta_point],
+                mode='markers',
+                marker=dict(size=size, color=colors[color_idx]),
+                showlegend=False,
+                hoverinfo='skip'
+            ))
+        
+        # Update layout for a clean, modern look
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=False),
+                angularaxis=dict(visible=False)
+            ),
+            margin=dict(l=0, r=0, t=0, b=0),
+            height=300,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+        )
+        
+        # Enhanced premium visualization with custom CSS for futuristic tech elements
+        
+        # First, create custom CSS with tech overlays
+        st.markdown("""
+        <style>
+            /* Styles for tech overlay elements */
+            @keyframes pulse {
+                0% { opacity: 0.7; }
+                50% { opacity: 1; }
+                100% { opacity: 0.7; }
+            }
+            
+            @keyframes blink {
+                0% { opacity: 1; }
+                49% { opacity: 1; }
+                50% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+            
+            @keyframes fadeInOut {
+                0% { opacity: 0.4; }
+                50% { opacity: 0.8; }
+                100% { opacity: 0.4; }
+            }
+            
+            .tech-container {
+                position: relative;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .status-indicator {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: rgba(0,0,0,0.7);
+                border: 1px solid rgba(79, 70, 229, 0.6);
+                border-radius: 4px;
+                padding: 10px;
+                color: #fff;
+                font-size: 11px;
+                display: flex;
+                align-items: center;
+                z-index: 100;
+            }
+            
+            .indicator-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #10b981; /* Changed to green to match the text */
+                margin-right: 6px;
+                animation: pulse 1.5s infinite ease-in-out;
+            }
+            
+            .corner-box {
+                position: absolute;
+                bottom: 20px;
+                right: 15px;
+                border: 2px solid #10b981; /* Thicker green border matching the indicator color */
+                background: rgba(0,0,0,0.8); /* Darker background for better contrast */
+                padding: 5px;
+                font-size: 9px;
+                color: rgba(236, 72, 153, 0.9);
+                border-radius: 3px;
+                animation: fadeInOut 3s infinite ease-in-out;
+                z-index: 100;
+            }
+            
+            .module-names {
+                position: absolute;
+                bottom: 20px;
+                left: 15px;
+                color: rgba(59, 130, 246, 0.9);
+                font-size: 9px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                z-index: 100;
+            }
+            
+            .module-names div {
+                margin-bottom: 3px;
+            }
+            
+            .status-code {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                font-family: 'Courier New', monospace;
+                font-size: 10px;
+                color: rgba(79, 70, 229, 0.9);
+                z-index: 100;
+            }
+            
+            .status-code .blink {
+                animation: blink 1s infinite;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        # Create a container for our visualization
+        with st.container():
+            # Add a div to establish relative positioning
+            st.markdown('<div class="tech-container">', unsafe_allow_html=True)
+            
+            # Display the main visualization
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            
+            # Add tech overlays with green text for specified elements
+            st.markdown("""
+            <div class="status-indicator" style="color: #10b981;">
+                <div class="indicator-dot" style="background-color: #10b981;"></div>
+                PROCESSING: <span style="color: #10b981; font-weight: bold; margin-left: 4px;">ACTIVE</span>
+            </div>
+            <div class="corner-box" style="color: #10b981;">SYSTEM INTEGRITY: 99.7%</div>
+            <div class="module-names">
+                <div>NEUROMORPHIC ENGINE V3.0.1</div>
+                <div>CULTURAL PATTERN RECOGNITION ACTIVE</div>
+                <div>QUANTUM HEURISTICS ENABLED</div>
+            </div>
+            <div class="status-code">
+                ARI:XN:72.9:0:CT<span class="blink">_</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Close the container div
+            st.markdown('</div>', unsafe_allow_html=True)
+    
+    with col2:
         # Brief description and input area
         st.markdown("### Campaign RFP Analysis")
         st.markdown("Paste your marketing campaign RFP (Request for Proposal) below to identify gaps and provide actionable solutions for better outcomes. Our proprietary Audience Resonance Index™ framework analyzes how well your campaign will resonate with your target audience and identifies opportunities for improvement.")
