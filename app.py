@@ -342,8 +342,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     st.markdown(f"""
         <div style="margin-top: 15px;">{imp_areas_html}</div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     # Add CTA button for improvement recommendations
     st.markdown("""
@@ -471,17 +470,17 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     st.markdown(pdf_link, unsafe_allow_html=True)
     
     st.markdown("""
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div style="margin-top: 30px; text-align: center;">
-        <div style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">Want to see how we can help your business?</div>
-        <div style="display: inline-block; background: white; border: 1px solid #5865f2; color: #5865f2; padding: 8px 20px; border-radius: 6px; font-weight: 500; cursor: pointer;">
-            Schedule a Demo
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <div style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">Want to see how we can help your business?</div>
+            <div style="display: inline-block; background: white; border: 1px solid #5865f2; color: #5865f2; padding: 8px 20px; border-radius: 6px; font-weight: 500; cursor: pointer;">
+                Schedule a Demo
+            </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 def display_radar_chart(scores):
     """
