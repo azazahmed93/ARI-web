@@ -216,7 +216,7 @@ def main():
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background-color: #ff4d4d; /* Changed to bright red for better visibility */
+                background-color: #10b981; /* Changed to green to match the text */
                 margin-right: 6px;
                 animation: pulse 1.5s infinite ease-in-out;
             }
@@ -274,13 +274,13 @@ def main():
             # Display the main visualization
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             
-            # Add tech overlays with all red indicators for better visibility
+            # Add tech overlays with green text for specified elements
             st.markdown("""
-            <div class="status-indicator" style="color: #ff4d4d;">
-                <div class="indicator-dot" style="background-color: #ff4d4d;"></div>
-                PROCESSING: <span style="color: #ff4d4d; font-weight: bold; margin-left: 4px;">ACTIVE</span>
+            <div class="status-indicator" style="color: #10b981;">
+                <div class="indicator-dot" style="background-color: #10b981;"></div>
+                PROCESSING: <span style="color: #10b981; font-weight: bold; margin-left: 4px;">ACTIVE</span>
             </div>
-            <div class="corner-box">SYSTEM INTEGRITY: 99.7%</div>
+            <div class="corner-box" style="color: #10b981;">SYSTEM INTEGRITY: 99.7%</div>
             <div class="module-names">
                 <div>NEUROMORPHIC ENGINE V3.0.1</div>
                 <div>CULTURAL PATTERN RECOGNITION ACTIVE</div>
