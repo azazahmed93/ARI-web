@@ -182,12 +182,9 @@ def main():
             # Add a div to establish relative positioning
             st.markdown('<div class="tech-container">', unsafe_allow_html=True)
             
-            # Display the main visualization - replaced radar chart with branded content
+            # Display the main visualization - empty space with tech futuristic feel
             st.markdown("""
-            <div style="width: 100%; height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center;">
-                <div style="font-size: 38px; margin-bottom: 10px;">⚡</div>
-                <div style="font-size: 22px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Audience Resonance Index™</div>
-                <div style="font-size: 14px; color: #777; max-width: 300px;">Analyzing Cultural Relevance and Audience Connection</div>
+            <div style="width: 100%; height: 250px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.03) 0%, rgba(124, 58, 237, 0.05) 100%); border-radius: 8px; margin-bottom: 10px;">
             </div>
             """, unsafe_allow_html=True)
             
