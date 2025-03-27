@@ -136,8 +136,13 @@ def main():
                 position: absolute;
                 bottom: 20px;
                 right: 15px;
+                border: 2px solid #10b981; /* Thicker green border matching the indicator color */
+                background: rgba(0,0,0,0.8); /* Darker background for better contrast */
+                padding: 5px;
                 font-size: 9px;
                 color: rgba(236, 72, 153, 0.9);
+                border-radius: 3px;
+                animation: fadeInOut 3s infinite ease-in-out;
                 z-index: 100;
             }
             
