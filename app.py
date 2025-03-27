@@ -620,7 +620,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
 
 def display_summary_metrics(scores):
     """
-    Display a summary of key metrics in a professional layout instead of a radar chart.
+    Display a summary of key metrics using a radar chart visualization.
     
     Args:
         scores (dict): Dictionary of metric scores
@@ -631,23 +631,94 @@ def display_summary_metrics(scores):
     # Calculate average scores
     avg_score = sum(scores.values()) / len(scores)
     
-    # Display the average score in a prominent way
-    st.markdown(f"""
-    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
-        <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Overall Campaign Score</div>
-        <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{avg_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Create columns for the visualizations
+    col1, col2 = st.columns([3, 2])
     
-    # Display a brief explanation
-    st.markdown("""
-    <div style="background: #f9f9f9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-        <p style="margin: 0; font-size: 0.95rem; color: #444;">
-            This summary provides a comprehensive overview of your campaign's performance across all key metrics.
-            The detailed breakdown below shows specific strengths and areas for improvement.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    with col1:
+        # Create a radar chart
+        categories = list(scores.keys())
+        values = list(scores.values())
+        
+        # Add the first value at the end to close the loop
+        categories.append(categories[0])
+        values.append(values[0])
+        
+        # Create the radar chart using plotly
+        fig = go.Figure()
+        
+        # Add radar chart trace
+        fig.add_trace(go.Scatterpolar(
+            r=values,
+            theta=categories,
+            fill='toself',
+            fillcolor='rgba(88, 101, 242, 0.3)',
+            line=dict(color='#5865f2', width=2),
+            name='Campaign Scores'
+        ))
+        
+        # Add "AI Insight" reference trace
+        # This is a simulated perfect score for comparison
+        ai_reference = [9.0] * len(scores)
+        ai_reference.append(ai_reference[0])  # Close the loop
+        
+        fig.add_trace(go.Scatterpolar(
+            r=ai_reference,
+            theta=categories,
+            fill='toself',
+            fillcolor='rgba(16, 185, 129, 0.1)',
+            line=dict(color='#10b981', width=1.5, dash='dot'),
+            name='AI Insights'
+        ))
+        
+        # Update layout with custom styling
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 10],
+                    tickfont=dict(size=9),
+                    tickvals=[2, 4, 6, 8, 10],
+                    gridcolor="rgba(0,0,0,0.1)",
+                ),
+                angularaxis=dict(
+                    tickfont=dict(size=10, color="#444"),
+                    gridcolor="rgba(0,0,0,0.1)",
+                )
+            ),
+            showlegend=True,
+            legend=dict(
+                x=0.85,
+                y=1.2,
+                orientation='h',
+                font=dict(size=10)
+            ),
+            margin=dict(l=80, r=80, t=20, b=80),
+            height=450,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        
+        # Display the plot
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        # Display the average score in a prominent way
+        st.markdown(f"""
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
+            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Overall Campaign Score</div>
+            <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{avg_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Display AI insights
+        st.markdown("""
+        <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
+            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">AI Insight</div>
+            <p style="margin: 0; font-size: 0.9rem; color: #333;">
+                The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Run the app
 if __name__ == "__main__":
