@@ -148,19 +148,13 @@ def main():
             
             .module-names {
                 position: absolute;
-                top: 50px; /* Changed from bottom: 20px to top: 50px */
+                top: 50px; /* Keep higher position */
                 left: 15px;
                 color: rgba(59, 130, 246, 0.9);
                 font-size: 9px;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 z-index: 100;
-                background: rgba(0,0,0,0.8);
-                border: 1px solid rgba(59, 130, 246, 0.7);
-                border-radius: 3px;
-                padding: 8px 12px;
-                width: auto; /* Make the border fit the text */
-                display: inline-block;
             }
             
             .module-names div {
