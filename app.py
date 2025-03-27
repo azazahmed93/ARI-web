@@ -74,97 +74,8 @@ def main():
         import time
         from datetime import datetime
         
-        # Create a more sophisticated network-style visualization
-        # Generate nodes and connections for network visualization
-        np.random.seed(int(time.time()) % 100)  # Change seed each time for animation effect
-        
-        # Create a scatterpolar chart that looks like a network/radar
-        theta = np.linspace(0, 2*np.pi, 12, endpoint=False)
-        r_outer = np.random.uniform(0.7, 1.0, size=len(theta))
-        r_inner = np.random.uniform(0.3, 0.6, size=len(theta))
-        r_center = np.random.uniform(0.1, 0.2, size=len(theta))
-        
-        # Modern color scheme
+        # Modern color scheme - we'll keep this for styling the tech container
         colors = ['#4F46E5', '#7C3AED', '#EC4899', '#F97316', '#3B82F6', '#10B981']
-        
-        # Create the main radar/network figure
-        fig = go.Figure()
-        
-        # Add outer ring
-        fig.add_trace(go.Scatterpolar(
-            r=r_outer,
-            theta=theta * 180/np.pi,
-            fill='toself',
-            fillcolor='rgba(79, 70, 229, 0.2)',  # Using rgba format for transparency
-            line=dict(color=colors[0], width=2),
-            name='Cultural Reach',
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-        
-        # Add middle ring
-        fig.add_trace(go.Scatterpolar(
-            r=r_inner,
-            theta=theta * 180/np.pi,
-            fill='toself',
-            fillcolor='rgba(124, 58, 237, 0.2)',  # Using rgba format for transparency
-            line=dict(color=colors[1], width=2),
-            name='Audience Engagement',
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-        
-        # Add inner ring
-        fig.add_trace(go.Scatterpolar(
-            r=r_center,
-            theta=theta * 180/np.pi,
-            fill='toself',
-            fillcolor='rgba(236, 72, 153, 0.2)',  # Using rgba format for transparency
-            line=dict(color=colors[2], width=2),
-            name='Core Performance',
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-        
-        # Add some connecting lines for network effect
-        for i in range(len(theta)):
-            if np.random.random() > 0.3:  # Only add some connections
-                fig.add_trace(go.Scatterpolar(
-                    r=[r_center[i], r_outer[i]],
-                    theta=[theta[i] * 180/np.pi, theta[i] * 180/np.pi],
-                    mode='lines',
-                    line=dict(color=f'rgba(100, 100, 200, 0.4)', width=1),
-                    showlegend=False,
-                    hoverinfo='skip'
-                ))
-        
-        # Add some points that look like data nodes
-        for _ in range(15):
-            r_point = np.random.uniform(0.1, 0.9)
-            theta_point = np.random.uniform(0, 360)
-            size = np.random.uniform(6, 12)
-            color_idx = np.random.randint(0, len(colors))
-            
-            fig.add_trace(go.Scatterpolar(
-                r=[r_point],
-                theta=[theta_point],
-                mode='markers',
-                marker=dict(size=size, color=colors[color_idx]),
-                showlegend=False,
-                hoverinfo='skip'
-            ))
-        
-        # Update layout for a clean, modern look
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=False),
-                angularaxis=dict(visible=False)
-            ),
-            margin=dict(l=0, r=0, t=0, b=0),
-            height=300,
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-        )
         
         # Enhanced premium visualization with custom CSS for futuristic tech elements
         
@@ -266,13 +177,19 @@ def main():
         </style>
         """, unsafe_allow_html=True)
         
-        # Create a container for our visualization
+        # Create a container for our tech visualization (without radar chart)
         with st.container():
             # Add a div to establish relative positioning
             st.markdown('<div class="tech-container">', unsafe_allow_html=True)
             
-            # Display the main visualization
-            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            # Display the main visualization - replaced radar chart with branded content
+            st.markdown("""
+            <div style="width: 100%; height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center;">
+                <div style="font-size: 38px; margin-bottom: 10px;">⚡</div>
+                <div style="font-size: 22px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Audience Resonance Index™</div>
+                <div style="font-size: 14px; color: #777; max-width: 300px;">Analyzing Cultural Relevance and Audience Connection</div>
+            </div>
+            """, unsafe_allow_html=True)
             
             # Add tech overlays with green text for specified elements
             st.markdown("""
@@ -375,8 +292,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     else:
         st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
     
-    # Display metrics as a radar chart
-    display_radar_chart(scores)
+    # Display metrics summary (replaced radar chart)
+    display_summary_metrics(scores)
     
     # Create a more professional metric breakdown section
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
@@ -704,106 +621,36 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         st.markdown("<p style='font-size: 0.85rem; color: #777;'>Want to see how we can help your business?</p>", unsafe_allow_html=True)
         st.button("Schedule a Demo")
 
-def display_radar_chart(scores):
+def display_summary_metrics(scores):
     """
-    Display a radar chart of ARI metrics.
+    Display a summary of key metrics in a professional layout instead of a radar chart.
     
     Args:
         scores (dict): Dictionary of metric scores
     """
-    # Prepare data for radar chart
-    categories = list(scores.keys())
-    values = list(scores.values())
+    # Create a summary section header
+    st.markdown('<div style="text-align: center;"><h4>Key Performance Metrics Summary</h4></div>', unsafe_allow_html=True)
     
-    # Add the first value at the end to close the loop
-    categories.append(categories[0])
-    values.append(values[0])
+    # Calculate average scores
+    avg_score = sum(scores.values()) / len(scores)
     
-    # Create a benchmark comparison (industry average) for investor appeal
-    industry_avg = [5.8, 6.2, 5.5, 6.0, 4.8, 5.2, 6.5, 5.9, 6.3]
-    if len(industry_avg) < len(categories) - 1:
-        # Make sure benchmark has enough values
-        industry_avg = industry_avg + [5.5] * (len(categories) - 1 - len(industry_avg))
-    elif len(industry_avg) > len(categories) - 1:
-        # Trim if too many values
-        industry_avg = industry_avg[:len(categories) - 1]
+    # Display the average score in a prominent way
+    st.markdown(f"""
+    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
+        <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Overall Campaign Score</div>
+        <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{avg_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Add closing point
-    industry_avg.append(industry_avg[0])
-    
-    # Create enhanced radar chart
-    fig = go.Figure()
-    
-    # Add industry average for comparison
-    fig.add_trace(go.Scatterpolar(
-        r=industry_avg,
-        theta=categories,
-        fill='toself',
-        name='Industry Average',
-        line=dict(color='rgba(169, 169, 169, 0.8)', dash='dot'),
-        fillcolor='rgba(169, 169, 169, 0.2)'
-    ))
-    
-    # Add campaign score with improved styling
-    fig.add_trace(go.Scatterpolar(
-        r=values,
-        theta=categories,
-        fill='toself',
-        name='Campaign Score',
-        line=dict(color='#5865f2', width=3),
-        fillcolor='rgba(88, 101, 242, 0.4)'
-    ))
-    
-    # Add premium styling to the chart
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 10],
-                tickfont=dict(size=10, family="Inter, sans-serif", color="#555"),
-                tickvals=[2, 4, 6, 8, 10],
-                gridcolor='rgba(0, 0, 0, 0.1)',
-                linecolor='rgba(0, 0, 0, 0.1)',
-            ),
-            angularaxis=dict(
-                tickfont=dict(size=11, family="Inter, sans-serif", color="#333", weight=500),
-                linecolor='rgba(0, 0, 0, 0.1)',
-                gridcolor='rgba(0, 0, 0, 0.05)',
-            ),
-            bgcolor='rgba(240, 242, 255, 0.3)',
-        ),
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.1,
-            xanchor="center",
-            x=0.5,
-            font=dict(family="Inter, sans-serif", size=12, color="#333")
-        ),
-        height=550,
-        margin=dict(l=70, r=70, t=50, b=80),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family="Inter, sans-serif"),
-        title={
-            'text': '<b>Campaign Performance vs. Industry Average</b>',
-            'y': 0.97,
-            'x': 0.5,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': dict(size=16, family="Inter, sans-serif", color="#333")
-        },
-    )
-    
-    # Center the title
-    st.markdown('<div style="text-align: center;"><h4>Campaign Performance vs. Industry Average</h4></div>', unsafe_allow_html=True)
-    
-    # Display the chart
-    st.plotly_chart(fig, use_container_width=True, config={
-        'displayModeBar': False,
-        'responsive': True
-    })
+    # Display a brief explanation
+    st.markdown("""
+    <div style="background: #f9f9f9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <p style="margin: 0; font-size: 0.95rem; color: #444;">
+            This summary provides a comprehensive overview of your campaign's performance across all key metrics.
+            The detailed breakdown below shows specific strengths and areas for improvement.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Run the app
 if __name__ == "__main__":
