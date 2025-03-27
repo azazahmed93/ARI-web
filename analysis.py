@@ -73,14 +73,23 @@ def extract_brand_info(brief_text):
     
     # If brand name still unknown, look for capitalized names that appear frequently
     if brand_name == "Unknown":
-        # Find all capitalized words (potential brand names)
-        words = re.findall(r'\b[A-Z][a-zA-Z]*\b', brief_text)
+        # Find all capitalized words and word pairs (potential brand names)
+        single_words = re.findall(r'\b[A-Z][a-zA-Z]*\b', brief_text)
+        word_pairs = re.findall(r'\b[A-Z][a-zA-Z]*\s+[A-Z][a-zA-Z]*\b', brief_text)
+        
+        # Combine and count
         word_count = {}
-        for word in words:
-            if len(word) > 1:  # Ignore single letters
+        # First check for word pairs (likely to be brand names like "Nike Running")
+        for phrase in word_pairs:
+            if len(phrase) > 3:  # Must be longer than 3 chars
+                word_count[phrase] = word_count.get(phrase, 0) + 3  # Give higher weight to pairs
+        
+        # Then check single words
+        for word in single_words:
+            if len(word) > 1 and word not in ['A', 'I', 'S', 'The', 'This', 'That']:  # Ignore single letters and common words
                 word_count[word] = word_count.get(word, 0) + 1
         
-        # Get most frequent capitalized word
+        # Get most frequent capitalized word/phrase
         if word_count:
             brand_name = max(word_count.items(), key=lambda x: x[1])[0]
     
