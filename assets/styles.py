@@ -135,10 +135,7 @@ def apply_styles():
     
     /* Premium section styling */
     .premium-container {
-        background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 25px;
+        /* Removed background, border, and padding to eliminate the white box */
         margin-top: 40px;
     }
     
