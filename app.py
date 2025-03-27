@@ -209,31 +209,31 @@ def main():
             st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        # Brief description and input area
-        st.markdown("### Campaign RFP Analysis")
-        st.markdown("Paste your marketing campaign RFP (Request for Proposal) below to identify gaps and provide actionable solutions for better outcomes. Our proprietary Audience Resonance Index™ framework analyzes how well your campaign will resonate with your target audience and identifies opportunities for improvement.")
+        # Campaign analysis description and input area
+        st.markdown("### Campaign Analysis")
+        st.markdown("Paste your marketing campaign content below to identify gaps and provide actionable solutions for better outcomes. Our proprietary Audience Resonance Index™ framework analyzes how well your campaign will resonate with your target audience and identifies opportunities for improvement.")
         
-        # Text input for campaign brief
+        # Text input for campaign content
         brief_text = st.text_area(
-            "Campaign Brief",
+            "Campaign Content",
             height=200,
-            help="Enter the full text of your campaign brief here. The more details you provide, the more accurate the analysis will be."
+            help="Enter the full text of your campaign here. The more details you provide, the more accurate the analysis will be."
         )
         
         # Analysis button
         if st.button("Run Analysis", type="primary"):
             if not brief_text or brief_text.strip() == "":
-                st.error("Please enter a campaign brief to analyze.")
+                st.error("Please enter campaign content to analyze.")
             else:
-                with st.spinner("Analyzing your campaign brief..."):
+                with st.spinner("Analyzing your campaign content..."):
                     # Simulate analysis time
                     time.sleep(1.5)
                     
-                    # Analyze the brief
+                    # Analyze the content
                     result = analyze_campaign_brief(brief_text)
                     
                     if not result:
-                        st.error("Could not analyze the brief. Please provide more content.")
+                        st.error("Could not analyze the content. Please provide more information.")
                     else:
                         scores, brand_name, industry, product_type = result
                         
@@ -274,20 +274,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """Display the ARI analysis results."""
     st.markdown("---")
     
-    # Display brand information header with centered title
-    if brand_name != "Unknown":
-        st.markdown(f"<h2 style='text-align: center;'>{brand_name} Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
-        
-        # Display brand info summary
-        brand_info_col1, brand_info_col2 = st.columns(2)
-        with brand_info_col1:
-            st.markdown(f"**Industry:** {industry}")
-        with brand_info_col2:
-            st.markdown(f"**Product Type:** {product_type}")
-            
-        st.markdown("---")
-    else:
-        st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
+    # Display standard scorecard title with no brand reference
+    st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
+    
+    # Add some spacing after the title
+    st.markdown("---")
     
     # Display metrics summary (replaced radar chart)
     display_summary_metrics(scores)
@@ -452,27 +443,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Campaign Intelligence</div>
     """, unsafe_allow_html=True)
     
-    # Customize benchmark text based on brand information
-    if brand_name != "Unknown" and industry != "General":
-        st.markdown(f"""
-        <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-            This <span style="font-weight: 600;">{brand_name}</span> campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {industry} campaigns
-            for Audience Resonance Index™. The campaign outperforms most of its peer initiatives in relevance, authenticity, and emotional connection — 
-            based on Digital Culture Group's comprehensive analysis of over 300 {industry.lower()} marketing efforts.
-            <br><br>
-            For a {product_type} in the {industry} industry, our AI engine has identified these priority opportunity areas:
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
-            for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
-            based on Digital Culture Group's comprehensive analysis of over 300 national marketing efforts.
-            <br><br>
-            Our AI engine has identified these priority opportunity areas:
-        </div>
-        """, unsafe_allow_html=True)
+    # Display benchmark text (with no campaign-specific references)
+    st.markdown(f"""
+    <div style="color: #333; font-size: 1rem; line-height: 1.6;">
+        This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+        for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
+        based on Digital Culture Group's comprehensive analysis of over 300 national marketing efforts.
+        <br><br>
+        Our AI engine has identified these priority opportunity areas:
+    </div>
+    """, unsafe_allow_html=True)
     
     # Add improvement areas as pill buttons
     imp_areas_html = "".join([f'<div style="display: inline-block; background: #f5f7fa; border: 1px solid #e5e7eb; border-radius: 30px; padding: 6px 16px; margin: 5px 8px 5px 0; font-size: 0.9rem; color: #5865f2; font-weight: 500;">{area}</div>' for area in improvement_areas])
