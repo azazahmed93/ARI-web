@@ -481,15 +481,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <div style="margin-top: 15px;">{imp_areas_html}</div>
         """, unsafe_allow_html=True)
     
-    # Add CTA button for improvement recommendations
-    st.markdown("""
-    <div style="margin-top: 20px; text-align: center;">
-        <div style="display: inline-block; background: linear-gradient(90deg, #5865f2 0%, #7983f5 100%); color: white; font-weight: 600; padding: 10px 25px; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);">
-            Generate Detailed Improvement Report
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
     # Media Affinity section
     st.markdown("### 🔥 Top Media Affinity Sites")
     st.markdown("*QVI = Quality Visit Index, a score indicating audience engagement strength*")

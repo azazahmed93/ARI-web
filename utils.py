@@ -378,7 +378,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Generate download link
     b64 = base64.b64encode(buf.getbuffer()).decode()
-    return f'<a href="data:application/pdf;base64,{b64}" download="ari_scorecard.pdf" style="display: inline-block; padding: 10px 15px; background-color: #5865f2; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">⬇ Download Scorecard as PDF</a>'
+    return f'<a href="data:application/pdf;base64,{b64}" download="ari_scorecard.pdf" style="display: inline-block; padding: 10px 15px; background-color: #5865f2; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">⬇ Download Report</a>'
 
 def display_metric_bar(metric, score):
     """
