@@ -607,7 +607,15 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     with demo_container:
         st.markdown("<div style='text-align: center; margin-top: 20px;'>", unsafe_allow_html=True)
         st.markdown("<p style='font-size: 0.85rem; color: #777;'>Want to see how we can help your business?</p>", unsafe_allow_html=True)
-        st.button("Schedule a Demo")
+        # Create a custom HTML link that looks like a button but opens an email client
+        st.markdown("""
+        <a href="mailto:crystal@digitalculture.group?subject=Schedule a Demo for ARI Analyzer&body=I would like to schedule a demo for the Audience Resonance Index Analyzer." 
+           style="display: inline-block; padding: 0.5rem 1rem; font-weight: 600; text-align: center; 
+                  background-color: #5865f2; color: white; text-decoration: none; 
+                  border-radius: 0.25rem; cursor: pointer; margin: 0.5rem 0;">
+            Schedule a Demo
+        </a>
+        """, unsafe_allow_html=True)
 
 def display_summary_metrics(scores):
     """
