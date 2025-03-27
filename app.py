@@ -210,22 +210,22 @@ def main():
     
     with col2:
         # Campaign analysis description and input area
-        st.markdown("### Campaign Analysis")
-        st.markdown("Paste your marketing campaign content below to identify gaps and provide actionable solutions for better outcomes. Our proprietary Audience Resonance Index™ framework analyzes how well your campaign will resonate with your target audience and identifies opportunities for improvement.")
+        st.markdown("### Pre-Launch Campaign Intelligence")
+        st.markdown("Paste your Advertising RFP or Marketing Brief below for advanced predictive analysis. Our AI-powered Audience Resonance Index™ framework leverages computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation. This pre-execution analysis reveals actionable intelligence for strategic enhancement.")
         
-        # Text input for campaign content
+        # Text input for RFP or brief
         brief_text = st.text_area(
-            "Campaign Content",
+            "Marketing Brief | RFP",
             height=200,
-            help="Enter the full text of your campaign here. The more details you provide, the more accurate the analysis will be."
+            help="Provide your complete RFP or marketing brief for comprehensive analysis. Greater detail yields more precise predictive intelligence and actionable recommendations."
         )
         
         # Analysis button
-        if st.button("Run Analysis", type="primary"):
+        if st.button("Run Predictive Analysis", type="primary"):
             if not brief_text or brief_text.strip() == "":
-                st.error("Please enter campaign content to analyze.")
+                st.error("Please enter your Marketing Brief or RFP to proceed with analysis.")
             else:
-                with st.spinner("Analyzing your campaign content..."):
+                with st.spinner("Processing multi-dimensional cultural analysis vectors..."):
                     # Simulate analysis time
                     time.sleep(1.5)
                     
@@ -233,7 +233,7 @@ def main():
                     result = analyze_campaign_brief(brief_text)
                     
                     if not result:
-                        st.error("Could not analyze the content. Please provide more information.")
+                        st.error("Insufficient data complexity for comprehensive analysis. Please provide a more detailed brief or RFP.")
                     else:
                         scores, brand_name, industry, product_type = result
                         
@@ -251,7 +251,7 @@ def main():
                         st.session_state.product_type = product_type
                         
                         # Show success message
-                        st.success("Analysis complete! See results below.")
+                        st.success("Predictive resonance modeling complete. Intelligence insights generated successfully.")
                         
                         # Trigger rerun to display results
                         st.rerun()
