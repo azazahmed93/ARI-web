@@ -182,9 +182,9 @@ def main():
             # Add a div to establish relative positioning
             st.markdown('<div class="tech-container">', unsafe_allow_html=True)
             
-            # Display the main visualization - empty space with tech futuristic feel
+            # Display tech elements without the background box
             st.markdown("""
-            <div style="width: 100%; height: 250px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.03) 0%, rgba(124, 58, 237, 0.05) 100%); border-radius: 8px; margin-bottom: 10px;">
+            <div style="width: 100%; height: 250px; position: relative;">
             </div>
             """, unsafe_allow_html=True)
             
