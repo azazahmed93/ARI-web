@@ -109,12 +109,13 @@ def generate_deep_insights(brief_text, ari_scores):
             "error": str(e),
             "strengths": [{"area": "Data Analysis", "explanation": "Our AI analysis has identified key insights from your marketing campaign data."}],
             "improvements": [
-                {"area": "Media Ownership Equity", "explanation": "Your digital ad spend is not adequately distributed across diverse media ownership channels.", "recommendation": "Allocate 20-25% of programmatic spend to minority-owned DSPs like Colossus SSP and utilize PMP deals with publishers like Blavity and Remezcla. Target a 3:1 ROAS with these placements using precision audience segments."},
-                {"area": "Geo-Cultural Fit", "explanation": "Current ad targeting lacks geo-cultural precision for regional market differences.", "recommendation": "Implement dynamic creative optimization (DCO) with geo-targeting modifiers. Set up location-specific ad sets with 15-20 mile radius targeting, custom CTAs, and region-specific bidding strategies. Target a 15% improvement in CTR versus current geo-agnostic campaigns."},
-                {"area": "Representation", "explanation": "Ad creative and audience targeting parameters are missing key demographic segments.", "recommendation": "Expand lookalike modeling to include multicultural seed audiences and increase audience diversity by 40%. Implement A/B testing of inclusive ad sets with a minimum of 10K impressions per variant, measuring engagement uplift against control groups."}
+                {"area": "Media Ownership Equity", "explanation": "Your digital ad spend is not adequately distributed across diverse media ownership channels.", "recommendation": "Allocate 20-25% of programmatic spend to minority-owned DSPs and utilize PMP deals with culturally-relevant publishers. Target a 3:1 ROAS with these placements using precision audience segments with 30% higher bid adjustments."},
+                {"area": "Geo-Cultural Fit", "explanation": "Current ad targeting lacks geo-cultural precision for regional market differences.", "recommendation": "Implement dynamic creative optimization with geo-targeting modifiers. Set up location-specific ad sets with 15-20 mile radius targeting, custom CTAs, and region-specific bidding strategies. Target a 15% improvement in CTR versus current geo-agnostic campaigns."},
+                {"area": "Representation", "explanation": "Ad creative and audience targeting parameters are missing key demographic segments.", "recommendation": "Expand custom audience modeling to include multicultural seed audiences and increase audience diversity by 40%. Implement A/B testing of inclusive ad sets with a minimum of 10K impressions per variant, measuring engagement uplift against control groups."},
+                {"area": "Competitor Tactics", "explanation": "Analysis of competitor digital ad strategies reveals opportunities for differentiation.", "recommendation": "Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using 1st-party data and 60% higher CPM placements for premium inventory that delivers 2.8x the engagement rate."}
             ],
             "trends": [
-                {"trend": "Platform-Specific Optimization", "application": "Implement platform-specific ad formats and bidding strategies across Meta, TikTok, and YouTube to maximize engagement with a 15% budget reallocation."},
+                {"trend": "Platform-Specific Optimization", "application": "Implement platform-specific ad formats and bidding strategies across major social media networks to maximize engagement with a 15% budget reallocation."},
                 {"trend": "First-Party Data Activation", "application": "Develop custom audience segments using first-party data with a 30-day recency filter to improve retargeting efficiency by 25%."},
                 {"trend": "Contextual Targeting Renaissance", "application": "Allocate 15% of programmatic budget to contextual targeting using category and sentiment signals as cookieless solutions gain prominence."}
             ],
@@ -159,7 +160,7 @@ def generate_competitor_analysis(brief_text, industry=None):
         - competitors: array of objects with 'name', 'threat_level' (high, medium, low), and 'digital_tactics' (specific digital marketing approaches they use)
         - advantages: array of objects with 'advantage' and 'tactical_application' (how to apply this as a digital media buying tactic)
         - threats: array of objects with 'threat' and 'tactical_response' (specific digital advertising counter-strategy)
-        - differentiation: array of objects with 'platform' (e.g., Meta, TikTok, etc.) and 'tactical_approach' (specific media buying/targeting approach for that platform)
+        - differentiation: array of objects with 'platform' (use generic platform types, not brand names) and 'tactical_approach' (specific media buying/targeting approach for that platform)
         """
         
         # Call the OpenAI API
@@ -183,7 +184,7 @@ def generate_competitor_analysis(brief_text, industry=None):
             "error": str(e),
             "competitors": [
                 {"name": "Major Industry Player", "threat_level": "high", "digital_tactics": "Heavy investment in programmatic display with high-frequency retargeting and aggressive conquest campaigns targeting competitor brand terms."},
-                {"name": "Emerging Disruptor", "threat_level": "medium", "digital_tactics": "TikTok-focused strategy with creator partnerships and high organic content amplification through paid boosting."},
+                {"name": "Emerging Disruptor", "threat_level": "medium", "digital_tactics": "Short-form video platform strategy with creator partnerships and high organic content amplification through paid boosting."},
                 {"name": "Legacy Brand", "threat_level": "low", "digital_tactics": "Traditional search and display mix with limited social presence, primarily focused on brand protection keywords."}
             ],
             "advantages": [
@@ -191,11 +192,11 @@ def generate_competitor_analysis(brief_text, industry=None):
                 {"advantage": "Cross-platform Message Consistency", "tactical_application": "Implement sequential messaging strategy with frequency caps of 2-3 per platform and cross-platform attribution to maintain consistent user journey tracking."}
             ],
             "threats": [
-                {"threat": "Rising CPMs in Primary Channels", "tactical_response": "Shift 30% of Meta budget to emerging platforms like Pinterest and Reddit where CPMs are 40-50% lower while maintaining similar audience quality."},
+                {"threat": "Rising CPMs in Primary Channels", "tactical_response": "Shift 30% of social media budget to emerging content platforms where CPMs are 40-50% lower while maintaining similar audience quality."},
                 {"threat": "Competitor Keyword Conquest", "tactical_response": "Implement defensive search bidding with automated rules to increase bids by 20% when competitors appear for brand terms."}
             ],
             "differentiation": [
-                {"platform": "Meta", "tactical_approach": "Utilize Dynamic Creative Optimization with multicultural creative asset testing, implement 3-5 variants per audience segment with automated performance-based budget allocation."},
+                {"platform": "Social Media", "tactical_approach": "Utilize Dynamic Creative Optimization with multicultural creative asset testing, implement 3-5 variants per audience segment with automated performance-based budget allocation."},
                 {"platform": "Programmatic", "tactical_approach": "Focus on minority-owned SSPs and PMPs with custom audience activation, leveraging first-party data matching and contextual alignment signals."}
             ]
         }
@@ -232,7 +233,7 @@ def generate_audience_segments(brief_text, ari_scores):
         1. A descriptive segment name for use in ad platforms
         2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
         3. Digital platform interest categories and behavior targeting options
-        4. Platform-specific targeting recommendations (Meta, Google, TikTok, etc.)
+        4. Platform-specific targeting recommendations (use generic platform types, not brand names)
         5. Key performance indicators and benchmark CTRs/conversion rates to expect
         6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
@@ -281,8 +282,8 @@ def generate_audience_segments(brief_text, ari_scores):
                         "Social impact supporters"
                     ],
                     "platform_targeting": [
-                        {"platform": "Meta", "targeting_approach": "Utilize 1% lookalike audiences from existing customers, target In-Market segments for related products, exclude previous converters beyond 30-day window"},
-                        {"platform": "TikTok", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
+                        {"platform": "Social Media Network", "targeting_approach": "Utilize 1% lookalike audiences from existing customers, target In-Market segments for related products, exclude previous converters beyond 30-day window"},
+                        {"platform": "Short-form Video Platform", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
                     ],
                     "expected_performance": {
                         "CTR": "2.3-2.8%", 
