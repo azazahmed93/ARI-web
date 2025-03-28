@@ -12,6 +12,7 @@ import hashlib
 BLOCKED_KEYWORDS = [
     "The Trade Desk",
     "TradeDesk",
+    "Trade Desk",
     "TTD",
 ]
 
@@ -55,13 +56,13 @@ class BenchmarkDatabase:
         
         return benchmarks
     
-    def get_campaign_percentile(self, overall_score, industry):
+    def get_campaign_percentile(self, overall_score, industry=None):
         """
         Calculate the percentile rank of a campaign compared to benchmark data.
         
         Args:
             overall_score (float): The overall campaign score
-            industry (str): The industry for benchmark comparison
+            industry (str, optional): The industry for benchmark comparison
             
         Returns:
             int: Percentile rank (0-100)
@@ -72,8 +73,13 @@ class BenchmarkDatabase:
         # For now, create a realistic percentile based on the score
         base_percentile = min(int(overall_score * 10), 99)
         
-        # Add industry-specific variation (deterministic based on industry name)
-        industry_hash = int(hashlib.md5(industry.encode()).hexdigest(), 16) % 15
+        # Add industry-specific variation if industry is provided
+        if industry:
+            # Add industry-specific variation (deterministic based on industry name)
+            industry_hash = int(hashlib.md5(industry.encode()).hexdigest(), 16) % 15
+        else:
+            # Default variation if no industry is provided
+            industry_hash = 7  # Neutral middle value
         
         # Calculate final percentile with some randomness but weighted toward the base
         percentile = min(base_percentile + industry_hash - 5, 99)
@@ -81,20 +87,24 @@ class BenchmarkDatabase:
         
         return percentile
     
-    def get_competitive_analysis(self, industry, brand_name, overall_score):
+    def get_competitive_analysis(self, industry=None, brand_name=None, overall_score=0):
         """
         Retrieve competitive analysis data for a brand in an industry.
         
         Args:
-            industry (str): Industry classification
-            brand_name (str): Brand name for comparison
-            overall_score (float): Overall campaign score
+            industry (str, optional): Industry classification
+            brand_name (str, optional): Brand name for comparison
+            overall_score (float, optional): Overall campaign score
             
         Returns:
             dict: Competitive analysis data
         """
         # In a real implementation, this would query a competitive database
         # For now, simulate competitive analysis with realistic data
+        
+        # Handle None values safely
+        industry = industry or "General"
+        brand_name = brand_name or "Unknown"
         
         # Create deterministic but realistic analysis based on inputs
         industry_hash = int(hashlib.md5(industry.encode()).hexdigest(), 16) % 100
