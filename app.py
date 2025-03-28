@@ -379,8 +379,25 @@ def main():
                     input_brief_text = input_brief_text.replace(keyword, "[FILTERED]")
                 brief_text = input_brief_text
         
-        # Analysis button
-        if st.button("Run Predictive Analysis", type="primary"):
+        # Analysis and Restart buttons in columns
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            analyze_button = st.button("Run Predictive Analysis", type="primary", use_container_width=True)
+        
+        with col2:
+            restart_button = st.button("Reset", type="secondary", use_container_width=True)
+            
+        # Handle restart button
+        if restart_button:
+            # Clear session state
+            for key in list(st.session_state.keys()):
+                if key not in ['use_openai']:  # Keep API configuration
+                    del st.session_state[key]
+            st.rerun()
+            
+        # Handle analyze button
+        if analyze_button:
             if not brief_text or brief_text.strip() == "":
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
