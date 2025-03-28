@@ -415,27 +415,37 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Create a more professional metric breakdown section
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
     
+    # Find the top strength (highest scoring metric)
+    top_strength = max(scores.items(), key=lambda x: x[1])[0]
+    
+    # Find the key opportunity (lowest scoring metric)
+    key_opportunity = min(scores.items(), key=lambda x: x[1])[0]
+    
+    # Calculate average score to determine ROI potential
+    avg_score = sum(scores.values()) / len(scores)
+    roi_potential = f"+{max(10, int(25 - avg_score * 1.5))}%"  # Dynamic ROI based on avg score
+    
     # Add an executive summary card
-    st.markdown("""
+    st.markdown(f"""
     <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
         <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
         <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
-            This campaign demonstrates strong performance in cultural relevance and platform selection, with opportunities
-            for improvement in audience representation and commerce bridge. Our AI-powered analysis suggests targeting adjustments
-            that could increase overall effectiveness by up to 18%.
+            This {brand_name} campaign demonstrates strong performance in {top_strength} and shows intelligence in strategic approach, with opportunities
+            for improvement in {key_opportunity} and {improvement_areas[0] if improvement_areas else 'audience targeting'}. Our AI-powered analysis suggests specific adjustments
+            that could increase overall effectiveness by up to {roi_potential}.
         </p>
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
             <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
                 <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
-                <div style="font-weight: 600; color: #333;">Cultural Relevance</div>
+                <div style="font-weight: 600; color: #333;">{top_strength}</div>
             </div>
             <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
                 <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
-                <div style="font-weight: 600; color: #333;">Commerce Bridge</div>
+                <div style="font-weight: 600; color: #333;">{key_opportunity}</div>
             </div>
             <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
                 <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
-                <div style="font-weight: 600; color: #333;">+18%</div>
+                <div style="font-weight: 600; color: #333;">{roi_potential}</div>
             </div>
         </div>
     </div>
@@ -552,7 +562,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981;">EXPECTED IMPACT</div>
-            <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">+18%</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">{roi_potential}</div>
             <div style="font-size: 0.85rem; color: #555;">Projected ROI increase</div>
         </div>
         """, unsafe_allow_html=True)
@@ -572,14 +582,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Campaign Intelligence</div>
     """, unsafe_allow_html=True)
     
-    # Display benchmark text (with no campaign-specific references)
+    # Display benchmark text with brand name
     st.markdown(f"""
     <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-        This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+        This {brand_name} campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
         for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
         based on Digital Culture Group's comprehensive analysis of over 300 national marketing efforts.
         <br><br>
-        Our AI engine has identified these priority opportunity areas:
+        Our AI engine has identified these priority opportunity areas for {brand_name}:
     </div>
     """, unsafe_allow_html=True)
     

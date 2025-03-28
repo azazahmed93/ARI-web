@@ -9,6 +9,10 @@ import json
 
 def get_simulated_ai_analysis(brand_name="Apple"):
     """
+    The brand name parameter will be used to customize the analysis for different brands.
+    This provides realistic-looking brand-specific analysis for the demo.
+    """
+    """
     Generate simulated AI analysis data that looks like it came from GPT-4o
     
     Args:
