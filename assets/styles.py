@@ -227,7 +227,8 @@ def header_section():
     st.markdown("""
     <div class="description">
         Our proprietary <strong>Audience Resonance Index™</strong> combines advanced AI, cultural analytics, and marketing science to predict campaign effectiveness with 93% accuracy. 
-        By measuring how campaigns connect with relevant audience signals, strategic platforms, and cultural values, we help Fortune 500 brands increase marketing ROI by an average of 23%.
+        By measuring how campaigns connect with relevant audience signals, strategic platforms, and cultural values, we help Fortune 500 brands increase marketing ROI by an 
+        average of 23%.
     </div>
     """, unsafe_allow_html=True)
     
