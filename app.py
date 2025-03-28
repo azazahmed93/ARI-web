@@ -321,7 +321,7 @@ def main():
             if not brief_text or brief_text.strip() == "":
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
-                with st.spinner("Processing multi-dimensional cultural analysis vectors..."):
+                with st.spinner("Computing quantum resonance matrices across multi-variant dataset topology..."):
                     # Simulate analysis time
                     time.sleep(1.5)
                     
@@ -349,7 +349,7 @@ def main():
                         
                         # If OpenAI API key is available, generate additional insights
                         if st.session_state.use_openai:
-                            with st.spinner("Generating deep AI insights..."):
+                            with st.spinner("Synthesizing advanced computational intelligence patterns..."):
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
                                     # Generate deep insights based on brief and ARI scores
@@ -856,15 +856,285 @@ def display_summary_metrics(scores):
         </div>
         """, unsafe_allow_html=True)
         
-        # Display AI insights
-        st.markdown("""
-        <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
-            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">AI Insight</div>
-            <p style="margin: 0; font-size: 0.9rem; color: #333;">
-                The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        # Display enhanced AI insights if available
+        if st.session_state.use_openai and st.session_state.ai_insights:
+            # Create tabs for different types of insights
+            ai_tabs = st.tabs(["Campaign Strengths & Opportunities", "Competitor Analysis", "Audience Segmentation"])
+            
+            with ai_tabs[0]:
+                st.markdown("<h4 style='color: #5865f2;'>Advanced Campaign Insights</h4>", unsafe_allow_html=True)
+                
+                # Display strengths from AI analysis
+                if "strengths" in st.session_state.ai_insights:
+                    st.markdown("<div style='margin-top: 20px;'><strong>Key Strengths</strong></div>", unsafe_allow_html=True)
+                    for strength in st.session_state.ai_insights["strengths"]:
+                        st.markdown(f"""
+                        <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 10px;">
+                            <div style="font-size: 0.9rem; font-weight: 600; color: #10b981; margin-bottom: 5px;">{strength["area"]}</div>
+                            <p style="margin: 0; font-size: 0.9rem; color: #333;">
+                                {strength["explanation"]}
+                            </p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                # Display areas for improvement from AI analysis
+                if "improvements" in st.session_state.ai_insights:
+                    st.markdown("<div style='margin-top: 30px;'><strong>Opportunity Areas</strong></div>", unsafe_allow_html=True)
+                    for improvement in st.session_state.ai_insights["improvements"]:
+                        st.markdown(f"""
+                        <div style="background: #fff4f6; border-radius: 8px; border-left: 4px solid #f43f5e; padding: 15px; margin-top: 10px;">
+                            <div style="font-size: 0.9rem; font-weight: 600; color: #f43f5e; margin-bottom: 5px;">{improvement["area"]}</div>
+                            <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: #333;">
+                                {improvement["explanation"]}
+                            </p>
+                            <div style="background: #f9fafb; padding: 10px; border-radius: 6px;">
+                                <div style="font-size: 0.8rem; font-weight: 500; color: #5865f2; margin-bottom: 5px;">RECOMMENDATION</div>
+                                <p style="margin: 0; font-size: 0.9rem; color: #333;">
+                                    {improvement["recommendation"]}
+                                </p>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                # Display trends and predictions
+                col1, col2 = st.columns([2, 1])
+                
+                with col1:
+                    if "trends" in st.session_state.ai_insights:
+                        st.markdown("<div style='margin-top: 30px;'><strong>Relevant Trends</strong></div>", unsafe_allow_html=True)
+                        trends_html = ""
+                        for trend in st.session_state.ai_insights["trends"]:
+                            trends_html += f"""
+                            <div style="background: #f0f4ff; border-radius: 8px; padding: 12px; margin-top: 10px;">
+                                <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 5px;">{trend["trend"]}</div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                                    {trend["application"]}
+                                </p>
+                            </div>
+                            """
+                        st.markdown(trends_html, unsafe_allow_html=True)
+                
+                with col2:
+                    if "hidden_insight" in st.session_state.ai_insights and "performance_prediction" in st.session_state.ai_insights:
+                        st.markdown("<div style='margin-top: 30px;'><strong>Additional Insights</strong></div>", unsafe_allow_html=True)
+                        
+                        # Hidden insight
+                        st.markdown(f"""
+                        <div style="background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6; padding: 15px; margin-top: 10px;">
+                            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #3b82f6; margin-bottom: 5px;">HIDDEN OPPORTUNITY</div>
+                            <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                                {st.session_state.ai_insights["hidden_insight"]}
+                            </p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Performance prediction
+                        st.markdown(f"""
+                        <div style="background: #fdf4ff; border-radius: 8px; border-left: 4px solid #a855f7; padding: 15px; margin-top: 10px;">
+                            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #a855f7; margin-bottom: 5px;">PERFORMANCE PREDICTION</div>
+                            <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                                {st.session_state.ai_insights["performance_prediction"]}
+                            </p>
+                        </div>
+                        """, unsafe_allow_html=True)
+            
+            with ai_tabs[1]:
+                if st.session_state.competitor_analysis:
+                    st.markdown("<h4 style='color: #5865f2;'>Competitive Landscape Analysis</h4>", unsafe_allow_html=True)
+                    
+                    # Display competitors
+                    if "competitors" in st.session_state.competitor_analysis:
+                        st.markdown("<div style='margin-top: 20px;'><strong>Key Competitors</strong></div>", unsafe_allow_html=True)
+                        
+                        threat_colors = {
+                            "high": "#f43f5e",
+                            "medium": "#f97316",
+                            "low": "#10b981"
+                        }
+                        
+                        competitors_html = """
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                        """
+                        
+                        for competitor in st.session_state.competitor_analysis["competitors"]:
+                            threat_level = competitor.get("threat_level", "medium").lower()
+                            color = threat_colors.get(threat_level, "#f97316")
+                            
+                            competitors_html += f"""
+                            <div style="flex: 1; min-width: 200px; background: white; border-radius: 8px; border-top: 4px solid {color}; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                                <div style="font-size: 1rem; font-weight: 600; margin-bottom: 10px;">{competitor["name"]}</div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 5px;">THREAT LEVEL</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: {color}; text-transform: uppercase;">{threat_level}</div>
+                            </div>
+                            """
+                        
+                        competitors_html += "</div>"
+                        st.markdown(competitors_html, unsafe_allow_html=True)
+                    
+                    # Competitive landscape insights
+                    col1, col2 = st.columns([1, 1])
+                    
+                    with col1:
+                        # Advantages
+                        if "advantages" in st.session_state.competitor_analysis:
+                            st.markdown("<div style='margin-top: 30px;'><strong>Competitive Advantages</strong></div>", unsafe_allow_html=True)
+                            
+                            for advantage in st.session_state.competitor_analysis["advantages"]:
+                                st.markdown(f"""
+                                <div style="background: #f0fdf9; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                                    <div style="font-size: 0.9rem; font-weight: 600; color: #10b981; margin-bottom: 5px;">{advantage["advantage"]}</div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                                        {advantage["explanation"]}
+                                    </p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                        
+                        # Differentiation opportunities
+                        if "differentiation" in st.session_state.competitor_analysis:
+                            st.markdown("<div style='margin-top: 30px;'><strong>Differentiation Opportunities</strong></div>", unsafe_allow_html=True)
+                            
+                            for opportunity in st.session_state.competitor_analysis["differentiation"]:
+                                st.markdown(f"""
+                                <div style="background: #f0f4ff; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                                    <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 5px;">{opportunity["opportunity"]}</div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                                        {opportunity["implementation"]}
+                                    </p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                    
+                    with col2:
+                        # Threats
+                        if "threats" in st.session_state.competitor_analysis:
+                            st.markdown("<div style='margin-top: 30px;'><strong>Market Threats</strong></div>", unsafe_allow_html=True)
+                            
+                            for threat in st.session_state.competitor_analysis["threats"]:
+                                st.markdown(f"""
+                                <div style="background: #fff4f6; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                                    <div style="font-size: 0.9rem; font-weight: 600; color: #f43f5e; margin-bottom: 5px;">{threat["threat"]}</div>
+                                    <p style="margin: 0 0 10px 0; font-size: 0.85rem; color: #333;">
+                                        {threat["mitigation"]}
+                                    </p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                
+                else:
+                    st.info("Competitor analysis data is not available.")
+            
+            with ai_tabs[2]:
+                if st.session_state.audience_segments and "segments" in st.session_state.audience_segments:
+                    st.markdown("<h4 style='color: #5865f2;'>Target Audience Analysis</h4>", unsafe_allow_html=True)
+                    st.markdown("Below are the key audience segments with the highest potential for this campaign.")
+                    
+                    for i, segment in enumerate(st.session_state.audience_segments["segments"]):
+                        with st.expander(f"Segment {i+1}: {segment['name']}", expanded=(i==0)):
+                            # Segment demographic details
+                            col1, col2 = st.columns([1, 1])
+                            
+                            with col1:
+                                # Demographics
+                                st.markdown(f"""
+                                <div style="background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px;">
+                                    <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Demographics</div>
+                                    <div style="font-size: 0.85rem; color: #333; margin-bottom: 8px;"><strong>Age:</strong> {segment.get('demographics', {}).get('age_range', 'N/A')}</div>
+                                    <div style="font-size: 0.85rem; color: #333; margin-bottom: 8px;"><strong>Gender:</strong> {segment.get('demographics', {}).get('gender_skew', 'N/A')}</div>
+                                    <div style="font-size: 0.85rem; color: #333; margin-bottom: 8px;"><strong>Income:</strong> {segment.get('demographics', {}).get('income_level', 'N/A')}</div>
+                                    <div style="font-size: 0.85rem; color: #333; margin-bottom: 8px;"><strong>Education:</strong> {segment.get('demographics', {}).get('education_level', 'N/A')}</div>
+                                    <div style="font-size: 0.85rem; color: #333;"><strong>Location:</strong> {segment.get('demographics', {}).get('location_type', 'N/A')}</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                                
+                                # Psychographics
+                                if "psychographics" in segment:
+                                    psycho_html = """
+                                    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 15px; margin-top: 15px;">
+                                        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Psychographics</div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                    """
+                                    
+                                    for trait in segment["psychographics"]:
+                                        psycho_html += f'<div style="background: #f0f4ff; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem;">{trait}</div>'
+                                    
+                                    psycho_html += "</div></div>"
+                                    st.markdown(psycho_html, unsafe_allow_html=True)
+                            
+                            with col2:
+                                # Media habits
+                                if "media_habits" in segment:
+                                    media_html = """
+                                    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px;">
+                                        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Media Consumption</div>
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <tr style="border-bottom: 1px solid #eee;">
+                                                <th style="text-align: left; padding: 8px 0; font-size: 0.85rem; color: #555;">Channel</th>
+                                                <th style="text-align: right; padding: 8px 0; font-size: 0.85rem; color: #555;">Affinity</th>
+                                            </tr>
+                                    """
+                                    
+                                    affinity_colors = {
+                                        "high": "#10b981",
+                                        "medium": "#3b82f6",
+                                        "low": "#777777"
+                                    }
+                                    
+                                    for media in segment["media_habits"]:
+                                        affinity = media.get("affinity", "medium").lower()
+                                        color = affinity_colors.get(affinity, "#3b82f6")
+                                        
+                                        media_html += f"""
+                                        <tr style="border-bottom: 1px solid #eee;">
+                                            <td style="text-align: left; padding: 8px 0; font-size: 0.85rem;">{media["channel"]}</td>
+                                            <td style="text-align: right; padding: 8px 0;">
+                                                <span style="font-size: 0.8rem; font-weight: 600; color: {color}; text-transform: uppercase;">{affinity}</span>
+                                            </td>
+                                        </tr>
+                                        """
+                                    
+                                    media_html += "</table></div>"
+                                    st.markdown(media_html, unsafe_allow_html=True)
+                                
+                                # Cultural affinities
+                                if "cultural_affinities" in segment:
+                                    cultural_html = """
+                                    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 15px; margin-top: 15px;">
+                                        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Cultural Affinities</div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                    """
+                                    
+                                    for affinity in segment["cultural_affinities"]:
+                                        cultural_html += f'<div style="background: #f0f9ff; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem;">{affinity}</div>'
+                                    
+                                    cultural_html += "</div></div>"
+                                    st.markdown(cultural_html, unsafe_allow_html=True)
+                            
+                            # Resonance factors
+                            if "resonance_factors" in segment:
+                                st.markdown("<div style='margin-top: 15px;'><strong>Why This Segment Will Resonate</strong></div>", unsafe_allow_html=True)
+                                
+                                resonance_html = """
+                                <div style="background: #f0fdf9; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                                    <ul style="margin: 0; padding-left: 20px;">
+                                """
+                                
+                                for factor in segment["resonance_factors"]:
+                                    resonance_html += f'<li style="margin-bottom: 5px; font-size: 0.85rem;">{factor}</li>'
+                                
+                                resonance_html += "</ul></div>"
+                                st.markdown(resonance_html, unsafe_allow_html=True)
+                
+                else:
+                    st.info("Audience segmentation data is not available.")
+            
+        else:
+            # Display basic insight if OpenAI insights are not available
+            st.markdown("""
+            <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">SYSTEM INSIGHT</div>
+                <p style="margin: 0; font-size: 0.9rem; color: #333;">
+                    This campaign demonstrates strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # Run the app
 if __name__ == "__main__":
