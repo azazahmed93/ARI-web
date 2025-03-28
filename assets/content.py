@@ -3,97 +3,98 @@
 # Metrics and their descriptions
 METRICS = {
     "Representation": {
-        "high": "Campaign showcases diverse Apple users in aspirational contexts, reflecting the brand's premium positioning while connecting with Gen Z, creators, and professionals authentically.",
-        "medium": "Some authentic representation of Apple's target demographics, but inconsistent presence across touchpoints and missed opportunities with Gen Z.",
-        "low": "Limited representation of Apple's evolving user base, potentially alienating younger and more diverse customer segments."
+        "high": "Featured a high-visibility figure aligned with the audience's identity and values.",
+        "medium": "Some authentic representation included, but lacked consistent presence or depth.",
+        "low": "Limited representation of the intended audience or cultural perspective."
     },
     "Cultural Relevance": {
-        "high": "Seamlessly integrates Apple's innovation ethos with current cultural movements in creative fields, music production, and digital art that resonate with premium audiences.",
-        "medium": "References relevant Apple ecosystem benefits, but lacks the emotional connection that positions products as essential creative tools.",
-        "low": "Misses key cultural touchpoints that would elevate Apple products beyond commodity technology to cultural signifiers."
+        "high": "Included elements like music, sports, and fashion that resonate with audience interests.",
+        "medium": "Relevant ideas are present, but stronger emotional or lifestyle ties could be made.",
+        "low": "Audience interests weren't clearly reflected in campaign content."
     },
     "Platform Relevance": {
-        "high": "Strategically deploys Apple's premium messaging across high-impact traditional channels while leveraging creator-driven platforms where future customers discover products.",
-        "medium": "Covers key platforms in Apple's media mix but underutilizes emerging channels where product discovery happens for Gen Z.",
-        "low": "Platform selection doesn't align with how Apple's growth segments actually discover and evaluate premium technology products."
+        "high": "Used top platforms where the audience is most active and engaged.",
+        "medium": "Covers key platforms but misses niche or community-driven spaces.",
+        "low": "Platform mix doesn't align with where this audience actually spends time."
     },
     "Cultural Vernacular": {
-        "high": "Messaging maintains Apple's distinctive minimalist voice while incorporating authentic cultural elements that resonate with specific target segments.",
-        "medium": "Language balances brand standards but misses opportunities to connect through more authentic, segment-specific terminology.",
-        "low": "Copy and messaging feel disconnected from how Apple's target audiences actually discuss technology and innovation."
+        "high": "Tone, slang, and messaging felt natural and aligned with audience voice.",
+        "medium": "Language is mostly appropriate but could feel more native or playful.",
+        "low": "Messaging feels out of sync with audience expectations or vibe."
     },
     "Media Ownership Equity": {
-        "high": "Campaign investment aligns with Apple's public commitments to diversity through strategic partnerships with creators and platforms that reach underrepresented audiences.",
-        "medium": "Some media diversity present but inconsistent implementation of Apple's equity principles across campaign touchpoints.",
-        "low": "Media plan lacks the diversity focus central to Apple's brand values and misses opportunities to connect with multicultural audiences."
+        "high": "Campaign invested in platforms and creators trusted by the audience.",
+        "medium": "Some budget directed toward representative media, but not consistently.",
+        "low": "No clear support for audience-owned or representative media channels."
     },
     "Cultural Authority": {
-        "high": "Leverages relationships with the right creative professionals and cultural innovators who authentically use Apple products, reinforcing the ecosystem's premium positioning.",
-        "medium": "References relevant cultural elements but lacks deep integration with the creators and innovators who validate Apple's premium positioning.",
-        "low": "Fails to establish the cultural credibility necessary for Apple's premium positioning in creative and professional spaces."
+        "high": "Campaign tapped into key lifestyle cues like sports, music, and creators.",
+        "medium": "Familiar cultural symbols are present but not deeply integrated.",
+        "low": "Lacked credible ties to the audience's culture or world."
     },
     "Buzz & Conversation": {
-        "high": "Creates distinctive 'Apple moments' designed to generate organic sharing and conversation, with visual and message components optimized for virality.",
-        "medium": "Has potential conversation elements but lacks the distinctive Apple creative approach that drives earned media and social sharing.",
-        "low": "Unlikely to generate the signature conversation and organic amplification associated with successful Apple campaigns."
+        "high": "Built to spark organic hype, memes, or fan-led content.",
+        "medium": "Could create conversation but needs stronger creative moments.",
+        "low": "Unlikely to drive significant social or peer-based attention."
     },
     "Commerce Bridge": {
-        "high": "Seamlessly guides audiences from awareness through consideration with clear pathways to Apple Store, online, and partner retail experiences.",
-        "medium": "Commerce connections exist but friction points remain in the journey from campaign messaging to purchase consideration.",
-        "low": "Significant disconnects between campaign messaging and Apple's retail experience, likely reducing conversion potential."
+        "high": "Clear path from campaign to product discovery or purchase.",
+        "medium": "Product tie-in is visible but not strongly action-oriented.",
+        "low": "Campaign and commerce feel disconnected."
     },
     "Geo-Cultural Fit": {
-        "high": "Maintains Apple's global brand consistency while incorporating critical local and regional nuances that drive relevance in target markets.",
-        "medium": "Acknowledges some market-specific considerations but misses opportunities to deepen resonance through local cultural insights.",
-        "low": "One-size-fits-all approach that fails to account for how Apple's positioning varies across different cultural contexts and regions."
+        "high": "Targeted regions align tightly with audience lifestyle and trends.",
+        "medium": "Covers key markets but could add local nuances.",
+        "low": "Misses where the audience actually lives or connects."
     }
 }
 
 # Media affinity sites with their QVI scores
 MEDIA_AFFINITY_SITES = [
-    {"name": "9to5mac.com", "category": "Tech News", "qvi": 687, "url": "https://9to5mac.com", "tooltip": "Premium Apple ecosystem news and insights"},
-    {"name": "theverge.com", "category": "Tech Media", "qvi": 621, "url": "https://www.theverge.com", "tooltip": "High-design tech content with creative focus"},
-    {"name": "behance.net", "category": "Creative", "qvi": 605, "url": "https://www.behance.net", "tooltip": "Designer community with Apple product affinity"},
-    {"name": "hypebeast.com", "category": "Culture", "qvi": 578, "url": "https://hypebeast.com", "tooltip": "Premium lifestyle content for Gen Z and Millennials"},
-    {"name": "soundcloud.com", "category": "Music", "qvi": 542, "url": "https://soundcloud.com", "tooltip": "Creation platform for emerging artists and producers"}
+    {"name": "sparknotes.com", "category": "Education", "qvi": 562, "url": "https://sparknotes.com", "tooltip": "Great for literary tools and student engagement"},
+    {"name": "basketball-reference.com", "category": "Sports", "qvi": 558, "url": "https://www.basketball-reference.com", "tooltip": "High-indexing for sports stats and active fans"},
+    {"name": "coolmathgames.com", "category": "Education", "qvi": 543, "url": "https://www.coolmathgames.com", "tooltip": "Casual educational games popular with teens"},
+    {"name": "nba.com", "category": "Sports", "qvi": 461, "url": "https://www.nba.com", "tooltip": "Official NBA content, big Gen Z crossover"},
+    {"name": "theverge.com", "category": "Tech", "qvi": 450, "url": "https://www.theverge.com", "tooltip": "Tech and culture content with style relevance"}
 ]
 
 # TV Network affinities
 TV_NETWORKS = [
-    {"name": "HBO", "category": "Premium Content", "qvi": 523},
-    {"name": "Bravo", "category": "Lifestyle", "qvi": 487},
-    {"name": "VICELAND", "category": "Youth Culture", "qvi": 452},
-    {"name": "FX", "category": "Premium Drama", "qvi": 421},
-    {"name": "CNN", "category": "News", "qvi": 387}
+    {"name": "NBA TV", "category": "Sports", "qvi": 459},
+    {"name": "Adult Swim", "category": "Alt Animation", "qvi": 315},
+    {"name": "Cartoon Network", "category": "Youth", "qvi": 292},
+    {"name": "MTV", "category": "Music / Culture", "qvi": 288},
+    {"name": "Nickelodeon", "category": "Kids / Family", "qvi": 263}
 ]
 
 # Streaming platforms
 STREAMING_PLATFORMS = [
-    {"name": "Apple TV+", "category": "Premium Content", "qvi": 631},
-    {"name": "HBO Max", "category": "Drama / Premium", "qvi": 486},
-    {"name": "YouTube Premium", "category": "Creator Content", "qvi": 421},
-    {"name": "Hulu", "category": "Premium TV", "qvi": 375},
-    {"name": "Netflix", "category": "Entertainment", "qvi": 362},
-    {"name": "Spotify Premium", "category": "Music / Audio", "qvi": 348}
+    {"name": "Peacock Premium", "category": "Entertainment", "qvi": 216},
+    {"name": "HBO Max", "category": "Drama / Comedy", "qvi": 188},
+    {"name": "Hulu", "category": "Variety", "qvi": 173},
+    {"name": "ESPN+", "category": "Sports", "qvi": 172},
+    {"name": "YouTube Premium", "category": "Video", "qvi": 167},
+    {"name": "Disney+", "category": "Family / Animation", "qvi": 165}
 ]
 
 # Additional content sections
 PSYCHOGRAPHIC_HIGHLIGHTS = """
-Apple's core audience is motivated by <strong>innovation, design excellence, and creative expression</strong>. 
-They over-index for <strong>early technology adoption and aesthetic appreciation</strong>, and are more likely 
-to work in creative fields, value premium experiences, and participate in digital content creation.
+This audience is highly motivated by <strong>wealth, admiration, and excitement</strong>. 
+They over-index for <strong>social status and peer recognition</strong>, and are more likely 
+to play basketball, value athletic accomplishments, and participate in teams or classes.
 """
 
 AUDIENCE_SUMMARY = """
-Apple's current high-value segments include <strong>creative professionals, aspirational Gen Z, and premium tech enthusiasts</strong> 
-with strong affinity for design-forward content and premium digital experiences. They're <strong>highly motivated by creative 
-expression, quality, and ecosystem integration</strong>. A growth opportunity exists among <strong>multicultural Gen Z creators</strong> 
-who index high for content creation, peer influence, and cross-platform digital behaviors that leverage Apple's ecosystem advantages.
+This audience skews <strong>young, male, and single</strong> with a strong affinity for sports, 
+education tools, and socially driven platforms. They're <strong>highly motivated by admiration, 
+status, and excitement</strong>. A growth opportunity exists among <strong>older Gen Z and 
+college-age students</strong> who index high for athletic lifestyle, peer validation, and 
+mobile-first media behaviors.
 """
 
 NEXT_STEPS = """
 Every insight here ties to a tangible opportunity. <strong>Digital Culture Group offers solutions</strong>
-—from creative strategy to media planning and performance measurement—to enhance your campaign's cultural resonance with Apple's most valuable audience segments.
+—from creative production to media placement and performance measurement—to lift your lowest scoring areas.
 """
 
 # Stock photos URLs

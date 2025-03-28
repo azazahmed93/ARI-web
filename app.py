@@ -11,7 +11,6 @@ import nltk
 import docx
 import PyPDF2
 import io
-import os
 
 from analysis import (
     analyze_campaign_brief, 
@@ -35,18 +34,6 @@ from assets.content import (
     AUDIENCE_SUMMARY,
     NEXT_STEPS,
     STOCK_PHOTOS
-)
-
-# Import AI analysis functions
-from ai_analysis import (
-    analyze_brief_with_ai,
-    generate_ai_recommendations
-)
-
-# Import simulated AI functions for fallback
-from ai_simulation import (
-    get_simulated_ai_analysis,
-    get_simulated_recommendations
 )
 
 # Set page config
@@ -75,13 +62,6 @@ if 'industry' not in st.session_state:
     st.session_state.industry = None
 if 'product_type' not in st.session_state:
     st.session_state.product_type = None
-# New AI Analysis session state variables
-if 'ai_analysis' not in st.session_state:
-    st.session_state.ai_analysis = None
-if 'ai_recommendations' not in st.session_state:
-    st.session_state.ai_recommendations = None
-if 'brief_text' not in st.session_state:
-    st.session_state.brief_text = None
 
 # Define function to extract text from various file types
 def extract_text_from_file(uploaded_file):
@@ -327,10 +307,7 @@ def main():
                     # Simulate analysis time
                     time.sleep(1.5)
                     
-                    # Store brief text for AI analysis
-                    st.session_state.brief_text = brief_text
-                    
-                    # Analyze the content with regular analysis
+                    # Analyze the content
                     result = analyze_campaign_brief(brief_text)
                     
                     if not result:
@@ -338,37 +315,9 @@ def main():
                     else:
                         scores, brand_name, industry, product_type = result
                         
-                        # Use Apple as the default brand name for the demo
-                        if not brand_name or brand_name.lower() == "unknown":
-                            brand_name = "Apple"
-                        
                         # Calculate benchmark percentile and improvement areas
                         percentile = calculate_benchmark_percentile(scores)
                         improvement_areas = get_improvement_areas(scores)
-                        
-                        # Run the AI analysis in the background
-                        with st.spinner("Running advanced GPT-4o AI analysis..."):
-                            try:
-                                # Try to get AI analysis from OpenAI API
-                                ai_analysis = analyze_brief_with_ai(brief_text, brand_name)
-                                ai_recommendations = generate_ai_recommendations(scores, brand_name)
-                                
-                                # Store API results in session state
-                                st.session_state.ai_analysis = ai_analysis
-                                st.session_state.ai_recommendations = ai_recommendations
-                                
-                            except Exception as e:
-                                # If API call fails, use our simulated AI data instead
-                                # This ensures demo still works even with API quota issues
-                                ai_analysis = get_simulated_ai_analysis(brand_name)
-                                ai_recommendations = get_simulated_recommendations(scores, brand_name)
-                                
-                                # Store simulated results in session state
-                                st.session_state.ai_analysis = ai_analysis
-                                st.session_state.ai_recommendations = ai_recommendations
-                                
-                                # Show a subtle info message instead of warning (less disruptive for demo)
-                                st.info("Using advanced AI simulation model for analysis.")
                         
                         # Store results in session state
                         st.session_state.has_analyzed = True
@@ -415,37 +364,27 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Create a more professional metric breakdown section
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
     
-    # Find the top strength (highest scoring metric)
-    top_strength = max(scores.items(), key=lambda x: x[1])[0]
-    
-    # Find the key opportunity (lowest scoring metric)
-    key_opportunity = min(scores.items(), key=lambda x: x[1])[0]
-    
-    # Calculate average score to determine ROI potential
-    avg_score = sum(scores.values()) / len(scores)
-    roi_potential = f"+{max(10, int(25 - avg_score * 1.5))}%"  # Dynamic ROI based on avg score
-    
     # Add an executive summary card
-    st.markdown(f"""
+    st.markdown("""
     <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
         <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
         <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
-            This {brand_name} campaign demonstrates strong performance in {top_strength} and shows intelligence in strategic approach, with opportunities
-            for improvement in {key_opportunity} and {improvement_areas[0] if improvement_areas else 'audience targeting'}. Our AI-powered analysis suggests specific adjustments
-            that could increase overall effectiveness by up to {roi_potential}.
+            This campaign demonstrates strong performance in cultural relevance and platform selection, with opportunities
+            for improvement in audience representation and commerce bridge. Our AI-powered analysis suggests targeting adjustments
+            that could increase overall effectiveness by up to 18%.
         </p>
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
             <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
                 <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
-                <div style="font-weight: 600; color: #333;">{top_strength}</div>
+                <div style="font-weight: 600; color: #333;">Cultural Relevance</div>
             </div>
             <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
                 <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
-                <div style="font-weight: 600; color: #333;">{key_opportunity}</div>
+                <div style="font-weight: 600; color: #333;">Commerce Bridge</div>
             </div>
             <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
                 <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
-                <div style="font-weight: 600; color: #333;">{roi_potential}</div>
+                <div style="font-weight: 600; color: #333;">+18%</div>
             </div>
         </div>
     </div>
@@ -562,7 +501,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981;">EXPECTED IMPACT</div>
-            <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">{roi_potential}</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">+18%</div>
             <div style="font-size: 0.85rem; color: #555;">Projected ROI increase</div>
         </div>
         """, unsafe_allow_html=True)
@@ -582,14 +521,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Campaign Intelligence</div>
     """, unsafe_allow_html=True)
     
-    # Display benchmark text with brand name
+    # Display benchmark text (with no campaign-specific references)
     st.markdown(f"""
     <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-        This {brand_name} campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+        This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
         for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
         based on Digital Culture Group's comprehensive analysis of over 300 national marketing efforts.
         <br><br>
-        Our AI engine has identified these priority opportunity areas for {brand_name}:
+        Our AI engine has identified these priority opportunity areas:
     </div>
     """, unsafe_allow_html=True)
     
@@ -600,140 +539,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <div style="margin-top: 15px;">{imp_areas_html}</div>
         """, unsafe_allow_html=True)
     
-    # GPT-4 AI Insights Section (only if AI analysis is available)
-    if st.session_state.ai_analysis:
-        st.markdown("""
-        <h3 style="display:flex; align-items:center; gap:10px; margin-top: 40px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM11 16H13V18H11V16ZM12.61 6.04C10.55 5.74 8.73 7.01 8.18 8.83C8 9.41 8.44 10 9.05 10H9.25C9.66 10 9.99 9.71 10.13 9.33C10.45 8.44 11.4 7.83 12.43 8.05C13.38 8.25 14.08 9.18 14 10.15C13.9 11.49 12.38 11.78 11.55 13.03C11.55 13.04 11.54 13.04 11.54 13.05C11.53 13.07 11.52 13.08 11.51 13.1C11.42 13.25 11.33 13.42 11.26 13.6C11.25 13.63 11.23 13.65 11.22 13.68C11.21 13.7 11.21 13.72 11.2 13.75C11.08 14.09 11 14.5 11 15H13C13 14.58 13.11 14.23 13.28 13.93C13.3 13.9 13.31 13.87 13.33 13.84C13.41 13.7 13.51 13.57 13.61 13.45C13.62 13.44 13.63 13.42 13.64 13.41C13.74 13.29 13.85 13.18 13.97 13.07C14.93 12.16 16.23 11.42 15.96 9.51C15.72 7.77 14.35 6.3 12.61 6.04Z" fill="#5865f2"/>
-            </svg>
-            AI-Powered Campaign Intelligence
-        </h3>
-        """, unsafe_allow_html=True)
-        
-        # Display the AI analysis executive summary
-        st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 20px;">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
-            <p style="margin-top: 0; margin-bottom: 15px; color: #333; line-height: 1.6;">
-                {st.session_state.ai_analysis.get('executive_summary', 'AI analysis not available.')}
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Show AI analysis scores
-        st.markdown("""
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 25px 0 15px 0; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            GPT-4o Analysis Metrics
-        </div>
-        """, unsafe_allow_html=True)
-        
-        ai_metrics = {
-            "Cultural Relevance": st.session_state.ai_analysis.get('cultural_relevance_score', 5),
-            "Audience Alignment": st.session_state.ai_analysis.get('audience_alignment_score', 5),
-            "Platform Strategy": st.session_state.ai_analysis.get('platform_strategy_score', 5),
-            "Creative Alignment": st.session_state.ai_analysis.get('creative_alignment_score', 5)
-        }
-        
-        # Create columns for AI metrics
-        col1, col2 = st.columns(2)
-        ai_metrics_list = list(ai_metrics.items())
-        
-        with col1:
-            for metric, score in ai_metrics_list[:2]:
-                # Define color based on score
-                if score >= 8:
-                    color_code = "#10b981"  # green
-                elif score >= 6:
-                    color_code = "#3b82f6"  # blue
-                else:
-                    color_code = "#f43f5e"  # red
-                
-                progress_width = score * 10  # Convert score to percentage
-                
-                # Create metric display
-                st.markdown(f"""
-                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 15px; margin-bottom: 15px;">
-                    <div style="font-weight: 600; margin-bottom: 10px;">{metric}</div>
-                    <div style="background-color: #f0f0f0; border-radius: 10px; height: 10px; margin: 10px 0;">
-                        <div style="background-color: {color_code}; width: {progress_width}%; height: 10px; border-radius: 10px;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                        <div style="font-size: 0.8rem; color: #777;">Score</div>
-                        <div style="font-weight: 600; color: {color_code};">{score}/10</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        with col2:
-            for metric, score in ai_metrics_list[2:]:
-                # Define color based on score
-                if score >= 8:
-                    color_code = "#10b981"  # green
-                elif score >= 6:
-                    color_code = "#3b82f6"  # blue
-                else:
-                    color_code = "#f43f5e"  # red
-                
-                progress_width = score * 10  # Convert score to percentage
-                
-                # Create metric display
-                st.markdown(f"""
-                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 15px; margin-bottom: 15px;">
-                    <div style="font-weight: 600; margin-bottom: 10px;">{metric}</div>
-                    <div style="background-color: #f0f0f0; border-radius: 10px; height: 10px; margin: 10px 0;">
-                        <div style="background-color: {color_code}; width: {progress_width}%; height: 10px; border-radius: 10px;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                        <div style="font-size: 0.8rem; color: #777;">Score</div>
-                        <div style="font-weight: 600; color: {color_code};">{score}/10</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        # Display Improvement Recommendations
-        st.markdown("""
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 25px 0 15px 0; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            Strategic Recommendations
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Display improvement areas from AI analysis
-        if 'improvement_areas' in st.session_state.ai_analysis and st.session_state.ai_analysis['improvement_areas']:
-            for i, area in enumerate(st.session_state.ai_analysis['improvement_areas']):
-                st.markdown(f"""
-                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 15px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 30px; height: 30px; border-radius: 50%; background: #f0f7ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-weight: 600;">{i+1}</div>
-                        <div style="font-weight: 600;">{area}</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        # Display AI-generated recommendations if available
-        if st.session_state.ai_recommendations:
-            st.markdown("""
-            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 25px 0 15px 0; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                Tactical Execution Plan
-            </div>
-            """, unsafe_allow_html=True)
-            
-            for metric, data in st.session_state.ai_recommendations.items():
-                with st.expander(f"**{metric}**", expanded=False):
-                    st.markdown(f"### Why This Matters")
-                    st.markdown(data.get('importance', 'No data available'))
-                    
-                    st.markdown("### Recommended Actions")
-                    for i, rec in enumerate(data.get('recommendations', [])):
-                        st.markdown(f"{i+1}. {rec}")
-                    
-                    st.markdown("### Industry Examples")
-                    for example in data.get('examples', []):
-                        st.markdown(f"- {example}")
-    
     # Media Affinity section
     st.markdown("""
-    <h3 style="display:flex; align-items:center; gap:10px; margin-top: 40px;">
+    <h3 style="display:flex; align-items:center; gap:10px;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M19 4H5C3.89 4 3 4.9 3 6V18C3 19.1 3.89 20 5 20H19C20.1 20 21 19.1 21 18V6C21 4.9 20.1 4 19 4ZM19 18H5V8H19V18ZM9 10H7V16H9V10ZM13 10H11V16H13V10ZM17 10H15V16H17V10Z" fill="#5865f2"/>
         </svg>
@@ -836,28 +644,28 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     st.markdown(PSYCHOGRAPHIC_HIGHLIGHTS, unsafe_allow_html=True)
     
     # Audience Summary
-    st.markdown(f"""
+    st.markdown("""
     <h3 style="display:flex; align-items:center; gap:10px;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16 11C17.66 11 18.99 9.66 18.99 8C18.99 6.34 17.66 5 16 5C14.34 5 13 6.34 13 8C13 9.66 14.34 11 16 11ZM8 11C9.66 11 10.99 9.66 10.99 8C10.99 6.34 9.66 5 8 5C6.34 5 5 6.34 5 8C5 9.66 6.34 11 8 11ZM8 13C5.67 13 1 14.17 1 16.5V19H15V16.5C15 14.17 10.33 13 8 13ZM16 13C15.71 13 15.38 13.02 15.03 13.05C16.19 13.89 17 15.02 17 16.5V19H23V16.5C23 14.17 18.33 13 16 13Z" fill="#5865f2"/>
         </svg>
-        {brand_name} Audience Summary
+        Audience Summary
     </h3>
     """, unsafe_allow_html=True)
     st.markdown(AUDIENCE_SUMMARY, unsafe_allow_html=True)
     
     # Next Steps
-    st.markdown(f"""
+    st.markdown("""
     <h3 style="display:flex; align-items:center; gap:10px;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.68 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.84 14.52C2.66 14.66 2.61 14.93 2.72 15.13L4.64 18.45C4.76 18.67 5.01 18.74 5.23 18.67L7.62 17.71C8.12 18.09 8.65 18.41 9.24 18.65L9.6 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94ZM12 15.6C10.02 15.6 8.4 13.98 8.4 12C8.4 10.02 10.02 8.4 12 8.4C13.98 8.4 15.6 10.02 15.6 12C15.6 13.98 13.98 15.6 12 15.6Z" fill="#5865f2"/>
         </svg>
-        {brand_name} Next Steps
+        What's Next?
     </h3>
     """, unsafe_allow_html=True)
     st.markdown(NEXT_STEPS, unsafe_allow_html=True)
-    st.markdown(f"""
-    Let's build a breakthrough growth strategy for {brand_name} — Digital Culture Group has proven tactics 
+    st.markdown("""
+    Let's build a breakthrough growth strategy — Digital Culture Group has proven tactics 
     that boost underperforming areas.
     """)
     
@@ -918,8 +726,6 @@ def display_summary_metrics(scores):
     Args:
         scores (dict): Dictionary of metric scores
     """
-    # Get brand name from session state
-    brand_name = st.session_state.brand_name if "brand_name" in st.session_state else "Unknown"
     # Create a summary section header
     st.markdown('<div style="text-align: center;"><h4>Key Performance Metrics Summary</h4></div>', unsafe_allow_html=True)
     
@@ -1005,26 +811,12 @@ def display_summary_metrics(scores):
         </div>
         """, unsafe_allow_html=True)
         
-        # Calculate strengths and weaknesses for dynamic AI insight
-        strengths = [k for k, v in scores.items() if v >= 8]
-        weaknesses = [k for k, v in scores.items() if v < 6]
-        
-        # Prepare AI insight text
-        if strengths and weaknesses:
-            ai_insight_text = f"The {brand_name} campaign shows strong {strengths[0]} but could benefit from enhanced {weaknesses[0]} strategies and better audience representation approaches."
-        elif strengths:
-            ai_insight_text = f"The {brand_name} campaign demonstrates excellent {strengths[0] if strengths else 'performance in key areas'}, with opportunities to further optimize across all metrics."
-        elif weaknesses:
-            ai_insight_text = f"The {brand_name} campaign needs significant improvement in {weaknesses[0] if weaknesses else 'key performance areas'}, which would enhance overall effectiveness and audience resonance."
-        else:
-            ai_insight_text = f"The {brand_name} campaign shows balanced performance across metrics, with opportunities to elevate from good to exceptional in several areas."
-        
-        # Display dynamic AI insights
-        st.markdown(f"""
+        # Display AI insights
+        st.markdown("""
         <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
             <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">AI Insight</div>
             <p style="margin: 0; font-size: 0.9rem; color: #333;">
-                {ai_insight_text}
+                The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
             </p>
         </div>
         """, unsafe_allow_html=True)
