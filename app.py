@@ -608,26 +608,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     <div style="color: #333; font-size: 1rem; line-height: 1.6;">
         This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
         for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
-        based on Digital Culture Group's comprehensive analysis of <span id="campaign-counter" style="font-weight: 600; color: #5865f2;">300</span> national marketing efforts.
-        
-        <script>
-            // Dynamic counter based on campaign brief
-            document.addEventListener('DOMContentLoaded', function() {{
-                const campaignCounter = document.getElementById('campaign-counter');
-                let count = 267;
-                const targetCount = {300 + (hash(brand_name) % 100)};
-                
-                const interval = setInterval(function() {{
-                    if (count >= targetCount) {{
-                        clearInterval(interval);
-                        campaignCounter.textContent = targetCount;
-                    }} else {{
-                        count += 1;
-                        campaignCounter.textContent = count;
-                    }}
-                }}, 50);
-            }});
-        </script>
+        based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
         <br><br>
         Our AI engine has identified these priority opportunity areas:
     </div>
@@ -675,7 +656,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 </div>
                                 <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
                                     <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
-                                    Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data and 60% higher CPM placements for premium inventory that delivers 2.8x the engagement rate. Consider allocating 35% of budget to competitive conquest strategies across digital channels.
+                                    Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data across audio, rich media, and premium CTV/OTT placements that deliver 2.8x the engagement rate. Consider allocating 35% of budget to competitive conquest strategies using interactive video formats and native display ads.
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
