@@ -109,17 +109,17 @@ def generate_deep_insights(brief_text, ari_scores):
             "error": str(e),
             "strengths": [{"area": "Data Analysis", "explanation": "Our AI analysis has identified key insights from your marketing campaign data."}],
             "improvements": [
-                {"area": "Media Ownership Equity", "explanation": "Your digital ad spend is not adequately distributed across diverse media ownership channels.", "recommendation": "Allocate 20-25% of programmatic spend to minority-owned DSPs and utilize PMP deals with culturally-relevant publishers. Target a 3:1 ROAS with these placements using precision audience segments with 30% higher bid adjustments."},
+                {"area": "Media Ownership Equity", "explanation": "Your digital ad spend is not adequately distributed across diverse media ownership channels.", "recommendation": "Allocate 20-25% of programmatic spend to minority-owned demand-side platforms and utilize private marketplace deals with culturally-relevant publishers. Target a 3:1 ROAS with these placements using precision audience segments with 30% higher bid adjustments."},
                 {"area": "Geo-Cultural Fit", "explanation": "Current ad targeting lacks geo-cultural precision for regional market differences.", "recommendation": "Implement dynamic creative optimization with geo-targeting modifiers. Set up location-specific ad sets with 15-20 mile radius targeting, custom CTAs, and region-specific bidding strategies. Target a 15% improvement in CTR versus current geo-agnostic campaigns."},
                 {"area": "Representation", "explanation": "Ad creative and audience targeting parameters are missing key demographic segments.", "recommendation": "Expand custom audience modeling to include multicultural seed audiences and increase audience diversity by 40%. Implement A/B testing of inclusive ad sets with a minimum of 10K impressions per variant, measuring engagement uplift against control groups."},
-                {"area": "Competitor Tactics", "explanation": "Analysis of competitor digital ad strategies reveals opportunities for differentiation.", "recommendation": "Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using 1st-party data and 60% higher CPM placements for premium inventory that delivers 2.8x the engagement rate."}
+                {"area": "Competitor Tactics", "explanation": "Analysis of competitor digital ad strategies reveals opportunities for differentiation.", "recommendation": "Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data and 60% higher CPM placements for premium inventory that delivers 2.8x the engagement rate. Consider allocating 35% of budget to competitive conquest strategies."}
             ],
             "trends": [
-                {"trend": "Platform-Specific Optimization", "application": "Implement platform-specific ad formats and bidding strategies across major social media networks to maximize engagement with a 15% budget reallocation."},
+                {"trend": "Channel-Specific Optimization", "application": "Implement tailored ad formats and bidding strategies across all digital channels to maximize engagement with a 15% budget reallocation towards highest-performing formats."},
                 {"trend": "First-Party Data Activation", "application": "Develop custom audience segments using first-party data with a 30-day recency filter to improve retargeting efficiency by 25%."},
-                {"trend": "Contextual Targeting Renaissance", "application": "Allocate 15% of programmatic budget to contextual targeting using category and sentiment signals as cookieless solutions gain prominence."}
+                {"trend": "Contextual Targeting Renaissance", "application": "Allocate 15% of programmatic budget to contextual targeting using category and sentiment signals as privacy-focused solutions gain prominence."}
             ],
-            "hidden_insight": "Your campaign could benefit from a multi-touch attribution model with a 40/40/20 split between upper, mid and lower funnel tactics across platforms.",
+            "hidden_insight": "Your campaign could benefit from a multi-touch attribution model with a 40/40/20 split between upper, mid and lower funnel tactics across all digital channels.",
             "performance_prediction": "Based on our analysis, shifting 20% of budget to these tactical recommendations would yield a 32% improvement in ROAS and 18% increase in brand lift metrics."
         }
 
@@ -184,20 +184,20 @@ def generate_competitor_analysis(brief_text, industry=None):
             "error": str(e),
             "competitors": [
                 {"name": "Major Industry Player", "threat_level": "high", "digital_tactics": "Heavy investment in programmatic display with high-frequency retargeting and aggressive conquest campaigns targeting competitor brand terms."},
-                {"name": "Emerging Disruptor", "threat_level": "medium", "digital_tactics": "Short-form video platform strategy with creator partnerships and high organic content amplification through paid boosting."},
-                {"name": "Legacy Brand", "threat_level": "low", "digital_tactics": "Traditional search and display mix with limited social presence, primarily focused on brand protection keywords."}
+                {"name": "Emerging Disruptor", "threat_level": "medium", "digital_tactics": "Video content strategy with creator partnerships and high organic content amplification through paid boosting."},
+                {"name": "Legacy Brand", "threat_level": "low", "digital_tactics": "Traditional search and display mix with limited digital presence, primarily focused on brand protection keywords."}
             ],
             "advantages": [
-                {"advantage": "Cultural Audience Insights", "tactical_application": "Apply custom audience targeting segments with 15% higher bid adjustments on platforms where cultural relevance scored highest, overlaying first-party data."},
-                {"advantage": "Cross-platform Message Consistency", "tactical_application": "Implement sequential messaging strategy with frequency caps of 2-3 per platform and cross-platform attribution to maintain consistent user journey tracking."}
+                {"advantage": "Cultural Audience Insights", "tactical_application": "Apply custom audience targeting segments with 15% higher bid adjustments on digital channels where cultural relevance scored highest, overlaying first-party data."},
+                {"advantage": "Cross-channel Message Consistency", "tactical_application": "Implement sequential messaging strategy with frequency caps of 2-3 per channel and cross-channel attribution to maintain consistent user journey tracking."}
             ],
             "threats": [
-                {"threat": "Rising CPMs in Primary Channels", "tactical_response": "Shift 30% of social media budget to emerging content platforms where CPMs are 40-50% lower while maintaining similar audience quality."},
+                {"threat": "Rising CPMs in Primary Channels", "tactical_response": "Shift 30% of digital ad budget to emerging content formats where CPMs are 40-50% lower while maintaining similar audience quality."},
                 {"threat": "Competitor Keyword Conquest", "tactical_response": "Implement defensive search bidding with automated rules to increase bids by 20% when competitors appear for brand terms."}
             ],
             "differentiation": [
-                {"platform": "Social Media", "tactical_approach": "Utilize Dynamic Creative Optimization with multicultural creative asset testing, implement 3-5 variants per audience segment with automated performance-based budget allocation."},
-                {"platform": "Programmatic", "tactical_approach": "Focus on minority-owned SSPs and PMPs with custom audience activation, leveraging first-party data matching and contextual alignment signals."}
+                {"platform": "Video Channels", "tactical_approach": "Utilize Dynamic Creative Optimization with multicultural creative asset testing, implement 3-5 variants per audience segment with automated performance-based budget allocation."},
+                {"platform": "Programmatic", "tactical_approach": "Focus on minority-owned supply-side platforms and private marketplace deals with custom audience activation, leveraging first-party data matching and contextual alignment signals."}
             ]
         }
 
@@ -282,8 +282,8 @@ def generate_audience_segments(brief_text, ari_scores):
                         "Social impact supporters"
                     ],
                     "platform_targeting": [
-                        {"platform": "Social Media Network", "targeting_approach": "Utilize 1% lookalike audiences from existing customers, target In-Market segments for related products, exclude previous converters beyond 30-day window"},
-                        {"platform": "Short-form Video Platform", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
+                        {"platform": "Interactive Media", "targeting_approach": "Utilize 1% lookalike audiences from existing customers, target In-Market segments for related products, exclude previous converters beyond 30-day window"},
+                        {"platform": "Video Platforms", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
                     ],
                     "expected_performance": {
                         "CTR": "2.3-2.8%", 

@@ -647,7 +647,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 </div>
                                 <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
                                     <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
-                                    Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using 1st-party data and 60% higher CPM placements for premium inventory that delivers 2.8x the engagement rate.
+                                    Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data and 60% higher CPM placements for premium inventory that delivers 2.8x the engagement rate. Consider allocating 35% of budget to competitive conquest strategies across digital channels.
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
