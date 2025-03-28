@@ -321,7 +321,7 @@ def main():
             if not brief_text or brief_text.strip() == "":
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
-                with st.spinner("Processing multi-dimensional cultural analysis vectors..."):
+                with st.spinner("Initializing quantum-neural processing matrices..."):
                     # Simulate analysis time
                     time.sleep(1.5)
                     
@@ -349,7 +349,7 @@ def main():
                         
                         # If OpenAI API key is available, generate additional insights
                         if st.session_state.use_openai:
-                            with st.spinner("Generating deep AI insights..."):
+                            with st.spinner("Synthesizing hyperdimensional data tensors..."):
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
                                     # Generate deep insights based on brief and ARI scores
@@ -371,9 +371,9 @@ def main():
                                     st.session_state.audience_segments = None
                         
                         # Show success message
-                        success_msg = "Predictive resonance modeling complete. Intelligence insights generated successfully."
+                        success_msg = "Quantum resonance modeling complete. Neural-enhanced algorithmic forecast matrices finalized."
                         if st.session_state.use_openai and st.session_state.ai_insights:
-                            success_msg += " Enhanced AI analysis included."
+                            success_msg += " Advanced hyperdimensional analysis synthesized."
                         st.success(success_msg)
                         
                         # Trigger rerun to display results
@@ -751,10 +751,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # Add AI-powered insights section (only if using OpenAI API)
     if st.session_state.use_openai and st.session_state.ai_insights:
-        st.markdown("<h3 style='margin-top: 40px;'>Advanced AI-Powered Insights</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-top: 40px;'>Advanced Quantum-Neural Intelligence Matrix</h3>", unsafe_allow_html=True)
         
         # Create tabs for different types of AI insights
-        ai_tab1, ai_tab2, ai_tab3 = st.tabs(["Campaign Intelligence", "Competitive Analysis", "Audience Segments"])
+        ai_tab1, ai_tab2, ai_tab3 = st.tabs(["Vector Intelligence Array", "Competitive Matrix Analysis", "Audience Hypercluster Identification"])
         
         with ai_tab1:
             ai_insights = st.session_state.ai_insights
@@ -763,7 +763,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 st.warning(f"Unable to generate complete AI insights. Using limited analysis.")
             
             # Strengths section
-            st.markdown("#### Strategic Strengths")
+            st.markdown("#### Positive Algorithmic Convergence Nodes")
             
             for strength in ai_insights.get("strengths", [])[:3]:
                 st.markdown(f"""
@@ -774,7 +774,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 """, unsafe_allow_html=True)
             
             # Improvements section
-            st.markdown("#### Optimization Opportunities")
+            st.markdown("#### Suboptimal Resonance Vector Recalibration")
             
             for improvement in ai_insights.get("improvements", [])[:3]:
                 st.markdown(f"""
@@ -788,7 +788,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 """, unsafe_allow_html=True)
             
             # Cultural trends
-            st.markdown("#### Cultural Trend Opportunities")
+            st.markdown("#### Emergent Pattern Recognition Synthesis")
             
             trends_html = ""
             for trend in ai_insights.get("trends", [])[:3]:
@@ -806,11 +806,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 st.markdown(f"""
                 <div style="margin-top: 30px; display: flex; gap: 20px; flex-wrap: wrap;">
                     <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; flex: 1; min-width: 250px;">
-                        <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #7c3aed; margin-bottom: 10px;">HIDDEN AUDIENCE INSIGHT</div>
+                        <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #7c3aed; margin-bottom: 10px;">QUANTUM-DERIVED SENTIMENT MATRIX</div>
                         <div style="color: #333; font-size: 0.95rem;">{ai_insights['hidden_insight']}</div>
                     </div>
                     <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; flex: 1; min-width: 250px;">
-                        <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #f97316; margin-bottom: 10px;">PERFORMANCE PREDICTION</div>
+                        <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #f97316; margin-bottom: 10px;">HYPERSCALE EFFICACY PROJECTION</div>
                         <div style="color: #333; font-size: 0.95rem;">{ai_insights['performance_prediction']}</div>
                     </div>
                 </div>
@@ -823,7 +823,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 st.warning(f"Unable to generate complete competitive analysis. Using limited data.")
             
             # Competitors section
-            st.markdown("#### Top Competitive Threats")
+            st.markdown("#### Market Entity Disturbance Vectors")
             
             competitors_html = """
             <div style="margin-bottom: 25px;">
@@ -882,7 +882,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("#### Competitive Advantages")
+                st.markdown("#### Positive Differential Quantum States")
                 for advantage in competitor_analysis.get("advantages", [])[:2]:
                     st.markdown(f"""
                     <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin-bottom: 15px; height: 100%;">
@@ -892,7 +892,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     """, unsafe_allow_html=True)
             
             with col2:
-                st.markdown("#### Competitive Threats")
+                st.markdown("#### Negative Vector Probability Fields")
                 for threat in competitor_analysis.get("threats", [])[:2]:
                     st.markdown(f"""
                     <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin-bottom: 15px; height: 100%;">
@@ -902,7 +902,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     """, unsafe_allow_html=True)
             
             # Differentiation opportunities
-            st.markdown("#### Differentiation Strategy")
+            st.markdown("#### Quantum Eigenvalue Maximization Protocol")
             
             diff_html = """
             <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
@@ -970,7 +970,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             # Psychographics section
                             psychographics = segment.get('psychographics', [])
                             if psychographics:
-                                st.markdown("#### Psychographic Profile")
+                                st.markdown("#### Neural Behavior Matrix")
                                 psycho_html = "<div style='margin-bottom: 20px;'>"
                                 for trait in psychographics:
                                     psycho_html += f"""
@@ -985,7 +985,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             # Media habits section
                             media_habits = segment.get('media_habits', [])
                             if media_habits:
-                                st.markdown("#### Media Consumption")
+                                st.markdown("#### Digital Engagement Telemetry")
                                 media_html = "<div style='margin-bottom: 20px;'>"
                                 
                                 colors = {
@@ -1015,7 +1015,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             # Cultural affinities
                             cultural_affinities = segment.get('cultural_affinities', [])
                             if cultural_affinities:
-                                st.markdown("#### Cultural Affinities")
+                                st.markdown("#### Sociocultural Quantum Entanglement")
                                 cultural_html = "<div style='margin-bottom: 20px;'>"
                                 for affinity in cultural_affinities:
                                     cultural_html += f"""
@@ -1030,7 +1030,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             # Resonance factors
                             resonance_factors = segment.get('resonance_factors', [])
                             if resonance_factors:
-                                st.markdown("#### Resonance Factors")
+                                st.markdown("#### Biomimetic Harmonic Oscillators")
                                 resonance_html = "<div style='margin-bottom: 20px;'>"
                                 for factor in resonance_factors:
                                     resonance_html += f"""
@@ -1066,7 +1066,7 @@ def display_summary_metrics(scores):
         scores (dict): Dictionary of metric scores
     """
     # Create a summary section header
-    st.markdown('<div style="text-align: center;"><h4>Key Performance Metrics Summary</h4></div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix</h4></div>', unsafe_allow_html=True)
     
     # Calculate average scores
     avg_score = sum(scores.values()) / len(scores)
@@ -1093,7 +1093,7 @@ def display_summary_metrics(scores):
             fill='toself',
             fillcolor='rgba(88, 101, 242, 0.3)',
             line=dict(color='#5865f2', width=2),
-            name='Campaign Scores'
+            name='Current Measurement'
         ))
         
         # Add "AI Insight" reference trace
@@ -1107,7 +1107,7 @@ def display_summary_metrics(scores):
             fill='toself',
             fillcolor='rgba(16, 185, 129, 0.1)',
             line=dict(color='#10b981', width=1.5, dash='dot'),
-            name='AI Insights'
+            name='Optimal Quantum State'
         ))
         
         # Update layout with custom styling
@@ -1145,7 +1145,7 @@ def display_summary_metrics(scores):
         # Display the average score in a prominent way
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
-            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Overall Campaign Score</div>
+            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Resonance Convergence Coefficient</div>
             <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{avg_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
         </div>
         """, unsafe_allow_html=True)
@@ -1153,7 +1153,7 @@ def display_summary_metrics(scores):
         # Display AI insights
         st.markdown("""
         <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
-            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">AI Insight</div>
+            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">Quantum Neural Analysis</div>
             <p style="margin: 0; font-size: 0.9rem; color: #333;">
                 The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
             </p>
