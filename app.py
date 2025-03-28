@@ -321,7 +321,7 @@ def main():
             if not brief_text or brief_text.strip() == "":
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
-                with st.spinner("Teaching AI how to understand sarcasm..."):
+                with st.spinner("Unlocking breakthrough insights..."):
                     # Simulate analysis time
                     time.sleep(1.5)
                     
@@ -349,7 +349,7 @@ def main():
                         
                         # If OpenAI API key is available, generate additional insights
                         if st.session_state.use_openai:
-                            with st.spinner("Training AI to not write poetry about paperclips..."):
+                            with st.spinner("Generating game-changing recommendations..."):
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
                                     # Generate deep insights based on brief and ARI scores
@@ -371,9 +371,9 @@ def main():
                                     st.session_state.audience_segments = None
                         
                         # Show success message
-                        success_msg = "Analysis complete! AI model has carefully considered your marketing brief."
+                        success_msg = "✨ Campaign analysis complete! Breakthrough insights ready for review."
                         if st.session_state.use_openai and st.session_state.ai_insights:
-                            success_msg += " Enhanced AI insights generated successfully."
+                            success_msg += " Strategic recommendations prepared for your campaign!"
                         st.success(success_msg)
                         
                         # Trigger rerun to display results
