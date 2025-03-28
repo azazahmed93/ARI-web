@@ -858,11 +858,85 @@ def display_summary_metrics(scores):
         
         # Display enhanced AI insights if available
         if st.session_state.use_openai and st.session_state.ai_insights:
+            # Apply custom CSS for premium tabs
+            st.markdown("""
+            <style>
+                /* Custom styling for premium tabs */
+                .premium-tabs {
+                    margin-top: 30px;
+                    display: flex;
+                    border-bottom: 1px solid #e2e8f0;
+                    margin-bottom: 25px;
+                }
+                
+                .tab-item {
+                    padding: 12px 24px;
+                    cursor: pointer;
+                    font-weight: 500;
+                    font-size: 0.95rem;
+                    color: #64748b;
+                    position: relative;
+                    transition: all 0.2s ease;
+                }
+                
+                .tab-item:hover {
+                    color: #5865f2;
+                }
+                
+                .tab-item.active {
+                    color: #5865f2;
+                    border-bottom: 3px solid #5865f2;
+                }
+                
+                /* Hide default Streamlit tab styling */
+                div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
+                    gap: 0 !important;
+                }
+                
+                /* Adjust tab container padding */
+                div[data-testid="stHorizontalBlock"] {
+                    gap: 0 !important;
+                }
+                
+                /* Better styling for info boxes */
+                .stAlert {
+                    background-color: white !important;
+                    border: 1px solid #e2e8f0 !important;
+                    border-radius: 8px !important;
+                    padding: 20px !important;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
+                }
+                
+                /* Make expanders look premium */
+                .st-emotion-cache-1q7k5m8[aria-expanded="true"] {
+                    border: none !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+                }
+                
+                .st-emotion-cache-1q7k5m8[aria-expanded="false"] {
+                    border: 1px solid #eaeaea !important;
+                    border-radius: 8px !important;
+                }
+                
+                .st-emotion-cache-1y4p8pa {
+                    gap: 0 !important;
+                }
+            </style>
+            
+            <div class="premium-insights-container">
+                <h3 style="color: #333; margin-top: 40px; margin-bottom: 5px;">Intelligence Insights</h3>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
+                    Advanced campaign analytics powered by computational intelligence
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            
             # Create tabs for different types of insights
             ai_tabs = st.tabs(["Campaign Strengths & Opportunities", "Competitor Analysis", "Audience Segmentation"])
             
             with ai_tabs[0]:
-                st.markdown("<h4 style='color: #5865f2;'>Advanced Campaign Insights</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='color: #5865f2; margin-top: 10px;'>Advanced Campaign Insights</h4>", unsafe_allow_html=True)
                 
                 # Display strengths from AI analysis
                 if "strengths" in st.session_state.ai_insights:
@@ -939,8 +1013,22 @@ def display_summary_metrics(scores):
                         """, unsafe_allow_html=True)
             
             with ai_tabs[1]:
-                if st.session_state.competitor_analysis:
-                    st.markdown("<h4 style='color: #5865f2;'>Competitive Landscape Analysis</h4>", unsafe_allow_html=True)
+                # Handle competitor analysis with premium styling
+                st.markdown("<h4 style='color: #5865f2; margin-top: 10px;'>Competitive Landscape Analysis</h4>", unsafe_allow_html=True)
+                
+                # Check for valid competitor analysis data
+                valid_competitor_data = (st.session_state.competitor_analysis and 
+                                        isinstance(st.session_state.competitor_analysis, dict))
+                
+                if valid_competitor_data:
+                    st.markdown("""
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; margin-bottom: 20px;">
+                        <div style="font-size: 0.85rem; color: #333; line-height: 1.5;">
+                            This analysis provides insights into the competitive landscape for this campaign, identifying key 
+                            competitors, competitive advantages, market threats, and differentiation opportunities.
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
                     # Display competitors
                     if "competitors" in st.session_state.competitor_analysis:
@@ -1022,9 +1110,25 @@ def display_summary_metrics(scores):
                     st.info("Competitor analysis data is not available.")
             
             with ai_tabs[2]:
-                if st.session_state.audience_segments and "segments" in st.session_state.audience_segments:
-                    st.markdown("<h4 style='color: #5865f2;'>Target Audience Analysis</h4>", unsafe_allow_html=True)
-                    st.markdown("Below are the key audience segments with the highest potential for this campaign.")
+                # Handle the case where we have audience segments data
+                st.markdown("<h4 style='color: #5865f2; margin-top: 10px;'>Target Audience Analysis</h4>", unsafe_allow_html=True)
+                
+                # Check for valid audience segments data
+                valid_segments = (st.session_state.audience_segments and 
+                                 isinstance(st.session_state.audience_segments, dict) and 
+                                 "segments" in st.session_state.audience_segments and
+                                 isinstance(st.session_state.audience_segments["segments"], list) and
+                                 len(st.session_state.audience_segments["segments"]) > 0)
+                
+                if valid_segments:
+                    st.markdown("""
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; margin-bottom: 20px;">
+                        <div style="font-size: 0.85rem; color: #333; line-height: 1.5;">
+                            The following audience segments have been identified as having the highest potential for engagement with this campaign.
+                            Each segment is analyzed based on demographic profile, psychographic traits, media consumption patterns, and cultural affinities.
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
                     for i, segment in enumerate(st.session_state.audience_segments["segments"]):
                         with st.expander(f"Segment {i+1}: {segment['name']}", expanded=(i==0)):
