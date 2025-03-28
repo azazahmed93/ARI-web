@@ -605,12 +605,68 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     </div>
     """, unsafe_allow_html=True)
     
-    # Add improvement areas as pill buttons
-    imp_areas_html = "".join([f'<div style="display: inline-block; background: #f5f7fa; border: 1px solid #e5e7eb; border-radius: 30px; padding: 6px 16px; margin: 5px 8px 5px 0; font-size: 0.9rem; color: #5865f2; font-weight: 500;">{area}</div>' for area in improvement_areas])
-    
-    st.markdown(f"""
-        <div style="margin-top: 15px;">{imp_areas_html}</div>
-        """, unsafe_allow_html=True)
+    # Create tabs for each improvement area (for clickable detailed view)
+    if len(improvement_areas) > 0 and st.session_state.use_openai and st.session_state.ai_insights:
+        # Check if AI insights are available
+        ai_insights = st.session_state.ai_insights
+        
+        # Create tabs for each improvement area
+        area_tabs = st.tabs(improvement_areas)
+        
+        # Only show detailed recommendations if we have AI insights
+        if "error" not in ai_insights or len(ai_insights.get("improvements", [])) > 0:
+            # For each improvement area tab, display the detailed recommendation
+            for i, tab in enumerate(area_tabs):
+                with tab:
+                    # Find the matching improvement from AI insights
+                    matching_improvements = [imp for imp in ai_insights.get("improvements", []) 
+                                           if imp['area'] == improvement_areas[i]]
+                    
+                    if matching_improvements:
+                        improvement = matching_improvements[0]
+                        st.markdown(f"""
+                        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
+                            <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">{improvement['area']}</div>
+                            <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">{improvement['explanation']}</div>
+                            <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
+                                <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {improvement['recommendation']}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        # Fallback content if no matching improvement is found
+                        st.markdown(f"""
+                        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
+                            <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">{improvement_areas[i]}</div>
+                            <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
+                                This area shows potential for improvement based on our analysis of your campaign brief.
+                            </div>
+                            <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
+                                <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
+                                Consider investing more resources in this area to enhance campaign effectiveness.
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+        else:
+            # If no AI insights are available, show simplified tabs
+            for i, tab in enumerate(area_tabs):
+                with tab:
+                    st.markdown(f"""
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
+                        <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">{improvement_areas[i]}</div>
+                        <div style="color: #333; font-size: 0.9rem;">
+                            This area has been identified as a priority opportunity area for your campaign.
+                            For detailed recommendations, ensure OpenAI API integration is enabled.
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+    else:
+        # If no improvement areas or AI insights, just show the pills without tabs
+        imp_areas_html = "".join([f'<div style="display: inline-block; background: #f5f7fa; border: 1px solid #e5e7eb; border-radius: 30px; padding: 6px 16px; margin: 5px 8px 5px 0; font-size: 0.9rem; color: #5865f2; font-weight: 500;">{area}</div>' for area in improvement_areas])
+        
+        st.markdown(f"""
+            <div style="margin-top: 15px;">{imp_areas_html}</div>
+            """, unsafe_allow_html=True)
     
     # Media Affinity section
     st.markdown("""
@@ -777,26 +833,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
             st.markdown(pdf_link, unsafe_allow_html=True)
     
-    # Only show priority improvement areas with AI if data is available and action has been taken
-    if st.session_state.use_openai and st.session_state.ai_insights and st.session_state.has_analyzed and len(st.session_state.improvement_areas) > 0:
-        st.markdown("<h3 style='margin-top: 40px;'>Priority Improvement Recommendations</h3>", unsafe_allow_html=True)
-        
-        ai_insights = st.session_state.ai_insights
-        
-        if "error" in ai_insights:
-            st.warning(f"Unable to generate complete AI improvement recommendations. Using limited analysis.")
-        
-        # Only show the improvements section for the priority areas - limited to 3
-        for improvement in ai_insights.get("improvements", [])[:3]:
-            st.markdown(f"""
-            <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin-bottom: 15px;">
-                <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">{improvement['area']}</div>
-                <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">{improvement['explanation']}</div>
-                <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {improvement['recommendation']}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+    # Priority improvement recommendations have been moved to the tabs above in the Campaign Intelligence section
     
     # Add the demo section
     demo_container = st.container()
