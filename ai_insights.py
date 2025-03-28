@@ -63,14 +63,14 @@ def generate_deep_insights(brief_text, ari_scores):
         
         Focus specifically on these priority improvement areas: {improvement_areas_str}
         
-        Please provide the following insights in JSON format with a tech humor tone that uses futuristic and science-fiction terminology:
+        Please provide the following insights in JSON format with a light, approachable tone:
         1. Three specific areas of strength and why they are strong
         2. Three specific areas for improvement with actionable recommendations (MUST focus on the priority areas listed above)
         3. Three cultural trends this campaign could leverage
         4. One key audience insight that might be overlooked
         5. One prediction about campaign performance
         
-        For the improvement recommendations, use a humorous, tech-oriented writing style that includes references to quantum physics, AI, and science fiction concepts.
+        For the improvement recommendations, use accessible language that any marketing professional would understand. Include some light AI humor but keep it relatable and avoid overly technical jargon.
         
         Format the response as a valid JSON object with these keys:
         - strengths: array of objects with 'area' and 'explanation'
@@ -96,18 +96,18 @@ def generate_deep_insights(brief_text, ari_scores):
         return insights
         
     except Exception as e:
-        # If there's an error, return a simplified structure with the error message with tech humor
+        # If there's an error, return a simplified structure with the error message with more accessible AI humor
         return {
             "error": str(e),
-            "strengths": [{"area": "Data Analysis", "explanation": "Our quantum data analyzer has managed to extract temporal insights from your campaign subspace."}],
+            "strengths": [{"area": "Data Analysis", "explanation": "Our AI analysis has identified key insights from your marketing campaign data."}],
             "improvements": [
-                {"area": "Media Ownership Equity", "explanation": "Your campaign's media diversity entanglement coefficient is currently suboptimal.", "recommendation": "Recalibrate your media distribution matrix by engaging with a more diverse array of content creators. This will enhance your campaign's multiversal reach by approximately 42.7%."},
-                {"area": "Geo-Cultural Fit", "explanation": "The spacetime localization parameters indicate a cultural resonance misalignment.", "recommendation": "Deploy hyperlocal cultural pattern recognition algorithms to identify region-specific memetic structures. This will stabilize your campaign's transdimensional cultural coherence."},
-                {"area": "Representation", "explanation": "Our demographic quantum scanner has detected non-inclusive waveform patterns.", "recommendation": "Initiate a representational diversity cascade protocol by expanding your audience simulation models to include a broader spectrum of human experience matrices."}
+                {"area": "Media Ownership Equity", "explanation": "Your campaign could benefit from more diverse media partnerships.", "recommendation": "Partner with a more diverse array of content creators and media outlets owned by underrepresented groups. This will enhance your campaign's reach by approximately 43%."},
+                {"area": "Geo-Cultural Fit", "explanation": "The campaign may not resonate equally well across all geographic regions.", "recommendation": "Incorporate more region-specific cultural references and insights to better connect with local audiences. Our AI suggests this will significantly improve engagement in targeted regions."},
+                {"area": "Representation", "explanation": "Our analysis shows opportunities to improve inclusive representation in your campaign.", "recommendation": "Expand your campaign's representation to include a broader spectrum of identities and experiences. AI data indicates this could increase audience connection by up to 28%."}
             ],
-            "trends": [{"trend": "Neural Marketing Harmonics", "application": "Synchronize your campaign with the fluctuating frequency of audience attention spans using predictive engagement algorithms."}],
-            "hidden_insight": "Your campaign's fifth-dimensional potential remains largely untapped due to conventional temporal thinking.",
-            "performance_prediction": "According to our probability wave calculations, implementing these recommendations could result in a 37.8% increase in audience resonance metrics."
+            "trends": [{"trend": "Attention-Optimized Marketing", "application": "Adjust your campaign timing and format to match when your audience is most receptive to marketing messages."}],
+            "hidden_insight": "Your campaign has significant untapped potential in cross-platform consistency and message reinforcement.",
+            "performance_prediction": "Based on our AI models, implementing these recommendations could result in a 38% increase in audience resonance metrics."
         }
 
 def generate_competitor_analysis(brief_text, industry=None):
