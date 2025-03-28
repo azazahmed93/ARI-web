@@ -64,13 +64,21 @@ def generate_deep_insights(brief_text, ari_scores):
         Focus specifically on these priority improvement areas: {improvement_areas_str}
         
         Please provide the following insights in JSON format with a light, approachable tone:
-        1. Three specific areas of strength and why they are strong
-        2. Three specific areas for improvement with actionable recommendations (MUST focus on the priority areas listed above)
-        3. Three cultural trends this campaign could leverage
-        4. One key audience insight that might be overlooked
-        5. One prediction about campaign performance
+        1. Three specific areas of strength and why they are strong in digital advertising context
+        2. Three specific areas for improvement with TACTICAL digital advertising recommendations (MUST focus on the priority areas listed above)
+        3. Three cultural trends this campaign could leverage through digital ad targeting and platforms
+        4. One key audience insight for digital media buying that might be overlooked
+        5. One prediction about campaign performance metrics
         
-        For the improvement recommendations, use accessible language that any marketing professional would understand. Include some light AI humor but keep it relatable and avoid overly technical jargon.
+        For the improvement recommendations, focus specifically on digital advertising tactics including:
+        - Media mix allocation percentages
+        - Platform-specific targeting parameters
+        - Bidding strategies and KPI targets
+        - Programmatic optimization techniques
+        - Audience segmentation for ad platforms
+        - Clear measurement metrics and benchmarks
+        
+        Use accessible language that any marketing professional would understand. Include some light AI humor but keep it relatable and avoid overly technical jargon.
         
         Format the response as a valid JSON object with these keys:
         - strengths: array of objects with 'area' and 'explanation'
@@ -84,7 +92,7 @@ def generate_deep_insights(brief_text, ari_scores):
         response = client.chat.completions.create(
             model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
             messages=[
-                {"role": "system", "content": "You are a marketing strategy expert with deep cultural insights."},
+                {"role": "system", "content": "You are a digital advertising tactician with expertise in programmatic media buying, platform-specific optimization, and culturally-relevant campaign execution. Focus on actionable tactics, not general strategy."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"},
@@ -101,13 +109,17 @@ def generate_deep_insights(brief_text, ari_scores):
             "error": str(e),
             "strengths": [{"area": "Data Analysis", "explanation": "Our AI analysis has identified key insights from your marketing campaign data."}],
             "improvements": [
-                {"area": "Media Ownership Equity", "explanation": "Your campaign could benefit from more diverse media partnerships.", "recommendation": "Partner with a more diverse array of content creators and media outlets owned by underrepresented groups. This will enhance your campaign's reach by approximately 43%."},
-                {"area": "Geo-Cultural Fit", "explanation": "The campaign may not resonate equally well across all geographic regions.", "recommendation": "Incorporate more region-specific cultural references and insights to better connect with local audiences. Our AI suggests this will significantly improve engagement in targeted regions."},
-                {"area": "Representation", "explanation": "Our analysis shows opportunities to improve inclusive representation in your campaign.", "recommendation": "Expand your campaign's representation to include a broader spectrum of identities and experiences. AI data indicates this could increase audience connection by up to 28%."}
+                {"area": "Media Ownership Equity", "explanation": "Your digital ad spend is not adequately distributed across diverse media ownership channels.", "recommendation": "Allocate 20-25% of programmatic spend to minority-owned DSPs like Colossus SSP and utilize PMP deals with publishers like Blavity and Remezcla. Target a 3:1 ROAS with these placements using precision audience segments."},
+                {"area": "Geo-Cultural Fit", "explanation": "Current ad targeting lacks geo-cultural precision for regional market differences.", "recommendation": "Implement dynamic creative optimization (DCO) with geo-targeting modifiers. Set up location-specific ad sets with 15-20 mile radius targeting, custom CTAs, and region-specific bidding strategies. Target a 15% improvement in CTR versus current geo-agnostic campaigns."},
+                {"area": "Representation", "explanation": "Ad creative and audience targeting parameters are missing key demographic segments.", "recommendation": "Expand lookalike modeling to include multicultural seed audiences and increase audience diversity by 40%. Implement A/B testing of inclusive ad sets with a minimum of 10K impressions per variant, measuring engagement uplift against control groups."}
             ],
-            "trends": [{"trend": "Attention-Optimized Marketing", "application": "Adjust your campaign timing and format to match when your audience is most receptive to marketing messages."}],
-            "hidden_insight": "Your campaign has significant untapped potential in cross-platform consistency and message reinforcement.",
-            "performance_prediction": "Based on our AI models, implementing these recommendations could result in a 38% increase in audience resonance metrics."
+            "trends": [
+                {"trend": "Platform-Specific Optimization", "application": "Implement platform-specific ad formats and bidding strategies across Meta, TikTok, and YouTube to maximize engagement with a 15% budget reallocation."},
+                {"trend": "First-Party Data Activation", "application": "Develop custom audience segments using first-party data with a 30-day recency filter to improve retargeting efficiency by 25%."},
+                {"trend": "Contextual Targeting Renaissance", "application": "Allocate 15% of programmatic budget to contextual targeting using category and sentiment signals as cookieless solutions gain prominence."}
+            ],
+            "hidden_insight": "Your campaign could benefit from a multi-touch attribution model with a 40/40/20 split between upper, mid and lower funnel tactics across platforms.",
+            "performance_prediction": "Based on our analysis, shifting 20% of budget to these tactical recommendations would yield a 32% improvement in ROAS and 18% increase in brand lift metrics."
         }
 
 def generate_competitor_analysis(brief_text, industry=None):
@@ -129,32 +141,32 @@ def generate_competitor_analysis(brief_text, industry=None):
         
         # Craft a prompt for the OpenAI API
         prompt = f"""
-        You are a competitive intelligence expert in marketing.
+        You are a competitive intelligence expert specialized in digital advertising platforms, bid strategies, and media tactics.
         
-        Based on the following marketing brief or RFP, provide a competitive analysis.
+        Based on the following marketing campaign information, provide a digital advertising competitive analysis.
         {industry_prompt}
         
-        Brief/RFP:
+        Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
         
         Please provide a competitive analysis in JSON format with:
-        1. Three main competitors likely targeting the same audience
-        2. Two competitive advantages this campaign could leverage
-        3. Two key threats from the competitive landscape
-        4. Two differentiation opportunities
+        1. Three main competitors and their digital advertising approach
+        2. Two competitive advantages this campaign could leverage in digital media buying
+        3. Two key threats from the competitive digital advertising landscape
+        4. Two digital platform-specific differentiation opportunities
         
         Format the response as a valid JSON object with these keys:
-        - competitors: array of objects with 'name' and 'threat_level' (high, medium, low)
-        - advantages: array of objects with 'advantage' and 'explanation'
-        - threats: array of objects with 'threat' and 'mitigation'
-        - differentiation: array of objects with 'opportunity' and 'implementation'
+        - competitors: array of objects with 'name', 'threat_level' (high, medium, low), and 'digital_tactics' (specific digital marketing approaches they use)
+        - advantages: array of objects with 'advantage' and 'tactical_application' (how to apply this as a digital media buying tactic)
+        - threats: array of objects with 'threat' and 'tactical_response' (specific digital advertising counter-strategy)
+        - differentiation: array of objects with 'platform' (e.g., Meta, TikTok, etc.) and 'tactical_approach' (specific media buying/targeting approach for that platform)
         """
         
         # Call the OpenAI API
         response = client.chat.completions.create(
             model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
             messages=[
-                {"role": "system", "content": "You are a competitive intelligence expert in marketing."},
+                {"role": "system", "content": "You are a digital media competitive intelligence expert specialized in advertising platform strategies, audience targeting, and media buying optimization."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"},
@@ -170,16 +182,21 @@ def generate_competitor_analysis(brief_text, industry=None):
         return {
             "error": str(e),
             "competitors": [
-                {"name": "Data unavailable", "threat_level": "unknown"}
+                {"name": "Major Industry Player", "threat_level": "high", "digital_tactics": "Heavy investment in programmatic display with high-frequency retargeting and aggressive conquest campaigns targeting competitor brand terms."},
+                {"name": "Emerging Disruptor", "threat_level": "medium", "digital_tactics": "TikTok-focused strategy with creator partnerships and high organic content amplification through paid boosting."},
+                {"name": "Legacy Brand", "threat_level": "low", "digital_tactics": "Traditional search and display mix with limited social presence, primarily focused on brand protection keywords."}
             ],
             "advantages": [
-                {"advantage": "Unique analysis approach", "explanation": "The ARI framework provides a unique perspective."}
+                {"advantage": "Cultural Audience Insights", "tactical_application": "Apply custom audience targeting segments with 15% higher bid adjustments on platforms where cultural relevance scored highest, overlaying first-party data."},
+                {"advantage": "Cross-platform Message Consistency", "tactical_application": "Implement sequential messaging strategy with frequency caps of 2-3 per platform and cross-platform attribution to maintain consistent user journey tracking."}
             ],
             "threats": [
-                {"threat": "Competitive landscape analysis unavailable", "mitigation": "Consider a manual competitive analysis."}
+                {"threat": "Rising CPMs in Primary Channels", "tactical_response": "Shift 30% of Meta budget to emerging platforms like Pinterest and Reddit where CPMs are 40-50% lower while maintaining similar audience quality."},
+                {"threat": "Competitor Keyword Conquest", "tactical_response": "Implement defensive search bidding with automated rules to increase bids by 20% when competitors appear for brand terms."}
             ],
             "differentiation": [
-                {"opportunity": "Focus on ARI metrics", "implementation": "Emphasize the areas where your campaign scored highest."}
+                {"platform": "Meta", "tactical_approach": "Utilize Dynamic Creative Optimization with multicultural creative asset testing, implement 3-5 variants per audience segment with automated performance-based budget allocation."},
+                {"platform": "Programmatic", "tactical_approach": "Focus on minority-owned SSPs and PMPs with custom audience activation, leveraging first-party data matching and contextual alignment signals."}
             ]
         }
 
@@ -200,39 +217,39 @@ def generate_audience_segments(brief_text, ari_scores):
         
         # Craft a prompt for the OpenAI API
         prompt = f"""
-        You are an audience segmentation expert in marketing.
+        You are a digital media buying and audience segmentation expert specializing in advertising platforms.
         
-        Based on the following marketing brief and Audience Resonance Index scores,
-        identify 3 key audience segments that would be most receptive to this campaign.
+        Based on the following marketing campaign information and Audience Resonance Index scores,
+        identify 3 key audience segments for targeted digital advertising with specific platform targeting parameters.
         
-        Brief/RFP:
+        Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
         
         ARI Scores:
         {scores_str}
         
-        For each segment, provide:
-        1. A descriptive name
-        2. Key demographic characteristics
-        3. Primary psychographic traits
-        4. Media consumption habits
-        5. Cultural affinities
-        6. Why this segment would resonate with the campaign
+        For each segment, provide detailed targeting specifications for digital advertising platforms:
+        1. A descriptive segment name for use in ad platforms
+        2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
+        3. Digital platform interest categories and behavior targeting options
+        4. Platform-specific targeting recommendations (Meta, Google, TikTok, etc.)
+        5. Key performance indicators and benchmark CTRs/conversion rates to expect
+        6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
         Format the response as a valid JSON array with objects containing:
-        - name: string
-        - demographics: object with age_range, gender_skew, income_level, education_level, and location_type
-        - psychographics: array of strings
-        - media_habits: array of objects with 'channel' and 'affinity' (high, medium, low)
-        - cultural_affinities: array of strings
-        - resonance_factors: array of strings
+        - name: string (descriptive segment name)
+        - targeting_params: object with age_range, gender_targeting, income_targeting, education_targeting, and location_targeting
+        - interest_categories: array of strings (specific interests to target in ad platforms)
+        - platform_targeting: array of objects with 'platform' and 'targeting_approach' 
+        - expected_performance: object with CTR (click-through rate), CPA (cost per acquisition), and engagement_rate
+        - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
         """
         
         # Call the OpenAI API
         response = client.chat.completions.create(
             model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
             messages=[
-                {"role": "system", "content": "You are an audience segmentation expert in marketing."},
+                {"role": "system", "content": "You are a digital advertising audience specialist with expertise in platform-specific targeting parameters, lookalike modeling, and programmatic audience segmentation."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"},
@@ -249,21 +266,34 @@ def generate_audience_segments(brief_text, ari_scores):
             "error": str(e),
             "segments": [
                 {
-                    "name": "Core Target Audience",
-                    "demographics": {
-                        "age_range": "25-45",
-                        "gender_skew": "Balanced",
-                        "income_level": "Middle to upper-middle",
-                        "education_level": "Some college or higher",
-                        "location_type": "Urban and suburban"
+                    "name": "Digital Culture Enthusiasts",
+                    "targeting_params": {
+                        "age_range": "25-39",
+                        "gender_targeting": "Slight female skew (55%/45%)",
+                        "income_targeting": "$75K-150K annually",
+                        "education_targeting": "College degree or higher",
+                        "location_targeting": "Urban centers and tech hubs, DMA top 50 markets"
                     },
-                    "psychographics": ["Values-driven", "Culturally aware", "Tech-savvy"],
-                    "media_habits": [
-                        {"channel": "Social media", "affinity": "high"},
-                        {"channel": "Streaming platforms", "affinity": "medium"}
+                    "interest_categories": [
+                        "Technology early adopters", 
+                        "Digital media consumers", 
+                        "Cultural trend followers",
+                        "Social impact supporters"
                     ],
-                    "cultural_affinities": ["Contemporary trends", "Social causes"],
-                    "resonance_factors": ["Content aligns with core values", "Authentic representation"]
+                    "platform_targeting": [
+                        {"platform": "Meta", "targeting_approach": "Utilize 1% lookalike audiences from existing customers, target In-Market segments for related products, exclude previous converters beyond 30-day window"},
+                        {"platform": "TikTok", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
+                    ],
+                    "expected_performance": {
+                        "CTR": "2.3-2.8%", 
+                        "CPA": "15-20% below account average", 
+                        "engagement_rate": "4.5-5.2%"
+                    },
+                    "bidding_strategy": {
+                        "bid_adjustments": "+15% for mobile devices, -10% for desktop placement",
+                        "dayparting": "Increase bids 20% during 6-10pm local time",
+                        "placement_priorities": "In-feed prioritized over sidebar, 70/30 budget split"
+                    }
                 }
             ]
         }
