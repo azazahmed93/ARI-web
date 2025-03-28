@@ -245,15 +245,15 @@ def render_footer():
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div style="margin-bottom: 20px;">
                 <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 5px; background: linear-gradient(90deg, #5865f2 0%, #7983f5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Powered by Digital Culture Group</div>
-                <div style="font-size: 0.8rem; color: #666;">© 2025 Digital Culture Group, LLC. All rights reserved</div>
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Links
+    # Copyright and links
     st.markdown("""
-    <div style="display: flex; justify-content: flex-end; margin-top: 10px; font-size: 0.8rem; color: #777;">
+    <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 0.8rem; color: #777;">
+        <div>© 2025 Digital Culture Group, LLC. All rights reserved.</div>
         <div>
             <span style="margin-right: 15px;">Privacy Policy</span>
             <span style="margin-right: 15px;">Terms of Service</span>

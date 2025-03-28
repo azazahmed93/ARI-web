@@ -13,9 +13,9 @@ METRICS = {
         "low": "Audience interests weren't clearly reflected in campaign content."
     },
     "Platform Relevance": {
-        "high": "Excellent implementation of omnichannel tactics across high-engagement platforms, utilizing interactive video, rich media, and audio where the audience is most active. Balanced frequency across devices with precise dayparting.",
-        "medium": "Good platform coverage but underutilizes high-impact formats and interactive elements. Consider expanding audio presence and augmenting with interstitial formats in key engagement windows.",
-        "low": "Tactical mix lacks depth in critical engagement channels. Prioritize interactive video, high-impact rich media, and geotargeted mobile experiences to better reach this audience where they consume content."
+        "high": "Used top platforms where the audience is most active and engaged.",
+        "medium": "Covers key platforms but misses niche or community-driven spaces.",
+        "low": "Platform mix doesn't align with where this audience actually spends time."
     },
     "Cultural Vernacular": {
         "high": "Tone, slang, and messaging felt natural and aligned with audience voice.",
