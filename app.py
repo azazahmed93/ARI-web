@@ -11,6 +11,8 @@ import nltk
 import docx
 import PyPDF2
 import io
+import json
+import os
 
 from analysis import (
     analyze_campaign_brief, 
@@ -25,6 +27,11 @@ from utils import (
     get_tone_of_brief
 )
 from assets.styles import apply_styles, header_section, render_footer
+from ai_insights import (
+    generate_deep_insights,
+    generate_competitor_analysis,
+    generate_audience_segments
+)
 from assets.content import (
     METRICS, 
     MEDIA_AFFINITY_SITES, 
@@ -62,6 +69,17 @@ if 'industry' not in st.session_state:
     st.session_state.industry = None
 if 'product_type' not in st.session_state:
     st.session_state.product_type = None
+if 'brief_text' not in st.session_state:
+    st.session_state.brief_text = None
+if 'ai_insights' not in st.session_state:
+    st.session_state.ai_insights = None
+if 'competitor_analysis' not in st.session_state:
+    st.session_state.competitor_analysis = None
+if 'audience_segments' not in st.session_state:
+    st.session_state.audience_segments = None
+if 'use_openai' not in st.session_state:
+    # Check if OpenAI API key is available
+    st.session_state.use_openai = bool(os.environ.get("OPENAI_API_KEY"))
 
 # Define function to extract text from various file types
 def extract_text_from_file(uploaded_file):
@@ -327,9 +345,36 @@ def main():
                         st.session_state.brand_name = brand_name
                         st.session_state.industry = industry
                         st.session_state.product_type = product_type
+                        st.session_state.brief_text = brief_text
+                        
+                        # If OpenAI API key is available, generate additional insights
+                        if st.session_state.use_openai:
+                            with st.spinner("Generating deep AI insights..."):
+                                # Generate AI-powered insights for enhanced analysis
+                                try:
+                                    # Generate deep insights based on brief and ARI scores
+                                    ai_insights = generate_deep_insights(brief_text, scores)
+                                    st.session_state.ai_insights = ai_insights
+                                    
+                                    # Generate competitor analysis
+                                    competitor_analysis = generate_competitor_analysis(brief_text, industry)
+                                    st.session_state.competitor_analysis = competitor_analysis
+                                    
+                                    # Generate audience segments
+                                    audience_segments = generate_audience_segments(brief_text, scores)
+                                    st.session_state.audience_segments = audience_segments
+                                    
+                                except Exception as e:
+                                    st.warning(f"Enhanced AI analysis encountered an issue: {str(e)}")
+                                    st.session_state.ai_insights = None
+                                    st.session_state.competitor_analysis = None
+                                    st.session_state.audience_segments = None
                         
                         # Show success message
-                        st.success("Predictive resonance modeling complete. Intelligence insights generated successfully.")
+                        success_msg = "Predictive resonance modeling complete. Intelligence insights generated successfully."
+                        if st.session_state.use_openai and st.session_state.ai_insights:
+                            success_msg += " Enhanced AI analysis included."
+                        st.success(success_msg)
                         
                         # Trigger rerun to display results
                         st.rerun()
