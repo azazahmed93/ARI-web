@@ -321,7 +321,7 @@ def main():
             if not brief_text or brief_text.strip() == "":
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
-                with st.spinner("Initializing quantum-neural processing matrices..."):
+                with st.spinner("Reversing the polarity of the neutron flow..."):
                     # Simulate analysis time
                     time.sleep(1.5)
                     
@@ -349,7 +349,7 @@ def main():
                         
                         # If OpenAI API key is available, generate additional insights
                         if st.session_state.use_openai:
-                            with st.spinner("Synthesizing hyperdimensional data tensors..."):
+                            with st.spinner("Recalibrating the quantum flux capacitor..."):
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
                                     # Generate deep insights based on brief and ARI scores
@@ -371,9 +371,9 @@ def main():
                                     st.session_state.audience_segments = None
                         
                         # Show success message
-                        success_msg = "Quantum resonance modeling complete. Neural-enhanced algorithmic forecast matrices finalized."
+                        success_msg = "Tachyon particles stabilized. Neural subspace manifold initialized successfully."
                         if st.session_state.use_openai and st.session_state.ai_insights:
-                            success_msg += " Advanced hyperdimensional analysis synthesized."
+                            success_msg += " Chroniton field harmonics at optimal levels."
                         st.success(success_msg)
                         
                         # Trigger rerun to display results
