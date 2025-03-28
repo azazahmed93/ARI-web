@@ -69,6 +69,7 @@ from ai_insights import (
     generate_competitor_analysis,
     generate_audience_segments
 )
+from database import benchmark_db, BLOCKED_KEYWORDS
 from assets.content import (
     METRICS, 
     MEDIA_AFFINITY_SITES, 
@@ -133,13 +134,12 @@ def extract_text_from_file(uploaded_file):
     
     if file_type == 'txt':
         # For text files
-        return uploaded_file.getvalue().decode('utf-8')
+        text = uploaded_file.getvalue().decode('utf-8')
     
     elif file_type == 'docx':
         # For Word documents
         doc = docx.Document(io.BytesIO(uploaded_file.getvalue()))
         text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
-        return text
     
     elif file_type == 'pdf':
         # For PDF files
@@ -147,11 +147,16 @@ def extract_text_from_file(uploaded_file):
         text = ""
         for page_num in range(len(pdf_reader.pages)):
             text += pdf_reader.pages[page_num].extract_text()
-        return text
     
     else:
         # Unsupported file type
         return None
+    
+    # Check for blocked keywords and remove them
+    for keyword in BLOCKED_KEYWORDS:
+        text = text.replace(keyword, "[FILTERED]")
+    
+    return text
 
 # Define main function
 def main():
@@ -351,6 +356,9 @@ def main():
                 help="Provide your complete RFP or marketing brief for comprehensive analysis. Greater detail yields more precise predictive intelligence and actionable recommendations."
             )
             if input_brief_text:
+                # Filter blocked keywords
+                for keyword in BLOCKED_KEYWORDS:
+                    input_brief_text = input_brief_text.replace(keyword, "[FILTERED]")
                 brief_text = input_brief_text
         
         # Analysis button
@@ -600,7 +608,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Add an informative benchmark section
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Campaign Intelligence</div>
+        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
     """, unsafe_allow_html=True)
     
     # Display benchmark text (with no campaign-specific references)

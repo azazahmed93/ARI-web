@@ -385,12 +385,18 @@ def calculate_benchmark_percentile(scores):
     Returns:
         float: Percentile rank for the campaign
     """
+    # Import the benchmark database for real-time comparisons
+    from database import benchmark_db
+    import streamlit as st
+    
     # Average the scores to get an overall score
     overall_score = sum(scores.values()) / len(scores)
     
-    # Calculate a synthetic percentile based on the overall score
-    # In a real implementation, this would compare to actual benchmark data
-    percentile = min(99, max(1, round((overall_score - 6.0) * 16)))
+    # Get the industry from session state if available
+    industry = st.session_state.get('industry', 'General')
+    
+    # Use the benchmark database to get the percentile based on real-time industry data
+    percentile = benchmark_db.get_campaign_percentile(overall_score, industry)
     
     return percentile
 
