@@ -130,33 +130,51 @@ def extract_text_from_file(uploaded_file):
     Returns:
         str: The extracted text from the file
     """
-    file_type = uploaded_file.name.split('.')[-1].lower()
+    try:
+        # Get the file extension from the name
+        file_type = uploaded_file.name.split('.')[-1].lower()
+        
+        # Convert the uploaded file to bytes for processing
+        file_bytes = io.BytesIO(uploaded_file.getvalue())
+        
+        if file_type == 'txt':
+            # For text files
+            text = uploaded_file.getvalue().decode('utf-8')
+        
+        elif file_type == 'docx':
+            try:
+                # For Word documents
+                doc = docx.Document(file_bytes)
+                text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+            except Exception as e:
+                st.error(f"Error processing DOCX file: {str(e)}")
+                return None
+        
+        elif file_type == 'pdf':
+            try:
+                # For PDF files
+                pdf_reader = PyPDF2.PdfReader(file_bytes)
+                text = ""
+                for page_num in range(len(pdf_reader.pages)):
+                    text += pdf_reader.pages[page_num].extract_text()
+            except Exception as e:
+                st.error(f"Error processing PDF file: {str(e)}")
+                return None
+        
+        else:
+            # Unsupported file type
+            st.error(f"Unsupported file type: {file_type}. Please use txt, pdf, or docx files.")
+            return None
+        
+        # Check for blocked keywords and remove them
+        for keyword in BLOCKED_KEYWORDS:
+            text = text.replace(keyword, "[FILTERED]")
+        
+        return text
     
-    if file_type == 'txt':
-        # For text files
-        text = uploaded_file.getvalue().decode('utf-8')
-    
-    elif file_type == 'docx':
-        # For Word documents
-        doc = docx.Document(io.BytesIO(uploaded_file.getvalue()))
-        text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
-    
-    elif file_type == 'pdf':
-        # For PDF files
-        pdf_reader = PyPDF2.PdfReader(io.BytesIO(uploaded_file.getvalue()))
-        text = ""
-        for page_num in range(len(pdf_reader.pages)):
-            text += pdf_reader.pages[page_num].extract_text()
-    
-    else:
-        # Unsupported file type
+    except Exception as e:
+        st.error(f"An error occurred while processing the file: {str(e)}")
         return None
-    
-    # Check for blocked keywords and remove them
-    for keyword in BLOCKED_KEYWORDS:
-        text = text.replace(keyword, "[FILTERED]")
-    
-    return text
 
 # Define main function
 def main():
