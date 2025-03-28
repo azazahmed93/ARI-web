@@ -8,6 +8,9 @@ from io import BytesIO
 import random
 import time
 import nltk
+import docx
+import PyPDF2
+import io
 
 from analysis import (
     analyze_campaign_brief, 
@@ -59,6 +62,41 @@ if 'industry' not in st.session_state:
     st.session_state.industry = None
 if 'product_type' not in st.session_state:
     st.session_state.product_type = None
+
+# Define function to extract text from various file types
+def extract_text_from_file(uploaded_file):
+    """
+    Extract text from various file types including docx, pdf and txt.
+    
+    Args:
+        uploaded_file: The file uploaded through Streamlit's file_uploader
+        
+    Returns:
+        str: The extracted text from the file
+    """
+    file_type = uploaded_file.name.split('.')[-1].lower()
+    
+    if file_type == 'txt':
+        # For text files
+        return uploaded_file.getvalue().decode('utf-8')
+    
+    elif file_type == 'docx':
+        # For Word documents
+        doc = docx.Document(io.BytesIO(uploaded_file.getvalue()))
+        text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+        return text
+    
+    elif file_type == 'pdf':
+        # For PDF files
+        pdf_reader = PyPDF2.PdfReader(io.BytesIO(uploaded_file.getvalue()))
+        text = ""
+        for page_num in range(len(pdf_reader.pages)):
+            text += pdf_reader.pages[page_num].extract_text()
+        return text
+    
+    else:
+        # Unsupported file type
+        return None
 
 # Define main function
 def main():
@@ -211,19 +249,59 @@ def main():
     with col2:
         # Campaign analysis description and input area
         st.markdown("### Pre-Launch Campaign Intelligence")
-        st.markdown("Paste your Advertising RFP or Marketing Brief below for advanced predictive analysis. Our AI-powered Audience Resonance Index™ framework leverages computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation. This pre-execution analysis reveals actionable intelligence for strategic enhancement.")
+        st.markdown("Analyze your Advertising RFP or Marketing Brief to leverage our AI-powered Audience Resonance Index™ framework. We employ computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation.")
         
-        # Text input for RFP or brief
-        brief_text = st.text_area(
-            "Marketing Brief | RFP",
-            height=200,
-            help="Provide your complete RFP or marketing brief for comprehensive analysis. Greater detail yields more precise predictive intelligence and actionable recommendations."
-        )
+        # Create tabs for input methods
+        tab1, tab2 = st.tabs(["Upload Document", "Paste Text"])
+        
+        brief_text = ""
+        
+        with tab1:
+            # File uploader for document input
+            st.markdown('<div style="margin-top: 12px;"></div>', unsafe_allow_html=True)  # Add some spacing
+            uploaded_file = st.file_uploader(
+                "Upload Marketing Brief or RFP", 
+                type=["txt", "pdf", "docx"],
+                help="Supported formats: TXT, PDF, DOCX. Maximum file size: 200MB."
+            )
+            
+            # Display file details if uploaded
+            if uploaded_file is not None:
+                file_details = {
+                    "Filename": uploaded_file.name,
+                    "File size": f"{round(uploaded_file.size / 1024, 2)} KB",
+                    "File type": uploaded_file.type
+                }
+                
+                # Show the file details in a cleaner way
+                st.markdown("<div style='background: #f8fafc; padding: 12px; border-radius: 8px; margin-top: 12px;'>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-weight: 500;'>File Details:</div>", unsafe_allow_html=True)
+                for key, value in file_details.items():
+                    st.markdown(f"<div style='font-size: 0.9rem; margin-top: 5px;'><span style='color: #64748b;'>{key}:</span> {value}</div>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Extract text from the file
+                file_text = extract_text_from_file(uploaded_file)
+                if file_text:
+                    brief_text = file_text
+                    st.success(f"File processed successfully. Ready for analysis.")
+                else:
+                    st.error("Could not extract text from the file. Please check the file format.")
+        
+        with tab2:
+            # Text input for manual entry
+            input_brief_text = st.text_area(
+                "Marketing Brief | RFP",
+                height=200,
+                help="Provide your complete RFP or marketing brief for comprehensive analysis. Greater detail yields more precise predictive intelligence and actionable recommendations."
+            )
+            if input_brief_text:
+                brief_text = input_brief_text
         
         # Analysis button
         if st.button("Run Predictive Analysis", type="primary"):
             if not brief_text or brief_text.strip() == "":
-                st.error("Please enter your Marketing Brief or RFP to proceed with analysis.")
+                st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
                 with st.spinner("Processing multi-dimensional cultural analysis vectors..."):
                     # Simulate analysis time
