@@ -1,4 +1,13 @@
 import streamlit as st
+
+# Set page config - this must be the first Streamlit command
+st.set_page_config(
+    page_title="ARI Analyzer™ | Digital Culture Group",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
@@ -16,26 +25,26 @@ import os
 
 # Fun spinner messages for loading states
 SPINNER_MESSAGES = [
-    "Consulting the data oracles…",
-    "Warming up the algorithms…",
-    "Doing math in public—please hold.",
-    "Fetching facts from the digital void…",
-    "This is your data on a coffee break ☕",
-    "Manifesting your metrics…",
-    "Plotting world domination... just kidding (or are we?)",
-    "Giving your data a pep talk…",
-    "Crunching numbers like a breakfast cereal.",
-    "The data is shy. We're coaxing it out.",
-    "Let's all pretend this isn't an awkward silence…",
-    "Just you, me, and this dramatic pause.",
-    "Cue elevator music…",
-    "Avoiding eye contact with the loading bar…",
-    "Your data is fashionably late.",
-    "This awkward silence brought to you by the data gods.",
-    "While we wait, think of your favorite spreadsheet.",
-    "Your data is buffering. Like our small talk.",
-    "Even your data needs a moment.",
-    "Dramatic pause… data's on its way."
+    "Unleashing breakthrough insights...",
+    "Executing predictive analysis protocols...",
+    "Calculating performance vectors—please hold.",
+    "Generating strategic metrics...",
+    "Accelerating campaign intelligence ⚡",
+    "Extracting market opportunities...",
+    "Unlocking campaign potential...",
+    "Activating precision targeting analysis...",
+    "Processing performance intelligence...",
+    "Quantifying market dynamics...",
+    "Optimizing audience engagement vectors...",
+    "Constructing strategic market approach...",
+    "Analyzing performance amplification routes...",
+    "Engineering breakthrough campaign solutions...",
+    "Detecting opportunity pathways...",
+    "Processing tactical optimizations...",
+    "Evaluating competitive differentiation...",
+    "Calculating audience reach potential...",
+    "Advancing precision targeting metrics...",
+    "Enhancing conversion potential..."
 ]
 
 def get_random_spinner_message():
@@ -81,14 +90,6 @@ from assets.content import (
     STOCK_PHOTOS
 )
 
-# Set page config
-st.set_page_config(
-    page_title="ARI Analyzer - Digital Culture Group",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
 # Apply custom styles
 apply_styles()
 
@@ -130,33 +131,55 @@ def extract_text_from_file(uploaded_file):
     Returns:
         str: The extracted text from the file
     """
-    file_type = uploaded_file.name.split('.')[-1].lower()
-    
-    if file_type == 'txt':
-        # For text files
-        text = uploaded_file.getvalue().decode('utf-8')
-    
-    elif file_type == 'docx':
-        # For Word documents
-        doc = docx.Document(io.BytesIO(uploaded_file.getvalue()))
-        text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
-    
-    elif file_type == 'pdf':
-        # For PDF files
-        pdf_reader = PyPDF2.PdfReader(io.BytesIO(uploaded_file.getvalue()))
-        text = ""
-        for page_num in range(len(pdf_reader.pages)):
-            text += pdf_reader.pages[page_num].extract_text()
-    
-    else:
-        # Unsupported file type
-        return None
-    
-    # Check for blocked keywords and remove them
-    for keyword in BLOCKED_KEYWORDS:
-        text = text.replace(keyword, "[FILTERED]")
-    
-    return text
+    try:
+        file_type = uploaded_file.name.split('.')[-1].lower()
+        
+        if file_type == 'txt':
+            # For text files
+            text = uploaded_file.getvalue().decode('utf-8')
+        
+        elif file_type == 'docx':
+            # For Word documents
+            try:
+                doc = docx.Document(io.BytesIO(uploaded_file.getvalue()))
+                text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+            except Exception as e:
+                st.error(f"Error processing DOCX file: {str(e)}")
+                return "Error processing document. Sample text used instead. Please try plain text format."
+        
+        elif file_type == 'pdf':
+            # For PDF files
+            try:
+                pdf_reader = PyPDF2.PdfReader(io.BytesIO(uploaded_file.getvalue()))
+                text = ""
+                for page_num in range(len(pdf_reader.pages)):
+                    text += pdf_reader.pages[page_num].extract_text()
+                
+                # If PDF text extraction returned empty string, provide fallback
+                if not text.strip():
+                    st.warning("Could not extract text from PDF. Using sample text instead.")
+                    return "Empty PDF or text extraction failed. Sample text used instead. Please try plain text format."
+            except Exception as e:
+                st.error(f"Error processing PDF file: {str(e)}")
+                return "Error processing document. Sample text used instead. Please try plain text format."
+        
+        else:
+            # Unsupported file type
+            st.error(f"Unsupported file type: {file_type}")
+            return None
+        
+        # Check for blocked keywords and remove them
+        for keyword in BLOCKED_KEYWORDS:
+            text = text.replace(keyword, "[FILTERED]")
+        
+        # Log length of extracted text for debugging
+        st.info(f"Successfully extracted {len(text)} characters from {file_type} file.")
+        
+        return text
+        
+    except Exception as e:
+        st.exception(f"Unexpected error in extract_text_from_file: {str(e)}")
+        return "Error processing file. Sample text used for analysis."
 
 # Define main function
 def main():
@@ -308,7 +331,7 @@ def main():
     
     with col2:
         # Campaign analysis description and input area
-        st.markdown("### Pre-Launch Campaign Intelligence")
+        st.markdown("### Pre-Launch Hyperdimensional Campaign Performance Matrix")
         st.markdown("Analyze your Advertising RFP or Marketing Brief to leverage our AI-powered Audience Resonance Index™ framework. We employ computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation.")
         
         # Create tabs for input methods
@@ -898,7 +921,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
             st.markdown(pdf_link, unsafe_allow_html=True)
     
-    # Priority improvement recommendations have been moved to the tabs above in the Campaign Intelligence section
+    # Priority improvement recommendations have been moved to the tabs above in the Hyperdimensional Campaign Performance Matrix section
     
     # Add the demo section
     demo_container = st.container()
