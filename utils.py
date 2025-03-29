@@ -447,21 +447,38 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     media_site_data = []
     row = []
     
-    for i, site in enumerate(MEDIA_AFFINITY_SITES):
-        site_cell = f"""<b>{site['name']}</b><br/>
-        {site['category']}<br/>
-        <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
-        <font color="#3b82f6">Visit Site</font>"""
-        
-        row.append(ensure_paragraph(site_cell, normal_style))
+    # Ensure MEDIA_AFFINITY_SITES is not None and is a list
+    site_list = MEDIA_AFFINITY_SITES if isinstance(MEDIA_AFFINITY_SITES, list) else []
+    
+    for i, site in enumerate(site_list):
+        try:
+            # Safely extract values with defaults if keys don't exist
+            name = site.get('name', 'Unknown') if isinstance(site, dict) else 'Unknown'
+            category = site.get('category', 'General') if isinstance(site, dict) else 'General'
+            qvi = site.get('qvi', '---') if isinstance(site, dict) else '---'
+            
+            site_cell = f"""<b>{name}</b><br/>
+            {category}<br/>
+            <font color="#3b82f6"><b>QVI: {qvi}</b></font><br/>
+            <font color="#3b82f6">Visit Site</font>"""
+            
+            row.append(ensure_paragraph(site_cell, normal_style))
+        except Exception as e:
+            # Fallback for any other errors
+            row.append(ensure_paragraph("Media data unavailable", normal_style))
         
         # After 5 sites, start a new row
-        if (i + 1) % 5 == 0 or i == len(MEDIA_AFFINITY_SITES) - 1:
+        if (i + 1) % 5 == 0 or i == len(site_list) - 1:
             # Pad the row if needed
             while len(row) < 5:
                 row.append(ensure_paragraph("", normal_style))
             media_site_data.append(row)
             row = []
+    
+    # If no sites were processed, add an empty row
+    if not media_site_data:
+        row = [ensure_paragraph("", normal_style) for _ in range(5)]
+        media_site_data.append(row)
     
     # Create media table
     col_width = 100
@@ -496,20 +513,37 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     tv_network_data = []
     row = []
     
-    for i, network in enumerate(TV_NETWORKS):
-        network_cell = f"""<b>{network['name']}</b><br/>
-        {network['category']}<br/>
-        <font color="#1e88e5"><b>QVI: {network['qvi']}</b></font>"""
-        
-        row.append(ensure_paragraph(network_cell, normal_style))
+    # Ensure TV_NETWORKS is not None and is a list
+    network_list = TV_NETWORKS if isinstance(TV_NETWORKS, list) else []
+    
+    for i, network in enumerate(network_list):
+        try:
+            # Safely extract values with defaults if keys don't exist
+            name = network.get('name', 'Unknown') if isinstance(network, dict) else 'Unknown'
+            category = network.get('category', 'General') if isinstance(network, dict) else 'General'
+            qvi = network.get('qvi', '---') if isinstance(network, dict) else '---'
+            
+            network_cell = f"""<b>{name}</b><br/>
+            {category}<br/>
+            <font color="#1e88e5"><b>QVI: {qvi}</b></font>"""
+            
+            row.append(ensure_paragraph(network_cell, normal_style))
+        except Exception as e:
+            # Fallback for any other errors
+            row.append(ensure_paragraph("Network data unavailable", normal_style))
         
         # After 5 networks, start a new row
-        if (i + 1) % 5 == 0 or i == len(TV_NETWORKS) - 1:
+        if (i + 1) % 5 == 0 or i == len(network_list) - 1:
             # Pad the row if needed
             while len(row) < 5:
                 row.append(ensure_paragraph("", normal_style))
             tv_network_data.append(row)
             row = []
+    
+    # If no networks were processed, add an empty row
+    if not tv_network_data:
+        row = [ensure_paragraph("", normal_style) for _ in range(5)]
+        tv_network_data.append(row)
     
     # Create TV network table
     tv_network_table = Table(tv_network_data, colWidths=[col_width] * 5)
@@ -543,20 +577,37 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     streaming_data = []
     row = []
     
-    for i, platform in enumerate(STREAMING_PLATFORMS):
-        platform_cell = f"""<b>{platform['name']}</b><br/>
-        {platform['category']}<br/>
-        <font color="#059669"><b>QVI: {platform['qvi']}</b></font>"""
-        
-        row.append(ensure_paragraph(platform_cell, normal_style))
+    # Ensure STREAMING_PLATFORMS is not None and is a list
+    platform_list = STREAMING_PLATFORMS if isinstance(STREAMING_PLATFORMS, list) else []
+    
+    for i, platform in enumerate(platform_list):
+        try:
+            # Safely extract values with defaults if keys don't exist
+            name = platform.get('name', 'Unknown') if isinstance(platform, dict) else 'Unknown'
+            category = platform.get('category', 'General') if isinstance(platform, dict) else 'General'
+            qvi = platform.get('qvi', '---') if isinstance(platform, dict) else '---'
+            
+            platform_cell = f"""<b>{name}</b><br/>
+            {category}<br/>
+            <font color="#059669"><b>QVI: {qvi}</b></font>"""
+            
+            row.append(ensure_paragraph(platform_cell, normal_style))
+        except Exception as e:
+            # Fallback for any other errors
+            row.append(ensure_paragraph("Platform data unavailable", normal_style))
         
         # After 3 platforms, start a new row
-        if (i + 1) % 3 == 0 or i == len(STREAMING_PLATFORMS) - 1:
+        if (i + 1) % 3 == 0 or i == len(platform_list) - 1:
             # Pad the row if needed
             while len(row) < 3:
                 row.append(ensure_paragraph("", normal_style))
             streaming_data.append(row)
             row = []
+    
+    # If no platforms were processed, add an empty row
+    if not streaming_data:
+        row = [ensure_paragraph("", normal_style) for _ in range(3)]
+        streaming_data.append(row)
     
     # Create streaming table
     streaming_table = Table(streaming_data, colWidths=[170] * 3)
