@@ -529,31 +529,78 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Create a more professional metric breakdown section
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
     
-    # Add an executive summary card
-    st.markdown("""
-    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
-        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
-        <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
-            This campaign demonstrates strong performance in cultural relevance and platform selection, with opportunities
-            for improvement in audience representation and commerce bridge. Our AI-powered analysis suggests targeting adjustments
-            that could increase overall effectiveness by up to 18%.
-        </p>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
-                <div style="font-weight: 600; color: #333;">Cultural Relevance</div>
-            </div>
-            <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
-                <div style="font-weight: 600; color: #333;">Commerce Bridge</div>
-            </div>
-            <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
-                <div style="font-weight: 600; color: #333;">+18%</div>
+    # Add an executive summary card using AI insights
+    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+        ai_insights = st.session_state.ai_insights
+        
+        # Extract the first strength and improvement for the executive summary
+        top_strength = ai_insights.get('strengths', [{}])[0].get('area', 'Cultural Relevance') if ai_insights.get('strengths') else 'Cultural Relevance'
+        key_opportunity = ai_insights.get('improvements', [{}])[0].get('area', 'Audience Engagement') if ai_insights.get('improvements') else 'Audience Engagement'
+        
+        # Extract potential ROI from performance prediction if available
+        roi_potential = "+18%"  # Default
+        prediction = ai_insights.get('performance_prediction', '')
+        if prediction and '%' in prediction:
+            # Try to extract percentage from the prediction text
+            import re
+            roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
+            if roi_match:
+                roi_potential = roi_match.group(0)
+                if not roi_potential.startswith('+'):
+                    roi_potential = f"+{roi_potential}"
+        
+        # Generate summary text from the insights
+        if ai_insights.get('strengths') and ai_insights.get('improvements'):
+            summary_text = f"This campaign demonstrates strong performance in {top_strength.lower()}, with opportunities for improvement in {key_opportunity.lower()}. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by {roi_potential}."
+        else:
+            summary_text = "This campaign has been analyzed using our Audience Resonance Index™. We've identified key strengths and areas for improvement. Our AI-powered recommendations can help optimize your campaign effectiveness."
+        
+        st.markdown(f"""
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
+            <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
+                {summary_text}
+            </p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
+                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
+                    <div style="font-weight: 600; color: #333;">{top_strength}</div>
+                </div>
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
+                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
+                    <div style="font-weight: 600; color: #333;">{key_opportunity}</div>
+                </div>
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
+                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
+                    <div style="font-weight: 600; color: #333;">{roi_potential}</div>
+                </div>
             </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    else:
+        # Fallback if AI insights aren't available
+        st.markdown("""
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
+            <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
+                This campaign has been analyzed using our Audience Resonance Index™. We've identified key strengths and areas for improvement. Our AI-powered recommendations can help optimize your campaign effectiveness.
+            </p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
+                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
+                    <div style="font-weight: 600; color: #333;">Cultural Relevance</div>
+                </div>
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
+                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
+                    <div style="font-weight: 600; color: #333;">Audience Engagement</div>
+                </div>
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
+                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
+                    <div style="font-weight: 600; color: #333;">+15%</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Add a header for the detailed metrics with properly styled CSS-only approach
     st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
@@ -663,10 +710,24 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         """, unsafe_allow_html=True)
     
     with col2:
+        # Get expected impact from AI insights if available
+        roi_potential = "+18%"  # Default value
+        if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+            ai_insights = st.session_state.ai_insights
+            prediction = ai_insights.get('performance_prediction', '')
+            if prediction and '%' in prediction:
+                # Try to extract percentage from the prediction text
+                import re
+                roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
+                if roi_match:
+                    roi_potential = roi_match.group(0)
+                    if not roi_potential.startswith('+'):
+                        roi_potential = f"+{roi_potential}"
+        
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981;">EXPECTED IMPACT</div>
-            <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">+18%</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">{roi_potential}</div>
             <div style="font-size: 0.85rem; color: #555;">Projected ROI increase</div>
         </div>
         """, unsafe_allow_html=True)
@@ -686,16 +747,49 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
     """, unsafe_allow_html=True)
     
-    # Display benchmark text (with no campaign-specific references)
-    st.markdown(f"""
-    <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-        This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
-        for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
-        based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
-        <br><br>
-        Our AI engine has identified these priority opportunity areas:
-    </div>
-    """, unsafe_allow_html=True)
+    # Display benchmark text with dynamic AI-driven content
+    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+        ai_insights = st.session_state.ai_insights
+        
+        # Get strengths from AI if available
+        strengths = ai_insights.get('strengths', [])
+        
+        # Create a dynamic strength list if available
+        strength_areas = []
+        for strength in strengths[:2]:  # Get up to 2 top strengths
+            if 'area' in strength:
+                strength_areas.append(strength['area'].lower())
+        
+        # Default strengths if none found
+        if not strength_areas:
+            strength_areas = ['relevance', 'authenticity']
+            
+        # Format strengths for display
+        if len(strength_areas) > 1:
+            strength_text = f"{strength_areas[0]} and {strength_areas[1]}"
+        else:
+            strength_text = f"{strength_areas[0]}" if strength_areas else "cultural relevance"
+            
+        st.markdown(f"""
+        <div style="color: #333; font-size: 1rem; line-height: 1.6;">
+            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+            for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in {strength_text} — 
+            based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
+            <br><br>
+            Our AI engine has identified these priority opportunity areas:
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Fallback if AI insights aren't available
+        st.markdown(f"""
+        <div style="color: #333; font-size: 1rem; line-height: 1.6;">
+            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+            for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
+            based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
+            <br><br>
+            Our AI engine has identified these priority opportunity areas:
+        </div>
+        """, unsafe_allow_html=True)
     
     # Create tabs for each improvement area (for clickable detailed view)
     if len(improvement_areas) > 0 and st.session_state.use_openai and st.session_state.ai_insights:
@@ -1172,15 +1266,31 @@ def display_summary_metrics(scores):
         </div>
         """, unsafe_allow_html=True)
         
-        # Display AI insights
-        st.markdown("""
-        <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
-            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">Quantum Neural Analysis</div>
-            <p style="margin: 0; font-size: 0.9rem; color: #333;">
-                The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        # Display AI insights using the dynamically generated content
+        if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+            ai_insights = st.session_state.ai_insights
+            
+            # Get hidden insight from AI if available
+            hidden_insight = ai_insights.get('hidden_insight', 'The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.')
+            
+            st.markdown(f"""
+            <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">Quantum Neural Analysis</div>
+                <p style="margin: 0; font-size: 0.9rem; color: #333;">
+                    {hidden_insight}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Fallback if AI insights aren't available
+            st.markdown("""
+            <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">Quantum Neural Analysis</div>
+                <p style="margin: 0; font-size: 0.9rem; color: #333;">
+                    The campaign shows strong cultural relevance but could benefit from enhanced platform-specific optimizations and better audience representation strategies.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # Run the app
 if __name__ == "__main__":
