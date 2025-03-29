@@ -1,17 +1,20 @@
 import base64
 import io
 import pandas as pd
+import numpy as np
+import math
 import streamlit as st
 import re
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Flowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.units import inch
-from reportlab.graphics.shapes import Drawing, Wedge, Line, Circle, String
+from reportlab.graphics.shapes import Drawing, Wedge, Line, Circle, String, Rect, PolyLine
 from reportlab.graphics.charts.legends import Legend
-from reportlab.lib.colors import HexColor
+from reportlab.graphics.charts.spider import SpiderChart
+from reportlab.lib.colors import HexColor, Color
 from assets.content import (
     MEDIA_AFFINITY_SITES, 
     TV_NETWORKS, 
@@ -26,6 +29,80 @@ from assets.content import (
 def strip_html(text):
     """Remove HTML tags from a string."""
     return re.sub('<[^<]+?>', '', text).strip()
+
+# Custom progress bar class for the PDF report
+class ProgressBar(Flowable):
+    """
+    Custom flowable that draws a progress bar
+    """
+    def __init__(self, width=400, height=20, value=0.5, fillColor=HexColor('#5865f2'), backgroundColor=HexColor('#e0edff')):
+        Flowable.__init__(self)
+        self.width = width
+        self.height = height
+        self.value = min(max(value, 0), 1)  # Ensure value is between 0 and 1
+        self.fillColor = fillColor
+        self.backgroundColor = backgroundColor
+        
+    def draw(self):
+        # Draw background
+        self.canv.setFillColor(self.backgroundColor)
+        self.canv.rect(0, 0, self.width, self.height, fill=1, stroke=0)
+        
+        # Draw filled portion based on value
+        self.canv.setFillColor(self.fillColor)
+        fill_width = self.width * self.value
+        self.canv.rect(0, 0, fill_width, self.height, fill=1, stroke=0)
+
+# Radar chart for the PDF report
+class ARIRadarChart(Flowable):
+    """
+    Radar chart for ARI metrics
+    """
+    def __init__(self, scores, width=400, height=400):
+        Flowable.__init__(self)
+        self.scores = scores
+        self.width = width
+        self.height = height
+        
+    def draw(self):
+        # Create the drawing
+        drawing = Drawing(self.width, self.height)
+        
+        # Create radar chart
+        radar = SpiderChart()
+        radar.x = self.width / 2
+        radar.y = self.height / 2
+        radar.width = self.width * 0.8
+        radar.height = self.height * 0.8
+        
+        # Set data
+        data = [list(self.scores.values())]
+        radar.data = data
+        
+        # Set spoke labels (metric names)
+        radar.labels = list(self.scores.keys())
+        
+        # Set style
+        radar.fillColor = HexColor("#5865f230")  # Semi-transparent purple
+        radar.strokeColor = HexColor("#5865f2")  # Purple
+        radar.strokeWidth = 2
+        radar.spokes.strokeDashArray = (2, 2)
+        radar.spokes.strokeWidth = 0.5
+        radar.spokes.strokeColor = HexColor("#a1a1aa")
+        
+        # Add background circles
+        for i in range(1, 11, 2):
+            circle = Circle(radar.x, radar.y, i * radar.width / 20)
+            circle.fillColor = None
+            circle.strokeColor = HexColor("#e5e7eb")
+            circle.strokeWidth = 0.5
+            drawing.add(circle)
+        
+        # Add the radar chart to the drawing
+        drawing.add(radar)
+        
+        # Render the drawing
+        drawing.drawOn(self.canv, 0, 0)
 
 def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="Unknown", industry="General", product_type="Product"):
     """
@@ -65,7 +142,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         fontSize=18,
         alignment=TA_CENTER,
         spaceAfter=12,
-        textColor=colors.black
+        textColor=HexColor('#000000')
     )
     
     heading1_style = ParagraphStyle(
@@ -101,11 +178,41 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         'Description',
         parent=styles['Normal'],
         fontSize=8,
-        textColor=colors.darkgray
+        textColor=HexColor('#707070')
     )
     
     # Build content
     content = []
+    
+    # Create a styled header for the PDF
+    header_data = [[
+        # Add logo visual element - creating a simple "DCG" logo with shapes
+        (lambda: (draw := Drawing(30, 30, hAlign='LEFT'),
+                 draw.add(Circle(15, 15, 15, fillColor=HexColor('#5865f2'), strokeColor=None)),
+                 draw.add(String(15, 13, "DCG", fontSize=8, fillColor=HexColor('#FFFFFF'), textAnchor='middle')),
+                 draw))(),
+        # Add title text
+        Paragraph(f"AUDIENCE RESONANCE INDEX™", 
+                 ParagraphStyle('HeaderTitle', fontSize=14, textColor=HexColor('#5865f2'), fontName='Helvetica-Bold')),
+        # Add date on the right
+        Paragraph(f"REPORT DATE: MARCH 29, 2025", 
+                 ParagraphStyle('HeaderDate', fontSize=8, alignment=TA_RIGHT))
+    ]]
+    
+    # Create header table
+    header_table = Table(header_data, colWidths=[50, 300, 150], rowHeights=[40])
+    header_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), HexColor('#f8fafc')),
+        ('LINEBELOW', (0, 0), (-1, 0), 1, HexColor('#5865f2')),
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+        ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    # Add the header
+    content.append(header_table)
+    content.append(Spacer(1, 20))
     
     # Add title with brand name if available
     if brand_name != "Unknown":
@@ -116,67 +223,133 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Add brand info if available
     if brand_name != "Unknown" and industry != "General":
-        content.append(Paragraph(f"Industry: {industry} | Product Type: {product_type}", 
-                               ParagraphStyle('BrandInfo', parent=normal_style, alignment=TA_CENTER)))
+        # Create styled brand info box
+        brand_info_table = Table([[
+            Paragraph(f"Industry: <b>{industry}</b> | Product Type: <b>{product_type}</b>", 
+                    ParagraphStyle('BrandInfo', parent=normal_style, alignment=TA_CENTER))
+        ]], colWidths=[500])
+        brand_info_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), HexColor('#dbeafe')),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        content.append(brand_info_table)
         content.append(Spacer(1, 12))
     
     # Metric Breakdown
     content.append(Paragraph("Metric Breakdown", heading1_style))
     
-    # Create tables for metrics
-    metrics_data = []
+    # Add radar chart
+    content.append(Paragraph("Audience Resonance Index™ Visualization", heading1_style))
+    content.append(Spacer(1, 6))
     
-    # Add headers
-    headers = ["Metric", "Score", "Description"]
-    
-    # Create a header for the table
-    metrics_data.append([
-        Paragraph("<b>Metric</b>", normal_style),
-        Paragraph("<b>Score</b>", normal_style),
-        Paragraph("<b>Description</b>", normal_style)
-    ])
-    
-    # Row styles
-    row_styles = [
-        # Header row styling
-        ('BACKGROUND', (0, 0), (-1, 0), HexColor('#dbeafe')),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]
-    
-    # Add metrics data with alternating row colors
-    for i, (metric, score) in enumerate(scores.items()):
-        level = "high" if score >= 7 else "medium" if score >= 4 else "low"
-        description = METRICS[metric][level]
-        
-        # All text should be normal black with consistent styling
-        metrics_data.append([
-            Paragraph(f"<b>{metric}</b>", normal_style),
-            Paragraph(f"<b>{score}/10</b>", normal_style),
-            Paragraph(description, description_style)
-        ])
-        
-        # Add alternating row colors
-        if i % 2 == 0:
-            row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#e0edff')))
-        else:
-            row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#f0f9ff')))
-    
-    # Create table
-    metrics_table = Table(metrics_data, colWidths=[120, 50, 330], repeatRows=1)
-    metrics_table.setStyle(TableStyle(row_styles))
-    
-    content.append(metrics_table)
+    # Calculate radar chart size based on metrics count
+    radar_chart = ARIRadarChart(scores, width=400, height=300)
+    content.append(radar_chart)
     content.append(Spacer(1, 12))
     
-    # Benchmark section
-    content.append(Paragraph("Benchmark Comparison", heading1_style))
+    # Metric Breakdown with progress bars
+    content.append(Paragraph("Metric Breakdown", heading1_style))
+    content.append(Spacer(1, 6))
+    
+    # Create metrics with progress bars instead of table
+    for metric, score in scores.items():
+        # Metric name and score in a table
+        metric_header = Table([[
+            Paragraph(f"<b>{metric}</b>", metric_title_style),
+            Paragraph(f"<b>{score}/10</b>", ParagraphStyle('Score', parent=metric_value_style, alignment=TA_RIGHT))
+        ]], colWidths=[400, 100])
+        metric_header.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#f8fafc')),
+            ('GRID', (0, 0), (-1, -1), 0.5, HexColor('#FFFFFF')),
+            ('TOPPADDING', (0, 0), (-1, 0), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
+        ]))
+        content.append(metric_header)
+        
+        # Progress bar
+        level = "high" if score >= 7 else "medium" if score >= 4 else "low"
+        
+        # Select color based on score
+        if score >= 7:
+            color = HexColor('#4ade80')  # Green for high scores
+        elif score >= 4:
+            color = HexColor('#3b82f6')  # Blue for medium scores
+        else:
+            color = HexColor('#f43f5e')  # Red for low scores
+            
+        # Add progress bar
+        progress_bar = ProgressBar(width=500, height=14, value=score/10, fillColor=color)
+        content.append(progress_bar)
+        
+        # Description
+        description = METRICS[metric][level]
+        content.append(Paragraph(description, description_style))
+        content.append(Spacer(1, 12))
+    
+    # Benchmark section with visualization
+    content.append(Paragraph("Hyperdimensional Campaign Performance Matrix", heading1_style))
+    
+    # Create benchmark visualization
+    benchmark_viz = Drawing(500, 70)
+    
+    # Background rectangle
+    background = Rect(0, 0, 500, 60, fillColor=HexColor('#f8fafc'), strokeColor=None)
+    benchmark_viz.add(background)
+    
+    # Percentile gauge colors
+    colors = [
+        HexColor('#ef4444'),  # Red for low
+        HexColor('#f97316'),  # Orange for medium low
+        HexColor('#facc15'),  # Yellow for medium
+        HexColor('#84cc16'),  # Light green for medium high
+        HexColor('#10b981')   # Green for high
+    ]
+    
+    # Draw the gauge background
+    gauge_width = 400
+    gauge_height = 20
+    gauge_x = 50
+    gauge_y = 20
+    
+    # Draw colored gauge sections
+    section_width = gauge_width / 5
+    for i in range(5):
+        x = gauge_x + (i * section_width)
+        rect = Rect(x, gauge_y, section_width, gauge_height, 
+                    fillColor=colors[i], strokeColor=None)
+        benchmark_viz.add(rect)
+    
+    # Calculate position of percentile indicator
+    percentile_pos = gauge_x + (gauge_width * percentile / 100)
+    
+    # Add indicator triangle
+    indicator = PolyLine(
+        points=[
+            percentile_pos, gauge_y + gauge_height + 10,
+            percentile_pos - 8, gauge_y + gauge_height,
+            percentile_pos + 8, gauge_y + gauge_height
+        ],
+        fillColor=HexColor('#5865f2'),
+        strokeColor=None
+    )
+    benchmark_viz.add(indicator)
+    
+    # Add percentile text
+    percentile_text = String(
+        percentile_pos, gauge_y - 15,
+        f"{percentile}%",
+        fontSize=12,
+        fillColor=HexColor('#5865f2'),
+        textAnchor='middle'
+    )
+    benchmark_viz.add(percentile_text)
+    
+    # Add the benchmark visualization
+    content.append(benchmark_viz)
+    content.append(Spacer(1, 6))
     
     # Create custom benchmark text based on brand information
     if brand_name != "Unknown" and industry != "General":
@@ -197,11 +370,49 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     content.append(Paragraph(benchmark_text, normal_style))
     content.append(Spacer(1, 6))
-    content.append(Paragraph(improvement_text, normal_style))
+    
+    # Improvement areas with styling
+    content.append(Paragraph("Priority Enhancement Opportunities", 
+                           ParagraphStyle('OpportunityHeading', parent=heading1_style, fontSize=12)))
+    content.append(Spacer(1, 4))
+    
+    # Create a table for improvement areas
+    improvement_data = []
+    
+    # Create a row for each improvement area with an arrow icon
+    for area in improvement_areas:
+        improvement_data.append([
+            Paragraph(f"→ {area}", 
+                    ParagraphStyle('Improvement', parent=normal_style, textColor=HexColor('#5865f2')))
+        ])
+    
+    # Create table with improvement areas
+    improvement_table = Table(improvement_data, colWidths=[500])
+    improvement_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), HexColor('#f5f7fa')),
+        ('GRID', (0, 0), (-1, -1), 0.5, HexColor('#FFFFFF')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    
+    content.append(improvement_table)
     content.append(Spacer(1, 12))
     
-    # Media Affinity section - use the same title_style for consistent centering
-    content.append(Paragraph("Media Affinities & Audience Insights", title_style))
+    # Media Affinity section with styled header
+    media_header = Table([[
+        Paragraph("Media Affinities & Audience Insights", title_style)
+    ]], colWidths=[500])
+    media_header.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), HexColor('#5865f2')),
+        ('TEXTCOLOR', (0, 0), (-1, -1), HexColor('#FFFFFF')),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    content.append(media_header)
     content.append(Spacer(1, 12))
     
     # Top Media Affinity Sites
@@ -234,7 +445,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Define styles for the table
     media_styles = [
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, HexColor('#FFFFFF')),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -281,7 +492,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Define styles for the table
     tv_styles = [
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, HexColor('#FFFFFF')),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -328,7 +539,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Define styles for the table
     streaming_styles = [
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, HexColor('#FFFFFF')),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -370,8 +581,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # Footer
-    content.append(Paragraph('Powered by Digital Culture Group © 2023', 
-                          ParagraphStyle('Footer', parent=normal_style, alignment=TA_CENTER, fontSize=8, textColor=colors.gray)))
+    content.append(Paragraph('© 2025 Digital Culture Group, LLC. All rights reserved', 
+                          ParagraphStyle('Footer', parent=normal_style, alignment=TA_CENTER, fontSize=8, textColor=HexColor('#808080'))))
     
     # Build the PDF
     doc.build(content)
