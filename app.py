@@ -67,16 +67,23 @@ from assets.styles import apply_styles, header_section, render_footer
 from ai_insights import (
     generate_deep_insights,
     generate_competitor_analysis,
-    generate_audience_segments
+    generate_audience_segments,
+    ensure_valid_url_in_sites,
+    is_siteone_hispanic_content
 )
 from database import benchmark_db, BLOCKED_KEYWORDS
 from assets.content import (
     METRICS, 
-    MEDIA_AFFINITY_SITES, 
-    TV_NETWORKS, 
-    STREAMING_PLATFORMS, 
+    MEDIA_AFFINITY_SITES,
+    SITEONE_HISPANIC_SOCIAL_MEDIA,
+    TV_NETWORKS,
+    SITEONE_HISPANIC_TV_NETWORKS,
+    STREAMING_PLATFORMS,
+    SITEONE_HISPANIC_STREAMING,
     PSYCHOGRAPHIC_HIGHLIGHTS,
+    SITEONE_HISPANIC_PSYCHOGRAPHIC,
     AUDIENCE_SUMMARY,
+    SITEONE_HISPANIC_SUMMARY,
     NEXT_STEPS,
     STOCK_PHOTOS
 )
@@ -473,12 +480,45 @@ def main():
     # Footer
     render_footer()
 
+def is_siteone_hispanic_campaign(brand_name, brief_text):
+    """
+    Detect if this is a SiteOne Hispanic-targeted campaign based on brand name and brief text.
+    
+    Args:
+        brand_name (str): Brand name extracted from the brief
+        brief_text (str): The full text of the brief
+        
+    Returns:
+        bool: True if this is a SiteOne Hispanic campaign, False otherwise
+    """
+    if not brief_text:
+        return False
+        
+    # Add brand name to brief text for more robust detection
+    combined_text = f"{brand_name} {brief_text}" if brand_name else brief_text
+    
+    # Use the centralized detection function from ai_insights module
+    return is_siteone_hispanic_content(combined_text)
+
 def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product"):
     """Display the ARI analysis results."""
     st.markdown("---")
     
+    # Check if this is a SiteOne Hispanic campaign
+    is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, st.session_state.brief_text)
+    
     # Display standard scorecard title with no brand reference
     st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
+    
+    # If this is a SiteOne Hispanic campaign, display a specialized audience tag
+    if is_siteone_hispanic:
+        st.markdown("""
+        <div style="text-align: center; margin-bottom: 15px;">
+            <span style="background-color: #5865f2; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                SiteOne Hispanic Audience Analysis
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Add some spacing after the title
     st.markdown("---")
@@ -849,7 +889,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     col1, col2, col3, col4, col5 = st.columns(5)
     cols = [col1, col2, col3, col4, col5]
     
-    for i, site in enumerate(MEDIA_AFFINITY_SITES):
+    # Use SiteOne Hispanic social media data if this is a SiteOne Hispanic campaign
+    if is_siteone_hispanic:
+        social_media_sites = ensure_valid_url_in_sites(SITEONE_HISPANIC_SOCIAL_MEDIA)
+    else:
+        social_media_sites = ensure_valid_url_in_sites(MEDIA_AFFINITY_SITES)
+    
+    for i, site in enumerate(social_media_sites):
         with cols[i % 5]:
             # Truncate site name if it's too long
             name_display = site['name']
@@ -861,9 +907,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px;">{site['category']}</div>
                 <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">QVI: {site['qvi']}</div>
-                <div style="font-size:0.8rem;">
-                    <a href="{site['url']}" target="_blank">Visit Site</a>
-                </div>
+                {f'<div style="font-size:0.8rem;"><a href="{site["url"]}" target="_blank">Visit Site</a></div>' if 'url' in site else ''}
             </div>
             """, unsafe_allow_html=True)
     
@@ -882,7 +926,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     col1, col2, col3, col4, col5 = st.columns(5)
     cols = [col1, col2, col3, col4, col5]
     
-    for i, network in enumerate(TV_NETWORKS):
+    # Use SiteOne Hispanic TV networks data if this is a SiteOne Hispanic campaign
+    if is_siteone_hispanic:
+        tv_network_data = SITEONE_HISPANIC_TV_NETWORKS
+    else:
+        tv_network_data = TV_NETWORKS
+    
+    for i, network in enumerate(tv_network_data):
         with cols[i % 5]:
             # Truncate network name if it's too long
             name_display = network['name']
@@ -911,7 +961,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     col1, col2, col3 = st.columns(3)
     cols = [col1, col2, col3]
     
-    for i, platform in enumerate(STREAMING_PLATFORMS):
+    # Use SiteOne Hispanic streaming data if this is a SiteOne Hispanic campaign
+    if is_siteone_hispanic:
+        streaming_data = SITEONE_HISPANIC_STREAMING
+    else:
+        streaming_data = STREAMING_PLATFORMS
+    
+    for i, platform in enumerate(streaming_data):
         with cols[i % 3]:
             # Truncate platform name if it's too long
             name_display = platform['name']
@@ -936,7 +992,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         Psychographic Highlights
     </h3>
     """, unsafe_allow_html=True)
-    st.markdown(PSYCHOGRAPHIC_HIGHLIGHTS, unsafe_allow_html=True)
+    # Use SiteOne Hispanic psychographic data if this is a SiteOne Hispanic campaign
+    if is_siteone_hispanic:
+        st.markdown(SITEONE_HISPANIC_PSYCHOGRAPHIC, unsafe_allow_html=True)
+    else:
+        st.markdown(PSYCHOGRAPHIC_HIGHLIGHTS, unsafe_allow_html=True)
     
     # Audience Summary
     st.markdown("""
@@ -947,7 +1007,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         Audience Summary
     </h3>
     """, unsafe_allow_html=True)
-    st.markdown(AUDIENCE_SUMMARY, unsafe_allow_html=True)
+    # Use SiteOne Hispanic audience summary if this is a SiteOne Hispanic campaign
+    if is_siteone_hispanic:
+        st.markdown(SITEONE_HISPANIC_SUMMARY, unsafe_allow_html=True)
+    else:
+        st.markdown(AUDIENCE_SUMMARY, unsafe_allow_html=True)
     
     # Next Steps
     st.markdown("""

@@ -11,6 +11,57 @@ from openai import OpenAI
 # Initialize the OpenAI client with the API key from environment variables
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
+def is_siteone_hispanic_content(text):
+    """
+    Detect if the content is related to SiteOne Hispanic audience targeting.
+    
+    Args:
+        text (str): The text content to analyze
+        
+    Returns:
+        bool: True if the content is SiteOne Hispanic related, False otherwise
+    """
+    if not text:
+        return False
+    
+    # Convert text to lowercase for case-insensitive matching
+    text_lower = text.lower()
+    
+    # Check for SiteOne brand mentions
+    siteone_terms = ['siteone', 'site one', 'site-one']
+    has_siteone = any(term in text_lower for term in siteone_terms)
+    
+    # Check for Hispanic audience targeting keywords
+    hispanic_terms = [
+        'hispanic', 'latino', 'latina', 'latinx', 
+        'español', 'espanol', 'spanish-language', 'spanish language'
+    ]
+    has_hispanic = any(term in text_lower for term in hispanic_terms)
+    
+    # Return True if both SiteOne and Hispanic indicators are found
+    return has_siteone and has_hispanic
+
+def ensure_valid_url_in_sites(site_data):
+    """
+    Ensures all site data has valid URLs or replaces missing URLs with empty strings.
+    
+    Args:
+        site_data (list): List of site data dictionaries
+        
+    Returns:
+        list: List of site data with validated URLs
+    """
+    if not site_data:
+        return []
+        
+    result = []
+    for site in site_data:
+        site_copy = site.copy()
+        if 'url' not in site_copy or not site_copy['url']:
+            site_copy['url'] = ""
+        result.append(site_copy)
+    return result
+
 def generate_deep_insights(brief_text, ari_scores):
     """
     Generate deeper AI-powered insights based on the brief text and ARI scores.

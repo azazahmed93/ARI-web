@@ -58,6 +58,14 @@ MEDIA_AFFINITY_SITES = [
     {"name": "theverge.com", "category": "Tech", "qvi": 450, "url": "https://www.theverge.com", "tooltip": "Tech and culture content with style relevance"}
 ]
 
+# SiteOne Hispanic Media Affinities based on Resonate data
+SITEONE_HISPANIC_SOCIAL_MEDIA = [
+    {"name": "Twitch", "category": "Streaming", "qvi": 208},
+    {"name": "Discord", "category": "Social", "qvi": 178},
+    {"name": "TikTok", "category": "Video", "qvi": 146},
+    {"name": "Reddit", "category": "Forums", "qvi": 140}
+]
+
 # TV Network affinities
 TV_NETWORKS = [
     {"name": "NBA TV", "category": "Sports", "qvi": 459},
@@ -65,6 +73,15 @@ TV_NETWORKS = [
     {"name": "Cartoon Network", "category": "Youth", "qvi": 292},
     {"name": "MTV", "category": "Music / Culture", "qvi": 288},
     {"name": "Nickelodeon", "category": "Kids / Family", "qvi": 263}
+]
+
+# SiteOne Hispanic TV Networks based on Resonate data
+SITEONE_HISPANIC_TV_NETWORKS = [
+    {"name": "Univision", "category": "Spanish", "qvi": 1357},
+    {"name": "NFL Network", "category": "Sports", "qvi": 295},
+    {"name": "Comedy Central", "category": "Comedy", "qvi": 282},
+    {"name": "Adult Swim", "category": "Animation", "qvi": 276},
+    {"name": "HBO", "category": "Premium", "qvi": 195}
 ]
 
 # Streaming platforms
@@ -77,11 +94,30 @@ STREAMING_PLATFORMS = [
     {"name": "Disney+", "category": "Family / Animation", "qvi": 165}
 ]
 
+# SiteOne Hispanic Streaming Platforms based on Resonate data
+SITEONE_HISPANIC_STREAMING = [
+    {"name": "Disney+ (without ads)", "category": "Entertainment", "qvi": 184},
+    {"name": "Netflix (without ads)", "category": "Entertainment", "qvi": 164},
+    {"name": "Disney+ (with ads)", "category": "Entertainment", "qvi": 132},
+    {"name": "Paramount+ (with ads)", "category": "Entertainment", "qvi": 132},
+    {"name": "YouTube TV/Premium", "category": "Video", "qvi": 123},
+    {"name": "Hulu (without ads)", "category": "Entertainment", "qvi": 120}
+]
+
 # Additional content sections
 PSYCHOGRAPHIC_HIGHLIGHTS = """
 This audience is highly motivated by <strong>wealth, admiration, and excitement</strong>. 
 They over-index for <strong>social status and peer recognition</strong>, and are more likely 
 to play basketball, value athletic accomplishments, and participate in teams or classes.
+"""
+
+# SiteOne Hispanic Psychographic Highlights based on Resonate data
+SITEONE_HISPANIC_PSYCHOGRAPHIC = """
+This audience strongly values <strong>maintaining traditions (161)</strong>, <strong>acquiring wealth and 
+influence (143)</strong>, and <strong>being humble (142)</strong>. Their top psychological drivers are 
+<strong>living an exciting life (204)</strong> and <strong>social/professional status (166)</strong>. 
+They have exceptionally high indexes for <strong>soccer (419)</strong>, <strong>gambling on sports (265)</strong>, 
+and <strong>basketball (249)</strong>.
 """
 
 AUDIENCE_SUMMARY = """
@@ -90,6 +126,16 @@ education tools, and socially driven platforms. They're <strong>highly motivated
 status, and excitement</strong>. A growth opportunity exists among <strong>older Gen Z and 
 college-age students</strong> who index high for athletic lifestyle, peer validation, and 
 mobile-first media behaviors.
+"""
+
+# SiteOne Hispanic Audience Summary based on Resonate data
+SITEONE_HISPANIC_SUMMARY = """
+This audience is <strong>93% male</strong>, with <strong>39% ages 25-34</strong>, <strong>33% 
+in the $25-50k income bracket</strong>, and <strong>42% with high school education</strong>. 
+They're <strong>highly engaged on mobile devices (313)</strong> and spend significant time 
+online with <strong>33% spending 10-20 hours per week</strong> online. Their media consumption 
+shows very strong indexes for <strong>Univision (1357)</strong> and <strong>sports content</strong>, 
+with significant engagement on <strong>Twitch (208)</strong> and <strong>Discord (178)</strong>.
 """
 
 NEXT_STEPS = """
