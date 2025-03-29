@@ -818,35 +818,78 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 with tab:
                     # Check if this is the Competitor Tactics tab (last tab)
                     if i == len(area_tabs) - 1:
-                        # Handle the Competitor Tactics tab specifically
-                        competitor_imp = [imp for imp in ai_insights.get("improvements", []) 
-                                       if imp['area'] == "Competitor Tactics"]
-                        
-                        if competitor_imp:
-                            improvement = competitor_imp[0]
-                            st.markdown(f"""
-                            <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
-                                <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">{improvement['explanation']}</div>
-                                <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {improvement['recommendation']}
-                                </div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        else:
-                            # Fallback for Competitor Tactics tab
+                        # Handle the Competitor Tactics tab specifically using competitor_analysis data
+                        if 'competitor_analysis' in st.session_state and st.session_state.competitor_analysis:
+                            comp_analysis = st.session_state.competitor_analysis
+                            
+                            # Get the first competitor for explanation
+                            competitor_example = ""
+                            if comp_analysis.get('competitors') and len(comp_analysis.get('competitors', [])) > 0:
+                                main_competitor = comp_analysis['competitors'][0]
+                                competitor_example = f"{main_competitor.get('name', 'Major competitor')} is using {main_competitor.get('digital_tactics', 'broad awareness tactics')}."
+                            
+                            # Get the first advantage for recommendation
+                            advantage_text = ""
+                            if comp_analysis.get('advantages') and len(comp_analysis.get('advantages', [])) > 0:
+                                advantage = comp_analysis['advantages'][0]
+                                advantage_text = f"Leverage {advantage.get('advantage', 'your strengths')} through {advantage.get('tactical_application', 'targeted strategies')}."
+                            
+                            # Get the first threat for recommendation
+                            threat_text = ""
+                            if comp_analysis.get('threats') and len(comp_analysis.get('threats', [])) > 0:
+                                threat = comp_analysis['threats'][0]
+                                threat_text = f"Counter {threat.get('threat', 'competitive threats')} by {threat.get('tactical_response', 'implementing specialized tactics')}."
+                            
+                            # Get differentiation opportunity
+                            diff_text = ""
+                            if comp_analysis.get('differentiation') and len(comp_analysis.get('differentiation', [])) > 0:
+                                diff = comp_analysis['differentiation'][0]
+                                diff_text = f"On {diff.get('platform', 'digital platforms')}, implement {diff.get('tactical_approach', 'unique approaches to stand out')}."
+                            
+                            # Combine recommendation parts
+                            recommendation = f"{advantage_text} {threat_text} {diff_text}".strip()
+                            
                             st.markdown(f"""
                             <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
                                 <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
                                 <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
-                                    Analysis of competitor digital ad strategies reveals opportunities for differentiation.
+                                    Analysis of competitor digital ad strategies reveals opportunities for differentiation. {competitor_example}
                                 </div>
                                 <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
-                                    Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data across audio, rich media, and premium CTV/OTT placements that deliver 2.8x the engagement rate. Consider allocating 35% of budget to competitive conquest strategies using interactive video formats and native display ads.
+                                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {recommendation}
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
+                        else:
+                            # First check if there's a specific "Competitor Tactics" improvement in AI insights
+                            competitor_imp = [imp for imp in ai_insights.get("improvements", []) 
+                                           if imp['area'] == "Competitor Tactics"]
+                            
+                            if competitor_imp:
+                                improvement = competitor_imp[0]
+                                st.markdown(f"""
+                                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
+                                    <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
+                                    <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">{improvement['explanation']}</div>
+                                    <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
+                                        <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {improvement['recommendation']}
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            else:
+                                # Fallback for Competitor Tactics tab
+                                st.markdown(f"""
+                                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
+                                    <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
+                                    <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
+                                        Analysis of competitor digital ad strategies reveals opportunities for differentiation.
+                                    </div>
+                                    <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
+                                        <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
+                                        Key competitors are investing heavily in broad awareness campaigns with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data across audio, rich media, and premium CTV/OTT placements that deliver 2.8x the engagement rate. Consider allocating 35% of budget to competitive conquest strategies using interactive video formats and native display ads.
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
                     else:
                         # For regular improvement area tabs
                         # Find the matching improvement from AI insights
@@ -1275,6 +1318,22 @@ def display_summary_metrics(scores):
             <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{avg_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Add campaign strengths from AI insights if available
+        if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+            ai_insights = st.session_state.ai_insights
+            strengths = ai_insights.get('strengths', [])
+            
+            if strengths:
+                st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
+                
+                for strength in strengths[:2]:  # Display top 2 strengths
+                    area = strength.get('area', 'Cultural Alignment')
+                    st.markdown(f"""
+                    <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
+                        <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{area}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
         
         # Display AI insights using the dynamically generated content
         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
