@@ -457,7 +457,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Apply background colors to each cell with content
     for row_idx, row in enumerate(media_site_data):
         for col_idx, cell in enumerate(row):
-            if cell:
+            if isinstance(cell, Paragraph):
                 media_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#e0edff')))
     
     media_table.setStyle(TableStyle(media_styles))
@@ -504,7 +504,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Apply background colors to each cell with content
     for row_idx, row in enumerate(tv_network_data):
         for col_idx, cell in enumerate(row):
-            if cell:
+            if isinstance(cell, Paragraph):
                 tv_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#dbeafe')))
     
     tv_network_table.setStyle(TableStyle(tv_styles))
@@ -551,7 +551,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Apply background colors to each cell with content
     for row_idx, row in enumerate(streaming_data):
         for col_idx, cell in enumerate(row):
-            if cell:
+            if isinstance(cell, Paragraph):
                 streaming_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#d1fae5')))
     
     streaming_table.setStyle(TableStyle(streaming_styles))
