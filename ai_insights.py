@@ -6,10 +6,47 @@ for marketing briefs and RFPs.
 
 import os
 import json
+import re
 from openai import OpenAI
 
 # Initialize the OpenAI client with the API key from environment variables
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def fix_grammar_and_duplicates(text):
+    """
+    Fixes common grammar issues and duplicate words in AI-generated text.
+    
+    Args:
+        text (str): The text to clean up
+        
+    Returns:
+        str: Cleaned text with grammar issues and duplicate words fixed
+    """
+    if not text:
+        return text
+        
+    # Fix duplicate words like "Implement Implement" or "Leverage Leverage"
+    pattern = r'\b(\w+)\s+\1\b'
+    text = re.sub(pattern, r'\1', text)
+    
+    # Fix double periods, commas, etc.
+    text = re.sub(r'\.\.', '.', text)
+    text = re.sub(r',,', ',', text)
+    
+    # Fix spaces before periods and commas
+    text = re.sub(r'\s+\.', '.', text)
+    text = re.sub(r'\s+,', ',', text)
+    
+    # Fix double periods after sentences
+    text = re.sub(r'\.\s+\.', '.', text)
+    
+    # Fix TruGreen is using TruGreen type errors
+    text = re.sub(r'([A-Za-z]+) is using \1', r'\1 is using', text)
+    
+    # Fix multiple spaces
+    text = re.sub(r'\s+', ' ', text)
+    
+    return text.strip()
 
 def is_siteone_hispanic_content(text):
     """
@@ -187,6 +224,30 @@ Additional audience data for SiteOne Hispanic campaign:
         print(f"Has performance prediction: {bool(insights.get('performance_prediction'))}")
         print("============================\n\n")
         
+        # Clean up grammar and duplicate words in the insights
+        if 'strengths' in insights:
+            for strength in insights['strengths']:
+                if 'explanation' in strength:
+                    strength['explanation'] = fix_grammar_and_duplicates(strength['explanation'])
+        
+        if 'improvements' in insights:
+            for improvement in insights['improvements']:
+                if 'explanation' in improvement:
+                    improvement['explanation'] = fix_grammar_and_duplicates(improvement['explanation'])
+                if 'recommendation' in improvement:
+                    improvement['recommendation'] = fix_grammar_and_duplicates(improvement['recommendation'])
+        
+        if 'trends' in insights:
+            for trend in insights['trends']:
+                if 'application' in trend:
+                    trend['application'] = fix_grammar_and_duplicates(trend['application'])
+        
+        if 'hidden_insight' in insights:
+            insights['hidden_insight'] = fix_grammar_and_duplicates(insights['hidden_insight'])
+            
+        if 'performance_prediction' in insights:
+            insights['performance_prediction'] = fix_grammar_and_duplicates(insights['performance_prediction'])
+        
         return insights
         
     except Exception as e:
@@ -220,12 +281,16 @@ def generate_competitor_analysis(brief_text, industry=None):
     """
     Generate a competitive analysis based on the brief text and industry.
     
+    This function also sanitizes and formats the output to ensure no grammatical errors,
+    duplicate phrases like "Implement Implement" or "Leverage Leverage", and ensures
+    text flows naturally without repetition.
+    
     Args:
         brief_text (str): The marketing brief or RFP text
         industry (str, optional): The industry classification
         
     Returns:
-        dict: A dictionary containing competitor analysis
+        dict: A dictionary containing competitor analysis with sanitized text
     """
     try:
         # Check if this is the SiteOne Hispanic campaign
@@ -290,6 +355,28 @@ Additional audience data for SiteOne Hispanic campaign:
         
         # Parse the JSON response
         analysis = json.loads(response.choices[0].message.content)
+        
+        # Clean up grammar and duplicate words in the analysis
+        if 'competitors' in analysis:
+            for comp in analysis['competitors']:
+                if 'digital_tactics' in comp:
+                    comp['digital_tactics'] = fix_grammar_and_duplicates(comp['digital_tactics'])
+        
+        if 'advantages' in analysis:
+            for adv in analysis['advantages']:
+                if 'tactical_application' in adv:
+                    adv['tactical_application'] = fix_grammar_and_duplicates(adv['tactical_application'])
+        
+        if 'threats' in analysis:
+            for threat in analysis['threats']:
+                if 'tactical_response' in threat:
+                    threat['tactical_response'] = fix_grammar_and_duplicates(threat['tactical_response'])
+        
+        if 'differentiation' in analysis:
+            for diff in analysis['differentiation']:
+                if 'tactical_approach' in diff:
+                    diff['tactical_approach'] = fix_grammar_and_duplicates(diff['tactical_approach'])
+        
         return analysis
         
     except Exception as e:
@@ -419,6 +506,22 @@ Additional audience data for SiteOne Hispanic campaign:
         
         # Parse the JSON response
         segments = json.loads(response.choices[0].message.content)
+        
+        # Clean up grammar and duplicate words in the segments
+        if 'segments' in segments:
+            for segment in segments['segments']:
+                # Clean platform targeting approaches
+                if 'platform_targeting' in segment:
+                    for platform in segment['platform_targeting']:
+                        if 'targeting_approach' in platform:
+                            platform['targeting_approach'] = fix_grammar_and_duplicates(platform['targeting_approach'])
+                
+                # Clean bidding strategy
+                if 'bidding_strategy' in segment:
+                    for key in segment['bidding_strategy']:
+                        if isinstance(segment['bidding_strategy'][key], str):
+                            segment['bidding_strategy'][key] = fix_grammar_and_duplicates(segment['bidding_strategy'][key])
+        
         return segments
         
     except Exception as e:
