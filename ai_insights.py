@@ -22,6 +22,7 @@ def fix_grammar_and_duplicates(text):
     - Double punctuation ("sentence..")
     - Incorrect spacing around punctuation
     - Awkward phrasing and common AI text artifacts
+    - Verb agreement and tense issues
     
     Args:
         text (str): The text to clean up
@@ -34,11 +35,34 @@ def fix_grammar_and_duplicates(text):
         
     # Fix duplicate words like "Implement Implement" or "Leverage Leverage"
     pattern = r'\b(\w+)\s+\1\b'
-    text = re.sub(pattern, r'\1', text)
+    text = re.sub(pattern, r'\1', text, flags=re.IGNORECASE)
     
-    # Extended pattern to catch more duplicate words with minor variations (capitalization)
-    pattern_case_insensitive = r'\b(\w+)\s+\b(\1)s?\b'
-    text = re.sub(pattern_case_insensitive, r'\1', text, flags=re.IGNORECASE)
+    # Fix words with first letter capitalized followed by the same word
+    pattern_capital = r'\b([A-Z][a-z]+)\s+([a-z]+)\b'
+    matches = re.finditer(pattern_capital, text)
+    for match in matches:
+        if match.group(1).lower() == match.group(2).lower():
+            text = text.replace(match.group(0), match.group(1))
+    
+    # Remove adjacent words with through/by/as duplication
+    text = re.sub(r'\b(through|by|as|among|for|to|with|in|on|of)\s+\1\b', r'\1', text, flags=re.IGNORECASE)
+    
+    # Fix "is using Utilizes" pattern
+    text = re.sub(r'is using ([A-Z][a-z]+)', r'utilizes', text)
+    text = re.sub(r'is using utilizes', r'utilizes', text, flags=re.IGNORECASE)
+    
+    # Fix "implement Develop" pattern (capitalized words after verbs)
+    text = re.sub(r'implement ([A-Z][a-z]+)', r'implement', text)
+    text = re.sub(r'develop ([A-Z][a-z]+)', r'develop', text)
+    text = re.sub(r'utilize ([A-Z][a-z]+)', r'utilize', text)
+    text = re.sub(r'leverage ([A-Z][a-z]+)', r'leverage', text)
+    text = re.sub(r'create ([A-Z][a-z]+)', r'create', text)
+    
+    # Fix "Company is using Utilizes" pattern
+    text = re.sub(r'([A-Za-z\s]+) is using ([A-Z][a-z]+)', r'\1 utilizes', text)
+    
+    # Fix "Counter Increasing" capitalization issue
+    text = re.sub(r'Counter ([A-Z][a-z]+)', r'counter \1', text)
     
     # Fix double periods, commas, etc.
     text = re.sub(r'\.\.+', '.', text)  # Handle any number of repeated periods
@@ -61,28 +85,30 @@ def fix_grammar_and_duplicates(text):
     text = re.sub(r'([A-Za-z]+) is using \1', r'\1 is using', text)
     text = re.sub(r'([A-Za-z]+) are using \1', r'\1 are using', text)
     
-    # Fix awkward repetitions in recommendations
-    text = re.sub(r'recommend recommend', 'recommend', text, flags=re.IGNORECASE)
-    text = re.sub(r'suggest suggest', 'suggest', text, flags=re.IGNORECASE)
-    text = re.sub(r'consider consider', 'consider', text, flags=re.IGNORECASE)
-    text = re.sub(r'implement implement', 'implement', text, flags=re.IGNORECASE)
-    text = re.sub(r'leverage leverage', 'leverage', text, flags=re.IGNORECASE)
-    text = re.sub(r'utilize utilize', 'utilize', text, flags=re.IGNORECASE)
-    text = re.sub(r'create create', 'create', text, flags=re.IGNORECASE)
-    text = re.sub(r'develop develop', 'develop', text, flags=re.IGNORECASE)
-    text = re.sub(r'optimize optimize', 'optimize', text, flags=re.IGNORECASE)
-    text = re.sub(r'enhance enhance', 'enhance', text, flags=re.IGNORECASE)
-    text = re.sub(r'increase increase', 'increase', text, flags=re.IGNORECASE)
-    text = re.sub(r'decrease decrease', 'decrease', text, flags=re.IGNORECASE)
-    text = re.sub(r'improve improve', 'improve', text, flags=re.IGNORECASE)
+    # Fix repetitive marketing terms (more comprehensive list)
+    marketing_terms = [
+        'recommend', 'suggest', 'consider', 'implement', 'leverage', 'utilize',
+        'create', 'develop', 'optimize', 'enhance', 'increase', 'decrease',
+        'improve', 'target', 'focus', 'engage', 'prioritize', 'establish',
+        'deploy', 'execute', 'analyze', 'measure', 'track', 'position',
+        'integrate', 'incorporate', 'amplify', 'strengthen', 'boost', 'elevate'
+    ]
+    
+    for term in marketing_terms:
+        pattern = fr'\b{term}\s+{term}\b'
+        text = re.sub(pattern, term, text, flags=re.IGNORECASE)
     
     # Fix common transition phrase repetitions
-    text = re.sub(r'in order to in order to', 'in order to', text, flags=re.IGNORECASE)
-    text = re.sub(r'in addition in addition', 'in addition', text, flags=re.IGNORECASE)
-    text = re.sub(r'furthermore furthermore', 'furthermore', text, flags=re.IGNORECASE)
-    text = re.sub(r'therefore therefore', 'therefore', text, flags=re.IGNORECASE)
-    text = re.sub(r'however however', 'however', text, flags=re.IGNORECASE)
-    text = re.sub(r'moreover moreover', 'moreover', text, flags=re.IGNORECASE)
+    transitions = [
+        'in order to', 'in addition', 'furthermore', 'therefore', 'however',
+        'moreover', 'consequently', 'as a result', 'for instance', 'for example',
+        'in conclusion', 'to summarize', 'in summary', 'in particular',
+        'specifically', 'notably', 'in fact', 'indeed', 'in other words'
+    ]
+    
+    for phrase in transitions:
+        pattern = fr'\b{phrase}\s+{phrase}\b'
+        text = re.sub(pattern, phrase, text, flags=re.IGNORECASE)
     
     # Fix multiple spaces
     text = re.sub(r'\s+', ' ', text)
@@ -93,6 +119,23 @@ def fix_grammar_and_duplicates(text):
     # Fix common AI text artifacts that indicate uncertainty
     text = re.sub(r'I (would|recommend|suggest|believe)', r'We \1', text)
     text = re.sub(r'Based on (my|the) analysis', 'Based on analysis', text)
+    
+    # Fix word repetitions with special characters between them
+    text = re.sub(r'([A-Za-z]+)[,:\-\s]+\1', r'\1', text, flags=re.IGNORECASE)
+    
+    # Fix "implementation implementation" type errors (with plural variations)
+    nouns = [
+        'implementation', 'strategy', 'tactic', 'approach', 'solution',
+        'campaign', 'initiative', 'effort', 'program', 'project', 'plan',
+        'framework', 'method', 'technique', 'process'
+    ]
+    
+    for noun in nouns:
+        # Fix repetitions with plural forms
+        pattern_singular = fr'\b{noun}\s+{noun}s?\b'
+        pattern_plural = fr'\b{noun}s\s+{noun}s?\b'
+        text = re.sub(pattern_singular, noun, text, flags=re.IGNORECASE)
+        text = re.sub(pattern_plural, f"{noun}s", text, flags=re.IGNORECASE)
     
     return text.strip()
 
@@ -167,10 +210,49 @@ def generate_deep_insights(brief_text, ari_scores):
         if score < 6:  # Consider scores below 6 as needing improvement
             improvement_areas.append(metric)
     
-    # If we don't have 3 weak areas, add some specific ones the user requested
-    priority_metrics = ["Media Ownership Equity", "Geo-Cultural Fit", "Representation"]
+    # Dynamically determine priority metrics based on the brief content
+    priority_metrics = []
+    
+    # Check for diversity, inclusion, and equity themes
+    equity_keywords = ["diverse", "diversity", "minority", "inclusive", "inclusion", "equity", "equality"]
+    if any(keyword in brief_text.lower() for keyword in equity_keywords):
+        priority_metrics.append("Media Ownership Equity")
+    
+    # Check for location and cultural references
+    geo_keywords = ["local", "regional", "city", "area", "community", "geographic", "location", "region"]
+    if any(keyword in brief_text.lower() for keyword in geo_keywords):
+        priority_metrics.append("Geo-Cultural Fit")
+    
+    # Check for representation and demographic themes
+    rep_keywords = ["represent", "authentic", "demographic", "audience", "identity", "depiction"]
+    if any(keyword in brief_text.lower() for keyword in rep_keywords):
+        priority_metrics.append("Representation")
+    
+    # Check for content engagement themes
+    content_keywords = ["content", "creative", "story", "narrative", "messaging", "engagement"]
+    if any(keyword in brief_text.lower() for keyword in content_keywords):
+        priority_metrics.append("Content Engagement")
+    
+    # Check for multi-platform themes
+    platform_keywords = ["platform", "channel", "multi-channel", "omnichannel", "device", "mobile", "digital"]
+    if any(keyword in brief_text.lower() for keyword in platform_keywords):
+        priority_metrics.append("Platform Diversity")
+        
+    # If we still need metrics to reach 3, add some fallbacks that are common improvement areas
+    fallback_metrics = ["Media Ownership Equity", "Geo-Cultural Fit", "Representation", 
+                        "Platform Diversity", "Content Engagement", "Community Connection"]
+    
+    # Ensure we don't duplicate metrics already in the improvement_areas
+    remaining_fallbacks = [m for m in fallback_metrics if m not in improvement_areas and m not in priority_metrics]
+    
+    # Add prioritized metrics first
     for metric in priority_metrics:
         if metric not in improvement_areas and len(improvement_areas) < 3:
+            improvement_areas.append(metric)
+            
+    # Then add fallbacks if needed
+    for metric in remaining_fallbacks:
+        if len(improvement_areas) < 3:
             improvement_areas.append(metric)
     
     # If we still don't have 3, add other metrics with the lowest scores
