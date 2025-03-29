@@ -443,6 +443,16 @@ def main():
                                     ai_insights = generate_deep_insights(brief_text, scores)
                                     st.session_state.ai_insights = ai_insights
                                     
+                                    # Debug info for AI insights
+                                    st.sidebar.write("### AI Insights Debug")
+                                    if ai_insights and isinstance(ai_insights, dict):
+                                        st.sidebar.write("Top strength: ", ai_insights.get('strengths', [{}])[0].get('area', 'None') if ai_insights.get('strengths') else 'None')
+                                        st.sidebar.write("Top improvement: ", ai_insights.get('improvements', [{}])[0].get('area', 'None') if ai_insights.get('improvements') else 'None')
+                                        st.sidebar.write("Hidden insight available: ", "Yes" if ai_insights.get('hidden_insight') else "No")
+                                        st.sidebar.write("Performance prediction: ", ai_insights.get('performance_prediction', 'None'))
+                                    else:
+                                        st.sidebar.write("AI insights not available or in unexpected format")
+                                    
                                     # Generate competitor analysis
                                     competitor_analysis = generate_competitor_analysis(brief_text, industry)
                                     st.session_state.competitor_analysis = competitor_analysis

@@ -171,8 +171,22 @@ Additional audience data for SiteOne Hispanic campaign:
             max_tokens=1500
         )
         
+        # Debug the raw response
+        print("\n\n===== OPENAI API RESPONSE =====")
+        print(response.choices[0].message.content)
+        print("================================\n\n")
+        
         # Parse the JSON response
         insights = json.loads(response.choices[0].message.content)
+        
+        # Debug the parsed insights
+        print("\n\n===== PARSED INSIGHTS =====")
+        print(f"Got {len(insights.get('strengths', []))} strengths")
+        print(f"Got {len(insights.get('improvements', []))} improvements")
+        print(f"Has hidden insight: {bool(insights.get('hidden_insight'))}")
+        print(f"Has performance prediction: {bool(insights.get('performance_prediction'))}")
+        print("============================\n\n")
+        
         return insights
         
     except Exception as e:
