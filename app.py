@@ -337,15 +337,6 @@ def main():
         with tab1:
             # File uploader for document input
             st.markdown('<div style="margin-top: 12px;"></div>', unsafe_allow_html=True)  # Add some spacing
-            
-            # Add information about embedded environments
-            st.markdown("""
-            <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px;">
-                <strong>Note:</strong> If you're having trouble uploading files when viewing in an embedded frame,
-                please use the "Paste Text" tab or <a href="https://dcg-ari-platform.replit.app" target="_blank">open in a new window</a>.
-            </div>
-            """, unsafe_allow_html=True)
-            
             uploaded_file = st.file_uploader(
                 "Upload Marketing Brief or RFP", 
                 type=["txt", "pdf", "docx"],
@@ -376,56 +367,12 @@ def main():
                     st.error("Could not extract text from the file. Please check the file format.")
         
         with tab2:
-            # Add sample text option for easier testing
-            st.markdown("""
-            <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px;">
-                Having trouble uploading files? You can use the sample text below or paste your own text.
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Add a button to load sample text
-            sample_text = """NIKE Running Campaign Brief - Fall 2025
-
-Campaign Overview:
-We're looking to launch a new global running campaign in fall 2025 that emphasizes inclusivity, 
-community, and the joy of running. The campaign should speak to both serious runners and those 
-just getting started, highlighting our innovative products while creating an emotional connection.
-
-Target Audience:
-Primary: Active adults 25-40 who run regularly (2-3 times per week)
-Secondary: Fitness enthusiasts 18-30 who view running as part of a broader fitness routine
-
-Campaign Objectives:
-- Increase brand perception as the most innovative running brand
-- Drive 15% growth in running footwear sales
-- Grow our running communities across major markets
-
-Key Products:
-- AirZoom Infinity series (flagship)
-- React Cloud cushioning technology
-- Sustainable Flyknit materials
-
-Campaign Elements:
-- Digital video series (featuring diverse runners)
-- Social media content program
-- Retail experiences in flagship stores
-- Community running events in 10 global cities
-
-Tone and Messaging:
-The campaign should feel inclusive, inspiring, and authentic. We want to celebrate every type of runner 
-while showcasing our technical innovation in a way that feels accessible. The message should focus on 
-the transformative power of running as a social activity that brings people together."""
-            
-            if st.button("Load Sample Text", type="secondary"):
-                input_brief_text = sample_text
-            else:
-                # Text input for manual entry
-                input_brief_text = st.text_area(
-                    "Marketing Brief | RFP",
-                    height=200,
-                    help="Provide your complete RFP or marketing brief for comprehensive analysis. Greater detail yields more precise predictive intelligence and actionable recommendations."
-                )
-                
+            # Text input for manual entry
+            input_brief_text = st.text_area(
+                "Marketing Brief | RFP",
+                height=200,
+                help="Provide your complete RFP or marketing brief for comprehensive analysis. Greater detail yields more precise predictive intelligence and actionable recommendations."
+            )
             if input_brief_text:
                 # Filter blocked keywords
                 for keyword in BLOCKED_KEYWORDS:
