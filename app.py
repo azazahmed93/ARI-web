@@ -853,7 +853,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
                                 <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
                                 <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
-                                    Analysis of competitor digital ad strategies reveals opportunities for differentiation. {competitor_example}
+                                    Analysis of competitor digital ad strategies reveals opportunities for differentiation. {competitor_example.replace(" is using The Home Depot", "")}
                                 </div>
                                 <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
                                     <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {recommendation}
@@ -882,7 +882,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
                                     <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
                                     <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
-                                        Analysis of competitor digital ad strategies reveals opportunities for differentiation.
+                                        Analysis of competitor digital ad strategies reveals significant opportunities for differentiation in the market.
                                     </div>
                                     <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
                                         <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
@@ -961,7 +961,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
                             <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
                             <div style="color: #333; font-size: 0.9rem;">
-                                Analysis of competitor digital ad strategies reveals opportunities for differentiation.
+                                Analysis of competitor digital ad strategies reveals significant opportunities for differentiation in the market.
                                 For detailed competitive intelligence, ensure OpenAI API integration is enabled.
                             </div>
                         </div>
