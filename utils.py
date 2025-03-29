@@ -435,7 +435,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         if (i + 1) % 5 == 0 or i == len(MEDIA_AFFINITY_SITES) - 1:
             # Pad the row if needed
             while len(row) < 5:
-                row.append("")
+                row.append(Paragraph("", normal_style))
             media_site_data.append(row)
             row = []
     
@@ -483,7 +483,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         if (i + 1) % 5 == 0 or i == len(TV_NETWORKS) - 1:
             # Pad the row if needed
             while len(row) < 5:
-                row.append("")
+                row.append(Paragraph("", normal_style))
             tv_network_data.append(row)
             row = []
     
@@ -530,7 +530,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         if (i + 1) % 3 == 0 or i == len(STREAMING_PLATFORMS) - 1:
             # Pad the row if needed
             while len(row) < 3:
-                row.append("")
+                row.append(Paragraph("", normal_style))
             streaming_data.append(row)
             row = []
     

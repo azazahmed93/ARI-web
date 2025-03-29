@@ -1,0 +1,38 @@
+AttributeError: 'NoneType' object has no attribute 'wrapOn'
+Traceback:
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 640, in code_to_exec
+    exec(code, module.__dict__)
+File "/home/runner/workspace/app.py", line 1123, in <module>
+    main()
+File "/home/runner/workspace/app.py", line 464, in main
+    display_results(
+File "/home/runner/workspace/app.py", line 999, in display_results
+    pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/runner/workspace/utils.py", line 588, in create_pdf_download_link
+    doc.build(content)
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/doctemplate.py", line 1322, in build
+    BaseDocTemplate.build(self,flowables, canvasmaker=canvasmaker)
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/doctemplate.py", line 1083, in build
+    self.handle_flowable(flowables)
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/doctemplate.py", line 932, in handle_flowable
+    if frame.add(f, canv, trySplit=self.allowSplitting):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/frames.py", line 201, in _add
+    flowable.drawOn(canv, self._x + self._leftExtraIndent, y, _sW=aW-w)
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/flowables.py", line 112, in drawOn
+    self._drawOn(canvas)
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/flowables.py", line 93, in _drawOn
+    self.draw()#this is the bit you overload
+    ^^^^^^^^^^^
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/tables.py", line 2301, in draw
+    self._drawCell(cellval, cellstyle, (colpos, rowpos), (colwidth, rowheight))
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/tables.py", line 2497, in _drawCell
+    w, h = self._listCellGeom(cellval,colwidth,cellstyle,W=W, H=H,aH=rowheight)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/reportlab/platypus/tables.py", line 492, in _listCellGeom
+    vw, vh = v.wrapOn(canv, aW, aH)
+             ^^^^^^^^
