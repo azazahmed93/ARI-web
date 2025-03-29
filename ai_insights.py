@@ -16,6 +16,13 @@ def fix_grammar_and_duplicates(text):
     """
     Fixes common grammar issues and duplicate words in AI-generated text.
     
+    This comprehensive function cleans up various text issues including:
+    - Repeated words ("implement implement")
+    - Brand name repetitions ("Nike is using Nike")
+    - Double punctuation ("sentence..")
+    - Incorrect spacing around punctuation
+    - Awkward phrasing and common AI text artifacts
+    
     Args:
         text (str): The text to clean up
         
@@ -29,22 +36,63 @@ def fix_grammar_and_duplicates(text):
     pattern = r'\b(\w+)\s+\1\b'
     text = re.sub(pattern, r'\1', text)
     
+    # Extended pattern to catch more duplicate words with minor variations (capitalization)
+    pattern_case_insensitive = r'\b(\w+)\s+\b(\1)s?\b'
+    text = re.sub(pattern_case_insensitive, r'\1', text, flags=re.IGNORECASE)
+    
     # Fix double periods, commas, etc.
-    text = re.sub(r'\.\.', '.', text)
-    text = re.sub(r',,', ',', text)
+    text = re.sub(r'\.\.+', '.', text)  # Handle any number of repeated periods
+    text = re.sub(r',,+', ',', text)    # Handle any number of repeated commas
+    text = re.sub(r'!!+', '!', text)    # Handle repeated exclamation marks
+    text = re.sub(r'\?\?+', '?', text)  # Handle repeated question marks
     
     # Fix spaces before periods and commas
     text = re.sub(r'\s+\.', '.', text)
     text = re.sub(r'\s+,', ',', text)
+    text = re.sub(r'\s+!', '!', text)
+    text = re.sub(r'\s+\?', '?', text)
+    text = re.sub(r'\s+:', ':', text)
+    text = re.sub(r'\s+;', ';', text)
     
     # Fix double periods after sentences
     text = re.sub(r'\.\s+\.', '.', text)
     
-    # Fix TruGreen is using TruGreen type errors
+    # Fix brand/company is using brand/company type errors
     text = re.sub(r'([A-Za-z]+) is using \1', r'\1 is using', text)
+    text = re.sub(r'([A-Za-z]+) are using \1', r'\1 are using', text)
+    
+    # Fix awkward repetitions in recommendations
+    text = re.sub(r'recommend recommend', 'recommend', text, flags=re.IGNORECASE)
+    text = re.sub(r'suggest suggest', 'suggest', text, flags=re.IGNORECASE)
+    text = re.sub(r'consider consider', 'consider', text, flags=re.IGNORECASE)
+    text = re.sub(r'implement implement', 'implement', text, flags=re.IGNORECASE)
+    text = re.sub(r'leverage leverage', 'leverage', text, flags=re.IGNORECASE)
+    text = re.sub(r'utilize utilize', 'utilize', text, flags=re.IGNORECASE)
+    text = re.sub(r'create create', 'create', text, flags=re.IGNORECASE)
+    text = re.sub(r'develop develop', 'develop', text, flags=re.IGNORECASE)
+    text = re.sub(r'optimize optimize', 'optimize', text, flags=re.IGNORECASE)
+    text = re.sub(r'enhance enhance', 'enhance', text, flags=re.IGNORECASE)
+    text = re.sub(r'increase increase', 'increase', text, flags=re.IGNORECASE)
+    text = re.sub(r'decrease decrease', 'decrease', text, flags=re.IGNORECASE)
+    text = re.sub(r'improve improve', 'improve', text, flags=re.IGNORECASE)
+    
+    # Fix common transition phrase repetitions
+    text = re.sub(r'in order to in order to', 'in order to', text, flags=re.IGNORECASE)
+    text = re.sub(r'in addition in addition', 'in addition', text, flags=re.IGNORECASE)
+    text = re.sub(r'furthermore furthermore', 'furthermore', text, flags=re.IGNORECASE)
+    text = re.sub(r'therefore therefore', 'therefore', text, flags=re.IGNORECASE)
+    text = re.sub(r'however however', 'however', text, flags=re.IGNORECASE)
+    text = re.sub(r'moreover moreover', 'moreover', text, flags=re.IGNORECASE)
     
     # Fix multiple spaces
     text = re.sub(r'\s+', ' ', text)
+    
+    # Ensure proper spacing after periods (for sentence breaks)
+    text = re.sub(r'\.([A-Z])', '. \1', text)
+    
+    # Fix common AI text artifacts that indicate uncertainty
+    text = re.sub(r'I (would|recommend|suggest|believe)', r'We \1', text)
+    text = re.sub(r'Based on (my|the) analysis', 'Based on analysis', text)
     
     return text.strip()
 

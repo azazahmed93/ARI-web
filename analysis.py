@@ -237,52 +237,72 @@ def analyze_campaign_brief(brief_text):
     # Calculate synthetic scores based on text features and brand/industry context
     scores = {}
     
-    # Dynamic scoring multipliers based on industry
-    industry_multipliers = {
-        "Sports": {
-            "representation": 1.6, "cultural": 1.4, "platform": 1.3, "vernacular": 1.5,
-            "equity": 1.2, "authority": 1.4, "buzz": 1.7, "commerce": 1.5, "geo": 1.3
-        },
-        "Technology": {
-            "representation": 1.3, "cultural": 1.2, "platform": 1.7, "vernacular": 1.4,
-            "equity": 1.3, "authority": 1.5, "buzz": 1.5, "commerce": 1.6, "geo": 1.2
-        },
-        "Fashion": {
-            "representation": 1.7, "cultural": 1.8, "platform": 1.5, "vernacular": 1.6,
-            "equity": 1.4, "authority": 1.3, "buzz": 1.6, "commerce": 1.5, "geo": 1.3
-        },
-        "Food & Beverage": {
-            "representation": 1.4, "cultural": 1.5, "platform": 1.3, "vernacular": 1.4,
-            "equity": 1.3, "authority": 1.4, "buzz": 1.5, "commerce": 1.6, "geo": 1.5
-        },
-        "Beauty": {
-            "representation": 1.8, "cultural": 1.6, "platform": 1.4, "vernacular": 1.5,
-            "equity": 1.5, "authority": 1.3, "buzz": 1.5, "commerce": 1.5, "geo": 1.3
-        },
-        "Automotive": {
-            "representation": 1.3, "cultural": 1.4, "platform": 1.3, "vernacular": 1.4,
-            "equity": 1.2, "authority": 1.6, "buzz": 1.4, "commerce": 1.7, "geo": 1.5
-        },
-        "Finance": {
-            "representation": 1.2, "cultural": 1.1, "platform": 1.4, "vernacular": 1.3,
-            "equity": 1.5, "authority": 1.7, "buzz": 1.2, "commerce": 1.6, "geo": 1.4
-        },
-        "Healthcare": {
-            "representation": 1.6, "cultural": 1.3, "platform": 1.2, "vernacular": 1.4,
-            "equity": 1.6, "authority": 1.7, "buzz": 1.3, "commerce": 1.4, "geo": 1.5
-        },
-        "Entertainment": {
-            "representation": 1.7, "cultural": 1.8, "platform": 1.6, "vernacular": 1.7,
-            "equity": 1.4, "authority": 1.5, "buzz": 1.8, "commerce": 1.4, "geo": 1.3
-        },
-        "General": {
-            "representation": 1.5, "cultural": 1.4, "platform": 1.4, "vernacular": 1.4,
-            "equity": 1.4, "authority": 1.4, "buzz": 1.5, "commerce": 1.5, "geo": 1.4
-        }
+    # Create a unique hash from the brief_text to seed the randomness 
+    # but keep it deterministic for the same brief
+    import hashlib
+    brief_hash = int(hashlib.md5(brief_text.encode()).hexdigest(), 16) % 10000
+    
+    # Create a more dynamic multiplier system that varies based on the actual brief content
+    # rather than using static industry values
+    
+    # First set up base multipliers influenced by the brief hash
+    base_multipliers = {
+        "representation": 1.2 + (brief_hash % 100) / 200,  # Range: 1.2-1.7
+        "cultural": 1.1 + (brief_hash % 120) / 200,  # Range: 1.1-1.7
+        "platform": 1.2 + (brief_hash % 140) / 200,  # Range: 1.2-1.9
+        "vernacular": 1.2 + (brief_hash % 80) / 200,  # Range: 1.2-1.6
+        "equity": 1.1 + (brief_hash % 100) / 200,  # Range: 1.1-1.6
+        "authority": 1.2 + (brief_hash % 110) / 200,  # Range: 1.2-1.75
+        "buzz": 1.2 + (brief_hash % 120) / 200,  # Range: 1.2-1.8
+        "commerce": 1.3 + (brief_hash % 90) / 200,  # Range: 1.3-1.75
+        "geo": 1.1 + (brief_hash % 80) / 200,  # Range: 1.1-1.5
     }
     
-    # Default multipliers if industry not found
-    multipliers = industry_multipliers.get(industry, industry_multipliers["General"])
+    # Now adjust these multipliers based on keyword presence in the brief
+    # This ensures the scores directly reflect the brief content
+    keyword_adjustments = {
+        "representation": ["representation", "diversity", "inclusive", "identity"],
+        "cultural": ["culture", "cultural", "relevant", "lifestyle", "trend"],
+        "platform": ["platform", "social", "channel", "digital", "online"],
+        "vernacular": ["voice", "language", "tone", "message", "authentic"],
+        "equity": ["equity", "minority", "owned", "diverse", "representation"],
+        "authority": ["expert", "authority", "credible", "trusted", "leader"],
+        "buzz": ["viral", "buzz", "conversation", "trending", "engagement"],
+        "commerce": ["purchase", "conversion", "consumer", "shop", "acquisition"],
+        "geo": ["local", "region", "community", "area", "market"]
+    }
+    
+    # Count how many keywords from each category appear in the brief
+    # and adjust multipliers accordingly
+    dynamic_multipliers = base_multipliers.copy()
+    for category, keywords in keyword_adjustments.items():
+        keyword_count = sum(1 for keyword in keywords if keyword in brief_text.lower())
+        # Adjust multiplier: more keywords = higher multiplier (up to +0.5)
+        adjustment = min(0.5, keyword_count * 0.1)
+        dynamic_multipliers[category] += adjustment
+    
+    # Further adjust based on industry, but make it a smaller factor
+    # compared to the actual brief content
+    industry_bonus = {
+        "Sports": {"buzz": 0.2, "cultural": 0.15, "representation": 0.1},
+        "Technology": {"platform": 0.2, "commerce": 0.15, "authority": 0.1},
+        "Fashion": {"cultural": 0.2, "representation": 0.15, "vernacular": 0.1},
+        "Food & Beverage": {"commerce": 0.15, "geo": 0.2, "cultural": 0.1},
+        "Beauty": {"representation": 0.2, "cultural": 0.15, "commerce": 0.1},
+        "Automotive": {"authority": 0.15, "commerce": 0.2, "geo": 0.1},
+        "Finance": {"authority": 0.2, "commerce": 0.15, "equity": 0.1},
+        "Healthcare": {"authority": 0.2, "equity": 0.15, "representation": 0.1},
+        "Entertainment": {"buzz": 0.2, "cultural": 0.2, "platform": 0.15},
+        "General": {}
+    }
+    
+    # Apply industry bonus if industry is recognized
+    if industry in industry_bonus:
+        for category, bonus in industry_bonus[industry].items():
+            dynamic_multipliers[category] += bonus
+    
+    # Use these dynamic multipliers for scoring
+    multipliers = dynamic_multipliers
     
     # Representation score
     representation_terms = ['representation', 'diverse', 'diversity', 'inclusive', 'inclusion', 
