@@ -484,7 +484,8 @@ def main():
             st.session_state.improvement_areas,
             st.session_state.brand_name,
             st.session_state.industry,
-            st.session_state.product_type
+            st.session_state.product_type,
+            st.session_state.brief_text
         )
     
     # Footer
@@ -510,12 +511,12 @@ def is_siteone_hispanic_campaign(brand_name, brief_text):
     # Use the centralized detection function from ai_insights module
     return is_siteone_hispanic_content(combined_text)
 
-def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product"):
+def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product", brief_text=""):
     """Display the ARI analysis results."""
     st.markdown("---")
     
     # Check if this is a SiteOne Hispanic campaign
-    is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, st.session_state.brief_text)
+    is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
     # Display standard scorecard title with no brand reference
     st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
@@ -534,7 +535,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     st.markdown("---")
     
     # Display metrics summary (replaced radar chart)
-    display_summary_metrics(scores)
+    display_summary_metrics(scores, brief_text)
     
     # Create a more professional metric breakdown section
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
@@ -780,9 +781,27 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         else:
             strength_text = f"{strength_areas[0]}" if strength_areas else "cultural relevance"
             
+        # Determine audience type based on the brief content
+        audience_type = "Hispanic" if "SiteOne" in brand_name and is_siteone_hispanic_campaign(brand_name, brief_text) else "general market"
+        
+        # Dynamic audience detection
+        if brief_text:
+            if "Gen Z" in brief_text or "GenZ" in brief_text or "Generation Z" in brief_text:
+                audience_type = "Gen Z"
+            elif "Millennial" in brief_text:
+                audience_type = "Millennial"
+            elif "Hispanic" in brief_text or "Latino" in brief_text or "Spanish" in brief_text:
+                audience_type = "Hispanic"
+            elif "Black" in brief_text or "African American" in brief_text:
+                audience_type = "African American"
+            elif "Asian" in brief_text:
+                audience_type = "Asian American"
+            elif "LGBTQ" in brief_text or "LGBT" in brief_text:
+                audience_type = "LGBTQ+"
+            
         st.markdown(f"""
         <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
             for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in {strength_text} — 
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
             <br><br>
@@ -790,10 +809,28 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         </div>
         """, unsafe_allow_html=True)
     else:
+        # Determine audience type based on the brief content (fallback case)
+        audience_type = "Hispanic" if "SiteOne" in brand_name and is_siteone_hispanic_campaign(brand_name, brief_text) else "general market"
+        
+        # Dynamic audience detection
+        if brief_text:
+            if "Gen Z" in brief_text or "GenZ" in brief_text or "Generation Z" in brief_text:
+                audience_type = "Gen Z"
+            elif "Millennial" in brief_text:
+                audience_type = "Millennial"
+            elif "Hispanic" in brief_text or "Latino" in brief_text or "Spanish" in brief_text:
+                audience_type = "Hispanic"
+            elif "Black" in brief_text or "African American" in brief_text:
+                audience_type = "African American"
+            elif "Asian" in brief_text:
+                audience_type = "Asian American"
+            elif "LGBTQ" in brief_text or "LGBT" in brief_text:
+                audience_type = "LGBTQ+"
+            
         # Fallback if AI insights aren't available
         st.markdown(f"""
         <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of Gen Z-facing national campaigns
+            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
             for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in relevance, authenticity, and emotional connection — 
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
             <br><br>
@@ -1227,12 +1264,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         </a>
         """, unsafe_allow_html=True)
 
-def display_summary_metrics(scores):
+def display_summary_metrics(scores, brief_text=""):
     """
     Display a summary of key metrics using a radar chart visualization.
     
     Args:
         scores (dict): Dictionary of metric scores
+        brief_text (str, optional): The brief text for audience analysis
     """
     # Create a summary section header
     st.markdown('<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix</h4></div>', unsafe_allow_html=True)
