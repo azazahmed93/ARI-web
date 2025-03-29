@@ -25,6 +25,30 @@ from assets.content import (
     METRICS
 )
 
+# Utility function to ensure all table cells are properly formatted
+def ensure_paragraph(cell, style):
+    """
+    Ensures that a cell value is a proper Paragraph object.
+    
+    Args:
+        cell: Cell value which could be None, string, or Paragraph
+        style: The style to apply if converting to Paragraph
+        
+    Returns:
+        Paragraph: A properly formatted Paragraph object
+    """
+    if cell is None:
+        return Paragraph("", style)
+    elif isinstance(cell, str):
+        return Paragraph(cell, style)
+    elif isinstance(cell, Paragraph):
+        return cell
+    elif isinstance(cell, Drawing):
+        return cell
+    else:
+        # Convert anything else to string and wrap in Paragraph
+        return Paragraph(str(cell), style)
+
 # Remove HTML tags from a string
 def strip_html(text):
     """Remove HTML tags from a string."""
@@ -192,10 +216,10 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                  draw.add(String(15, 13, "DCG", fontSize=8, fillColor=HexColor('#FFFFFF'), textAnchor='middle')),
                  draw))(),
         # Add title text
-        Paragraph(f"AUDIENCE RESONANCE INDEX™", 
+        ensure_paragraph(f"AUDIENCE RESONANCE INDEX™", 
                  ParagraphStyle('HeaderTitle', fontSize=14, textColor=HexColor('#5865f2'), fontName='Helvetica-Bold')),
         # Add date on the right
-        Paragraph(f"REPORT DATE: MARCH 29, 2025", 
+        ensure_paragraph(f"REPORT DATE: MARCH 29, 2025", 
                  ParagraphStyle('HeaderDate', fontSize=8, alignment=TA_RIGHT))
     ]]
     
@@ -216,16 +240,16 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Add title with brand name if available
     if brand_name != "Unknown":
-        content.append(Paragraph(f"{brand_name} Audience Resonance Index™ Scorecard", title_style))
+        content.append(ensure_paragraph(f"{brand_name} Audience Resonance Index™ Scorecard", title_style))
     else:
-        content.append(Paragraph("Audience Resonance Index™ Scorecard", title_style))
+        content.append(ensure_paragraph("Audience Resonance Index™ Scorecard", title_style))
     content.append(Spacer(1, 12))
     
     # Add brand info if available
     if brand_name != "Unknown" and industry != "General":
         # Create styled brand info box
         brand_info_table = Table([[
-            Paragraph(f"Industry: <b>{industry}</b> | Product Type: <b>{product_type}</b>", 
+            ensure_paragraph(f"Industry: <b>{industry}</b> | Product Type: <b>{product_type}</b>", 
                     ParagraphStyle('BrandInfo', parent=normal_style, alignment=TA_CENTER))
         ]], colWidths=[500])
         brand_info_table.setStyle(TableStyle([
@@ -239,10 +263,10 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         content.append(Spacer(1, 12))
     
     # Metric Breakdown
-    content.append(Paragraph("Metric Breakdown", heading1_style))
+    content.append(ensure_paragraph("Metric Breakdown", heading1_style))
     
     # Add radar chart
-    content.append(Paragraph("Audience Resonance Index™ Visualization", heading1_style))
+    content.append(ensure_paragraph("Audience Resonance Index™ Visualization", heading1_style))
     content.append(Spacer(1, 6))
     
     # Calculate radar chart size based on metrics count
@@ -251,15 +275,15 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # Metric Breakdown with progress bars
-    content.append(Paragraph("Metric Breakdown", heading1_style))
+    content.append(ensure_paragraph("Metric Breakdown", heading1_style))
     content.append(Spacer(1, 6))
     
     # Create metrics with progress bars instead of table
     for metric, score in scores.items():
         # Metric name and score in a table
         metric_header = Table([[
-            Paragraph(f"<b>{metric}</b>", metric_title_style),
-            Paragraph(f"<b>{score}/10</b>", ParagraphStyle('Score', parent=metric_value_style, alignment=TA_RIGHT))
+            ensure_paragraph(f"<b>{metric}</b>", metric_title_style),
+            ensure_paragraph(f"<b>{score}/10</b>", ParagraphStyle('Score', parent=metric_value_style, alignment=TA_RIGHT))
         ]], colWidths=[400, 100])
         metric_header.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), HexColor('#f8fafc')),
@@ -286,11 +310,11 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         
         # Description
         description = METRICS[metric][level]
-        content.append(Paragraph(description, description_style))
+        content.append(ensure_paragraph(description, description_style))
         content.append(Spacer(1, 12))
     
     # Benchmark section with visualization
-    content.append(Paragraph("Hyperdimensional Campaign Performance Matrix", heading1_style))
+    content.append(ensure_paragraph("Hyperdimensional Campaign Performance Matrix", heading1_style))
     
     # Create benchmark visualization
     benchmark_viz = Drawing(500, 70)
@@ -368,11 +392,11 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         
         improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
     
-    content.append(Paragraph(benchmark_text, normal_style))
+    content.append(ensure_paragraph(benchmark_text, normal_style))
     content.append(Spacer(1, 6))
     
     # Improvement areas with styling
-    content.append(Paragraph("Priority Enhancement Opportunities", 
+    content.append(ensure_paragraph("Priority Enhancement Opportunities", 
                            ParagraphStyle('OpportunityHeading', parent=heading1_style, fontSize=12)))
     content.append(Spacer(1, 4))
     
@@ -382,7 +406,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Create a row for each improvement area with an arrow icon
     for area in improvement_areas:
         improvement_data.append([
-            Paragraph(f"→ {area}", 
+            ensure_paragraph(f"→ {area}", 
                     ParagraphStyle('Improvement', parent=normal_style, textColor=HexColor('#5865f2')))
         ])
     
@@ -402,7 +426,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Media Affinity section with styled header
     media_header = Table([[
-        Paragraph("Media Affinities & Audience Insights", title_style)
+        ensure_paragraph("Media Affinities & Audience Insights", title_style)
     ]], colWidths=[500])
     media_header.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), HexColor('#5865f2')),
@@ -416,8 +440,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # Top Media Affinity Sites
-    content.append(Paragraph("Top Media Affinity Sites", heading1_style))
-    content.append(Paragraph("QVI = Quality Visit Index, a score indicating audience engagement strength", description_style))
+    content.append(ensure_paragraph("Top Media Affinity Sites", heading1_style))
+    content.append(ensure_paragraph("QVI = Quality Visit Index, a score indicating audience engagement strength", description_style))
     
     # Create media sites table with 5 columns
     media_site_data = []
@@ -429,13 +453,13 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
         <font color="#3b82f6">Visit Site</font>"""
         
-        row.append(Paragraph(site_cell, normal_style))
+        row.append(ensure_paragraph(site_cell, normal_style))
         
         # After 5 sites, start a new row
         if (i + 1) % 5 == 0 or i == len(MEDIA_AFFINITY_SITES) - 1:
             # Pad the row if needed
             while len(row) < 5:
-                row.append(Paragraph("", normal_style))
+                row.append(ensure_paragraph("", normal_style))
             media_site_data.append(row)
             row = []
     
@@ -466,7 +490,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # TV Network Affinities
-    content.append(Paragraph("Top TV Network Affinities", heading1_style))
+    content.append(ensure_paragraph("Top TV Network Affinities", heading1_style))
     
     # Create TV networks table with 5 columns
     tv_network_data = []
@@ -477,13 +501,13 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         {network['category']}<br/>
         <font color="#1e88e5"><b>QVI: {network['qvi']}</b></font>"""
         
-        row.append(Paragraph(network_cell, normal_style))
+        row.append(ensure_paragraph(network_cell, normal_style))
         
         # After 5 networks, start a new row
         if (i + 1) % 5 == 0 or i == len(TV_NETWORKS) - 1:
             # Pad the row if needed
             while len(row) < 5:
-                row.append(Paragraph("", normal_style))
+                row.append(ensure_paragraph("", normal_style))
             tv_network_data.append(row)
             row = []
     
@@ -513,7 +537,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # Streaming Platforms
-    content.append(Paragraph("Top Streaming Platforms", heading1_style))
+    content.append(ensure_paragraph("Top Streaming Platforms", heading1_style))
     
     # Create streaming platforms table with 3 columns
     streaming_data = []
@@ -524,13 +548,13 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         {platform['category']}<br/>
         <font color="#059669"><b>QVI: {platform['qvi']}</b></font>"""
         
-        row.append(Paragraph(platform_cell, normal_style))
+        row.append(ensure_paragraph(platform_cell, normal_style))
         
         # After 3 platforms, start a new row
         if (i + 1) % 3 == 0 or i == len(STREAMING_PLATFORMS) - 1:
             # Pad the row if needed
             while len(row) < 3:
-                row.append(Paragraph("", normal_style))
+                row.append(ensure_paragraph("", normal_style))
             streaming_data.append(row)
             row = []
     
@@ -560,28 +584,28 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # Psychographic Highlights
-    content.append(Paragraph("Psychographic Highlights", heading1_style))
-    psycho_text = strip_html(PSYCHOGRAPHIC_HIGHLIGHTS)
-    content.append(Paragraph(psycho_text, normal_style))
+    content.append(ensure_paragraph("Psychographic Highlights", heading1_style))
+    psycho_text = strip_html(PSYCHOGRAPHIC_HIGHLIGHTS) if PSYCHOGRAPHIC_HIGHLIGHTS else ""
+    content.append(ensure_paragraph(psycho_text, normal_style))
     content.append(Spacer(1, 12))
     
     # Audience Summary
-    content.append(Paragraph("Audience Summary", heading1_style))
-    audience_text = strip_html(AUDIENCE_SUMMARY)
-    content.append(Paragraph(audience_text, normal_style))
+    content.append(ensure_paragraph("Audience Summary", heading1_style))
+    audience_text = strip_html(AUDIENCE_SUMMARY) if AUDIENCE_SUMMARY else ""
+    content.append(ensure_paragraph(audience_text, normal_style))
     content.append(Spacer(1, 12))
     
     # What's Next?
-    content.append(Paragraph("What's Next?", heading1_style))
-    next_text = strip_html(NEXT_STEPS)
-    content.append(Paragraph(next_text, normal_style))
+    content.append(ensure_paragraph("What's Next?", heading1_style))
+    next_text = strip_html(NEXT_STEPS) if NEXT_STEPS else ""
+    content.append(ensure_paragraph(next_text, normal_style))
     
-    content.append(Paragraph('Let\'s build a breakthrough growth strategy — Digital Culture Group has proven tactics that boost underperforming areas.', 
+    content.append(ensure_paragraph('Let\'s build a breakthrough growth strategy — Digital Culture Group has proven tactics that boost underperforming areas.', 
                            ParagraphStyle('Blue', parent=normal_style, textColor=HexColor('#5865f2'))))
     content.append(Spacer(1, 12))
     
     # Footer
-    content.append(Paragraph('© 2025 Digital Culture Group, LLC. All rights reserved', 
+    content.append(ensure_paragraph('© 2025 Digital Culture Group, LLC. All rights reserved', 
                           ParagraphStyle('Footer', parent=normal_style, alignment=TA_CENTER, fontSize=8, textColor=HexColor('#808080'))))
     
     # Build the PDF
