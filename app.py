@@ -1933,9 +1933,58 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     st.markdown("✓ Executive Summary")
         
         with col2:
-            # Generate and display the PDF download link
-            pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type)
+            # PDF customization section with styled container
+            st.markdown("""
+            <div style="background-color: #f8fafc; border-radius: 10px; padding: 20px; border: 1px solid #e2e8f0;">
+                <h3 style="margin-top: 0; color: #1e293b; font-size: 1.5rem; margin-bottom: 15px;">Customize Your Report</h3>
+                <p style="color: #475569; margin-bottom: 15px;">Select which sections to include in your PDF report:</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Create three columns for a more organized layout
+            check_col1, check_col2 = st.columns(2)
+            
+            with check_col1:
+                # First column of checkboxes with custom styling
+                st.markdown('<div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 10px;">', unsafe_allow_html=True)
+                include_metrics = st.checkbox("Advanced Metrics", value=True)
+                include_benchmark = st.checkbox("Benchmark Comparison", value=True)
+                include_media = st.checkbox("Media Affinities", value=True)
+                include_tv = st.checkbox("TV Networks", value=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            with check_col2:
+                # Second column of checkboxes with custom styling
+                st.markdown('<div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 10px;">', unsafe_allow_html=True)
+                include_streaming = st.checkbox("Streaming Platforms", value=True)
+                include_psychographic = st.checkbox("Psychographic Highlights", value=True)
+                include_audience = st.checkbox("Audience Summary", value=True)
+                include_next_steps = st.checkbox("Next Steps", value=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Additional checkbox for trend analysis with highlight styling
+            st.markdown('<div style="background-color: #ecfdf5; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin: 15px 0;">', unsafe_allow_html=True)
+            include_trends = st.checkbox("Marketing Trend Analysis", value=True, help="Include the marketing trend heatmap and key trend insights in your report")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Create dictionary of sections to include
+            include_sections = {
+                'metrics': include_metrics,
+                'benchmark': include_benchmark,
+                'media_affinities': include_media,
+                'tv_networks': include_tv,
+                'streaming': include_streaming,
+                'psychographic': include_psychographic,
+                'audience': include_audience,
+                'next_steps': include_next_steps,
+                'trends': include_trends
+            }
+            
+            # Generate and display the PDF download link with section selections
+            st.markdown('<div style="margin-top: 20px; text-align: center;">', unsafe_allow_html=True)
+            pdf_link = create_pdf_download_link(scores, improvement_areas, percentile, brand_name, industry, product_type, include_sections, brief_text)
             st.markdown(pdf_link, unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
     
     # Priority improvement recommendations have been moved to the tabs above in the Campaign Intelligence section
     

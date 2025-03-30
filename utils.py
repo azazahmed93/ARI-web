@@ -28,7 +28,7 @@ def strip_html(text):
     return re.sub('<[^<]+?>', '', text).strip()
 
 def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="Unknown", industry="General", product_type="Product", 
-                       include_sections=None):
+                       include_sections=None, brief_text=""):
     """
     Create a PDF report and return a download link.
     
@@ -41,8 +41,9 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         product_type (str): Type of product being promoted
         include_sections (dict, optional): Dictionary of section flags to include/exclude
             keys: 'metrics', 'benchmark', 'media_affinities', 'tv_networks', 
-                 'streaming', 'psychographic', 'audience', 'next_steps'
+                 'streaming', 'psychographic', 'audience', 'next_steps', 'trends'
             values: boolean (True to include, False to exclude)
+        brief_text (str, optional): The full text of the brief for context-specific insights
     
     Returns:
         str: HTML link for downloading the PDF
@@ -212,172 +213,250 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         content.append(Spacer(1, 12))
     
     # Media Affinity section - use the same title_style for consistent centering
-    content.append(Paragraph("Media Affinities & Audience Insights", title_style))
-    content.append(Spacer(1, 12))
+    if any([include_sections.get('media_affinities', True), 
+            include_sections.get('tv_networks', True),
+            include_sections.get('streaming', True)]):
+        content.append(Paragraph("Media Affinities & Audience Insights", title_style))
+        content.append(Spacer(1, 12))
     
     # Top Media Affinity Sites
-    content.append(Paragraph("Top Media Affinity Sites", heading1_style))
-    content.append(Paragraph("QVI = Quality Visit Index, a score indicating audience engagement strength", description_style))
-    
-    # Create media sites table with 5 columns
-    media_site_data = []
-    row = []
-    
-    for i, site in enumerate(MEDIA_AFFINITY_SITES):
-        site_cell = f"""<b>{site['name']}</b><br/>
-        {site['category']}<br/>
-        <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
-        <font color="#3b82f6">Visit Site</font>"""
+    if include_sections.get('media_affinities', True):
+        content.append(Paragraph("Top Media Affinity Sites", heading1_style))
+        content.append(Paragraph("QVI = Quality Visit Index, a score indicating audience engagement strength", description_style))
         
-        row.append(Paragraph(site_cell, normal_style))
+        # Create media sites table with 5 columns
+        media_site_data = []
+        row = []
         
-        # After 5 sites, start a new row
-        if (i + 1) % 5 == 0 or i == len(MEDIA_AFFINITY_SITES) - 1:
-            # Pad the row if needed
-            while len(row) < 5:
-                row.append("")
-            media_site_data.append(row)
-            row = []
-    
-    # Create media table
-    col_width = 100
-    media_table = Table(media_site_data, colWidths=[col_width] * 5)
-    
-    # Define styles for the table
-    media_styles = [
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]
-    
-    # Apply background colors to each cell with content
-    for row_idx, row in enumerate(media_site_data):
-        for col_idx, cell in enumerate(row):
-            if cell:
-                media_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#e0edff')))
-    
-    media_table.setStyle(TableStyle(media_styles))
-    
-    content.append(media_table)
-    content.append(Spacer(1, 12))
+        for i, site in enumerate(MEDIA_AFFINITY_SITES):
+            site_cell = f"""<b>{site['name']}</b><br/>
+            {site['category']}<br/>
+            <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
+            <font color="#3b82f6">Visit Site</font>"""
+            
+            row.append(Paragraph(site_cell, normal_style))
+            
+            # After 5 sites, start a new row
+            if (i + 1) % 5 == 0 or i == len(MEDIA_AFFINITY_SITES) - 1:
+                # Pad the row if needed
+                while len(row) < 5:
+                    row.append("")
+                media_site_data.append(row)
+                row = []
+        
+        # Create media table
+        col_width = 100
+        media_table = Table(media_site_data, colWidths=[col_width] * 5)
+        
+        # Define styles for the table
+        media_styles = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]
+        
+        # Apply background colors to each cell with content
+        for row_idx, row in enumerate(media_site_data):
+            for col_idx, cell in enumerate(row):
+                if cell:
+                    media_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#e0edff')))
+        
+        media_table.setStyle(TableStyle(media_styles))
+        
+        content.append(media_table)
+        content.append(Spacer(1, 12))
     
     # TV Network Affinities
-    content.append(Paragraph("Top TV Network Affinities", heading1_style))
-    
-    # Create TV networks table with 5 columns
-    tv_network_data = []
-    row = []
-    
-    for i, network in enumerate(TV_NETWORKS):
-        network_cell = f"""<b>{network['name']}</b><br/>
-        {network['category']}<br/>
-        <font color="#1e88e5"><b>QVI: {network['qvi']}</b></font>"""
+    if include_sections.get('tv_networks', True):
+        content.append(Paragraph("Top TV Network Affinities", heading1_style))
         
-        row.append(Paragraph(network_cell, normal_style))
+        # Create TV networks table with 5 columns
+        tv_network_data = []
+        row = []
+        tv_col_width = 100  # Define column width for TV networks
         
-        # After 5 networks, start a new row
-        if (i + 1) % 5 == 0 or i == len(TV_NETWORKS) - 1:
-            # Pad the row if needed
-            while len(row) < 5:
-                row.append("")
-            tv_network_data.append(row)
-            row = []
-    
-    # Create TV network table
-    tv_network_table = Table(tv_network_data, colWidths=[col_width] * 5)
-    
-    # Define styles for the table
-    tv_styles = [
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]
-    
-    # Apply background colors to each cell with content
-    for row_idx, row in enumerate(tv_network_data):
-        for col_idx, cell in enumerate(row):
-            if cell:
-                tv_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#dbeafe')))
-    
-    tv_network_table.setStyle(TableStyle(tv_styles))
-    
-    content.append(tv_network_table)
-    content.append(Spacer(1, 12))
+        for i, network in enumerate(TV_NETWORKS):
+            network_cell = f"""<b>{network['name']}</b><br/>
+            {network['category']}<br/>
+            <font color="#1e88e5"><b>QVI: {network['qvi']}</b></font>"""
+            
+            row.append(Paragraph(network_cell, normal_style))
+            
+            # After 5 networks, start a new row
+            if (i + 1) % 5 == 0 or i == len(TV_NETWORKS) - 1:
+                # Pad the row if needed
+                while len(row) < 5:
+                    row.append("")
+                tv_network_data.append(row)
+                row = []
+        
+        # Create TV network table
+        tv_network_table = Table(tv_network_data, colWidths=[tv_col_width] * 5)
+        
+        # Define styles for the table
+        tv_styles = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]
+        
+        # Apply background colors to each cell with content
+        for row_idx, row in enumerate(tv_network_data):
+            for col_idx, cell in enumerate(row):
+                if cell:
+                    tv_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#dbeafe')))
+        
+        tv_network_table.setStyle(TableStyle(tv_styles))
+        
+        content.append(tv_network_table)
+        content.append(Spacer(1, 12))
     
     # Streaming Platforms
-    content.append(Paragraph("Top Streaming Platforms", heading1_style))
-    
-    # Create streaming platforms table with 3 columns
-    streaming_data = []
-    row = []
-    
-    for i, platform in enumerate(STREAMING_PLATFORMS):
-        platform_cell = f"""<b>{platform['name']}</b><br/>
-        {platform['category']}<br/>
-        <font color="#059669"><b>QVI: {platform['qvi']}</b></font>"""
+    if include_sections.get('streaming', True):
+        content.append(Paragraph("Top Streaming Platforms", heading1_style))
         
-        row.append(Paragraph(platform_cell, normal_style))
+        # Create streaming platforms table with 3 columns
+        streaming_data = []
+        row = []
         
-        # After 3 platforms, start a new row
-        if (i + 1) % 3 == 0 or i == len(STREAMING_PLATFORMS) - 1:
-            # Pad the row if needed
-            while len(row) < 3:
-                row.append("")
-            streaming_data.append(row)
-            row = []
-    
-    # Create streaming table
-    streaming_table = Table(streaming_data, colWidths=[170] * 3)
-    
-    # Define styles for the table
-    streaming_styles = [
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]
-    
-    # Apply background colors to each cell with content
-    for row_idx, row in enumerate(streaming_data):
-        for col_idx, cell in enumerate(row):
-            if cell:
-                streaming_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#d1fae5')))
-    
-    streaming_table.setStyle(TableStyle(streaming_styles))
-    
-    content.append(streaming_table)
-    content.append(Spacer(1, 12))
+        for i, platform in enumerate(STREAMING_PLATFORMS):
+            platform_cell = f"""<b>{platform['name']}</b><br/>
+            {platform['category']}<br/>
+            <font color="#059669"><b>QVI: {platform['qvi']}</b></font>"""
+            
+            row.append(Paragraph(platform_cell, normal_style))
+            
+            # After 3 platforms, start a new row
+            if (i + 1) % 3 == 0 or i == len(STREAMING_PLATFORMS) - 1:
+                # Pad the row if needed
+                while len(row) < 3:
+                    row.append("")
+                streaming_data.append(row)
+                row = []
+        
+        # Create streaming table
+        streaming_table = Table(streaming_data, colWidths=[170] * 3)
+        
+        # Define styles for the table
+        streaming_styles = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]
+        
+        # Apply background colors to each cell with content
+        for row_idx, row in enumerate(streaming_data):
+            for col_idx, cell in enumerate(row):
+                if cell:
+                    streaming_styles.append(('BACKGROUND', (col_idx, row_idx), (col_idx, row_idx), HexColor('#d1fae5')))
+        
+        streaming_table.setStyle(TableStyle(streaming_styles))
+        
+        content.append(streaming_table)
+        content.append(Spacer(1, 12))
     
     # Psychographic Highlights
-    content.append(Paragraph("Psychographic Highlights", heading1_style))
-    psycho_text = strip_html(PSYCHOGRAPHIC_HIGHLIGHTS)
-    content.append(Paragraph(psycho_text, normal_style))
-    content.append(Spacer(1, 12))
+    if include_sections.get('psychographic', True):
+        content.append(Paragraph("Psychographic Highlights", heading1_style))
+        psycho_text = strip_html(PSYCHOGRAPHIC_HIGHLIGHTS)
+        content.append(Paragraph(psycho_text, normal_style))
+        content.append(Spacer(1, 12))
     
     # Audience Summary
-    content.append(Paragraph("Audience Summary", heading1_style))
-    audience_text = strip_html(AUDIENCE_SUMMARY)
-    content.append(Paragraph(audience_text, normal_style))
-    content.append(Spacer(1, 12))
+    if include_sections.get('audience', True):
+        content.append(Paragraph("Audience Summary", heading1_style))
+        audience_text = strip_html(AUDIENCE_SUMMARY)
+        content.append(Paragraph(audience_text, normal_style))
+        content.append(Spacer(1, 12))
+    
+    # Marketing Trend Analysis
+    if include_sections.get('trends', True):
+        content.append(Paragraph("Marketing Trend Analysis", heading1_style))
+        
+        # Add trend insights
+        content.append(Paragraph("Top Marketing Trends Relevant to Your Campaign", 
+                              ParagraphStyle('SubHeading', parent=normal_style, fontSize=12, fontName='Helvetica-Bold')))
+        
+        # Import marketing trends data
+        from marketing_trends import generate_simplified_trend_data
+        top_trends, top_markets, top_combinations = generate_simplified_trend_data(brief_text=brief_text)
+        
+        # Add top trends
+        content.append(Paragraph("Emerging Trends:", 
+                              ParagraphStyle('BulletHeader', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
+        
+        for trend in top_trends[:3]:  # Show top 3 trends
+            if isinstance(trend, dict):
+                trend_text = f"• {trend.get('trend', 'Unknown')}: {trend.get('growth', 0)}% growth"
+            else:
+                # Handle case where trend might be a float or other type
+                trend_text = f"• Generic Trend: {trend}% growth"
+            content.append(Paragraph(trend_text, normal_style))
+        
+        content.append(Spacer(1, 6))
+        
+        # Add top markets
+        content.append(Paragraph("High-Performance Markets:", 
+                              ParagraphStyle('BulletHeader', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
+        
+        for market in top_markets[:3]:  # Show top 3 markets
+            if isinstance(market, dict):
+                market_text = f"• {market.get('market', 'Unknown')}: {market.get('index', 0)} engagement index"
+            else:
+                # Handle case where market might be a float or other type
+                market_text = f"• Generic Market: {market} engagement index"
+            content.append(Paragraph(market_text, normal_style))
+        
+        content.append(Spacer(1, 6))
+        
+        # Add trend applications
+        content.append(Paragraph("Strategic Applications:", 
+                              ParagraphStyle('BulletHeader', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
+        
+        # Get trend applications from AI insights if available in session state
+        trend_applications = []
+        if hasattr(st, 'session_state') and 'ai_insights' in st.session_state:
+            trend_applications = st.session_state.ai_insights.get('trends', [])
+        
+        # If AI insights not available, use default applications
+        if not trend_applications:
+            trend_applications = [
+                {"trend": "Interactive Video", "application": "Implement interactive video ads that allow viewers to engage with product features"},
+                {"trend": "Audio Advertising", "application": "Develop targeted audio ads for streaming platforms to reach on-the-go audiences"},
+                {"trend": "Immersive Experiences", "application": "Create virtual try-on experiences to boost engagement and purchase intent"}
+            ]
+        
+        # Add trend applications to the report
+        for app in trend_applications[:3]:  # Show top 3 applications
+            if isinstance(app, dict):
+                app_text = f"• {app.get('trend', 'Unknown')}: {app.get('application', 'Implementation details')}"
+            else:
+                # Handle case where app might be a float or other type
+                app_text = f"• Generic Application: {app}"
+            content.append(Paragraph(app_text, normal_style))
+            
+        content.append(Spacer(1, 12))
     
     # What's Next?
-    content.append(Paragraph("What's Next?", heading1_style))
-    next_text = strip_html(NEXT_STEPS)
-    content.append(Paragraph(next_text, normal_style))
-    
-    content.append(Paragraph('Let\'s build a breakthrough growth strategy — Digital Culture Group has proven tactics that boost underperforming areas.', 
-                           ParagraphStyle('Blue', parent=normal_style, textColor=HexColor('#5865f2'))))
+    if include_sections.get('next_steps', True):
+        content.append(Paragraph("What's Next?", heading1_style))
+        next_text = strip_html(NEXT_STEPS)
+        content.append(Paragraph(next_text, normal_style))
+        
+        content.append(Paragraph('Let\'s build a breakthrough growth strategy — Digital Culture Group has proven tactics that boost underperforming areas.', 
+                            ParagraphStyle('Blue', parent=normal_style, textColor=HexColor('#5865f2'))))
     content.append(Spacer(1, 12))
     
     # Footer

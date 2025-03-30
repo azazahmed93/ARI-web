@@ -224,7 +224,7 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
 
 def generate_simplified_trend_data(brief_text=None):
     """
-    Generate simplified trend data for email-friendly reports.
+    Generate simplified trend data for email-friendly reports and PDF generation.
     
     Args:
         brief_text (str, optional): The marketing brief text to analyze
@@ -236,13 +236,27 @@ def generate_simplified_trend_data(brief_text=None):
     df = generate_trend_data(brief_text)
     
     # Get top trends by average value
-    top_trends = df.groupby('Category')['Value'].mean().sort_values(ascending=False).head(5)
+    top_trend_values = df.groupby('Category')['Value'].mean().sort_values(ascending=False).head(5)
+    top_trends = []
+    for trend, value in top_trend_values.items():
+        growth_value = int(value * 1.2)  # Convert value to a growth percentage
+        top_trends.append({"trend": trend, "growth": growth_value})
     
     # Get top markets by average value
-    top_markets = df.groupby('Market')['Value'].mean().sort_values(ascending=False).head(5)
+    top_market_values = df.groupby('Market')['Value'].mean().sort_values(ascending=False).head(5)
+    top_markets = []
+    for market, value in top_market_values.items():
+        top_markets.append({"market": market, "index": int(value)})
     
     # Get top individual combinations
-    top_combinations = df.sort_values('Value', ascending=False).head(5)
+    top_combos = df.sort_values('Value', ascending=False).head(5)
+    top_combinations = []
+    for _, row in top_combos.iterrows():
+        top_combinations.append({
+            "category": row['Category'],
+            "market": row['Market'],
+            "value": int(row['Value'])
+        })
     
     return top_trends, top_markets, top_combinations
 
@@ -262,16 +276,17 @@ def summarize_trends_for_email(brief_text=None):
     
     # Top trend categories
     summary += "### Strongest Trend Categories\n"
-    for i, (category, value) in enumerate(top_trends.items(), 1):
-        strength = "Very High" if value >= 80 else "High" if value >= 65 else "Medium-High"
-        summary += f"{i}. **{category}** - {strength} Effectiveness ({value:.1f}%)\n"
+    for i, trend in enumerate(top_trends, 1):
+        growth = trend['growth']
+        strength = "Very High" if growth >= 80 else "High" if growth >= 65 else "Medium-High"
+        summary += f"{i}. **{trend['trend']}** - {strength} Effectiveness ({growth}%)\n"
     
     summary += "\n### Most Responsive Markets\n"
-    for i, (market, value) in enumerate(top_markets.items(), 1):
-        summary += f"{i}. **{market}** - Responsiveness Score: {value:.1f}%\n"
+    for i, market_data in enumerate(top_markets, 1):
+        summary += f"{i}. **{market_data['market']}** - Responsiveness Score: {market_data['index']}\n"
     
     summary += "\n### Top Specific Opportunities\n"
-    for i, row in enumerate(top_combinations.itertuples(), 1):
-        summary += f"{i}. **{row.Category}** targeting **{row.Market}** - {row.Value:.1f}% effectiveness\n"
+    for i, combo in enumerate(top_combinations, 1):
+        summary += f"{i}. **{combo['category']}** targeting **{combo['market']}** - {combo['value']}% effectiveness\n"
     
     return summary
