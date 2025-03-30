@@ -1886,12 +1886,12 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             metrics = []
                             if video_platform and 'CTR' in performance:
                                 # Show VCR instead of CTR for video content with range from 70%-95%
-                                metrics.append(f"VCR: 70-95%")  # Using fixed high range for video completion rates
+                                metrics.append(f"Expected VCR: 70-95%")  # Using fixed high range for video completion rates
                             elif audio_platform and 'CTR' in performance:
                                 # Show LTR instead of CTR for audio content with range from 80%-100%
-                                metrics.append(f"LTR: 80-100%")  # Using fixed high range for listen-through rates
+                                metrics.append(f"Expected LTR: 80-100%")  # Using fixed high range for listen-through rates
                             elif 'CTR' in performance:
-                                metrics.append(f"CTR: {performance['CTR']}")
+                                metrics.append(f"Expected CTR: {performance['CTR']}")
                             if 'CPA' in performance:
                                 metrics.append(f"CPA: {performance['CPA']}")
                             if 'engagement_rate' in performance:
@@ -1905,7 +1905,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                     <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
                                 </svg>
-                                <span>Growth Audience Recommendation</span>
+                                <span>Emerging Audience Opportunity</span>
                             </h4>
                             <p style="margin-bottom: 8px;">
                                 <span style="font-weight:600; font-size: 1.05rem;">{}</span>
@@ -1913,16 +1913,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <p style="margin-bottom: 15px; font-style: italic; color: #555; font-size: 0.9rem;">
                                 {}
                             </p>
-                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px;">Demographics</span>
+                            <p style="margin-bottom: 8px;">
+                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics:</span>
                                 {}
                             </p>
-                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px;">Key Interests</span>
+                            <p style="margin-bottom: 8px;">
+                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Key Interests:</span>
                                 {}
                             </p>
-                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px;">Platform Strategy</span>
+                            <p style="margin-bottom: 8px;">
+                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Platform Strategy:</span>
                                 {}
                             </p>
                             {}
@@ -1934,8 +1934,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             demographics_str,
                             interests_str,
                             platform_strategy,
-                            f'<p style="margin-bottom: 8px; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px;">Optimization Strategy</span> {bidding_str}</p>' if bidding_str else '',
-                            f'<p style="margin-bottom: 0; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px;">Expected Performance</span> {performance_str}</p>' if performance_str else ''
+                            f'<p style="margin-bottom: 8px;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Optimization Strategy:</span> {bidding_str}</p>' if bidding_str else '',
+                            f'<p style="margin-bottom: 0;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Expected Performance:</span> {performance_str}</p>' if performance_str else ''
                         ), unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
@@ -2133,16 +2133,16 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
             {description}
         </p>
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
-            <span style="font-weight:600; margin-right:5px;">Demographics</span>
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+            <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics:</span>
             {demographics_str}
         </p>
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
-            <span style="font-weight:600; margin-right:5px;">Interests</span>
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+            <span style="font-weight:600; margin-right:5px; display:inline-block;">Interests:</span>
             {interests_str}
         </p>
-        <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
-            <span style="font-weight:600; margin-right:5px;">Recommended Platform</span>
+        <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
+            <span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform:</span>
             {platform_rec}
         </p>
     </div>
