@@ -128,11 +128,11 @@ status, and excitement</strong>.
 </div>
 
 <div style="margin-bottom: 15px;">
-<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Tech Early Adopters</strong> (urban digital nomads, 25-34) who demonstrate high engagement with flexible lifestyle content, remote work technologies, and adventure-oriented media. This audience shows 2.8x higher conversion rates when targeted with mobility-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
+<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Gen Z Hoops Fanatics</strong> (young basketball enthusiasts, 16-24) who demonstrate high engagement with sports content, gaming, and social media platforms. This audience shows 2.8x higher conversion rates when targeted with authentic basketball-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
 </div>
 
 <div>
-<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Digital Experience Seekers</strong> (older Gen Z and college-age students) who index high for athletic lifestyle, peer validation, and mobile-first media behaviors.
+<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Multi-Platform Sports Enthusiasts</strong> (older Gen Z and young adults, 21-34) who index high for athletic lifestyle, premium sports content, and cross-device media behaviors.
 </div>
 """
 

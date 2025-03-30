@@ -645,11 +645,11 @@ def get_default_audience_segments(brief_text, ari_scores):
         "segments": [
             # Primary audience segment
             {
-                "name": "Gen Z Basketball Enthusiasts",
-                "description": "Young basketball fans who actively follow the sport and purchase related merchandise",
+                "name": "Gen Z Hoops Fanatics",
+                "description": "Young basketball enthusiasts who actively follow the sport and engage with basketball culture",
                 "interest_categories": ["Basketball Enthusiasts", "Sports Apparel", "Sneakerheads", "Live Sports Events"],
                 "targeting_params": {
-                    "age_range": "18-24",
+                    "age_range": "16-24",
                     "gender_targeting": "All",
                     "income_targeting": "Below $50k"
                 },
@@ -670,27 +670,27 @@ def get_default_audience_segments(brief_text, ari_scores):
             },
             # Secondary audience segment
             {
-                "name": "Tech-Savvy Active Lifestylers",
-                "description": "Fitness-focused consumers who track workouts and prioritize performance gear",
-                "interest_categories": ["Athletic Footwear", "Wearable Technology", "Health & Fitness Tracking"],
+                "name": "Multi-Platform Sports Enthusiasts",
+                "description": "Older Gen Z and young adults who consume sports content across multiple devices and platforms",
+                "interest_categories": ["Athletic Lifestyle", "Premium Sports Content", "Cross-Device Media"],
                 "targeting_params": {
-                    "age_range": "18-34",
+                    "age_range": "21-34",
                     "gender_targeting": "All",
                     "income_targeting": "Above $50k"
                 },
                 "platform_targeting": [
                     {
                         "platform": "Audio Streaming Platforms",
-                        "targeting_approach": "Workout playlists and fitness podcast listeners"
+                        "targeting_approach": "Sports podcast listeners and game streaming audiences"
                     }
                 ],
                 "expected_performance": {
-                    "CTR": "80-100%",  # For audio platforms, this becomes LTR (listen-through rate)
+                    "CTR": "80-95%",  # For audio platforms, this becomes LTR (listen-through rate)
                     "engagement_rate": "5.8%"
                 },
                 "bidding_strategy": {
-                    "bid_adjustments": "Morning and evening workout hours",
-                    "dayparting": "6-9am and 5-8pm weekdays"
+                    "bid_adjustments": "Evening and weekend hours",
+                    "dayparting": "5-11pm weekdays, all day weekends"
                 }
             },
             # Growth opportunity segment
@@ -722,19 +722,8 @@ def get_default_audience_segments(brief_text, ari_scores):
         ]
     }
     
-    # Customize based on industry if possible
-    if "fashion" in industry.lower() or "apparel" in industry.lower():
-        segments["segments"][0]["name"] = "Style-Conscious Trendsetters"
-        segments["segments"][1]["name"] = "Fashion-Forward Professionals"
-    elif "tech" in industry.lower() or "technology" in industry.lower():
-        segments["segments"][0]["name"] = "Tech Early Adopters"
-        segments["segments"][1]["name"] = "Digital Experience Seekers"
-    elif "auto" in industry.lower() or "car" in industry.lower():
-        segments["segments"][0]["name"] = "Auto Enthusiasts"
-        segments["segments"][1]["name"] = "Luxury Car Aspirants"
-    elif "food" in industry.lower() or "beverage" in industry.lower():
-        segments["segments"][0]["name"] = "Culinary Explorers"
-        segments["segments"][1]["name"] = "Health-Conscious Foodies"
+    # Don't customize based on industry - use the consistent Gen Z Hoops Fanatics and Multi-Platform Sports Enthusiasts 
+    # to match our audience card titles across the application
     
     # Modify interests based on brief content keywords
     brief_lower = brief_text.lower()
@@ -907,23 +896,23 @@ Additional audience data for SiteOne Hispanic campaign:
                 "error": str(e),
                 "segments": [
                     {
-                        "name": "Digital Culture Enthusiasts",
+                        "name": "Gen Z Hoops Fanatics",
                         "targeting_params": {
-                            "age_range": "25-39",
-                            "gender_targeting": "Slight female skew (55%/45%)",
-                            "income_targeting": "$75K-150K annually",
-                            "education_targeting": "College degree or higher",
-                            "location_targeting": "Urban centers and tech hubs, DMA top 50 markets"
+                            "age_range": "16-24",
+                            "gender_targeting": "All",
+                            "income_targeting": "Below $50k",
+                            "education_targeting": "High school or some college",
+                            "location_targeting": "Urban centers and college towns"
                         },
                     "interest_categories": [
-                        "Technology early adopters", 
-                        "Digital media consumers", 
-                        "Cultural trend followers",
-                        "Social impact supporters"
+                        "Basketball Enthusiasts", 
+                        "Sports Apparel", 
+                        "Sneakerheads",
+                        "Live Sports Events"
                     ],
                     "platform_targeting": [
-                        {"platform": "Interactive Media", "targeting_approach": "Utilize 1% lookalike audiences from existing customers, target In-Market segments for related products, exclude previous converters beyond 30-day window"},
-                        {"platform": "Video Platforms", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
+                        {"platform": "Programmatic Video Platforms", "targeting_approach": "Target basketball content viewers across premium video platforms with sports content adjacency and interactive video formats"},
+                        {"platform": "Sports Streaming Services", "targeting_approach": "Focus on live game audiences and pre/post-game content with high-impact ad placements"}
                     ],
                     "expected_performance": {
                         "CTR": "70-95%",  # For video platforms, this becomes VCR (video completion rate)
@@ -931,9 +920,9 @@ Additional audience data for SiteOne Hispanic campaign:
                         "engagement_rate": "4.5-5.2%"
                     },
                     "bidding_strategy": {
-                        "bid_adjustments": "+15% for mobile devices, -10% for desktop placement",
-                        "dayparting": "Increase bids 20% during 6-10pm local time",
-                        "placement_priorities": "In-feed prioritized over sidebar, 70/30 budget split"
+                        "bid_adjustments": "+25% during game days, +15% for mobile devices",
+                        "dayparting": "Increase bids 30% during prime-time game hours (7-11pm)",
+                        "placement_priorities": "Pre-roll video prioritized over mid-roll, 60/40 budget split"
                     }
                 }
             ]
