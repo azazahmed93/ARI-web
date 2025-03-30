@@ -1905,22 +1905,22 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                     <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
                                 </svg>
-                                <span>AI-Powered Audience Segmentation Recommendation</span> {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
+                                <span>AI-Powered Audience Segmentation Recommendation</span>
                             </h4>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Target Segment {display_tip_bubble("audience", "Audience Segment", inline=True)}</span>
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Target Segment</span>
                                 {}
                             </p>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Demographics {display_tip_bubble("audience", "Demographics", inline=True)}</span>
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Demographics</span>
                                 {}
                             </p>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Key Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}</span>
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Key Interests</span>
                                 {}
                             </p>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Platform Strategy {display_tip_bubble("audience", "Platform Recommendation", inline=True)}</span>
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Platform Strategy</span>
                                 {}
                             </p>
                             {}
@@ -1931,8 +1931,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             demographics_str,
                             interests_str,
                             platform_strategy,
-                            f'<p style="margin-bottom: 8px; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Optimization Strategy {display_tip_bubble("audience", "Optimization Strategy", inline=True)}</span> {bidding_str}</p>' if bidding_str else '',
-                            f'<p style="margin-bottom: 0; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Expected Performance {display_tip_bubble("audience", "Expected CTR", inline=True)}</span> {performance_str}</p>' if performance_str else ''
+                            f'<p style="margin-bottom: 8px; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Optimization Strategy</span> {bidding_str}</p>' if bidding_str else '',
+                            f'<p style="margin-bottom: 0; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Expected Performance</span> {performance_str}</p>' if performance_str else ''
                         ), unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
