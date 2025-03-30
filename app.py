@@ -925,7 +925,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Default summary when no AI insights are available
         summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
     
-    # Premium styled CSS for Advanced Metric Analysis with animated progress bars
+    # Premium styled CSS for Advanced Metric Analysis with simplified bar styling (no animations that might conflict with Streamlit)
     st.markdown("""
     <style>
     .metric-analysis {
@@ -1006,24 +1006,31 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         border-radius: 100px;
         margin-bottom: 1rem;
         overflow: hidden;
-    }
-    .metric-progress-bar {
-        height: 100%;
-        border-radius: 100px;
-        width: 0;
-        transition: width 1.5s ease-in-out;
+        position: relative;
     }
     .metric-progress-bar.excellent {
         background: linear-gradient(90deg, #10b981, #34d399);
-        animation: animate-bar 1.5s ease-out forwards;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 100px;
     }
     .metric-progress-bar.good {
         background: linear-gradient(90deg, #f59e0b, #fbbf24);
-        animation: animate-bar 1.5s ease-out forwards;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 100px;
     }
     .metric-progress-bar.needs-improvement {
         background: linear-gradient(90deg, #ef4444, #f87171);
-        animation: animate-bar 1.5s ease-out forwards;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 100px;
     }
     .metric-description {
         color: #475569;
@@ -1041,23 +1048,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         color: #0f172a;
         font-weight: 600;
     }
-    
-    @keyframes animate-bar {
-        0% { width: 0; }
-        100% { width: var(--target-width, 0%); }
-    }
     </style>
-    <script>
-    // Set animation target width through CSS variables
-    document.addEventListener("DOMContentLoaded", function() {
-        const bars = document.querySelectorAll('.metric-progress-bar');
-        bars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.setProperty('--target-width', width);
-            bar.style.width = '0';
-        });
-    });
-    </script>
     """, unsafe_allow_html=True)
     
     # Generate our analysis content directly using HTML generation with string concatenation
