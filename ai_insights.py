@@ -245,6 +245,9 @@ def generate_deep_insights(brief_text, ari_scores):
     Returns:
         dict: A dictionary containing AI-generated insights
     """
+    if not brief_text or len(brief_text) < 100:
+        return {"error": "Brief text too short to analyze."}
+    
     # Format the scores for inclusion in the prompt
     scores_str = "\n".join([f"- {metric}: {score}/10" for metric, score in ari_scores.items()])
     
@@ -329,7 +332,11 @@ Additional audience data for SiteOne Hispanic campaign:
 """
     
     try:
-        # Craft a prompt for the OpenAI API
+        # Extract brand name, industry, and product for context-specific insights
+        from analysis import extract_brand_info
+        brand_name, industry, product_type = extract_brand_info(brief_text)
+        
+        # Craft an enhanced prompt for the OpenAI API with stronger brief-specific guidance
         prompt = f"""
         You are an expert marketing strategist and cultural analyst specializing in audience resonance.
         
@@ -344,6 +351,10 @@ Additional audience data for SiteOne Hispanic campaign:
         
         {audience_data_str if is_siteone_hispanic else ""}
         
+        Brand: {brand_name}
+        Industry: {industry}
+        Product/Service: {product_type}
+        
         Focus specifically on these priority improvement areas: {improvement_areas_str}
         
         Please provide the following insights in JSON format with a light, approachable tone:
@@ -352,7 +363,15 @@ Additional audience data for SiteOne Hispanic campaign:
         3. Three cultural trends this campaign could leverage through digital ad targeting and platforms
         4. One key audience insight for digital media buying that might be overlooked
         5. One prediction about campaign performance metrics
-        6. Detailed analysis for every ARI metric that references specific elements in the brief
+        6. Detailed analysis for EVERY ARI metric that specifically references ACTUAL CONTENT from the brief
+        
+        For the metric details section, you MUST:
+        - Directly reference specific phrases, statistics, audience details, or tactics mentioned in the brief
+        - Explain how specific elements in the brief affected each metric score
+        - Include brief quotes or paraphrases from the actual brief for each metric
+        - Connect the metric scores to specific targeting approaches mentioned in the brief
+        - Refer to specific audience segments, channels, or creative approaches mentioned in the brief
+        - DO NOT use generic descriptions - ONLY use content that appears in this specific brief
         
         For the improvement recommendations, focus specifically on digital advertising tactics including:
         - Media mix allocation percentages
@@ -373,32 +392,36 @@ Additional audience data for SiteOne Hispanic campaign:
         - metric_details: object with each ARI metric as a key and a specific analysis as value
         """
         
-        # Call the OpenAI API
+        # Call the OpenAI API with enhanced system prompt
+        system_prompt = """
+        You are a digital advertising tactician with expertise in programmatic media buying, platform-specific optimization, 
+        and culturally-relevant campaign execution. Focus on actionable tactics, not general strategy.
+        
+        EXTREMELY IMPORTANT: When analyzing metrics, you MUST reference SPECIFIC content from the brief.
+        Do not use generic descriptions. Each metric analysis should directly quote or mention specific elements 
+        from the brief text. This is not optional - your response will be rejected if it contains generic 
+        descriptions that don't reference actual content from the brief.
+        """
+        
         response = client.chat.completions.create(
             model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
             messages=[
-                {"role": "system", "content": "You are a digital advertising tactician with expertise in programmatic media buying, platform-specific optimization, and culturally-relevant campaign execution. Focus on actionable tactics, not general strategy."},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"},
-            max_tokens=1500
+            temperature=0.7,
+            max_tokens=2000
         )
         
         # Debug the raw response
-        print("\n\n===== OPENAI API RESPONSE =====")
+        print("================================")
+        print("===== OPENAI API RESPONSE =====")
         print(response.choices[0].message.content)
-        print("================================\n\n")
+        print("================================")
         
         # Parse the JSON response
         insights = json.loads(response.choices[0].message.content)
-        
-        # Debug the parsed insights
-        print("\n\n===== PARSED INSIGHTS =====")
-        print(f"Got {len(insights.get('strengths', []))} strengths")
-        print(f"Got {len(insights.get('improvements', []))} improvements")
-        print(f"Has hidden insight: {bool(insights.get('hidden_insight'))}")
-        print(f"Has performance prediction: {bool(insights.get('performance_prediction'))}")
-        print("============================\n\n")
         
         # Clean up grammar and duplicate words in the insights
         if 'strengths' in insights:
@@ -423,35 +446,34 @@ Additional audience data for SiteOne Hispanic campaign:
             
         if 'performance_prediction' in insights:
             insights['performance_prediction'] = fix_grammar_and_duplicates(insights['performance_prediction'])
+            
+        # Ensure we have metric_details for all metrics
+        if 'metric_details' not in insights:
+            insights['metric_details'] = {}
+            
+        # Ensure all metrics have details and clean them
+        for metric in ari_scores.keys():
+            if metric in insights.get('metric_details', {}):
+                insights['metric_details'][metric] = fix_grammar_and_duplicates(insights['metric_details'][metric])
+            else:
+                # If a metric is missing details, add a placeholder that prompts for a brief upload
+                insights['metric_details'][metric] = f"Upload a brief to get specific {metric} analysis for your campaign."
+                
+        # Debug the parsed insights
+        print("================================")
+        print("===== PARSED INSIGHTS =====")
+        print(f"Got {len(insights.get('strengths', []))} strengths")
+        print(f"Got {len(insights.get('improvements', []))} improvements")
+        print(f"Has hidden insight: {bool(insights.get('hidden_insight'))}")
+        print(f"Has performance prediction: {bool(insights.get('performance_prediction'))}")
+        print("============================")
         
         return insights
         
     except Exception as e:
-        # If there's an error, check if it's a SiteOne Hispanic campaign and return tailored fallback data
-        is_siteone_targeting_hispanic = "SiteOne" in brief_text and ("Hispanic" in brief_text or "Spanish" in brief_text)
-        
-        if is_siteone_targeting_hispanic:
-            return {
-                "error": str(e),
-                "strengths": [
-                    {"area": "Hispanic Audience Understanding", "explanation": "The campaign demonstrates strong potential to connect with Hispanic landscape professionals through culturally relevant messaging and media choices."},
-                    {"area": "Mobile-First Approach", "explanation": "With 313 index for mobile phone usage, the Hispanic audience shows strong mobile engagement, making this an ideal primary targeting channel."},
-                    {"area": "Sports Content Alignment", "explanation": "The target audience's strong affinity for sports content (Soccer: 419, Sports Betting: 265, Basketball: 249) provides clear content alignment opportunities for digital targeting."}
-                ],
-                "improvements": [
-                    {"area": "Cultural Relevance", "explanation": "The campaign needs stronger Spanish-language content and cultural signifiers to connect with Hispanic landscape professionals.", "recommendation": "Develop Spanish-language digital creative assets emphasizing tradition (161 index) and professional status (166 index). Allocate 40% of digital budget to Spanish-language placements across mobile video, social, and streaming audio. Target a 3:1 ROAS with these Spanish-language placements using custom Hispanic audience segments with 30% higher bid adjustments on sports-adjacent content."},
-                    {"area": "Media Platform Selection", "explanation": "Current media mix underutilizes channels with highest Hispanic audience penetration.", "recommendation": "Deploy omnichannel targeting focused on Spanish-language and sports content networks (Univision index: 1357). Prioritize mobile video formats (35% of budget) with sports content targeting parameters. Implement daypart targeting focused on evenings (6-9pm) when sports engagement peaks, with 25% bid adjustments during these windows. Target Spanish-language video completion rates 15% above benchmark."},
-                    {"area": "Audience Segmentation", "explanation": "Campaign targeting lacks precision for reaching Hispanic landscape professionals.", "recommendation": "Develop custom audience segments targeting 25-34 year old Hispanic males (93% male audience, 39% ages 25-34) with interest in soccer, sports betting, and home improvement. Apply location targeting to Hispanic-dense zip codes within 20 miles of suburban landscape supply locations. Allocate 25% of budget to these high-precision segments with performance-based optimization rules."},
-                    {"area": "Competitor Tactics", "explanation": "Analysis of competitor landscape supply digital strategies reveals opportunities for differentiation with Hispanic professionals.", "recommendation": "Key competitors are underinvesting in Spanish-language mobile video formats for landscape professionals. Create mobile-first vertical video assets featuring Hispanic professionals succeeding on job sites with SiteOne products. Allocate 30% of digital budget to conquest campaigns on channels with high Hispanic engagement (Twitch: 208, Discord: 178) during peak evening hours. Target a 2.5x engagement lift versus English-only creative."}
-                ],
-            "trends": [
-                {"trend": "Spanish-Language Mobile Video", "application": "Implement Spanish-language vertical video assets optimized for mobile viewing, focusing on soccer and sports contexts with 40% of budget devoted to this high-engagement format."},
-                {"trend": "Hispanic Cultural Values Integration", "application": "Develop creative that emphasizes tradition (161 index) and professional status (166 index) themes that resonate strongly with Hispanic landscape professionals."},
-                {"trend": "Sports-Adjacent Targeting", "application": "Allocate 35% of programmatic budget to targeting sports content adjacencies with Spanish-language assets across video and audio channels."}
-            ],
-            "hidden_insight": "The Hispanic landscape professional audience shows extremely high affinity for mobile video (313 index) consumed during evening hours (6-9pm), creating an underutilized tactical opportunity for SiteOne to differentiate from competitors with Spanish-language mobile assets.",
-            "performance_prediction": "Based on our analysis, shifting 30% of budget to Spanish-language mobile video assets featuring landscape professionals would yield a 45% improvement in engagement metrics and 25% higher conversion rates than English-only creative."
-        }
+        print(f"Error generating AI insights: {str(e)}")
+        # Return a minimal error response
+        return {"error": f"Unable to generate insights: {str(e)}"}
 
 def generate_competitor_analysis(brief_text, industry=None):
     """

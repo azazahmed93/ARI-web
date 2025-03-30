@@ -1064,7 +1064,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     analysis += '<h3>Detailed Metrics</h3>'
     analysis += '<div class="metrics-container">'
     
-    # Replace static metrics_html with animated progress bars
+    # Replace static metrics_html with colored progress bars for each metric
     for metric, score in scores.items():
         formatted_score = f"{score:.1f}"
         # Get description text - prioritize AI-generated descriptions if available
@@ -1080,25 +1080,31 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             # Use generic descriptions from METRICS
             description = METRICS[metric][get_score_level(score)]
             
-        # Calculate percent for bar width
+        # Calculate percent for bar width (use full percentage for proper display)
         percent = int(score * 10)
         
-        # Set the color based on score
+        # Set the color based on score - use direct CSS colors instead of classes for reliability
         if score >= 8:
-            bar_color = "#10b981"  # Green
+            bar_bg = "linear-gradient(90deg, #10b981, #34d399)"
+            score_bg = "rgba(16, 185, 129, 0.15)"
+            score_color = "#10b981"
             bar_class = "excellent"
         elif score >= 6:
-            bar_color = "#f59e0b"  # Orange
+            bar_bg = "linear-gradient(90deg, #f59e0b, #fbbf24)"
+            score_bg = "rgba(245, 158, 11, 0.15)"
+            score_color = "#f59e0b"
             bar_class = "good"
         else:
-            bar_color = "#ef4444"  # Red
+            bar_bg = "linear-gradient(90deg, #ef4444, #f87171)"
+            score_bg = "rgba(239, 68, 68, 0.15)"
+            score_color = "#ef4444"
             bar_class = "needs-improvement"
             
-        # Add metric with animated progress bar
+        # Add metric with custom-styled progress bar (using inline styles for reliability)
         analysis += f'<div class="metric-item">'
-        analysis += f'<div class="metric-header"><strong>{metric}</strong> <span class="metric-score {bar_class}">{formatted_score}</span></div>'
-        analysis += f'<div class="metric-progress-container">'
-        analysis += f'<div class="metric-progress-bar {bar_class}" style="width: {percent}%;"></div>'
+        analysis += f'<div class="metric-header"><strong>{metric}</strong> <span style="font-weight: 600; border-radius: 100px; padding: 0.3rem 0.8rem; font-size: 0.9rem; background: {score_bg}; color: {score_color};">{formatted_score}</span></div>'
+        analysis += f'<div style="height: 8px; width: 100%; background: #e2e8f0; border-radius: 100px; margin-bottom: 1rem; overflow: hidden; position: relative;">'
+        analysis += f'<div style="position: absolute; top: 0; left: 0; height: 100%; width: {percent}%; background: {bar_bg}; border-radius: 100px;"></div>'
         analysis += f'</div>'
         analysis += f'<div class="metric-description">{description}</div>'
         analysis += f'</div>'
