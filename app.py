@@ -1268,10 +1268,15 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Create a dashboard-style KPI row
     col1, col2, col3 = st.columns(3)
     
+    # Import the learning tips module
+    from assets.learning_tips import display_tip_bubble
+    
     with col1:
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">PERCENTILE RANK</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">
+                PERCENTILE RANK {display_tip_bubble("advanced", "Benchmark Percentile", inline=True)}
+            </div>
             <div style="font-size: 2.5rem; font-weight: 700; color: #5865f2; margin: 10px 0;">Top {percentile}%</div>
             <div style="font-size: 0.85rem; color: #555;">Among all analyzed campaigns</div>
         </div>
@@ -2013,6 +2018,8 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         color (str): The accent color for the card
         bg_color (str): The background color for the card
     """
+    # Import the learning tips module
+    from assets.learning_tips import display_tip_bubble
     if not segment:
         return
     
@@ -2048,18 +2055,22 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     st.markdown(f"""
     <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience</span>
-            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">Expected CTR: {ctr}</span>
+            <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
+                {segment_type} Audience {display_tip_bubble("audience", "Audience Segment", inline=True)}
+            </span>
+            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
+                Expected CTR: {ctr} {display_tip_bubble("audience", "Expected CTR", inline=True)}
+            </span>
         </div>
         <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <strong>Demographics:</strong> {demographics_str}
+            <strong>Demographics:</strong> {demographics_str} {display_tip_bubble("audience", "Demographics", inline=True)}
         </p>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <strong>Interests:</strong> {interests_str}
+            <strong>Interests:</strong> {interests_str} {display_tip_bubble("audience", "Interest Categories", inline=True)}
         </p>
         <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
-            <strong>Recommended Platform:</strong> {platform_rec}
+            <strong>Recommended Platform:</strong> {platform_rec} {display_tip_bubble("audience", "Platform Recommendation", inline=True)}
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -2078,8 +2089,11 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     # If improvement_areas is None, initialize it to an empty list
     if improvement_areas is None:
         improvement_areas = []
-    # Create a summary section header
-    st.markdown('<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix</h4></div>', unsafe_allow_html=True)
+    # Import the learning tips module
+    from assets.learning_tips import display_tip_bubble
+    
+    # Create a summary section header with a learning tip
+    st.markdown(f'<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix {display_tip_bubble("advanced", "Hyperdimensional Matrix", inline=True)}</h4></div>', unsafe_allow_html=True)
     
     # Calculate average scores
     avg_score = sum(scores.values()) / len(scores)
@@ -2315,7 +2329,9 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
         # Display the Resonance Convergence Coefficient with the dynamic score
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
-            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Resonance Convergence Coefficient</div>
+            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">
+                Resonance Convergence Coefficient {display_tip_bubble("advanced", "Resonance Convergence Coefficient", inline=True)}
+            </div>
             <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{rcc_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
         </div>
         """, unsafe_allow_html=True)

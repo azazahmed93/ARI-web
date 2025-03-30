@@ -472,19 +472,24 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
 
 def display_metric_bar(metric, score):
     """
-    Display a metric with a colored progress bar.
+    Display a metric with a colored progress bar and contextual learning tip.
     
     Args:
         metric (str): Name of the metric
         score (float): Score value (0-10)
     """
+    # Import the learning tips module
+    from assets.learning_tips import metric_with_tip
+    
     # Create a container for the metric
     metric_container = st.container()
     
     with metric_container:
         # Display metric label and score
         col1, col2 = st.columns([4, 1])
-        col1.markdown(f"**{metric}**")
+        
+        # Add the metric name with learning tip bubble
+        col1.markdown(metric_with_tip(metric), unsafe_allow_html=True)
         col2.markdown(f"**{score}/10**")
         
         # Show the progress bar

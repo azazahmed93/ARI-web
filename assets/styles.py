@@ -77,10 +77,85 @@ def apply_styles():
         margin-bottom: 0.25rem;
     }
     
+    /* Tooltip/Learning Bubble Styles */
     .tooltip {
         font-size: 0.9rem;
         color: #666;
         margin-top: 0.5rem;
+    }
+    
+    .tip-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        background-color: #5865f2;
+        color: white;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: bold;
+        margin-left: 5px;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    
+    .tip-bubble {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .tip-bubble .tip-content {
+        visibility: hidden;
+        width: 280px;
+        background-color: #fff;
+        color: #444;
+        text-align: left;
+        border-radius: 6px;
+        padding: 12px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        border: 1px solid #e0e0e0;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-weight: normal;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    
+    .tip-bubble .tip-content::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #fff transparent transparent transparent;
+    }
+    
+    .tip-bubble:hover .tip-content {
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    .tip-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+        font-size: 14px;
+    }
+    
+    .tip-learn-more {
+        display: block;
+        margin-top: 8px;
+        color: #5865f2;
+        font-weight: 500;
+        font-size: 12px;
     }
     
     .benchmark {
