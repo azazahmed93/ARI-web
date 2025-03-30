@@ -1625,28 +1625,131 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         else:
             st.markdown(AUDIENCE_SUMMARY, unsafe_allow_html=True)
         
-        # Add growth audience section based on AI data signals
+        # Add audience segments section based on AI analysis
         if 'audience_segments' in st.session_state and st.session_state.audience_segments:
             try:
+                # Title for the audience segments section
+                st.markdown("""
+                <div style="margin-top: 30px; margin-bottom: 15px;">
+                    <h3 style="display:flex; align-items:center; gap:10px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.4933 21.8731H6.50669C5.9091 21.8731 5.32949 21.652 4.88942 21.2537C4.44935 20.8554 4.19147 20.318 4.14859 19.7435L3.75744 15.1506C3.70675 14.4998 3.95313 13.8595 4.4291 13.4005C4.90507 12.9415 5.56466 12.6778 6.25079 12.6724H7.23084M12 11.4351V3M12 11.4351L9.23087 8.75662M12 11.4351L14.7692 8.75662" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.2424 15.1507L19.8512 19.7436C19.8083 20.3181 19.5505 20.8556 19.1104 21.2538C18.6703 21.6521 18.0907 21.8732 17.4931 21.8732H6.50645C5.90887 21.8732 5.32926 21.6521 4.88919 21.2538C4.44911 20.8556 4.19124 20.3181 4.14835 19.7436L3.7572 15.1507C3.70652 14.5 3.9529 13.8596 4.42887 13.4006C4.90484 12.9416 5.56443 12.6779 6.25056 12.6725H17.749C18.4351 12.6779 19.0947 12.9416 19.5707 13.4006C20.0467 13.8596 20.293 14.5 20.2424 15.1507Z" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        AI-Powered Audience Segmentation
+                    </h3>
+                </div>
+                """, unsafe_allow_html=True)
+                
                 segments = st.session_state.audience_segments
-                # Select the last segment as the growth audience (if available)
-                if len(segments) > 0:
-                    growth_segment = segments[-1]  # Use the last segment as growth
+                
+                # Check if we have segments in the expected format
+                if 'segments' in segments and isinstance(segments['segments'], list) and len(segments['segments']) > 0:
+                    # Display all segments
+                    segment_list = segments['segments']
                     
-                    st.markdown("""
-                    <div style="margin-top: 20px; padding: 15px; border-left: 4px solid #10b981; background-color: #f0fdf4;">
-                        <h4 style="margin-top: 0; color: #0f766e;">🚀 Growth Audience Opportunity</h4>
-                        <p style="margin-bottom: 8px;"><strong>Segment:</strong> {}</p>
-                        <p style="margin-bottom: 8px;"><strong>Demographics:</strong> {}</p>
-                        <p style="margin-bottom: 8px;"><strong>Key Interests:</strong> {}</p>
-                        <p style="margin-bottom: 0;"><strong>Platform Strategy:</strong> {}</p>
-                    </div>
-                    """.format(
-                        growth_segment.get('name', 'Emerging Growth Segment'),
-                        growth_segment.get('demographics', 'Custom targeting parameters based on first-party data'),
-                        growth_segment.get('interests', 'Identified through AI pattern recognition'),
-                        growth_segment.get('platform_recommendation', 'Multi-platform approach with custom audience development')
-                    ), unsafe_allow_html=True)
+                    # First display the primary segments (not the growth segment)
+                    if len(segment_list) > 1:
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            if len(segment_list) > 0:
+                                primary_segment = segment_list[0]
+                                display_audience_segment(primary_segment, 'Primary', '#10b981', '#f0fdf4')
+                        
+                        with col2:
+                            if len(segment_list) > 1:
+                                secondary_segment = segment_list[1]
+                                display_audience_segment(secondary_segment, 'Secondary', '#6366f1', '#f5f7ff')
+                    
+                    # Select the last segment as the growth audience (if available)
+                    if len(segment_list) > 2:
+                        growth_segment = segment_list[-1]  # Use the last segment as growth opportunity
+                    else:
+                        # If we don't have at least 3 segments, use the last available one
+                        growth_segment = segment_list[-1] if segment_list else None
+                        
+                    # Skip the rest if we don't have a growth segment
+                    if growth_segment:
+                        # Format interests if available in interest_categories
+                        interests = growth_segment.get('interest_categories', [])
+                        interests_str = ", ".join(interests) if interests else "Identified through AI pattern recognition"
+                        
+                        # Get platform strategy
+                        platform_targeting = growth_segment.get('platform_targeting', [])
+                        platform_strategy = ""
+                        if platform_targeting:
+                            strategies = []
+                            for platform in platform_targeting:
+                                if 'platform' in platform and 'targeting_approach' in platform:
+                                    strategies.append(f"{platform['platform']}: {platform['targeting_approach']}")
+                            platform_strategy = " | ".join(strategies)
+                        
+                        if not platform_strategy:
+                            platform_strategy = "Multi-platform approach with custom audience development"
+                        
+                        # Format demographic information
+                        targeting_params = growth_segment.get('targeting_params', {})
+                        demographics = []
+                        
+                        if targeting_params:
+                            if 'age_range' in targeting_params:
+                                demographics.append(f"Age: {targeting_params['age_range']}")
+                            if 'gender_targeting' in targeting_params:
+                                demographics.append(f"Gender: {targeting_params['gender_targeting']}")
+                            if 'income_targeting' in targeting_params:
+                                demographics.append(f"Income: {targeting_params['income_targeting']}")
+                            if 'education_targeting' in targeting_params:
+                                demographics.append(f"Education: {targeting_params['education_targeting']}")
+                                
+                        demographics_str = " | ".join(demographics) if demographics else "Custom targeting parameters based on first-party data"
+                        
+                        # Format bidding strategy if available
+                        bidding_strategy = growth_segment.get('bidding_strategy', {})
+                        bidding_str = ""
+                        if bidding_strategy:
+                            if 'bid_adjustments' in bidding_strategy:
+                                bidding_str += f"Bid Adjustments: {bidding_strategy['bid_adjustments']}"
+                            if 'dayparting' in bidding_strategy:
+                                bidding_str += f" | Dayparting: {bidding_strategy['dayparting']}"
+                        
+                        # Get expected performance if available
+                        performance = growth_segment.get('expected_performance', {})
+                        performance_str = ""
+                        if performance:
+                            metrics = []
+                            if 'CTR' in performance:
+                                metrics.append(f"CTR: {performance['CTR']}")
+                            if 'CPA' in performance:
+                                metrics.append(f"CPA: {performance['CPA']}")
+                            if 'engagement_rate' in performance:
+                                metrics.append(f"Engagement: {performance['engagement_rate']}")
+                            performance_str = " | ".join(metrics)
+                            
+                        st.markdown("""
+                        <div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
+                            <h4 style="margin-top: 0; color: #4338ca; display: flex; align-items: center;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                    <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
+                                </svg>
+                                AI-Powered Audience Segmentation Recommendation
+                            </h4>
+                            <p style="margin-bottom: 8px;"><strong>Target Segment:</strong> {}</p>
+                            <p style="margin-bottom: 8px;"><strong>Demographics:</strong> {}</p>
+                            <p style="margin-bottom: 8px;"><strong>Key Interests:</strong> {}</p>
+                            <p style="margin-bottom: 8px;"><strong>Platform Strategy:</strong> {}</p>
+                            {}
+                            {}
+                        </div>
+                        """.format(
+                            growth_segment.get('name', 'Emerging Growth Segment'),
+                            demographics_str,
+                            interests_str,
+                            platform_strategy,
+                            f'<p style="margin-bottom: 8px;"><strong>Optimization Strategy:</strong> {bidding_str}</p>' if bidding_str else '',
+                            f'<p style="margin-bottom: 0;"><strong>Expected Performance:</strong> {performance_str}</p>' if performance_str else ''
+                        ), unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
                 pass
@@ -1719,6 +1822,67 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             Schedule a Demo
         </a>
         """, unsafe_allow_html=True)
+
+def display_audience_segment(segment, segment_type='Primary', color='#10b981', bg_color='#f0fdf4'):
+    """
+    Display an audience segment in a styled card format.
+    
+    Args:
+        segment (dict): The segment data dictionary
+        segment_type (str): The type of segment (Primary, Secondary, etc.)
+        color (str): The accent color for the card
+        bg_color (str): The background color for the card
+    """
+    if not segment:
+        return
+    
+    # Format interests if available
+    interests = segment.get('interest_categories', [])
+    interests_str = ", ".join(interests) if interests else "Identified through AI pattern recognition"
+    
+    # Format demographic information
+    targeting_params = segment.get('targeting_params', {})
+    demographics = []
+    
+    if targeting_params:
+        if 'age_range' in targeting_params:
+            demographics.append(f"Age: {targeting_params['age_range']}")
+        if 'gender_targeting' in targeting_params:
+            demographics.append(f"Gender: {targeting_params['gender_targeting']}")
+        if 'income_targeting' in targeting_params:
+            demographics.append(f"Income: {targeting_params['income_targeting']}")
+            
+    demographics_str = " | ".join(demographics) if demographics else "Custom targeting parameters"
+    
+    # Get platform recommendations
+    platform_targeting = segment.get('platform_targeting', [])
+    platform_rec = ""
+    if platform_targeting and len(platform_targeting) > 0:
+        platform_rec = platform_targeting[0].get('platform', '') 
+        
+    # Get performance metrics
+    performance = segment.get('expected_performance', {})
+    ctr = performance.get('CTR', 'N/A')
+    
+    # Create the segment card
+    st.markdown(f"""
+    <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience</span>
+            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">CTR: {ctr}</span>
+        </div>
+        <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+            <strong>Demographics:</strong> {demographics_str}
+        </p>
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+            <strong>Interests:</strong> {interests_str}
+        </p>
+        <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
+            <strong>Recommended Platform:</strong> {platform_rec}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     """

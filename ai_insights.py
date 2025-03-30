@@ -628,13 +628,15 @@ Additional audience data for SiteOne Hispanic campaign:
 def generate_audience_segments(brief_text, ari_scores):
     """
     Generate audience segment recommendations based on the brief text and ARI scores.
+    Including new potential audience segments with high growth potential that might not be 
+    currently addressed in the brief.
     
     Args:
         brief_text (str): The marketing brief or RFP text
         ari_scores (dict): The Audience Resonance Index scores
         
     Returns:
-        list: A list of audience segments with descriptions and affinities
+        list: A list of audience segments with descriptions and affinities, including growth opportunities
     """
     try:
         # Check if this is the SiteOne Hispanic campaign
@@ -666,6 +668,10 @@ Additional audience data for SiteOne Hispanic campaign:
         Based on the following marketing campaign information and Audience Resonance Index scores,
         identify 3 key audience segments for targeted digital advertising with specific platform targeting parameters.
         
+        IMPORTANT: Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned 
+        in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
+        This should be a growth opportunity audience that the campaign isn't currently addressing.
+        
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
         
@@ -689,6 +695,9 @@ Additional audience data for SiteOne Hispanic campaign:
         - platform_targeting: array of objects with 'platform' and 'targeting_approach' 
         - expected_performance: object with CTR (click-through rate), CPA (cost per acquisition), and engagement_rate
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
+        
+        Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed 
+        in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities.
         """
         
         # Call the OpenAI API
