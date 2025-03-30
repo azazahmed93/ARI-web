@@ -845,10 +845,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Get description text based on score level
         description = METRICS[metric][get_score_level(score)]
         
-        # Add this metric to the HTML - use proper div formatting
-        metrics_html += f"""
-        <div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>
-        """
+        # Add this metric to the HTML - use string concatenation instead of f-strings with triple quotes
+        metrics_html += f'<div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>'
     
     # Extract top strength and key opportunity
     # Initialize variables to avoid "possibly unbound" errors
@@ -931,24 +929,21 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     </style>
     """, unsafe_allow_html=True)
     
-    # Generate our analysis content directly, not using the template HTML which is causing rendering issues
-    analysis = f"""
-    <div class="metric-analysis">
-        <h3>🚀 Executive Summary</h3>
-        <p>{summary_text}</p>
-
-        <div class="metric-box">
-            <div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>
-            <div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>
-            <div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>
-        </div>
-
-        <h3>📌 Detailed Metrics</h3>
-        <div>
-            {metrics_html}
-        </div>
-    </div>
-    """
+    # Generate our analysis content directly using HTML generation with string concatenation
+    # Use a complete string instead of multi-line f-strings to avoid HTML escaping issues
+    analysis = '<div class="metric-analysis">'
+    analysis += f'<h3>🚀 Executive Summary</h3>'
+    analysis += f'<p>{summary_text}</p>'
+    analysis += '<div class="metric-box">'
+    analysis += f'<div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>'
+    analysis += f'<div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>'
+    analysis += f'<div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>'
+    analysis += '</div>'
+    analysis += '<h3>📌 Detailed Metrics</h3>'
+    analysis += '<div>'
+    analysis += metrics_html
+    analysis += '</div>'
+    analysis += '</div>'
     
     st.markdown(analysis, unsafe_allow_html=True)
     
