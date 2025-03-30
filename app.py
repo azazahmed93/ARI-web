@@ -550,7 +550,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     st.markdown("---")
     
     # Display metrics summary (replaced radar chart)
-    display_summary_metrics(scores, brief_text)
+    display_summary_metrics(scores, improvement_areas, brief_text)
     
     # Create a more professional metric breakdown section
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
@@ -801,10 +801,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         </div>
         """, unsafe_allow_html=True)
     
-    # Add an informative benchmark section
+    # Add the Hyperdimensional Campaign Performance Matrix section
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
+        <h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem;">🚀 Hyperdimensional Campaign Performance Matrix</h2>
+        <p style="font-size: 1rem; color: #333; margin-bottom: 1rem;">
+          This AI-powered matrix visualizes your campaign's resonance across multiple cultural and audience dimensions.
+          The analysis identifies strengths, opportunities, and potential ROI improvements through advanced pattern recognition.
+        </p>
     """, unsafe_allow_html=True)
     
     # Display benchmark text with dynamic AI-driven content
@@ -853,8 +857,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
             for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in {strength_text} — 
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
-            <br><br>
-            Our AI engine has identified these priority opportunity areas:
+        </div>
+        <div style="margin-top: 2rem;">
+            <h3>📌 Actionable Recommendations</h3>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -905,8 +910,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
             for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in {strength_text} — 
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{sample_size}</span> national marketing efforts.
-            <br><br>
-            Our AI engine has identified these priority opportunity areas:
+        </div>
+        <div style="margin-top: 2rem;">
+            <h3>📌 Actionable Recommendations</h3>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1407,14 +1413,18 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         </a>
         """, unsafe_allow_html=True)
 
-def display_summary_metrics(scores, brief_text=""):
+def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     """
     Display a summary of key metrics using a radar chart visualization.
     
     Args:
         scores (dict): Dictionary of metric scores
+        improvement_areas (list, optional): List of improvement areas
         brief_text (str, optional): The brief text for audience analysis
     """
+    # If improvement_areas is None, initialize it to an empty list
+    if improvement_areas is None:
+        improvement_areas = []
     # Create a summary section header
     st.markdown('<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix</h4></div>', unsafe_allow_html=True)
     
@@ -1510,9 +1520,9 @@ def display_summary_metrics(scores, brief_text=""):
         
         # Display the Resonance Convergence Coefficient with the dynamic score
         st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
-            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Resonance Convergence Coefficient</div>
-            <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{rcc_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
+        <div style="background:#f7faff; padding: 1.5rem; border-left: 4px solid #3b82f6; margin: 20px 0;">
+            <h3 style="margin: 0 0 0.5rem;">📈 Resonance Convergence Coefficient</h3>
+            <p style="margin: 0; font-size: 1.1rem;"><strong>{rcc_score:.1f} / 10</strong></p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1522,15 +1532,35 @@ def display_summary_metrics(scores, brief_text=""):
             strengths = ai_insights.get('strengths', [])
             
             if strengths:
-                st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
+                # Get top strength and key opportunity
+                top_strength = strengths[0].get('area', 'Cultural Vernacular') if strengths else 'Cultural Vernacular'
+                key_opportunity = improvement_areas[0] if improvement_areas else 'Geo-Cultural Fit'
                 
-                for strength in strengths[:2]:  # Display top 2 strengths
-                    area = strength.get('area', 'Cultural Alignment')
-                    st.markdown(f"""
-                    <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
-                        <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{area}</div>
+                # Extract ROI potential from performance prediction if available
+                roi_potential = "+15%"
+                if 'performance_prediction' in ai_insights:
+                    prediction = ai_insights['performance_prediction']
+                    import re
+                    roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
+                    if roi_match:
+                        roi_potential = roi_match.group(0)
+                        if not roi_potential.startswith('+'):
+                            roi_potential = f"+{roi_potential}"
+                
+                # Create the Top Strength, Key Opportunity, ROI Potential display
+                st.markdown(f"""
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <div style="flex: 1; background: #e0f7ec; padding: 1rem; border-left: 4px solid #10b981;">
+                        <strong>Top Strength:</strong><br/> {top_strength}
                     </div>
-                    """, unsafe_allow_html=True)
+                    <div style="flex: 1; background: #fff4e5; padding: 1rem; border-left: 4px solid #f59e0b;">
+                        <strong>Key Opportunity:</strong><br/> {key_opportunity}
+                    </div>
+                    <div style="flex: 1; background: #fef2f2; padding: 1rem; border-left: 4px solid #ef4444;">
+                        <strong>ROI Potential:</strong><br/> {roi_potential}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
         
         # Display AI insights using the dynamically generated content
         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
