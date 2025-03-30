@@ -917,9 +917,20 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Check if AI insights are available
         ai_insights = st.session_state.ai_insights
         
-        # Create tabs for each improvement area plus Competitor Tactics
+        # Create tabs for each improvement area plus Competitor Tactics (if not already present)
         tab_titles = improvement_areas.copy()
-        tab_titles.append("Competitor Tactics")
+        if "Competitor Tactics" not in tab_titles:
+            tab_titles.append("Competitor Tactics")
+        else:
+            # If Competitor Tactics is already in the list, ensure it's only there once
+            # Find all occurrences and remove all but the last one
+            indices = [i for i, x in enumerate(tab_titles) if x == "Competitor Tactics"]
+            if len(indices) > 1:
+                # Keep only the last occurrence
+                for idx in indices[:-1]:
+                    tab_titles[idx] = None
+                tab_titles = [x for x in tab_titles if x is not None]
+        
         area_tabs = st.tabs(tab_titles)
         
         # Only show detailed recommendations if we have AI insights
