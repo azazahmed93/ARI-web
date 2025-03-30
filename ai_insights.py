@@ -352,6 +352,7 @@ Additional audience data for SiteOne Hispanic campaign:
         3. Three cultural trends this campaign could leverage through digital ad targeting and platforms
         4. One key audience insight for digital media buying that might be overlooked
         5. One prediction about campaign performance metrics
+        6. Detailed analysis for every ARI metric that references specific elements in the brief
         
         For the improvement recommendations, focus specifically on digital advertising tactics including:
         - Media mix allocation percentages
@@ -361,7 +362,7 @@ Additional audience data for SiteOne Hispanic campaign:
         - Audience segmentation for ad platforms
         - Clear measurement metrics and benchmarks
         
-        Use accessible language that any marketing professional would understand. Include some light AI humor but keep it relatable and avoid overly technical jargon.
+        Use accessible language that any marketing professional would understand. Avoid overly technical jargon while still being specific and actionable.
         
         Format the response as a valid JSON object with these keys:
         - strengths: array of objects with 'area' and 'explanation'
@@ -369,6 +370,7 @@ Additional audience data for SiteOne Hispanic campaign:
         - trends: array of objects with 'trend' and 'application'
         - hidden_insight: string
         - performance_prediction: string
+        - metric_details: object with each ARI metric as a key and a specific analysis as value
         """
         
         # Call the OpenAI API

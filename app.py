@@ -842,8 +842,18 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             border_color = "#ef4444"
             strength_level = "NEEDS IMPROVEMENT"
             
-        # Get description text based on score level
-        description = METRICS[metric][get_score_level(score)]
+        # Get description text - prioritize AI-generated descriptions if available
+        if 'ai_insights' in st.session_state and st.session_state.ai_insights and 'metric_details' in st.session_state.ai_insights:
+            # Use the AI-generated description specific to this brief if available
+            metric_details = st.session_state.ai_insights.get('metric_details', {})
+            if metric in metric_details:
+                description = metric_details[metric]
+            else:
+                # Fall back to generic descriptions
+                description = METRICS[metric][get_score_level(score)]
+        else:
+            # Use generic descriptions from METRICS
+            description = METRICS[metric][get_score_level(score)]
         
         # Add this metric to the HTML - use string concatenation instead of f-strings with triple quotes
         metrics_html += f'<div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>'
@@ -887,44 +897,83 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         roi_percent = int(5 + (avg_score / 10) * 20)
         roi_potential = f"+{roi_percent}%"
     
-    # Generate summary text from the insights
-    summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+    # Generate summary text from the insights - make it more dynamic and specific to the brief
+    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+        ai_insights = st.session_state.ai_insights
+        
+        # Get the top strength explanation if available
+        top_strength_explanation = ""
+        for strength in ai_insights.get('strengths', []):
+            if strength.get('area') == top_strength and 'explanation' in strength:
+                top_strength_explanation = strength['explanation']
+                break
+        
+        # Get the key opportunity explanation if available
+        key_opportunity_explanation = ""
+        for improvement in ai_insights.get('improvements', []):
+            if improvement.get('area') == key_opportunity and 'explanation' in improvement:
+                key_opportunity_explanation = improvement['explanation']
+                break
+        
+        # If we have detailed explanations, use them in a more detailed summary
+        if top_strength_explanation and key_opportunity_explanation:
+            summary_text = f"This campaign excels in <strong>{top_strength}</strong>: {top_strength_explanation[0].lower() + top_strength_explanation[1:]} However, there's an opportunity to enhance <strong>{key_opportunity}</strong>: {key_opportunity_explanation[0].lower() + key_opportunity_explanation[1:]} Our AI-powered analysis suggests implementing targeted tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+        else:
+            # Fall back to the simpler summary if we don't have detailed explanations
+            summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+    else:
+        # Default summary when no AI insights are available
+        summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
     
-    # Modify the template to replace placeholders with our dynamic data
-    # CSS for Advanced Metric Analysis to ensure proper display
+    # Enhanced CSS for Advanced Metric Analysis to better match the platform's visual style
     st.markdown("""
     <style>
     .metric-analysis {
         margin-top: 2rem;
-        padding: 1.5rem;
+        padding: 1.8rem;
         background: #fff;
-        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-top: 4px solid #5865f2;
     }
     .metric-box {
         display: flex;
         gap: 1rem;
-        margin: 1rem 0;
+        margin: 1.2rem 0;
     }
     .strength-box {
         flex: 1;
-        background: #e0f7ec;
-        padding: 1rem;
-        border-left: 4px solid #10b981;
+        background: #f0fdf4;
+        padding: 1.2rem;
+        border-radius: 6px;
+        border-top: 4px solid #10b981;
     }
     .opportunity-box {
         flex: 1;
-        background: #fff4e5;
-        padding: 1rem;
-        border-left: 4px solid #f59e0b;
+        background: #fff7ed;
+        padding: 1.2rem;
+        border-radius: 6px;
+        border-top: 4px solid #f59e0b;
     }
     .roi-box {
         flex: 1;
         background: #fef2f2;
-        padding: 1rem;
-        border-left: 4px solid #ef4444;
+        padding: 1.2rem;
+        border-radius: 6px;
+        border-top: 4px solid #ef4444;
     }
     .metric-item {
+        margin-bottom: 1.2rem;
+        line-height: 1.6;
+    }
+    .metric-analysis h3 {
+        color: #5865f2;
+        font-weight: 600;
         margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    .metric-analysis strong {
+        color: #334155;
     }
     </style>
     """, unsafe_allow_html=True)
