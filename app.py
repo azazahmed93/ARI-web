@@ -1772,7 +1772,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <path d="M17.4933 21.8731H6.50669C5.9091 21.8731 5.32949 21.652 4.88942 21.2537C4.44935 20.8554 4.19147 20.318 4.14859 19.7435L3.75744 15.1506C3.70675 14.4998 3.95313 13.8595 4.4291 13.4005C4.90507 12.9415 5.56466 12.6778 6.25079 12.6724H7.23084M12 11.4351V3M12 11.4351L9.23087 8.75662M12 11.4351L14.7692 8.75662" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M20.2424 15.1507L19.8512 19.7436C19.8083 20.3181 19.5505 20.8556 19.1104 21.2538C18.6703 21.6521 18.0907 21.8732 17.4931 21.8732H6.50645C5.90887 21.8732 5.32926 21.6521 4.88919 21.2538C4.44911 20.8556 4.19124 20.3181 4.14835 19.7436L3.7572 15.1507C3.70652 14.5 3.9529 13.8596 4.42887 13.4006C4.90484 12.9416 5.56443 12.6779 6.25056 12.6725H17.749C18.4351 12.6779 19.0947 12.9416 19.5707 13.4006C20.0467 13.8596 20.293 14.5 20.2424 15.1507Z" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        AI-Powered Audience Segmentation {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
+                        <span>AI-Powered Audience Segmentation</span> {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
                     </h3>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1855,9 +1855,17 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         # Get expected performance if available
                         performance = growth_segment.get('expected_performance', {})
                         performance_str = ""
+                        # Check if platform includes Video or OTT/CTV to show VCR instead of CTR
+                        video_platform = False
+                        if platform_strategy and any(x in platform_strategy.lower() for x in ['video', 'ott', 'ctv', 'streaming']):
+                            video_platform = True
+                        
                         if performance:
                             metrics = []
-                            if 'CTR' in performance:
+                            if video_platform and 'CTR' in performance:
+                                # Show VCR instead of CTR for video content
+                                metrics.append(f"VCR: {performance['CTR']}")
+                            elif 'CTR' in performance:
                                 metrics.append(f"CTR: {performance['CTR']}")
                             if 'CPA' in performance:
                                 metrics.append(f"CPA: {performance['CPA']}")
@@ -1872,7 +1880,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                     <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
                                 </svg>
-                                AI-Powered Audience Segmentation Recommendation {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
+                                <span>AI-Powered Audience Segmentation Recommendation</span> {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
                             </h4>
                             <p style="margin-bottom: 8px;"><strong>Target Segment {display_tip_bubble("audience", "Audience Segment", inline=True)}:</strong> {}</p>
                             <p style="margin-bottom: 8px;"><strong>Demographics {display_tip_bubble("audience", "Demographics", inline=True)}:</strong> {}</p>
@@ -2054,6 +2062,11 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     performance = segment.get('expected_performance', {})
     ctr = performance.get('CTR', 'N/A')
     
+    # Check if platform includes Video or OTT/CTV to show VCR instead of CTR
+    metric_name = "Expected CTR"
+    if platform_rec and any(x in platform_rec.lower() for x in ['video', 'ott', 'ctv', 'streaming']):
+        metric_name = "Expected VCR"
+    
     # Create the segment card
     st.markdown(f"""
     <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
@@ -2062,7 +2075,7 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
                 {segment_type} Audience {display_tip_bubble("audience", "Audience Segment", inline=True)}
             </span>
             <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
-                Expected CTR: {ctr} {display_tip_bubble("audience", "Expected CTR", inline=True)}
+                {metric_name}: {ctr} {display_tip_bubble("audience", "Expected CTR", inline=True)}
             </span>
         </div>
         <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
