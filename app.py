@@ -1916,23 +1916,23 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 # Determine appropriate VCR range based on audience characteristics
                                 if 'young' in audience_name or 'gen z' in audience_name:
                                     # Younger audiences tend to have lower VCR
-                                    vcr_range = "70-85%"
+                                    vcr_range = "72-82%"
                                 elif 'parent' in audience_name or 'family' in interests:
                                     # Parent/family audience has medium VCR
-                                    vcr_range = "75-90%"  
+                                    vcr_range = "76-86%"  
                                 elif 'professional' in audience_name or 'business' in interests:
                                     # Professional audiences tend to have higher VCR
-                                    vcr_range = "80-95%"
+                                    vcr_range = "80-90%"
                                 else:
                                     # Check demographic targeting when available
                                     age_range = targeting_params.get('age_range', '') if targeting_params else ''
                                     if '18-34' in age_range:
-                                        vcr_range = "70-88%"
+                                        vcr_range = "74-84%"
                                     elif '35-54' in age_range:
-                                        vcr_range = "75-93%"
+                                        vcr_range = "78-88%"
                                     else:
                                         # Default if we can't determine specifics
-                                        vcr_range = "70-95%"
+                                        vcr_range = "75-85%"
                                 metrics.append(f"Expected VCR: {vcr_range}")
                             elif audio_platform and 'CTR' in performance:
                                 # Show LTR instead of CTR for audio content with dynamic ranges based on audience
@@ -1941,23 +1941,23 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 # Determine appropriate LTR range based on audience characteristics
                                 if 'young' in audience_name or 'gen z' in audience_name:
                                     # Younger audiences tend to have lower LTR ranges
-                                    ltr_range = "75-90%"
+                                    ltr_range = "77-87%"
                                 elif 'fitness' in audience_name or 'health' in interests:
                                     # Fitness audience has medium-high LTR
-                                    ltr_range = "80-95%"
+                                    ltr_range = "80-90%"
                                 elif 'professional' in audience_name or 'business' in interests:
                                     # Professional audiences tend to have high LTR
-                                    ltr_range = "85-100%"
+                                    ltr_range = "83-93%"
                                 else:
                                     # Check demographic targeting when available
                                     age_range = targeting_params.get('age_range', '') if targeting_params else ''
                                     if '18-34' in age_range:
-                                        ltr_range = "78-93%"
+                                        ltr_range = "78-88%"
                                     elif '35-54' in age_range:
-                                        ltr_range = "82-97%"
+                                        ltr_range = "81-91%"
                                     else:
                                         # Default if we can't determine specifics
-                                        ltr_range = "80-95%"
+                                        ltr_range = "80-90%"
                                 metrics.append(f"Expected LTR: {ltr_range}")
                             elif 'CTR' in performance:
                                 metrics.append(f"Expected CTR: {performance['CTR']}")
