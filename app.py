@@ -892,46 +892,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         
         # Create an advanced metric analysis section using the new HTML template
         st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
-        
-        # Read the HTML template file
-        with open("attached_assets/ARI_AdvancedMetricAnalyzer.html", "r") as file:
-            template_html = file.read()
-        
-        # Add the advanced metric analysis section using the new HTML template
-        metrics_html = ""
-        for metric, score in scores.items():
-            # Format the score to a single decimal place
-            formatted_score = f"{score:.1f}"
-            
-            # Determine score level for styling
-            if score >= 8:
-                bg_color = "#e0f7ec"
-                border_color = "#10b981"
-                strength_level = "STRONG"
-            elif score >= 6:
-                bg_color = "#fff4e5"
-                border_color = "#f59e0b"
-                strength_level = "GOOD"
-            else:
-                bg_color = "#fef2f2"
-                border_color = "#ef4444"
-                strength_level = "NEEDS IMPROVEMENT"
-                
-            # Get description text - prioritize AI-generated descriptions if available
-            if 'ai_insights' in st.session_state and st.session_state.ai_insights and 'metric_details' in st.session_state.ai_insights:
-                # Use the AI-generated description specific to this brief if available
-                metric_details = st.session_state.ai_insights.get('metric_details', {})
-                if metric in metric_details:
-                    description = metric_details[metric]
-                else:
-                    # Fall back to generic descriptions
-                    description = METRICS[metric][get_score_level(score)]
-            else:
-                # Use generic descriptions from METRICS
-                description = METRICS[metric][get_score_level(score)]
-            
-            # Add this metric to the HTML - use string concatenation instead of f-strings with triple quotes
-            metrics_html += f'<div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>'
     
     # Extract top strength and key opportunity
     # Initialize variables to avoid "possibly unbound" errors
@@ -1126,7 +1086,55 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     </style>
     """, unsafe_allow_html=True)
     
-    # This section is now handled directly within tab1
+    # Integrate the Advanced Metric Analysis template
+    # Read the HTML template file
+    with open("attached_assets/ARI_AdvancedMetricAnalyzer.html", "r") as file:
+        template_html = file.read()
+    
+    # Create the metrics HTML for detailed metrics section
+    metrics_html = ""
+    for metric, score in scores.items():
+        # Format the score to a single decimal place
+        formatted_score = f"{score:.1f}"
+        
+        # Get description text - prioritize AI-generated descriptions if available
+        if 'ai_insights' in st.session_state and st.session_state.ai_insights and 'metric_details' in st.session_state.ai_insights:
+            # Use the AI-generated description specific to this brief if available
+            metric_details = st.session_state.ai_insights.get('metric_details', {})
+            if metric in metric_details:
+                description = metric_details[metric]
+            else:
+                # Fall back to generic descriptions
+                description = METRICS[metric][get_score_level(score)]
+        else:
+            # Use generic descriptions from METRICS
+            description = METRICS[metric][get_score_level(score)]
+        
+        # Add this metric to the HTML
+        metrics_html += f'<div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>'
+        
+    # Prepare executive summary with the variables we have
+    executive_summary = summary_text
+    
+    # Create the HTML content based on the template structure
+    output_html = f"""
+    <div style="margin-top: 2rem; padding: 1.5rem; background: #fff; border-left: 4px solid #3b82f6;">
+        <h3>🚀 Executive Summary</h3>
+        <p>{executive_summary}</p>
+
+        <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+          <div style="flex: 1; background: #e0f7ec; padding: 1rem; border-left: 4px solid #10b981;"><strong>Top Strength:</strong><br/>{top_strength}</div>
+          <div style="flex: 1; background: #fff4e5; padding: 1rem; border-left: 4px solid #f59e0b;"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>
+          <div style="flex: 1; background: #fef2f2; padding: 1rem; border-left: 4px solid #ef4444;"><strong>ROI Potential:</strong><br/>{roi_potential}</div>
+        </div>
+
+        <h3>📌 Detailed Metrics</h3>
+        {metrics_html}
+    </div>
+    """
+    
+    # Display the finalized HTML content
+    st.markdown(output_html, unsafe_allow_html=True)
     
     # Create a dashboard-style KPI row
     col1, col2, col3 = st.columns(3)
@@ -1184,7 +1192,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     with open("attached_assets/ARI_Hyperdimensional_Matrix.html", "r") as file:
         matrix_template_html = file.read()
     
-    # Start the custom section 
+    # Extract the style and structure from the template
+    # Use a simplified version of the template structure
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
