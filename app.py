@@ -109,64 +109,216 @@ def generate_competitor_strategy_html(competitor_brand, campaign_goal, brief_tex
 
 def display_competitor_tactics_tab(tab):
     """
-    Displays the competitor tactics tab with consistent styling.
+    Displays the competitor tactics tab with the Fortune 500 Strategy Tool styling.
     
     Args:
         tab: The streamlit tab object to render content in
     """
-    # Read the Competitor Strategy No Campaign Input HTML template
-    with open("attached_assets/Competitor_Strategy_NoCampaignInput.html", "r") as file:
-        competitor_html = file.read()
-    
-    # Extract just the body content (without html, head, body tags and script)
-    body_content = competitor_html.split("<body>")[1].split("<script>")[0]
-    
-    # The styles are now loaded from the global CSS file in main()
+    # Add the CSS for the Fortune 500 Strategy Tool
+    tab.markdown("""
+    <style>
+        .fortune500-analyzer {
+            font-family: 'Helvetica Neue', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .fortune500-heading {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #111;
+        }
+        .fortune500-description {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #444;
+        }
+        .fortune500-input {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .fortune500-output {
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+            border-radius: 4px;
+        }
+        .fortune500-output h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #111;
+        }
+        .fortune500-output ul {
+            padding-left: 25px;
+            line-height: 1.6;
+        }
+        .fortune500-output li {
+            margin-bottom: 12px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Add the HTML for the competitor analyzer UI
     tab.markdown("""
-    <div class="competitor-analyzer">
-        <div class="competitor-heading">🕵🏽‍♂️ Competitor Tactics Analyzer</div>
-        <p>Enter a competitor brand to generate strategic recommendations to counter their known digital tactics.</p>
+    <div class="fortune500-analyzer">
+        <div class="fortune500-heading">🏢 Fortune 500 Competitor Strategy Generator</div>
+        <p class="fortune500-description">Enter a Fortune 500 brand to generate dynamic counter-strategy recommendations that leverage your campaign's strengths.</p>
+    </div>
     """, unsafe_allow_html=True)
     
     # Add the input and button
-    competitor_brand = tab.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key=f"competitor_brand_input_{hash(str(tab))}")
+    competitor_brand = tab.text_input("", placeholder="e.g., Amazon, Apple, Walmart, Target", key=f"competitor_brand_input_{hash(str(tab))}")
     generate_button = tab.button("Generate Strategy", key=f"generate_insights_button_{hash(str(tab))}")
     
-    # Output container
-    tab.markdown('<div class="competitor-output" id="output"></div>', unsafe_allow_html=True)
+    # Create the brand strategies dictionary directly from the HTML file
+    brand_strategies = {
+        "walmart": [
+            "Counter Walmart's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Walmart has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Walmart's corporate tone."
+        ],
+        "amazon": [
+            "Counter Amazon's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Amazon has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Amazon's corporate tone."
+        ],
+        "apple": [
+            "Counter Apple's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Apple has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Apple's corporate tone."
+        ],
+        "target": [
+            "Counter Target's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Target has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Target's corporate tone."
+        ],
+        "lowe's": [
+            "Counter Lowe's's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Lowe's has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Lowe's's corporate tone."
+        ],
+        "home depot": [
+            "Counter Home Depot's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Home Depot has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Home Depot's corporate tone."
+        ],
+        "microsoft": [
+            "Counter Microsoft's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Microsoft has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Microsoft's corporate tone."
+        ],
+        "intel": [
+            "Counter Intel's broad reach with hyper-personalized regional messaging.",
+            "Target emerging platforms where Intel has lower presence (e.g., Discord, Twitch).",
+            "Highlight community-driven storytelling vs. Intel's corporate tone."
+        ]
+    }
+    
+    # Add additional brands dynamically based on brief text if available
+    if 'brief_text' in st.session_state and st.session_state.brief_text:
+        from ai_insights import generate_competitor_strategy
+        brief_text = st.session_state.brief_text
+        
+        # Extract potential competitor brands from the brief
+        lower_brief = brief_text.lower()
+        for potential_brand in ["nike", "adidas", "coca-cola", "pepsi", "ford", "chevrolet", "toyota", "honda"]:
+            if potential_brand in lower_brief and potential_brand not in brand_strategies:
+                # Generate dynamic strategies for this brand
+                strategies = [
+                    f"Counter {potential_brand.title()}'s broad reach with hyper-personalized regional messaging.",
+                    f"Target emerging platforms where {potential_brand.title()} has lower presence using rich media and high-impact interactive formats.",
+                    f"Highlight authentic community storytelling vs. {potential_brand.title()}'s approach with premium CTV/OTT placements."
+                ]
+                brand_strategies[potential_brand] = strategies
     
     # If the button is clicked, process the input
-    if generate_button and competitor_brand:
-        # Default campaign goal if no brief text is available
-        campaign_goal = "Increase brand awareness and drive sales"
-        
-        # Use brief text from session state if available
-        if 'brief_text' in st.session_state and st.session_state.brief_text:
-            # Extract brief goal from the text (simplified here)
-            brief_text = st.session_state.brief_text
-            # Try to determine a better campaign goal based on the brief
-            if "goal" in brief_text.lower() or "objective" in brief_text.lower():
-                # Find a sentence with goal or objective
-                sentences = brief_text.split('.')
-                for sentence in sentences:
-                    if "goal" in sentence.lower() or "objective" in sentence.lower():
-                        campaign_goal = sentence.strip()
-                        break
-        
-        # Generate the competitor strategy HTML
-        strategy_html = generate_competitor_strategy_html(
-            competitor_brand, 
-            campaign_goal
-        )
-        
-        # Display the strategy
-        tab.markdown(f"""
-        <div class="competitor-output">
-            {strategy_html}
-        </div>
-        """, unsafe_allow_html=True)
+    if generate_button:
+        if not competitor_brand.strip():
+            tab.markdown("<p style='color:red;'>Please enter a competitor brand name.</p>", unsafe_allow_html=True)
+        else:
+            # Get the lowercase version for matching
+            brand_lower = competitor_brand.strip().lower()
+            
+            # Check if it's in our strategy database
+            if brand_lower in brand_strategies:
+                strategies = brand_strategies[brand_lower]
+                
+                # Format the strategies as list items
+                strategy_items = ""
+                for strategy in strategies:
+                    strategy_items += f"<li>{strategy}</li>"
+                
+                # Display the formatted output
+                tab.markdown(f"""
+                <div class="fortune500-output">
+                    <h2>📍 Strategy Against <strong>{brand_lower.title()}</strong></h2>
+                    <ul>
+                        {strategy_items}
+                    </ul>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                # Use the AI to generate insights for unknown brands
+                if 'brief_text' in st.session_state and st.session_state.brief_text:
+                    with tab.spinner("Generating custom strategy recommendations..."):
+                        campaign_goal = "Increase brand awareness and drive sales"
+                        brief_text = st.session_state.brief_text
+                        
+                        # Try to determine a better campaign goal based on the brief
+                        if "goal" in brief_text.lower() or "objective" in brief_text.lower():
+                            sentences = brief_text.split('.')
+                            for sentence in sentences:
+                                if "goal" in sentence.lower() or "objective" in sentence.lower():
+                                    campaign_goal = sentence.strip()
+                                    break
+                        
+                        # Generate dynamic strategies with AI
+                        strategies = generate_competitor_strategy(
+                            brief_text, 
+                            competitor_brand.strip(), 
+                            campaign_goal
+                        )
+                        
+                        # Format the strategies as list items
+                        strategy_items = ""
+                        for strategy in strategies:
+                            # Split by colon to get the header and content
+                            if ":" in strategy:
+                                parts = strategy.split(":", 1)
+                                header = parts[0].strip()
+                                content = parts[1].strip() if len(parts) > 1 else ""
+                                strategy_items += f'<li><strong>{header}:</strong> {content}</li>'
+                            else:
+                                strategy_items += f'<li>{strategy}</li>'
+                        
+                        # Display the formatted output
+                        tab.markdown(f"""
+                        <div class="fortune500-output">
+                            <h2>📍 Custom Strategy Against <strong>{competitor_brand}</strong></h2>
+                            <ul>
+                                {strategy_items}
+                            </ul>
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    # Brand not in database and no brief text available
+                    tab.markdown(f"""
+                    <div class="fortune500-output">
+                        <h2>⚠️ Brand Not Found</h2>
+                        <p>This tool currently includes a subset of Fortune 500 brands. Please try one of the suggested brands or upload a brief for AI-powered custom recommendations.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 from analysis import (
     analyze_campaign_brief, 
