@@ -304,73 +304,136 @@ def analyze_campaign_brief(brief_text):
     # Use these dynamic multipliers for scoring
     multipliers = dynamic_multipliers
     
+    # Use the brief_hash to create variable scores
+    import random
+    random.seed(brief_hash)
+    
+    # Helper function to create more variability in scores
+    def dynamic_score(terms, base_min, base_max, industry_boost_list=None, sentiment_factor=0.0):
+        """
+        Calculate a dynamic score based on term occurrences and industry context.
+        
+        Args:
+            terms (list): List of terms to look for in the brief
+            base_min (float): Minimum base score for the metric
+            base_max (float): Maximum base score for the metric
+            industry_boost_list (list, optional): List of industries that get a boost
+            sentiment_factor (float, optional): Additional sentiment adjustment
+            
+        Returns:
+            float: The calculated score
+        """
+        # Base score with randomization from brief hash
+        industry_bonus = 0.4 if industry in (industry_boost_list or []) else 0
+        base = base_min + (random.random() * (base_max - base_min)) + industry_bonus
+        
+        # Calculate term score with higher sensitivity to brief content
+        term_score = sum(term_counts.get(term, 0) * (1.5 + random.random()) for term in terms)
+        
+        # Add sentiment factor if applicable (convert to float to be safe)
+        sentiment_factor = float(sentiment_factor)
+        if sentiment_factor:
+            term_score += sentiment_factor
+        
+        # More dramatic impact of content on score
+        score = base + (term_score/8) * (0.8 + random.random() * 0.4)
+        
+        # Return score with brief-specific variation
+        return score + ((brief_hash % 200) / 200 - 0.5) * 0.6
+    
     # Representation score
     representation_terms = ['representation', 'diverse', 'diversity', 'inclusive', 'inclusion', 
                            'identity', 'perspective', 'voice', 'authentic']
-    rep_score = sum(term_counts.get(term, 0) for term in representation_terms) * multipliers["representation"]
-    rep_score += sentiment['compound'] * 2
-    rep_base = 7.0 if industry in ["Fashion", "Beauty", "Entertainment", "Sports"] else 6.8
-    scores["Representation"] = min(9.8, max(6.5, rep_base + rep_score/10))
+    scores["Representation"] = min(9.8, max(5.8, dynamic_score(
+        representation_terms, 
+        6.3, 7.0, 
+        ["Fashion", "Beauty", "Entertainment", "Sports"],
+        sentiment['compound'] * 2
+    )))
     
     # Cultural Relevance score
     cultural_terms = ['culture', 'relevant', 'resonance', 'trend', 'trending', 'zeitgeist',
                       'music', 'sports', 'fashion', 'lifestyle']
-    cult_score = sum(term_counts.get(term, 0) for term in cultural_terms) * multipliers["cultural"]
-    cult_score += sentiment['pos'] * 3
-    cult_base = 7.5 if industry in ["Fashion", "Entertainment", "Sports"] else 7.0
-    scores["Cultural Relevance"] = min(9.6, max(6.8, cult_base + cult_score/10))
+    scores["Cultural Relevance"] = min(9.6, max(6.0, dynamic_score(
+        cultural_terms, 
+        6.4, 7.3, 
+        ["Fashion", "Entertainment", "Sports"],
+        sentiment['pos'] * 3
+    )))
     
     # Platform Relevance score
     platform_terms = ['platform', 'social media', 'channel', 'tiktok', 'instagram', 'youtube',
                       'twitter', 'facebook', 'discord', 'twitch', 'digital']
-    plat_score = sum(term_counts.get(term, 0) for term in platform_terms) * multipliers["platform"]
-    plat_base = 7.0 if industry in ["Technology", "Entertainment"] else 6.5
-    scores["Platform Relevance"] = min(9.5, max(5.8, plat_base + plat_score/10))
+    scores["Platform Relevance"] = min(9.5, max(5.5, dynamic_score(
+        platform_terms, 
+        6.0, 7.0, 
+        ["Technology", "Entertainment"],
+        0
+    )))
     
     # Cultural Vernacular score
     vernacular_terms = ['slang', 'language', 'tone', 'voice', 'messaging', 'speak', 'talk',
                          'conversation', 'dialogue', 'authentic', 'natural']
-    vern_score = sum(term_counts.get(term, 0) for term in vernacular_terms) * multipliers["vernacular"]
-    vern_score += unique_words / (word_count + 1) * 5  # Language complexity
-    vern_base = 7.8 if industry in ["Entertainment", "Fashion"] else 7.2
-    scores["Cultural Vernacular"] = min(9.5, max(6.5, vern_base + vern_score/10))
+    # Add language complexity as a sentiment factor
+    lang_complexity = unique_words / (word_count + 1) * 5
+    scores["Cultural Vernacular"] = min(9.5, max(6.0, dynamic_score(
+        vernacular_terms, 
+        6.2, 7.4, 
+        ["Entertainment", "Fashion"],
+        lang_complexity
+    )))
     
     # Media Ownership Equity score
     equity_terms = ['equity', 'ownership', 'representative', 'diverse', 'inclusive', 
                     'minority', 'owned', 'investment', 'budget', 'allocation']
-    equity_score = sum(term_counts.get(term, 0) for term in equity_terms) * multipliers["equity"]
-    equity_base = 6.5 if industry in ["Healthcare", "Finance"] else 6.0
-    scores["Media Ownership Equity"] = min(8.8, max(5.5, equity_base + equity_score/10))
+    scores["Media Ownership Equity"] = min(8.8, max(5.0, dynamic_score(
+        equity_terms, 
+        5.3, 6.5, 
+        ["Healthcare", "Finance"],
+        0
+    )))
     
     # Cultural Authority score
     authority_terms = ['credible', 'authentic', 'authority', 'expert', 'leader', 'influence',
                       'trustworthy', 'reliable', 'respected', 'insider']
-    auth_score = sum(term_counts.get(term, 0) for term in authority_terms) * multipliers["authority"]
-    auth_score += sentiment['pos'] * 2
-    auth_base = 8.2 if industry in ["Healthcare", "Finance", "Automotive"] else 7.5
-    scores["Cultural Authority"] = min(9.6, max(7.0, auth_base + auth_score/10))
+    scores["Cultural Authority"] = min(9.6, max(6.2, dynamic_score(
+        authority_terms, 
+        6.4, 7.8, 
+        ["Healthcare", "Finance", "Automotive"],
+        sentiment['pos'] * 2
+    )))
     
     # Buzz & Conversation score
     buzz_terms = ['viral', 'buzz', 'conversation', 'talk', 'discuss', 'share', 'trending',
                  'engaging', 'engagement', 'interaction', 'response', 'reaction', 'meme']
-    buzz_score = sum(term_counts.get(term, 0) for term in buzz_terms) * multipliers["buzz"]
-    buzz_score += sentiment['compound'] * 2
-    buzz_base = 8.0 if industry in ["Entertainment", "Fashion", "Sports"] else 7.2
-    scores["Buzz & Conversation"] = min(9.5, max(6.8, buzz_base + buzz_score/10))
+    scores["Buzz & Conversation"] = min(9.5, max(6.0, dynamic_score(
+        buzz_terms, 
+        6.5, 7.8, 
+        ["Entertainment", "Fashion", "Sports"],
+        sentiment['compound'] * 2
+    )))
     
-    # Commerce Bridge score
+    # Commerce Bridge score - Make this especially variable based on brief content
     commerce_terms = ['commerce', 'purchase', 'buy', 'shop', 'shopping', 'transaction',
                      'conversion', 'customer', 'consumer', 'acquisition', 'funnel', 'sale']
-    commerce_score = sum(term_counts.get(term, 0) for term in commerce_terms) * multipliers["commerce"]
-    commerce_base = 8.5 if industry in ["Automotive", "Finance", "Technology"] else 8.0
-    scores["Commerce Bridge"] = min(9.6, max(7.5, commerce_base + commerce_score/10))
+    # Use a wider range of base scores and increased term sensitivity for commerce
+    # This ensures Commerce Bridge isn't always highest
+    scores["Commerce Bridge"] = min(9.6, max(5.5, dynamic_score(
+        commerce_terms, 
+        5.8, 7.8,  # Much wider range than before
+        ["Automotive", "Finance", "Technology", "Retail"],
+        0
+    ) * (0.8 + (random.random() * 0.4))))
     
     # Geo-Cultural Fit score
     geo_terms = ['location', 'region', 'area', 'local', 'community', 'city', 'urban',
                 'rural', 'neighborhood', 'territory', 'market', 'geographical']
-    geo_score = sum(term_counts.get(term, 0) for term in geo_terms) * multipliers["geo"]
-    geo_base = 7.5 if industry in ["Food & Beverage", "Healthcare", "Automotive"] else 7.0
-    scores["Geo-Cultural Fit"] = min(9.2, max(6.2, geo_base + geo_score/10))
+    scores["Geo-Cultural Fit"] = min(9.2, max(5.5, dynamic_score(
+        geo_terms, 
+        6.0, 7.5, 
+        ["Food & Beverage", "Healthcare", "Automotive"],
+        0
+    )))
     
     # Round all scores to 1 decimal place
     for key in scores:
