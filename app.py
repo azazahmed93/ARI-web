@@ -1871,17 +1871,25 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         # Get expected performance if available
                         performance = growth_segment.get('expected_performance', {})
                         performance_str = ""
-                        # Check if platform includes Video or OTT/CTV to show VCR instead of CTR
+                        # Check platform type to show appropriate metric name and value
                         video_platform = False
-                        if platform_strategy and any(x in platform_strategy.lower() for x in ['video', 'ott', 'ctv', 'streaming']):
-                            video_platform = True
+                        audio_platform = False
+                        
+                        if platform_strategy:
+                            platform_lower = platform_strategy.lower()
+                            if any(x in platform_lower for x in ['video', 'ott', 'ctv', 'streaming']):
+                                video_platform = True
+                            elif any(x in platform_lower for x in ['audio', 'podcast', 'music']):
+                                audio_platform = True
                         
                         if performance:
                             metrics = []
                             if video_platform and 'CTR' in performance:
-                                # Show VCR instead of CTR for video content with range from 70%-100%
-                                # Convert the existing CTR value to a VCR range between 70%-100%
+                                # Show VCR instead of CTR for video content with range from 70%-95%
                                 metrics.append(f"VCR: 70-95%")  # Using fixed high range for video completion rates
+                            elif audio_platform and 'CTR' in performance:
+                                # Show LTR instead of CTR for audio content with range from 80%-100%
+                                metrics.append(f"LTR: 80-100%")  # Using fixed high range for listen-through rates
                             elif 'CTR' in performance:
                                 metrics.append(f"CTR: {performance['CTR']}")
                             if 'CPA' in performance:
@@ -2091,12 +2099,18 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     performance = segment.get('expected_performance', {})
     ctr = performance.get('CTR', 'N/A')
     
-    # Check if platform includes Video or OTT/CTV to show VCR instead of CTR
+    # Check platform type to show appropriate metric name and value
     metric_name = "Expected CTR"
-    if platform_rec and any(x in platform_rec.lower() for x in ['video', 'ott', 'ctv', 'streaming']):
-        metric_name = "Expected VCR"
-        # Set video completion rates to be 70%-95% range
-        ctr = "70-95%"
+    if platform_rec:
+        platform_lower = platform_rec.lower()
+        if any(x in platform_lower for x in ['video', 'ott', 'ctv', 'streaming']):
+            metric_name = "Expected VCR"
+            # Set video completion rates to be 70%-95% range
+            ctr = "70-95%"
+        elif any(x in platform_lower for x in ['audio', 'podcast', 'music']):
+            metric_name = "Expected LTR"
+            # Set listen-through rates to be 80%-100% range
+            ctr = "80-100%"
     
     # Create the segment card
     st.markdown(f"""

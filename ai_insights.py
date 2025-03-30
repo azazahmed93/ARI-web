@@ -685,7 +685,7 @@ def get_default_audience_segments(brief_text, ari_scores):
                     }
                 ],
                 "expected_performance": {
-                    "CTR": "0.3-1.0%",
+                    "CTR": "80-100%",  # For audio platforms, this becomes LTR (listen-through rate)
                     "engagement_rate": "5.8%"
                 },
                 "bidding_strategy": {
@@ -815,6 +815,7 @@ Additional audience data for SiteOne Hispanic campaign:
         5. Key performance indicators and benchmark rates to expect for omnichannel campaigns
            - For display formats: Use CTR of 0.05-0.7%
            - For video/OTT/CTV formats: Use VCR (Video Completion Rate) of 70-95% instead of CTR
+           - For audio formats: Use LTR (Listen-Through Rate) of 80-100% instead of CTR
         6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
         Format the response as a valid JSON array with objects containing:
