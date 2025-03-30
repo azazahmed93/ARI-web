@@ -2106,14 +2106,14 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     metric_name = "Expected CTR"
     if platform_rec:
         platform_lower = platform_rec.lower()
-        if any(x in platform_lower for x in ['video', 'ott', 'ctv', 'streaming']):
-            metric_name = "Expected VCR"
-            # Set video completion rates to be 70%-95% range
-            ctr = "70-95%"
-        elif any(x in platform_lower for x in ['audio', 'podcast', 'music']):
+        if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
             metric_name = "Expected LTR"
             # Set listen-through rates to be 80%-100% range
             ctr = "80-100%"
+        elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
+            metric_name = "Expected VCR"
+            # Set video completion rates to be 70%-95% range
+            ctr = "70-95%"
     
     # Get segment description if available
     description = segment.get('description', '')
