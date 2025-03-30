@@ -174,8 +174,10 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
         y=pivot_df.index.tolist(),
         colorscale=colorscale,
         colorbar=dict(
-            title="Trend<br>Strength",
-            titleside="right",
+            title=dict(
+                text="Trend<br>Strength",
+                side="right"
+            ),
             tickmode="array",
             tickvals=[10, 30, 50, 70, 90],
             ticktext=["Very Low", "Low", "Medium", "High", "Very High"],
