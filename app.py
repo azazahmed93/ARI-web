@@ -845,9 +845,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Get description text based on score level
         description = METRICS[metric][get_score_level(score)]
         
-        # Add this metric to the HTML
+        # Add this metric to the HTML - use proper div formatting
         metrics_html += f"""
-        <div class="metric"><strong>{metric} – {formatted_score}:</strong> {description}</div>
+        <div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>
         """
     
     # Extract top strength and key opportunity
@@ -893,20 +893,60 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
     
     # Modify the template to replace placeholders with our dynamic data
+    # CSS for Advanced Metric Analysis to ensure proper display
+    st.markdown("""
+    <style>
+    .metric-analysis {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: #fff;
+        border-left: 4px solid #3b82f6;
+    }
+    .metric-box {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    .strength-box {
+        flex: 1;
+        background: #e0f7ec;
+        padding: 1rem;
+        border-left: 4px solid #10b981;
+    }
+    .opportunity-box {
+        flex: 1;
+        background: #fff4e5;
+        padding: 1rem;
+        border-left: 4px solid #f59e0b;
+    }
+    .roi-box {
+        flex: 1;
+        background: #fef2f2;
+        padding: 1rem;
+        border-left: 4px solid #ef4444;
+    }
+    .metric-item {
+        margin-bottom: 1rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Generate our analysis content directly, not using the template HTML which is causing rendering issues
     analysis = f"""
-    <div style="margin-top: 2rem; padding: 1.5rem; background: #fff; border-left: 4px solid #3b82f6;">
+    <div class="metric-analysis">
         <h3>🚀 Executive Summary</h3>
         <p>{summary_text}</p>
 
-        <div style="display: flex; gap: 1rem; margin: 1rem 0;">
-            <div style="flex: 1; background: #e0f7ec; padding: 1rem; border-left: 4px solid #10b981;"><strong>Top Strength:</strong><br/>{top_strength}</div>
-            <div style="flex: 1; background: #fff4e5; padding: 1rem; border-left: 4px solid #f59e0b;"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>
-            <div style="flex: 1; background: #fef2f2; padding: 1rem; border-left: 4px solid #ef4444;"><strong>ROI Potential:</strong><br/>{roi_potential}</div>
+        <div class="metric-box">
+            <div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>
+            <div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>
+            <div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>
         </div>
 
         <h3>📌 Detailed Metrics</h3>
-        {metrics_html}
+        <div>
+            {metrics_html}
+        </div>
     </div>
     """
     
