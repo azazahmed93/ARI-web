@@ -22,7 +22,8 @@ def generate_trend_data(brief_text=None):
     """
     # These are the standard marketing trend categories with exact naming as specified
     categories = [
-        "Rich Media DOOH",
+        "Rich Media",
+        "DOOH",
         "Interactive Video",
         "Social Display Boost",
         "High Impact Display",
@@ -63,17 +64,18 @@ def generate_trend_data(brief_text=None):
         keyword_influences = {
             "video": ["Interactive Video", "Connected TV", "Online Video"],
             "audio": ["Streaming Audio"],
-            "rich": ["Rich Media DOOH", "High Impact Display"],
+            "rich": ["Rich Media", "High Impact Display"],
+            "media": ["Rich Media"],
             "impact": ["High Impact Display"],
             "tv": ["Connected TV"],
             "ai": ["AI-Dynamic Creative"],
             "artificial intelligence": ["AI-Dynamic Creative"],
             "dynamic": ["AI-Dynamic Creative"],
-            "dooh": ["Rich Media DOOH"],
-            "billboard": ["Rich Media DOOH"],
-            "outdoor": ["Rich Media DOOH"],
+            "dooh": ["DOOH"],
+            "billboard": ["DOOH"],
+            "outdoor": ["DOOH"],
             "social": ["Social Display Boost"],
-            "instagram": ["Social Display Boost", "Rich Media DOOH"],
+            "instagram": ["Social Display Boost", "Rich Media"],
             "tiktok": ["Interactive Video", "Social Display Boost"],
             "young": ["Gen Z", "Millennials"],
             "youth": ["Gen Z"],
@@ -119,8 +121,10 @@ def generate_trend_data(brief_text=None):
                 ("Connected TV", "Suburban"): 10,
                 ("Online Video", "Gen Z"): 18,
                 ("AI-Dynamic Creative", "High Income"): 8,
-                ("Rich Media DOOH", "Urban"): 15,
-                ("Rich Media DOOH", "Millennials"): 10,
+                ("Rich Media", "Urban"): 12,
+                ("Rich Media", "Millennials"): 10,
+                ("DOOH", "Urban"): 15,
+                ("DOOH", "High Income"): 8,
                 ("High Impact Display", "High Income"): 12
             }
             
