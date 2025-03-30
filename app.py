@@ -798,25 +798,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Check if this is a SiteOne Hispanic campaign
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
-    # Display standard scorecard title with no brand reference
-    st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
-    
-    # If this is a SiteOne Hispanic campaign, display a specialized audience tag
-    if is_siteone_hispanic:
-        st.markdown("""
-        <div style="text-align: center; margin-bottom: 15px;">
-            <span style="background-color: #5865f2; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
-                SiteOne Hispanic Audience Analysis
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Add some spacing after the title
-    st.markdown("---")
-    
-    # Display metrics summary (replaced radar chart)
-    display_summary_metrics(scores, improvement_areas, brief_text)
-    
     # Create tabs for better organization of content
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Detailed Metrics", 
@@ -828,6 +809,87 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # TAB 1: DETAILED METRICS
     with tab1:
+        # Display standard scorecard title with no brand reference
+        st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
+        
+        # If this is a SiteOne Hispanic campaign, display a specialized audience tag
+        if is_siteone_hispanic:
+            st.markdown("""
+            <div style="text-align: center; margin-bottom: 15px;">
+                <span style="background-color: #5865f2; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                    SiteOne Hispanic Audience Analysis
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Add some spacing after the title
+        st.markdown("---")
+        
+        # Display metrics summary (replaced radar chart)
+        display_summary_metrics(scores, improvement_areas, brief_text)
+        
+        # Generate and display Executive Summary
+        analysis = '<div class="metric-analysis">'
+        analysis += f'<h3>Executive Summary</h3>'
+        analysis += f'<p>{summary_text}</p>'
+        analysis += '<div class="metric-box">'
+        analysis += f'<div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>'
+        analysis += f'<div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>'
+        analysis += f'<div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>'
+        analysis += '</div>'
+        analysis += '<h3>Detailed Metrics</h3>'
+        analysis += '<div class="metrics-container">'
+        
+        # Replace static metrics_html with colored progress bars for each metric
+        for metric, score in scores.items():
+            formatted_score = f"{score:.1f}"
+            # Get description text - prioritize AI-generated descriptions if available
+            if 'ai_insights' in st.session_state and st.session_state.ai_insights and 'metric_details' in st.session_state.ai_insights:
+                # Use the AI-generated description specific to this brief if available
+                metric_details = st.session_state.ai_insights.get('metric_details', {})
+                if metric in metric_details:
+                    description = metric_details[metric]
+                else:
+                    # Fall back to generic descriptions
+                    description = METRICS[metric][get_score_level(score)]
+            else:
+                # Use generic descriptions from METRICS
+                description = METRICS[metric][get_score_level(score)]
+                
+            # Calculate percent for bar width (use full percentage for proper display)
+            percent = int(score * 10)
+            
+            # Set the color based on score - use direct CSS colors instead of classes for reliability
+            if score >= 8:
+                bar_bg = "linear-gradient(90deg, #10b981, #34d399)"
+                score_bg = "rgba(16, 185, 129, 0.15)"
+                score_color = "#10b981"
+                bar_class = "excellent"
+            elif score >= 6:
+                bar_bg = "linear-gradient(90deg, #f59e0b, #fbbf24)"
+                score_bg = "rgba(245, 158, 11, 0.15)"
+                score_color = "#f59e0b"
+                bar_class = "good"
+            else:
+                bar_bg = "linear-gradient(90deg, #ef4444, #f87171)"
+                score_bg = "rgba(239, 68, 68, 0.15)"
+                score_color = "#ef4444"
+                bar_class = "needs-improvement"
+                
+            # Add metric with custom-styled progress bar (using inline styles for reliability)
+            analysis += f'<div class="metric-item">'
+            analysis += f'<div class="metric-header"><strong>{metric}</strong> <span style="font-weight: 600; border-radius: 100px; padding: 0.3rem 0.8rem; font-size: 0.9rem; background: {score_bg}; color: {score_color};">{formatted_score}</span></div>'
+            analysis += f'<div style="height: 8px; width: 100%; background: #e2e8f0; border-radius: 100px; margin-bottom: 1rem; overflow: hidden; position: relative;">'
+            analysis += f'<div style="position: absolute; top: 0; left: 0; height: 100%; width: {percent}%; background: {bar_bg}; border-radius: 100px;"></div>'
+            analysis += f'</div>'
+            analysis += f'<div class="metric-description">{description}</div>'
+            analysis += f'</div>'
+        
+        analysis += '</div>'  # Close metrics-container
+        analysis += '</div>'  # Close metric-analysis
+        
+        st.markdown(analysis, unsafe_allow_html=True)
+        
         # Create an advanced metric analysis section using the new HTML template
         st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
         
@@ -1064,73 +1126,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     </style>
     """, unsafe_allow_html=True)
     
-    # Generate our analysis content directly using HTML generation with string concatenation
-    # Use a complete string instead of multi-line f-strings to avoid HTML escaping issues
-    analysis = '<div class="metric-analysis">'
-    analysis += f'<h3>Executive Summary</h3>'
-    analysis += f'<p>{summary_text}</p>'
-    analysis += '<div class="metric-box">'
-    analysis += f'<div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>'
-    analysis += f'<div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>'
-    analysis += f'<div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>'
-    analysis += '</div>'
-    analysis += '<h3>Detailed Metrics</h3>'
-    analysis += '<div class="metrics-container">'
-    
-    # Replace static metrics_html with colored progress bars for each metric
-    for metric, score in scores.items():
-        formatted_score = f"{score:.1f}"
-        # Get description text - prioritize AI-generated descriptions if available
-        if 'ai_insights' in st.session_state and st.session_state.ai_insights and 'metric_details' in st.session_state.ai_insights:
-            # Use the AI-generated description specific to this brief if available
-            metric_details = st.session_state.ai_insights.get('metric_details', {})
-            if metric in metric_details:
-                description = metric_details[metric]
-            else:
-                # Fall back to generic descriptions
-                description = METRICS[metric][get_score_level(score)]
-        else:
-            # Use generic descriptions from METRICS
-            description = METRICS[metric][get_score_level(score)]
-            
-        # Calculate percent for bar width (use full percentage for proper display)
-        percent = int(score * 10)
-        
-        # Set the color based on score - use direct CSS colors instead of classes for reliability
-        if score >= 8:
-            bar_bg = "linear-gradient(90deg, #10b981, #34d399)"
-            score_bg = "rgba(16, 185, 129, 0.15)"
-            score_color = "#10b981"
-            bar_class = "excellent"
-        elif score >= 6:
-            bar_bg = "linear-gradient(90deg, #f59e0b, #fbbf24)"
-            score_bg = "rgba(245, 158, 11, 0.15)"
-            score_color = "#f59e0b"
-            bar_class = "good"
-        else:
-            bar_bg = "linear-gradient(90deg, #ef4444, #f87171)"
-            score_bg = "rgba(239, 68, 68, 0.15)"
-            score_color = "#ef4444"
-            bar_class = "needs-improvement"
-            
-        # Add metric with custom-styled progress bar (using inline styles for reliability)
-        analysis += f'<div class="metric-item">'
-        analysis += f'<div class="metric-header"><strong>{metric}</strong> <span style="font-weight: 600; border-radius: 100px; padding: 0.3rem 0.8rem; font-size: 0.9rem; background: {score_bg}; color: {score_color};">{formatted_score}</span></div>'
-        analysis += f'<div style="height: 8px; width: 100%; background: #e2e8f0; border-radius: 100px; margin-bottom: 1rem; overflow: hidden; position: relative;">'
-        analysis += f'<div style="position: absolute; top: 0; left: 0; height: 100%; width: {percent}%; background: {bar_bg}; border-radius: 100px;"></div>'
-        analysis += f'</div>'
-        analysis += f'<div class="metric-description">{description}</div>'
-        analysis += f'</div>'
-    
-    analysis += '</div>'  # Close metrics-container
-    analysis += '</div>'  # Close metric-analysis
-    
-    st.markdown(analysis, unsafe_allow_html=True)
-    
-    # We've replaced the detailed metrics section with the new advanced metric analysis above
-    
-    # Benchmark comparison with premium enterprise styling
-    st.markdown('<h3 style="margin-top: 40px; margin-bottom: 20px;">Competitive Benchmarking</h3>', unsafe_allow_html=True)
+    # This section is now handled directly within tab1
     
     # Create a dashboard-style KPI row
     col1, col2, col3 = st.columns(3)
@@ -1182,7 +1178,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         </div>
         """, unsafe_allow_html=True)
     
-    # Add an informative benchmark section
+    # Add an informative benchmark section using the Hyperdimensional Matrix HTML template
+    
+    # Read the HTML template file
+    with open("attached_assets/ARI_Hyperdimensional_Matrix.html", "r") as file:
+        matrix_template_html = file.read()
+    
+    # Start the custom section 
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
