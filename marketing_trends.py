@@ -20,29 +20,28 @@ def generate_trend_data(brief_text=None):
     Returns:
         pd.DataFrame: DataFrame containing trend data
     """
-    # These are the standard marketing trend categories
+    # These are the standard marketing trend categories with exact naming as specified
     categories = [
+        "Rich Media DOOH",
         "Interactive Video",
-        "Audio Marketing",
-        "Rich Media",
+        "Social Display Boost",
         "High Impact Display",
         "Connected TV",
-        "AI Creative",
-        "AR Experiences",
-        "Programmatic DOOH",
-        "Interactive Social"
+        "Streaming Audio",
+        "AI-Dynamic Creative",
+        "Online Video"
     ]
     
-    # These are potential target demographics/markets
+    # These are potential target demographics/markets in the exact specified order
     markets = [
         "Gen Z",
         "Millennials", 
         "Gen X",
-        "Urban",
-        "Suburban",
-        "Rural",
+        "Low Income",
+        "Mid Income",
         "High Income",
-        "Mid Income"
+        "Urban",
+        "Suburban"
     ]
     
     # Generate base scores with some randomness for realism
@@ -56,22 +55,22 @@ def generate_trend_data(brief_text=None):
         # Use brief content to influence trend relevance
         brief_lower = brief_text.lower()
         
-        # Keywords that might influence trend scores
+        # Keywords that might influence trend scores - updated to match the new categories
         keyword_influences = {
-            "video": ["Interactive Video", "Connected TV"],
-            "audio": ["Audio Marketing"],
-            "rich": ["Rich Media", "High Impact Display"],
+            "video": ["Interactive Video", "Connected TV", "Online Video"],
+            "audio": ["Streaming Audio"],
+            "rich": ["Rich Media DOOH", "High Impact Display"],
             "impact": ["High Impact Display"],
             "tv": ["Connected TV"],
-            "ai": ["AI Creative"],
-            "artificial intelligence": ["AI Creative"],
-            "ar": ["AR Experiences"],
-            "augmented reality": ["AR Experiences"],
-            "billboard": ["Programmatic DOOH"],
-            "outdoor": ["Programmatic DOOH"],
-            "social": ["Interactive Social"],
-            "instagram": ["Interactive Social", "Rich Media"],
-            "tiktok": ["Interactive Video", "Interactive Social"],
+            "ai": ["AI-Dynamic Creative"],
+            "artificial intelligence": ["AI-Dynamic Creative"],
+            "dynamic": ["AI-Dynamic Creative"],
+            "dooh": ["Rich Media DOOH"],
+            "billboard": ["Rich Media DOOH"],
+            "outdoor": ["Rich Media DOOH"],
+            "social": ["Social Display Boost"],
+            "instagram": ["Social Display Boost", "Rich Media DOOH"],
+            "tiktok": ["Interactive Video", "Social Display Boost"],
             "young": ["Gen Z", "Millennials"],
             "youth": ["Gen Z"],
             "teen": ["Gen Z"],
@@ -80,11 +79,11 @@ def generate_trend_data(brief_text=None):
             "family": ["Gen X", "Millennials"],
             "luxury": ["High Income"],
             "premium": ["High Income"],
-            "affordable": ["Mid Income"],
+            "affordable": ["Mid Income", "Low Income"],
+            "budget": ["Low Income"],
             "city": ["Urban"],
             "metropolitan": ["Urban"],
-            "suburban": ["Suburban"],
-            "rural": ["Rural"]
+            "suburban": ["Suburban"]
         }
         
         # Base influence to add to certain trends/markets when keywords are found
@@ -111,13 +110,13 @@ def generate_trend_data(brief_text=None):
             # Add some natural affinity between certain categories and markets
             natural_affinities = {
                 ("Interactive Video", "Gen Z"): 15,
-                ("Interactive Social", "Gen Z"): 18,
-                ("Audio Marketing", "Millennials"): 12,
+                ("Social Display Boost", "Gen Z"): 18,
+                ("Streaming Audio", "Millennials"): 12,
                 ("Connected TV", "Suburban"): 10,
-                ("AR Experiences", "Gen Z"): 18,
-                ("AI Creative", "High Income"): 8,
-                ("Programmatic DOOH", "Urban"): 15,
-                ("Rich Media", "Millennials"): 10,
+                ("Online Video", "Gen Z"): 18,
+                ("AI-Dynamic Creative", "High Income"): 8,
+                ("Rich Media DOOH", "Urban"): 15,
+                ("Rich Media DOOH", "Millennials"): 10,
                 ("High Impact Display", "High Income"): 12
             }
             
