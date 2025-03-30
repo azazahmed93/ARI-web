@@ -60,10 +60,10 @@ MEDIA_AFFINITY_SITES = [
 
 # SiteOne Hispanic Media Affinities based on Resonate data
 SITEONE_HISPANIC_SOCIAL_MEDIA = [
-    {"name": "Twitch", "category": "Streaming", "qvi": 208},
-    {"name": "Discord", "category": "Social", "qvi": 178},
-    {"name": "TikTok", "category": "Video", "qvi": 146},
-    {"name": "Reddit", "category": "Forums", "qvi": 140}
+    {"name": "Interactive Video Platforms", "category": "Streaming", "qvi": 208},
+    {"name": "Community Forums", "category": "Social", "qvi": 178},
+    {"name": "Short Video Platforms", "category": "Video", "qvi": 146},
+    {"name": "Open Web Discussion", "category": "Forums", "qvi": 140}
 ]
 
 # TV Network affinities
@@ -77,11 +77,11 @@ TV_NETWORKS = [
 
 # SiteOne Hispanic TV Networks based on Resonate data
 SITEONE_HISPANIC_TV_NETWORKS = [
-    {"name": "Univision", "category": "Spanish", "qvi": 1357},
-    {"name": "NFL Network", "category": "Sports", "qvi": 295},
-    {"name": "Comedy Central", "category": "Comedy", "qvi": 282},
-    {"name": "Adult Swim", "category": "Animation", "qvi": 276},
-    {"name": "HBO", "category": "Premium", "qvi": 195}
+    {"name": "Spanish-language TV", "category": "Hispanic", "qvi": 1357},
+    {"name": "Sports TV Networks", "category": "Sports", "qvi": 295},
+    {"name": "Comedy TV Networks", "category": "Comedy", "qvi": 282},
+    {"name": "Animation Networks", "category": "Animation", "qvi": 276},
+    {"name": "Premium Entertainment", "category": "Premium", "qvi": 195}
 ]
 
 # Streaming platforms
@@ -152,7 +152,7 @@ online with <strong>33% spending 10-20 hours per week</strong> online.
 </div>
 
 <div>
-<strong>Media Consumption:</strong> Their media consumption shows very strong indexes for <strong>Univision (1357)</strong> and <strong>sports content</strong>, with significant engagement on <strong>Twitch (208)</strong> and <strong>Discord (178)</strong>.
+<strong>Media Consumption:</strong> Their media consumption shows very strong indexes for <strong>Spanish-language TV (1357)</strong> and <strong>sports content</strong>, with significant engagement on <strong>Interactive Video Platforms (208)</strong> and <strong>Community Forums (178)</strong>.
 </div>
 """
 

@@ -362,8 +362,8 @@ def analyze_campaign_brief(brief_text):
     )))
     
     # Platform Relevance score
-    platform_terms = ['platform', 'social media', 'channel', 'tiktok', 'instagram', 'youtube',
-                      'twitter', 'facebook', 'discord', 'twitch', 'digital']
+    platform_terms = ['platform', 'channel', 'omnichannel', 'digital media', 'open web', 
+                      'rich media', 'interactive video', 'high impact', 'audio', 'digital']
     scores["Platform Relevance"] = min(9.5, max(5.5, dynamic_score(
         platform_terms, 
         6.0, 7.0, 
@@ -509,7 +509,7 @@ def get_improvement_areas(scores, brief_text=None, brand_name=None, industry=Non
     
     # Keywords that indicate importance of specific metrics
     importance_keywords = {
-        "Platform Relevance": ["platform", "channel", "tiktok", "instagram", "social", "digital", "mobile"],
+        "Platform Relevance": ["platform", "channel", "omnichannel", "digital media", "open web", "rich media", "interactive", "high impact", "audio", "digital"],
         "Cultural Relevance": ["culture", "trend", "music", "fashion", "lifestyle", "generation"],
         "Representation": ["diversity", "inclusive", "representation", "community", "minority"],
         "Cultural Vernacular": ["language", "slang", "authentic", "voice", "speak", "tone", "vernacular"],
