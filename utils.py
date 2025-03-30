@@ -543,12 +543,16 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         
         # Check if we have competitor tactics in session state
         has_competitor_tactics = False
+        competitor_tactics = []
         if hasattr(st, 'session_state') and 'competitor_tactics' in st.session_state and st.session_state.competitor_tactics:
-            competitor_tactics = st.session_state.competitor_tactics
-            has_competitor_tactics = len(competitor_tactics) > 0
+            if isinstance(st.session_state.competitor_tactics, list):
+                competitor_tactics = st.session_state.competitor_tactics
+                has_competitor_tactics = len(competitor_tactics) > 0
+            else:
+                has_competitor_tactics = bool(st.session_state.competitor_tactics)
         
         # If we have tactics, format them nicely for the PDF
-        if has_competitor_tactics:
+        if has_competitor_tactics and isinstance(competitor_tactics, list) and len(competitor_tactics) > 0:
             for i, tactic in enumerate(competitor_tactics):
                 content.append(Paragraph(f"{i+1}. {tactic}", normal_style))
                 content.append(Spacer(1, 6))
