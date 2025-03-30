@@ -803,18 +803,65 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # Extract top strength and key opportunity
     # Initialize variables to avoid "possibly unbound" errors
+    # Calculate dynamic metrics based on actual scores
+    metric_scores = list(scores.items())
+    metric_scores.sort(key=lambda x: x[1], reverse=True)
+    
+    # Calculate weighted ROI metrics based on key performance indicators
+    weighted_metrics = {
+        "Cultural Authority": 1.5,
+        "Buzz & Conversation": 1.3,
+        "Cultural Vernacular": 1.2,
+        "Commerce Bridge": 1.2,
+        "Platform Relevance": 1.1
+    }
+    
+    # Calculate weighted ROI score
+    roi_sum = 0
+    roi_weight_total = 0
+    
+    for metric, score in scores.items():
+        weight = weighted_metrics.get(metric, 0.8)  # Default weight for other metrics
+        roi_sum += score * weight
+        roi_weight_total += weight
+    
+    # Calculate weighted average ROI and convert to percentage
+    if roi_weight_total > 0:
+        roi_score = roi_sum / roi_weight_total
+        roi_percent = int(5 + (roi_score / 10) * 20)
+        roi_potential = f"+{roi_percent}%"
+    else:
+        # Fallback if weights are missing
+        avg_score = sum(scores.values()) / len(scores) if scores else 7.0
+        roi_percent = int(5 + (avg_score / 10) * 20)
+        roi_potential = f"+{roi_percent}%"
+    
+    # Use AI-generated insights if available, otherwise use calculated metrics
     if 'ai_insights' in st.session_state and st.session_state.ai_insights:
         ai_insights = st.session_state.ai_insights
+        strengths = ai_insights.get('strengths', [])
+        improvements = ai_insights.get('improvements', [])
         
         # Extract the first strength and improvement for the executive summary
-        top_strength = ai_insights.get('strengths', [{}])[0].get('area', 'Cultural Relevance') if ai_insights.get('strengths') else 'Cultural Relevance'
-        key_opportunity = ai_insights.get('improvements', [{}])[0].get('area', 'Audience Engagement') if ai_insights.get('improvements') else 'Audience Engagement'
+        if strengths:
+            top_strength = strengths[0].get('area', 'Cultural Relevance')
+        else:
+            # Fall back to calculated top strength
+            top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
+            
+        if improvements:
+            key_opportunity = improvements[0].get('area', 'Audience Engagement')
+        else:
+            # Fall back to calculated bottom metric
+            key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
         
-        # Add debug info to see where these values are coming from
+        # Add debug info
         st.session_state['debug_info'] = {
             "source": "ai_insights",
             "top_strength": top_strength,
-            "key_opportunity": key_opportunity
+            "key_opportunity": key_opportunity,
+            "calculated_top": metric_scores[0][0] if metric_scores else "None",
+            "calculated_bottom": metric_scores[-1][0] if metric_scores else "None"
         }
         
         # Extract potential ROI from performance prediction if available
@@ -828,8 +875,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     roi_potential = f"+{roi_potential}"
     else:
         # Calculate based on the scores if AI insights aren't available
-        metric_scores = list(scores.items())
-        metric_scores.sort(key=lambda x: x[1], reverse=True)
         
         # Use the highest scoring metric as the top strength
         top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
@@ -837,21 +882,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Use the lowest scoring metric as the key opportunity
         key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
         
-        # Add debug info to see where these values are coming from
+        # Add debug info
         st.session_state['debug_info'] = {
             "source": "calculated_scores",
             "top_strength": top_strength,
             "key_opportunity": key_opportunity,
-            "metric_scores": {name: score for name, score in metric_scores}
+            "metric_scores": {name: score for name, score in metric_scores},
+            "roi_formula": {
+                "roi_percent": roi_percent
+            }
         }
-    
-    # If we couldn't extract ROI from AI insights, calculate based on the scores
-    if not roi_potential:
-        # Calculate based on the average score - higher scores = higher potential
-        avg_score = sum(scores.values()) / len(scores)
-        # Convert to a percentage between 5-25%
-        roi_percent = int(5 + (avg_score / 10) * 20)
-        roi_potential = f"+{roi_percent}%"
     
     # Generate summary text from the insights - make it more dynamic and specific to the brief
     if 'ai_insights' in st.session_state and st.session_state.ai_insights:
@@ -1934,6 +1974,60 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     # Create columns for the visualizations
     col1, col2 = st.columns([3, 2])
     
+    # Initialize variables needed by the Campaign Strengths section
+    metric_scores = list(scores.items())
+    metric_scores.sort(key=lambda x: x[1], reverse=True)
+    
+    # Get top metrics for campaign strengths
+    top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
+    
+    # Calculate ROI potential - use the same formula as in the executive summary
+    weighted_metrics = {
+        "Cultural Authority": 1.5,
+        "Buzz & Conversation": 1.3,
+        "Cultural Vernacular": 1.2,
+        "Commerce Bridge": 1.2,
+        "Platform Relevance": 1.1
+    }
+    
+    # Calculate weighted ROI score
+    roi_sum = 0
+    roi_weight_total = 0
+    
+    for metric, score in scores.items():
+        weight = weighted_metrics.get(metric, 0.8)  # Default weight for other metrics
+        roi_sum += score * weight
+        roi_weight_total += weight
+    
+    # Calculate weighted average ROI and convert to percentage
+    if roi_weight_total > 0:
+        roi_score = roi_sum / roi_weight_total
+        roi_percent = int(5 + (roi_score / 10) * 20)
+        roi_potential = f"+{roi_percent}%"
+    else:
+        # Fallback if weights are missing
+        roi_percent = int(5 + (avg_score / 10) * 20)
+        roi_potential = f"+{roi_percent}%"
+        
+    # Check for AI insights to override values
+    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+        ai_insights = st.session_state.ai_insights
+        strengths = ai_insights.get('strengths', [])
+        
+        # Extract the first strength for the campaign strength section
+        if strengths:
+            top_strength = strengths[0].get('area', 'Cultural Relevance')
+            
+        # Extract potential ROI from performance prediction if available
+        prediction = ai_insights.get('performance_prediction', '')
+        if prediction and '%' in prediction:
+            import re
+            roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
+            if roi_match:
+                roi_potential = roi_match.group(0)
+                if not roi_potential.startswith('+'):
+                    roi_potential = f"+{roi_potential}"
+    
     with col1:
         # Create a radar chart
         categories = list(scores.keys())
@@ -2113,13 +2207,14 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
         </div>
         """, unsafe_allow_html=True)
         
-        # Add campaign strengths from AI insights if available
+        # Add campaign strengths from the values calculated for the executive summary
+        # Display campaign strengths section header
+        st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
+        
+        # Check if we have AI insights available
         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
             ai_insights = st.session_state.ai_insights
             strengths = ai_insights.get('strengths', [])
-            
-            # Display campaign strengths section header
-            st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
             
             # Get strengths from AI insights if available, otherwise use the top scoring metrics
             if strengths:
@@ -2128,14 +2223,14 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
                 
                 for strength in displayed_strengths:
                     area = strength.get('area', 'Cultural Alignment')
-                    # Display each strength as a card
+                    # Display each strength as a card - this should match the calculated top_strength for the executive summary
                     st.markdown(f"""
                     <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
                         <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{area}</div>
                     </div>
                     """, unsafe_allow_html=True)
             else:
-                # No AI insights available, use the top scoring metrics from the analysis
+                # No strengths in AI insights, use the top scoring metrics from the analysis
                 metric_scores = list(scores.items())
                 metric_scores.sort(key=lambda x: x[1], reverse=True)
                 
@@ -2149,52 +2244,33 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
                         <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{metric_name}</div>
                     </div>
                     """, unsafe_allow_html=True)
+        else:
+            # No AI insights available, simply use the top_strength from the executive summary
+            # and also add the second highest metric
+            metric_scores = list(scores.items())
+            metric_scores.sort(key=lambda x: x[1], reverse=True)
             
-            # Extract ROI potential from performance prediction if available, or calculate dynamically
-            roi_potential = ""
-            if 'performance_prediction' in ai_insights:
-                prediction = ai_insights['performance_prediction']
-                import re
-                roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
-                if roi_match:
-                    roi_potential = roi_match.group(0)
-                    if not roi_potential.startswith('+'):
-                        roi_potential = f"+{roi_potential}"
-            
-            # If no ROI from AI insights, calculate based on the scores
-            if not roi_potential:
-                # Use a weighted formula based on the most important metrics for ROI
-                weighted_metrics = {
-                    "Cultural Authority": 1.5,
-                    "Buzz & Conversation": 1.3,
-                    "Cultural Vernacular": 1.2,
-                    "Commerce Bridge": 1.2,
-                    "Platform Relevance": 1.1
-                }
-                
-                # Calculate weighted score for ROI prediction
-                roi_sum = 0
-                roi_weight_total = 0
-                
-                for metric, score in scores.items():
-                    weight = weighted_metrics.get(metric, 0.8)  # Default weight for other metrics
-                    roi_sum += score * weight
-                    roi_weight_total += weight
-                
-                # Calculate weighted average and convert to ROI percentage (5-25%)
-                if roi_weight_total > 0:
-                    roi_score = roi_sum / roi_weight_total
-                    roi_percent = int(5 + (roi_score / 10) * 20)
-                    roi_potential = f"+{roi_percent}%"
-                else:
-                    roi_potential = "+15%"  # Fallback value
-            
-            # Display ROI potential separately
+            # Display top_strength from executive summary
             st.markdown(f"""
-            <div style="background: #fff8f0; border-radius: 6px; padding: 10px 15px; margin: 15px 0;">
-                <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">ROI Potential: {roi_potential}</div>
+            <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
+                <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{top_strength}</div>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Show second highest metric if different from top_strength
+            if len(metric_scores) >= 2 and metric_scores[1][0] != top_strength:
+                st.markdown(f"""
+                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
+                    <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{metric_scores[1][0]}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Display ROI potential using the same value as in the executive summary
+        st.markdown(f"""
+        <div style="background: #fff8f0; border-radius: 6px; padding: 10px 15px; margin: 15px 0;">
+            <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">ROI Potential: {roi_potential}</div>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Display AI insights using the dynamically generated content
         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
