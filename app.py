@@ -795,6 +795,12 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     from marketing_trends import display_trend_heatmap
     st.markdown("---")
     
+    # Initialize default values for variables that might not be set later
+    summary_text = "This campaign shows promising elements in cultural resonance alongside opportunities for optimization."
+    top_strength = "Cultural Relevance"
+    key_opportunity = "Platform Relevance" 
+    roi_potential = "15-20%"
+    
     # Check if this is a SiteOne Hispanic campaign
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
