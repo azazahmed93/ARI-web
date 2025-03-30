@@ -44,6 +44,10 @@ def generate_trend_data(brief_text=None):
         "Suburban"
     ]
     
+    # Make sure the categories are displayed in the exact order we want in the heatmap
+    # This creates a custom order for the plot columns that overrides alphabetical sorting
+    market_order = markets.copy()
+    
     # Generate base scores with some randomness for realism
     # The realistic generation ensures we don't have too many extreme values
     data = []
@@ -165,6 +169,22 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
         [0.85, "#a855f7"], # Purple
         [1.0, "#ec4899"]   # Pink
     ]
+    
+    # Reorder the columns according to our defined order
+    # Get markets list from the data generation function
+    market_order = [
+        "Gen Z",
+        "Millennials", 
+        "Gen X",
+        "Low Income",
+        "Mid Income",
+        "High Income",
+        "Urban",
+        "Suburban"
+    ]
+    
+    # Reindex with our custom order
+    pivot_df = pivot_df.reindex(columns=market_order)
     
     # Create heatmap
     fig = go.Figure(data=go.Heatmap(
