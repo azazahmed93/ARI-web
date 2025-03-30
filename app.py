@@ -925,74 +925,195 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Default summary when no AI insights are available
         summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
     
-    # Enhanced CSS for Advanced Metric Analysis to better match the platform's visual style
+    # Premium styled CSS for Advanced Metric Analysis with animated progress bars
     st.markdown("""
     <style>
     .metric-analysis {
         margin-top: 2rem;
-        padding: 1.8rem;
+        padding: 2rem;
         background: #fff;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         border-top: 4px solid #5865f2;
     }
     .metric-box {
         display: flex;
-        gap: 1rem;
-        margin: 1.2rem 0;
+        gap: 1.2rem;
+        margin: 1.5rem 0;
     }
     .strength-box {
         flex: 1;
         background: #f0fdf4;
-        padding: 1.2rem;
-        border-radius: 6px;
+        padding: 1.5rem;
+        border-radius: 8px;
         border-top: 4px solid #10b981;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
     }
     .opportunity-box {
         flex: 1;
         background: #fff7ed;
-        padding: 1.2rem;
-        border-radius: 6px;
+        padding: 1.5rem;
+        border-radius: 8px;
         border-top: 4px solid #f59e0b;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.1);
     }
     .roi-box {
         flex: 1;
         background: #fef2f2;
-        padding: 1.2rem;
-        border-radius: 6px;
+        padding: 1.5rem;
+        border-radius: 8px;
         border-top: 4px solid #ef4444;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
+    }
+    .metrics-container {
+        margin-top: 1.5rem;
     }
     .metric-item {
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.8rem;
+        background: #f8fafc;
+        padding: 1.2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+    }
+    .metric-score {
+        font-weight: 600;
+        border-radius: 100px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    .metric-score.excellent {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+    .metric-score.good {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+    .metric-score.needs-improvement {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+    .metric-progress-container {
+        height: 8px;
+        width: 100%;
+        background: #e2e8f0;
+        border-radius: 100px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    .metric-progress-bar {
+        height: 100%;
+        border-radius: 100px;
+        width: 0;
+        transition: width 1.5s ease-in-out;
+    }
+    .metric-progress-bar.excellent {
+        background: linear-gradient(90deg, #10b981, #34d399);
+        animation: animate-bar 1.5s ease-out forwards;
+    }
+    .metric-progress-bar.good {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        animation: animate-bar 1.5s ease-out forwards;
+    }
+    .metric-progress-bar.needs-improvement {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+        animation: animate-bar 1.5s ease-out forwards;
+    }
+    .metric-description {
+        color: #475569;
+        font-size: 0.9rem;
         line-height: 1.6;
     }
     .metric-analysis h3 {
-        color: #5865f2;
+        color: #1e293b;
         font-weight: 600;
-        margin-bottom: 1rem;
-        font-size: 1.3rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.4rem;
+        letter-spacing: -0.01em;
     }
     .metric-analysis strong {
-        color: #334155;
+        color: #0f172a;
+        font-weight: 600;
+    }
+    
+    @keyframes animate-bar {
+        0% { width: 0; }
+        100% { width: var(--target-width, 0%); }
     }
     </style>
+    <script>
+    // Set animation target width through CSS variables
+    document.addEventListener("DOMContentLoaded", function() {
+        const bars = document.querySelectorAll('.metric-progress-bar');
+        bars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.setProperty('--target-width', width);
+            bar.style.width = '0';
+        });
+    });
+    </script>
     """, unsafe_allow_html=True)
     
     # Generate our analysis content directly using HTML generation with string concatenation
     # Use a complete string instead of multi-line f-strings to avoid HTML escaping issues
     analysis = '<div class="metric-analysis">'
-    analysis += f'<h3>🚀 Executive Summary</h3>'
+    analysis += f'<h3>Executive Summary</h3>'
     analysis += f'<p>{summary_text}</p>'
     analysis += '<div class="metric-box">'
     analysis += f'<div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>'
     analysis += f'<div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>'
     analysis += f'<div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>'
     analysis += '</div>'
-    analysis += '<h3>📌 Detailed Metrics</h3>'
-    analysis += '<div>'
-    analysis += metrics_html
-    analysis += '</div>'
-    analysis += '</div>'
+    analysis += '<h3>Detailed Metrics</h3>'
+    analysis += '<div class="metrics-container">'
+    
+    # Replace static metrics_html with animated progress bars
+    for metric, score in scores.items():
+        formatted_score = f"{score:.1f}"
+        # Get description text - prioritize AI-generated descriptions if available
+        if 'ai_insights' in st.session_state and st.session_state.ai_insights and 'metric_details' in st.session_state.ai_insights:
+            # Use the AI-generated description specific to this brief if available
+            metric_details = st.session_state.ai_insights.get('metric_details', {})
+            if metric in metric_details:
+                description = metric_details[metric]
+            else:
+                # Fall back to generic descriptions
+                description = METRICS[metric][get_score_level(score)]
+        else:
+            # Use generic descriptions from METRICS
+            description = METRICS[metric][get_score_level(score)]
+            
+        # Calculate percent for bar width
+        percent = int(score * 10)
+        
+        # Set the color based on score
+        if score >= 8:
+            bar_color = "#10b981"  # Green
+            bar_class = "excellent"
+        elif score >= 6:
+            bar_color = "#f59e0b"  # Orange
+            bar_class = "good"
+        else:
+            bar_color = "#ef4444"  # Red
+            bar_class = "needs-improvement"
+            
+        # Add metric with animated progress bar
+        analysis += f'<div class="metric-item">'
+        analysis += f'<div class="metric-header"><strong>{metric}</strong> <span class="metric-score {bar_class}">{formatted_score}</span></div>'
+        analysis += f'<div class="metric-progress-container">'
+        analysis += f'<div class="metric-progress-bar {bar_class}" style="width: {percent}%;"></div>'
+        analysis += f'</div>'
+        analysis += f'<div class="metric-description">{description}</div>'
+        analysis += f'</div>'
+    
+    analysis += '</div>'  # Close metrics-container
+    analysis += '</div>'  # Close metric-analysis
     
     st.markdown(analysis, unsafe_allow_html=True)
     
