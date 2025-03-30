@@ -1882,10 +1882,22 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 </svg>
                                 <span>AI-Powered Audience Segmentation Recommendation</span> {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
                             </h4>
-                            <p style="margin-bottom: 8px;"><strong>Target Segment {display_tip_bubble("audience", "Audience Segment", inline=True)}:</strong> {}</p>
-                            <p style="margin-bottom: 8px;"><strong>Demographics {display_tip_bubble("audience", "Demographics", inline=True)}:</strong> {}</p>
-                            <p style="margin-bottom: 8px;"><strong>Key Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}:</strong> {}</p>
-                            <p style="margin-bottom: 8px;"><strong>Platform Strategy {display_tip_bubble("audience", "Platform Recommendation", inline=True)}:</strong> {}</p>
+                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Target Segment {display_tip_bubble("audience", "Audience Segment", inline=True)}</span>
+                                {}
+                            </p>
+                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Demographics {display_tip_bubble("audience", "Demographics", inline=True)}</span>
+                                {}
+                            </p>
+                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Key Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}</span>
+                                {}
+                            </p>
+                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
+                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Platform Strategy {display_tip_bubble("audience", "Platform Recommendation", inline=True)}</span>
+                                {}
+                            </p>
                             {}
                             {}
                         </div>
@@ -1894,8 +1906,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             demographics_str,
                             interests_str,
                             platform_strategy,
-                            f'<p style="margin-bottom: 8px;"><strong>Optimization Strategy {display_tip_bubble("audience", "Optimization Strategy", inline=True)}:</strong> {bidding_str}</p>' if bidding_str else '',
-                            f'<p style="margin-bottom: 0;"><strong>Expected Performance {display_tip_bubble("audience", "Expected CTR", inline=True)}:</strong> {performance_str}</p>' if performance_str else ''
+                            f'<p style="margin-bottom: 8px; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Optimization Strategy {display_tip_bubble("audience", "Optimization Strategy", inline=True)}</span> {bidding_str}</p>' if bidding_str else '',
+                            f'<p style="margin-bottom: 0; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Expected Performance {display_tip_bubble("audience", "Expected CTR", inline=True)}</span> {performance_str}</p>' if performance_str else ''
                         ), unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
@@ -2071,22 +2083,25 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     st.markdown(f"""
     <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
+            <span style="color: {color}; font-weight: 600; font-size: 0.8rem; display:flex; align-items:center;">
                 {segment_type} Audience {display_tip_bubble("audience", "Audience Segment", inline=True)}
             </span>
-            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
+            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; display:flex; align-items:center;">
                 {metric_name}: {ctr} {display_tip_bubble("audience", "Expected CTR", inline=True)}
             </span>
         </div>
         <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <strong>Demographics {display_tip_bubble("audience", "Demographics", inline=True)}:</strong> {demographics_str}
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
+            <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Demographics {display_tip_bubble("audience", "Demographics", inline=True)}</span>
+            {demographics_str}
         </p>
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <strong>Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}:</strong> {interests_str}
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
+            <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}</span>
+            {interests_str}
         </p>
-        <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
-            <strong>Recommended Platform {display_tip_bubble("audience", "Platform Recommendation", inline=True)}:</strong> {platform_rec}
+        <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
+            <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Recommended Platform {display_tip_bubble("audience", "Platform Recommendation", inline=True)}</span>
+            {platform_rec}
         </p>
     </div>
     """, unsafe_allow_html=True)
