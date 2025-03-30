@@ -2074,7 +2074,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             """, unsafe_allow_html=True)
             include_psychographic = st.checkbox("Psychographic Highlights", value=True, key="psychographic")
             include_audience = st.checkbox("Audience Summary", value=True, key="audience")
-            include_next_steps = st.checkbox("Next Steps", value=True, key="next_steps")
             
             # Additional checkbox for trend analysis with highlight styling
             include_trends = st.checkbox("Marketing Trend Analysis", value=True, help="Include the marketing trend heatmap and key trend insights in your report", key="trends")
@@ -2088,7 +2087,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             'streaming': include_streaming,
             'psychographic': include_psychographic,
             'audience': include_audience,
-            'next_steps': include_next_steps,
+            'next_steps': False,  # Removed Next Steps option as requested
             'trends': include_trends
         }
         

@@ -128,13 +128,11 @@ status, and excitement</strong>.
 </div>
 
 <div style="margin-bottom: 15px;">
-<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies a significant opportunity targeting <strong>urban digital nomads (25-34)</strong> who demonstrate high engagement with flexible lifestyle content, remote work technologies, and adventure-oriented media. This audience shows 2.8x higher conversion rates when targeted with mobility-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
+<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Tech Early Adopters</strong> (urban digital nomads, 25-34) who demonstrate high engagement with flexible lifestyle content, remote work technologies, and adventure-oriented media. This audience shows 2.8x higher conversion rates when targeted with mobility-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
 </div>
 
 <div>
-<strong>Secondary Growth Audience:</strong> Additional opportunity exists among <strong>older Gen Z and 
-college-age students</strong> who index high for athletic lifestyle, peer validation, and 
-mobile-first media behaviors.
+<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Digital Experience Seekers</strong> (older Gen Z and college-age students) who index high for athletic lifestyle, peer validation, and mobile-first media behaviors.
 </div>
 """
 
@@ -148,7 +146,7 @@ online with <strong>33% spending 10-20 hours per week</strong> online.
 </div>
 
 <div style="margin-bottom: 15px;">
-<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis reveals an untapped segment of <strong>bilingual, tech-savvy family influencers (30-45)</strong> who make purchasing decisions for multigenerational households. This audience demonstrates 3.2x higher engagement with culturally-relevant audio content and shows strong affinity for interactive and shoppable video formats that seamlessly integrate with their mobile-first behaviors.
+<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis reveals <strong>Cultural Connectors</strong> (bilingual, tech-savvy family influencers, 30-45) who make purchasing decisions for multigenerational households. This audience demonstrates 3.2x higher engagement with culturally-relevant audio content and shows strong affinity for interactive and shoppable video formats that seamlessly integrate with their mobile-first behaviors.
 </div>
 
 <div>
