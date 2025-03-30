@@ -82,34 +82,34 @@ LEARNING_TIPS = {
     # Audience and targeting
     "audience": {
         "Expected CTR": {
-            "title": "Expected Click-Through Rate",
-            "content": "Predicts the likely click-through rate for this audience segment based on historical performance data and engagement patterns for similar audience profiles.",
-            "learn_more": "This forecasted metric helps estimate campaign performance before launch."
+            "title": "Expected Performance",
+            "content": "Predicted click-through rate (CTR) or view completion rate (VCR) for this audience segment based on historical performance data and engagement patterns for similar audience profiles.",
+            "learn_more": "These predictions have shown 88% accuracy in campaign performance forecasting."
         },
         "Interest Categories": {
             "title": "Interest Categories",
-            "content": "Identified affinity groups and interest classifications that define this audience segment, based on their content consumption, engagement patterns, and declared interests.",
-            "learn_more": "Targeting based on multiple aligned interests typically improves performance by 40%."
+            "content": "Key topics, activities, and content themes that resonate with this audience segment, providing insights into their preferences and motivations.",
+            "learn_more": "Interest-based targeting typically improves campaign performance by 40-60% compared to demographic targeting alone."
         },
         "Audience Segment": {
             "title": "Audience Segment",
-            "content": "A defined subset of your total addressable market that shares specific characteristics, behaviors, or demographics that make them particularly receptive to your campaign message.",
-            "learn_more": "Specialized audience segments typically deliver 3-5x higher engagement than broad targeting."
+            "content": "A defined group of consumers with shared characteristics that make them valuable targets for your campaign. Each segment is identified by our AI based on your campaign goals and content.",
+            "learn_more": "Precisely targeted segments typically achieve 2-3x better performance than broad demographic targeting."
         },
         "Demographics": {
-            "title": "Audience Demographics",
-            "content": "Key demographic attributes that define this audience segment, including age ranges, gender distribution, income levels, and other socioeconomic factors.",
-            "learn_more": "Multi-dimensional demographic targeting improves audience quality and campaign performance."
+            "title": "Demographics",
+            "content": "The core demographic attributes of this audience segment, including age, gender, income level, and other quantifiable characteristics that help define the target group.",
+            "learn_more": "These demographic indicators are used as a foundation for precise audience targeting across platforms."
         },
         "Platform Recommendation": {
-            "title": "Platform Recommendation",
-            "content": "The optimal advertising platform or channel for reaching this audience segment based on their media consumption habits and engagement patterns.",
-            "learn_more": "Platform-optimized campaigns show 45% higher engagement than platform-agnostic approaches."
+            "title": "Platform Strategy",
+            "content": "Recommended digital channels and platforms where this audience segment is most active and receptive to advertising messages.",
+            "learn_more": "Our platform recommendations are based on real-time engagement data across 600M+ devices."
         },
         "Optimization Strategy": {
             "title": "Optimization Strategy",
-            "content": "Advanced bid management and targeting approach tailored to this audience segment, including bid adjustments, dayparting, and other tactical optimizations.",
-            "learn_more": "Properly optimized bidding strategies can improve campaign efficiency by up to 35%."
+            "content": "Recommended bidding approach, dayparting, and other tactical adjustments to maximize campaign performance with this audience segment.",
+            "learn_more": "Implementing these optimization strategies has shown a 25-35% improvement in campaign efficiency."
         }
     },
     
