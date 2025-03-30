@@ -114,9 +114,9 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         content.append(Paragraph("Audience Resonance Index™ Scorecard", title_style))
     content.append(Spacer(1, 12))
     
-    # Add brand info if available
-    if brand_name != "Unknown" and industry != "General":
-        content.append(Paragraph(f"Industry: {industry} | Product Type: {product_type}", 
+    # Remove industry info as requested
+    if brand_name != "Unknown":
+        content.append(Paragraph(f"Brand: {brand_name}", 
                                ParagraphStyle('BrandInfo', parent=normal_style, alignment=TA_CENTER)))
         content.append(Spacer(1, 12))
     
@@ -178,22 +178,13 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Benchmark section
     content.append(Paragraph("Benchmark Comparison", heading1_style))
     
-    # Create custom benchmark text based on brand information
-    if brand_name != "Unknown" and industry != "General":
-        benchmark_text = (f"This {brand_name} campaign ranks in the top {percentile}% of {industry} campaigns "
-                        f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
-                        f"peer campaigns in relevance, authenticity, and emotional connection — based on "
-                        f"Digital Culture Group's analysis of 300+ {industry.lower()} efforts.")
-        
-        improvement_text = (f"<b>Biggest opportunity areas for a {product_type} in the {industry} industry:</b> "
-                         f"{', '.join(improvement_areas)}")
-    else:
-        benchmark_text = (f"This campaign ranks in the top {percentile}% of Gen Z-facing national campaigns "
-                        f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
-                        f"peer campaigns in relevance, authenticity, and emotional connection — based on "
-                        f"Digital Culture Group's analysis of 300+ national efforts.")
-        
-        improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
+    # Simplified benchmark text without industry references
+    benchmark_text = (f"This campaign ranks in the top {percentile}% of all campaigns "
+                    f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
+                    f"campaigns in relevance, authenticity, and emotional connection — based on "
+                    f"Digital Culture Group's analysis of 300+ marketing efforts.")
+    
+    improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
     
     content.append(Paragraph(benchmark_text, normal_style))
     content.append(Spacer(1, 6))
@@ -370,7 +361,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     content.append(Spacer(1, 12))
     
     # Footer
-    content.append(Paragraph('Powered by Digital Culture Group © 2023', 
+    content.append(Paragraph('© 2025 Digital Culture Group, LLC. All rights reserved.', 
                           ParagraphStyle('Footer', parent=normal_style, alignment=TA_CENTER, fontSize=8, textColor=colors.gray)))
     
     # Build the PDF

@@ -791,6 +791,8 @@ def is_siteone_hispanic_campaign(brand_name, brief_text):
 
 def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product", brief_text=""):
     """Display the ARI analysis results."""
+    # Import the marketing trend heatmap functionality
+    from marketing_trends import display_trend_heatmap
     st.markdown("---")
     
     # Check if this is a SiteOne Hispanic campaign
@@ -1550,6 +1552,20 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             </div>
             """, unsafe_allow_html=True)
     
+    # Marketing Trend Heatmap
+    st.markdown("""
+    <h3 style="display:flex; align-items:center; gap:10px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#5865f2"/>
+        </svg>
+        Marketing Trend Heatmap
+    </h3>
+    """, unsafe_allow_html=True)
+    
+    # Use our marketing trend heatmap module
+    from marketing_trends import display_trend_heatmap
+    display_trend_heatmap(brief_text, "Dynamic Media Performance Heatmap")
+    
     # Psychographic Highlights
     st.markdown("""
     <h3 style="display:flex; align-items:center; gap:10px;">
@@ -1683,6 +1699,8 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
         improvement_areas (list, optional): List of improvement areas
         brief_text (str, optional): The brief text for audience analysis
     """
+    # Import the marketing trend heatmap module
+    from marketing_trends import display_trend_heatmap
     # If improvement_areas is None, initialize it to an empty list
     if improvement_areas is None:
         improvement_areas = []
