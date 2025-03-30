@@ -88,16 +88,18 @@ def apply_styles():
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 18px;
-        height: 18px;
-        background-color: #5865f2;
-        color: white;
-        border-radius: 50%;
-        font-size: 11px;
-        font-weight: bold;
-        margin-left: 5px;
+        width: 20px;
+        height: 20px;
+        background-color: transparent;
+        color: #5865f2;
+        margin-left: 3px;
         cursor: pointer;
         vertical-align: middle;
+        transition: transform 0.2s ease;
+    }
+    
+    .tip-icon:hover {
+        transform: scale(1.1);
     }
     
     .tip-bubble {
@@ -107,24 +109,25 @@ def apply_styles():
     
     .tip-bubble .tip-content {
         visibility: hidden;
-        width: 280px;
+        width: 300px;
         background-color: #fff;
         color: #444;
         text-align: left;
-        border-radius: 6px;
-        padding: 12px;
+        border-radius: 8px;
+        padding: 16px;
         position: absolute;
         z-index: 1000;
         bottom: 125%;
         left: 50%;
         transform: translateX(-50%);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        border: 1px solid #e0e0e0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
         opacity: 0;
-        transition: opacity 0.3s;
+        transition: opacity 0.2s ease, transform 0.2s ease;
         font-weight: normal;
         font-size: 13px;
-        line-height: 1.5;
+        line-height: 1.6;
+        transform: translateX(-50%) translateY(10px);
     }
     
     .tip-bubble .tip-content::after {
@@ -141,21 +144,29 @@ def apply_styles():
     .tip-bubble:hover .tip-content {
         visibility: visible;
         opacity: 1;
+        transform: translateX(-50%) translateY(0);
     }
     
     .tip-title {
-        font-weight: 600;
-        margin-bottom: 5px;
-        color: #333;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #4338ca;
         font-size: 14px;
+        letter-spacing: 0.01em;
     }
     
     .tip-learn-more {
         display: block;
-        margin-top: 8px;
+        margin-top: 10px;
         color: #5865f2;
         font-weight: 500;
         font-size: 12px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .tip-learn-more:hover {
+        color: #4338ca;
     }
     
     .benchmark {

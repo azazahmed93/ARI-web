@@ -1874,10 +1874,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 </svg>
                                 AI-Powered Audience Segmentation Recommendation {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
                             </h4>
-                            <p style="margin-bottom: 8px;"><strong>Target Segment:</strong> {} {display_tip_bubble("audience", "Audience Segment", inline=True)}</p>
-                            <p style="margin-bottom: 8px;"><strong>Demographics:</strong> {} {display_tip_bubble("audience", "Demographics", inline=True)}</p>
-                            <p style="margin-bottom: 8px;"><strong>Key Interests:</strong> {} {display_tip_bubble("audience", "Interest Categories", inline=True)}</p>
-                            <p style="margin-bottom: 8px;"><strong>Platform Strategy:</strong> {} {display_tip_bubble("audience", "Platform Recommendation", inline=True)}</p>
+                            <p style="margin-bottom: 8px;"><strong>Target Segment {display_tip_bubble("audience", "Audience Segment", inline=True)}:</strong> {}</p>
+                            <p style="margin-bottom: 8px;"><strong>Demographics {display_tip_bubble("audience", "Demographics", inline=True)}:</strong> {}</p>
+                            <p style="margin-bottom: 8px;"><strong>Key Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}:</strong> {}</p>
+                            <p style="margin-bottom: 8px;"><strong>Platform Strategy {display_tip_bubble("audience", "Platform Recommendation", inline=True)}:</strong> {}</p>
                             {}
                             {}
                         </div>
@@ -1886,8 +1886,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             demographics_str,
                             interests_str,
                             platform_strategy,
-                            f'<p style="margin-bottom: 8px;"><strong>Optimization Strategy:</strong> {bidding_str} {display_tip_bubble("audience", "Optimization Strategy", inline=True)}</p>' if bidding_str else '',
-                            f'<p style="margin-bottom: 0;"><strong>Expected Performance:</strong> {performance_str} {display_tip_bubble("audience", "Expected CTR", inline=True)}</p>' if performance_str else ''
+                            f'<p style="margin-bottom: 8px;"><strong>Optimization Strategy {display_tip_bubble("audience", "Optimization Strategy", inline=True)}:</strong> {bidding_str}</p>' if bidding_str else '',
+                            f'<p style="margin-bottom: 0;"><strong>Expected Performance {display_tip_bubble("audience", "Expected CTR", inline=True)}:</strong> {performance_str}</p>' if performance_str else ''
                         ), unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
@@ -2067,13 +2067,13 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         </div>
         <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <strong>Demographics:</strong> {demographics_str} {display_tip_bubble("audience", "Demographics", inline=True)}
+            <strong>Demographics {display_tip_bubble("audience", "Demographics", inline=True)}:</strong> {demographics_str}
         </p>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <strong>Interests:</strong> {interests_str} {display_tip_bubble("audience", "Interest Categories", inline=True)}
+            <strong>Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}:</strong> {interests_str}
         </p>
         <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
-            <strong>Recommended Platform:</strong> {platform_rec} {display_tip_bubble("audience", "Platform Recommendation", inline=True)}
+            <strong>Recommended Platform {display_tip_bubble("audience", "Platform Recommendation", inline=True)}:</strong> {platform_rec}
         </p>
     </div>
     """, unsafe_allow_html=True)
