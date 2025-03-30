@@ -929,141 +929,85 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 with tab:
                     # Check if this is the Competitor Tactics tab (last tab)
                     if i == len(area_tabs) - 1:
-                        # Handle the Competitor Tactics tab specifically using competitor_analysis data
-                        if 'competitor_analysis' in st.session_state and st.session_state.competitor_analysis:
-                            comp_analysis = st.session_state.competitor_analysis
-                            
-                            # Directly create a fully pre-written explanation using the competitor data
-                            explanation = "Analysis of competitor digital ad strategies reveals opportunities for differentiation."
-                            
-                            # Add competitor examples if available
-                            if comp_analysis.get('competitors') and len(comp_analysis.get('competitors', [])) > 0:
-                                main_competitor = comp_analysis['competitors'][0]
-                                competitor_name = main_competitor.get('name', 'Major competitor')
-                                tactics = main_competitor.get('digital_tactics', 'broad awareness tactics')
-                                
-                                # Construct a clean sentence about the competitor without using dynamic string formatting
-                                explanation += f" {competitor_name} employs {tactics}"
-                            
-                            # Build recommendations section from scratch
-                            recommendations = []
-                            
-                            # Add tactical recommendations based on available data
-                            if comp_analysis.get('advantages') and len(comp_analysis.get('advantages', [])) > 0:
-                                advantage = comp_analysis['advantages'][0]
-                                adv_name = advantage.get('advantage', '')
-                                adv_tactic = advantage.get('tactical_application', '')
-                                if adv_name and adv_tactic:
-                                    recommendations.append(f"Leverage your {adv_name} advantage with {adv_tactic}")
-                            
-                            if comp_analysis.get('threats') and len(comp_analysis.get('threats', [])) > 0:
-                                threat = comp_analysis['threats'][0]
-                                threat_name = threat.get('threat', '')
-                                threat_response = threat.get('tactical_response', '')
-                                if threat_name and threat_response:
-                                    recommendations.append(f"Address {threat_name} through {threat_response}")
-                            
-                            if comp_analysis.get('differentiation') and len(comp_analysis.get('differentiation', [])) > 0:
-                                diff = comp_analysis['differentiation'][0]
-                                platform = diff.get('platform', '')
-                                approach = diff.get('tactical_approach', '')
-                                if platform and approach:
-                                    recommendations.append(f"For {platform}, develop {approach}")
-                            
-                            # Join all recommendations with proper sentence structure
-                            final_recommendation = ". ".join(recommendations)
-                            if final_recommendation:
-                                final_recommendation += "."
-                            
-                            # Display the cleaned content
+                        # Add the new Competitor Tactics Analyzer UI
+                        st.markdown("""
+                        <style>
+                            .competitor-analyzer {
+                                font-family: 'Helvetica Neue', sans-serif;
+                                max-width: 900px;
+                                margin: 0 auto;
+                                background: #ffffff;
+                                border-radius: 8px;
+                                box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+                                padding: 15px;
+                                margin: 10px 0 15px 0;
+                            }
+                            .competitor-heading {
+                                font-size: 0.9rem;
+                                font-weight: 600;
+                                color: #5865f2;
+                                margin-bottom: 10px;
+                            }
+                            .competitor-description {
+                                font-size: 0.9rem;
+                                color: #333;
+                                margin-bottom: 15px;
+                            }
+                            .competitor-output {
+                                margin-top: 15px;
+                                background: #f7fafc;
+                                padding: 15px;
+                                border-left: 4px solid #3b82f6;
+                                font-size: 0.9rem;
+                            }
+                            .competitor-output h3 {
+                                font-size: 1rem;
+                                margin-top: 0;
+                                margin-bottom: 10px;
+                            }
+                            .competitor-output ul {
+                                line-height: 1.7;
+                                padding-left: 20px;
+                            }
+                        </style>
+                        
+                        <div class="competitor-analyzer">
+                            <div class="competitor-heading">Competitor Tactics</div>
+                            <div class="competitor-description">Enter a competitor brand to receive differentiated strategy insights:</div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Add the input field and button
+                        competitor_brand = st.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key="competitor_brand_input")
+                        generate_button = st.button("Generate Insights", key="generate_insights_button")
+                        
+                        # Continue with the HTML structure for outputs
+                        st.markdown("""
+                            <div class="competitor-output" id="strategy-output">
+                        """, unsafe_allow_html=True)
+                        
+                        # If button is clicked, display the strategic differentiation
+                        if generate_button and competitor_brand.strip():
                             st.markdown(f"""
-                            <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
-                                <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
-                                    {explanation}
-                                </div>
-                                <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {final_recommendation}
-                                </div>
-                            </div>
+                                <h3>📊 Strategic Differentiation vs. <strong>{competitor_brand}</strong></h3>
+                                <ul>
+                                    <li><strong>Own the Cultural Moment:</strong> While {competitor_brand} focuses on high-frequency exposure, DCG can capitalize on culturally resonant campaigns tied to seasonal or regional celebrations with first-language and values-driven content.</li>
+                                    <li><strong>Expertise over Volume:</strong> DCG highlights niche expertise (e.g., pro services, landscape tech) where {competitor_brand} relies on generic mass messaging.</li>
+                                    <li><strong>Community Creators:</strong> DCG activates local influencers and trusted creators for storytelling, unlike {competitor_brand}'s top-down voice.</li>
+                                    <li><strong>Geo-Personalization:</strong> Leverage dynamic creative and zip-based targeting to personalize ads—areas {competitor_brand} may overlook.</li>
+                                    <li><strong>1P Data & Lookalikes:</strong> DCG can build custom segments for performance targeting, while {competitor_brand} prioritizes volume-based retargeting.</li>
+                                </ul>
                             """, unsafe_allow_html=True)
                         else:
-                            # First check if there's a specific "Competitor Tactics" improvement in AI insights
-                            competitor_imp = [imp for imp in ai_insights.get("improvements", []) 
-                                           if imp['area'] == "Competitor Tactics"]
-                            
-                            if competitor_imp:
-                                improvement = competitor_imp[0]
-                                st.markdown(f"""
-                                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                    <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
-                                    <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">{improvement['explanation']}</div>
-                                    <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                                        <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {improvement['recommendation']}
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
-                            else:
-                                # Dynamic competitor tactics based on industry and brand
-                                # Generate dynamic competitor insights based on brand and industry
-                                competitor_insights = {}
-                                
-                                # Check what industry information we have available
-                                if industry:
-                                    # Map industries to likely competitor tactics
-                                    industry_tactics = {
-                                        "retail": "omnichannel retargeting and promotional strategies",
-                                        "food": "loyalty-focused social and mobile engagement campaigns",
-                                        "automotive": "high-impact video and immersive content experiences",
-                                        "technology": "thought leadership content and solution-based marketing",
-                                        "finance": "educational content marketing and trust-building campaigns",
-                                        "fashion": "lifestyle-oriented influencer collaborations and visual storytelling",
-                                        "health": "informative content marketing and testimonial-based campaigns",
-                                        "travel": "experiential marketing and aspirational content strategies"
-                                    }
-                                    
-                                    # Find the best match for the industry
-                                    industry_lower = industry.lower()
-                                    matched_industry = None
-                                    
-                                    for key in industry_tactics:
-                                        if key in industry_lower:
-                                            matched_industry = key
-                                            break
-                                    
-                                    if matched_industry:
-                                        competitor_insights["tactics"] = industry_tactics[matched_industry]
-                                    else:
-                                        # Default if no specific industry match
-                                        competitor_insights["tactics"] = "integrated multi-channel digital campaigns"
-                                else:
-                                    competitor_insights["tactics"] = "integrated multi-channel digital campaigns"
-                                
-                                # Generate dynamic ROI metrics based on scores
-                                avg_score = sum(scores.values()) / len(scores) if scores else 7.5
-                                engagement_multiple = round(1 + (avg_score / 10) * 3, 1)  # 1.0-4.0x range
-                                budget_percentage = int(25 + (avg_score / 10) * 20)  # 25-45% range
-                                
-                                # Set explanations based on brand and product
-                                explanation = f"Analysis of competitor digital ad strategies reveals significant opportunities for differentiation in the {industry if industry else 'market'}."
-                                recommendation = f"Key competitors are investing heavily in {competitor_insights['tactics']} with limited targeting precision. Opportunity to counter with highly-targeted mid-funnel tactics using first-party data across audio, rich media, and premium CTV/OTT placements that deliver {engagement_multiple}x the engagement rate. Consider allocating {budget_percentage}% of budget to competitive conquest strategies using interactive video formats and native display ads."
-                                
-                                # Apply grammar cleanup to fix any potential issues in the recommendation
-                                cleaned_recommendation = fix_grammar_and_duplicates(recommendation)
-                                cleaned_explanation = fix_grammar_and_duplicates(explanation)
-                                
-                                st.markdown(f"""
-                                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                    <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
-                                    <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
-                                        {cleaned_explanation}
-                                    </div>
-                                    <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                                        <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> 
-                                        {cleaned_recommendation}
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
+                            # Default message when no brand entered
+                            st.markdown("""
+                                <p>Strategy insights will appear here after you enter a competitor brand.</p>
+                            """, unsafe_allow_html=True)
+                        
+                        # Close the competitor output div
+                        st.markdown("""
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
                     else:
                         # For regular improvement area tabs
                         # Find the matching improvement from AI insights
@@ -1135,12 +1079,82 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 with tab:
                     # For the last tab (Competitor Tactics)
                     if i == len(area_tabs) - 1:
-                        st.markdown(f"""
-                        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                            <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
-                            <div style="color: #333; font-size: 0.9rem;">
-                                Analysis of competitor digital ad strategies reveals significant opportunities for differentiation in the market.
-                                For detailed competitive intelligence, ensure OpenAI API integration is enabled.
+                        # Add the new Competitor Tactics Analyzer UI even when no AI insights
+                        st.markdown("""
+                        <style>
+                            .competitor-analyzer {
+                                font-family: 'Helvetica Neue', sans-serif;
+                                max-width: 900px;
+                                margin: 0 auto;
+                                background: #ffffff;
+                                border-radius: 8px;
+                                box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+                                padding: 15px;
+                                margin: 10px 0 15px 0;
+                            }
+                            .competitor-heading {
+                                font-size: 0.9rem;
+                                font-weight: 600;
+                                color: #5865f2;
+                                margin-bottom: 10px;
+                            }
+                            .competitor-description {
+                                font-size: 0.9rem;
+                                color: #333;
+                                margin-bottom: 15px;
+                            }
+                            .competitor-output {
+                                margin-top: 15px;
+                                background: #f7fafc;
+                                padding: 15px;
+                                border-left: 4px solid #3b82f6;
+                                font-size: 0.9rem;
+                            }
+                            .competitor-output h3 {
+                                font-size: 1rem;
+                                margin-top: 0;
+                                margin-bottom: 10px;
+                            }
+                            .competitor-output ul {
+                                line-height: 1.7;
+                                padding-left: 20px;
+                            }
+                        </style>
+                        
+                        <div class="competitor-analyzer">
+                            <div class="competitor-heading">Competitor Tactics</div>
+                            <div class="competitor-description">Enter a competitor brand to receive differentiated strategy insights:</div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Add the input field and button
+                        competitor_brand = st.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key="competitor_brand_input_fallback")
+                        generate_button = st.button("Generate Insights", key="generate_insights_button_fallback")
+                        
+                        # Continue with the HTML structure for outputs
+                        st.markdown("""
+                            <div class="competitor-output" id="strategy-output">
+                        """, unsafe_allow_html=True)
+                        
+                        # If button is clicked, display the strategic differentiation
+                        if generate_button and competitor_brand.strip():
+                            st.markdown(f"""
+                                <h3>📊 Strategic Differentiation vs. <strong>{competitor_brand}</strong></h3>
+                                <ul>
+                                    <li><strong>Own the Cultural Moment:</strong> While {competitor_brand} focuses on high-frequency exposure, DCG can capitalize on culturally resonant campaigns tied to seasonal or regional celebrations with first-language and values-driven content.</li>
+                                    <li><strong>Expertise over Volume:</strong> DCG highlights niche expertise (e.g., pro services, landscape tech) where {competitor_brand} relies on generic mass messaging.</li>
+                                    <li><strong>Community Creators:</strong> DCG activates local influencers and trusted creators for storytelling, unlike {competitor_brand}'s top-down voice.</li>
+                                    <li><strong>Geo-Personalization:</strong> Leverage dynamic creative and zip-based targeting to personalize ads—areas {competitor_brand} may overlook.</li>
+                                    <li><strong>1P Data & Lookalikes:</strong> DCG can build custom segments for performance targeting, while {competitor_brand} prioritizes volume-based retargeting.</li>
+                                </ul>
+                            """, unsafe_allow_html=True)
+                        else:
+                            # Default message when no brand entered
+                            st.markdown("""
+                                <p>Strategy insights will appear here after you enter a competitor brand and click Generate Insights. For detailed competitive intelligence, ensure OpenAI API integration is enabled.</p>
+                            """, unsafe_allow_html=True)
+                        
+                        # Close the competitor output div
+                        st.markdown("""
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
