@@ -158,6 +158,13 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
         brief_text (str, optional): The marketing brief text to analyze
         title (str): Title for the heatmap
     """
+    # Import learning tips
+    from assets.learning_tips import display_tip_bubble
+    
+    # Create title with tooltip
+    heatmap_tip = display_tip_bubble("methodology", "Marketing Trend Heatmap", inline=True)
+    st.markdown(f'<div style="text-align: center;"><h4>{title} {heatmap_tip}</h4></div>', unsafe_allow_html=True)
+    
     # Generate the trend data
     df = generate_trend_data(brief_text)
     
@@ -212,11 +219,7 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
     
     # Update layout
     fig.update_layout(
-        title=dict(
-            text=title,
-            font=dict(size=18)
-        ),
-        margin=dict(l=30, r=30, t=50, b=30),
+        margin=dict(l=30, r=30, t=10, b=30),
         height=500,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

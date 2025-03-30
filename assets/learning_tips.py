@@ -106,10 +106,30 @@ LEARNING_TIPS = {
             "content": "Recommended digital channels and platforms where this audience segment is most active and receptive to advertising messages.",
             "learn_more": "Our platform recommendations are based on real-time engagement data across 600M+ devices."
         },
+        "Platform Strategy": {
+            "title": "Platform Strategy",
+            "content": "Recommended digital channels and platforms where this audience segment is most active and receptive to advertising messages, with specific targeting approaches for each platform.",
+            "learn_more": "Multi-platform strategies have shown 45% higher conversion rates than single-platform approaches."
+        },
         "Optimization Strategy": {
             "title": "Optimization Strategy",
             "content": "Recommended bidding approach, dayparting, and other tactical adjustments to maximize campaign performance with this audience segment.",
             "learn_more": "Implementing these optimization strategies has shown a 25-35% improvement in campaign efficiency."
+        },
+        "Growth Audience Insights": {
+            "title": "Growth Audience Insights",
+            "content": "Analysis of high-potential audience segments beyond your current core targeting, helping identify new growth opportunities to expand campaign reach and effectiveness.",
+            "learn_more": "Brands that successfully engage growth audiences typically see 1.7x higher overall campaign ROI."
+        },
+        "Emerging Audience Opportunity": {
+            "title": "Emerging Audience Opportunity",
+            "content": "A newly identified audience segment with high growth potential for your brand, based on AI analysis of your brief, market trends, and audience behaviors.",
+            "learn_more": "Early engagement with emerging audiences can create sustainable competitive advantages and reduce customer acquisition costs by up to 40%."
+        },
+        "Audience Summary": {
+            "title": "Audience Summary",
+            "content": "Comprehensive overview of your target audiences, including core demographics, psychographics, and behavioral characteristics that drive engagement with your brand.",
+            "learn_more": "This holistic view of your audience enables more nuanced campaign strategies that drive higher performance across all metrics."
         }
     },
     
