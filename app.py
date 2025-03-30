@@ -552,10 +552,41 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Display metrics summary (replaced radar chart)
     display_summary_metrics(scores, improvement_areas, brief_text)
     
-    # Create a more professional metric breakdown section
+    # Create an advanced metric analysis section using the new HTML template
     st.markdown('<h3 style="margin-top: 30px;">Advanced Metric Analysis</h3>', unsafe_allow_html=True)
     
-    # Add an executive summary card using AI insights
+    # Add the advanced metric analysis section using the new HTML template
+    metrics_html = ""
+    for metric, score in scores.items():
+        # Format the score to a single decimal place
+        formatted_score = f"{score:.1f}"
+        
+        # Determine score level for styling
+        if score >= 8:
+            bg_color = "#e0f7ec"
+            border_color = "#10b981"
+            strength_level = "STRONG"
+        elif score >= 6:
+            bg_color = "#fff4e5"
+            border_color = "#f59e0b"
+            strength_level = "GOOD"
+        else:
+            bg_color = "#fef2f2"
+            border_color = "#ef4444"
+            strength_level = "NEEDS IMPROVEMENT"
+            
+        # Get description text based on score level
+        description = METRICS[metric][get_score_level(score)]
+        
+        # Add this metric to the HTML
+        metrics_html += f"""
+        <div class="metric"><strong>{metric} – {formatted_score}:</strong> {description}</div>
+        """
+    
+    # Extract top strength and key opportunity
+    # Initialize variables to avoid "possibly unbound" errors
+    roi_potential = ""
+    
     if 'ai_insights' in st.session_state and st.session_state.ai_insights:
         ai_insights = st.session_state.ai_insights
         
@@ -564,189 +595,56 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         key_opportunity = ai_insights.get('improvements', [{}])[0].get('area', 'Audience Engagement') if ai_insights.get('improvements') else 'Audience Engagement'
         
         # Extract potential ROI from performance prediction if available
-        # Use a variable value that adjusts based on analysis rather than a static default
-        roi_potential = ""
-        # First try to extract from performance prediction
         prediction = ai_insights.get('performance_prediction', '')
         if prediction and '%' in prediction:
-            # Try to extract percentage from the prediction text
             import re
             roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
             if roi_match:
                 roi_potential = roi_match.group(0)
                 if not roi_potential.startswith('+'):
                     roi_potential = f"+{roi_potential}"
-        
-        # If we couldn't extract from the prediction, calculate based on the scores
-        if not roi_potential:
-            # Calculate based on the average score - higher scores = higher potential
-            avg_score = sum(scores.values()) / len(scores)
-            # Convert to a percentage between 5-25%
-            roi_percent = int(5 + (avg_score / 10) * 20)
-            roi_potential = f"+{roi_percent}%"
-        
-        # Generate summary text from the insights
-        if ai_insights.get('strengths') and ai_insights.get('improvements'):
-            summary_text = f"This campaign demonstrates strong performance in {top_strength.lower()}, with opportunities for improvement in {key_opportunity.lower()}. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by {roi_potential}."
-        else:
-            summary_text = "This campaign has been analyzed using our Audience Resonance Index™. We've identified key strengths and areas for improvement. Our AI-powered recommendations can help optimize your campaign effectiveness."
-        
-        st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
-            <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
-                {summary_text}
-            </p>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
-                    <div style="font-weight: 600; color: #333;">{top_strength}</div>
-                </div>
-                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
-                    <div style="font-weight: 600; color: #333;">{key_opportunity}</div>
-                </div>
-                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
-                    <div style="font-weight: 600; color: #333;">{roi_potential}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
     else:
-        # When AI insights aren't available, calculate dynamic values from metric scores
-        # Get highest and lowest scoring metrics for strengths and opportunities
+        # Calculate based on the scores if AI insights aren't available
         metric_scores = list(scores.items())
         metric_scores.sort(key=lambda x: x[1], reverse=True)
         
         # Use the highest scoring metric as the top strength
-        top_strength = metric_scores[0][0] if metric_scores else "Cultural Relevance"
+        top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
         
         # Use the lowest scoring metric as the key opportunity
-        key_opportunity = metric_scores[-1][0] if metric_scores else "Audience Engagement"
-        
-        # Dynamic ROI calculation based on average score
-        avg_score = sum(scores.values()) / len(scores) if scores else 7.5
+        key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
+    
+    # If we couldn't extract ROI from AI insights, calculate based on the scores
+    if not roi_potential:
+        # Calculate based on the average score - higher scores = higher potential
+        avg_score = sum(scores.values()) / len(scores)
+        # Convert to a percentage between 5-25%
         roi_percent = int(5 + (avg_score / 10) * 20)
         roi_potential = f"+{roi_percent}%"
+    
+    # Generate summary text from the insights
+    summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+    
+    # Use the new HTML template with our dynamic data
+    st.markdown(f"""
+    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
+        <h3 style="margin-top: 0;">🚀 Executive Summary</h3>
+        <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
+            {summary_text}
+        </p>
         
-        # Generate summary text dynamically
-        summary_text = f"This campaign has been analyzed using our Audience Resonance Index™. It demonstrates strong performance in {top_strength.lower()}, with opportunities for improvement in {key_opportunity.lower()}. Our analysis suggests tactical adjustments that could increase overall effectiveness by {roi_potential}."
-        
-        st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 8px;">EXECUTIVE SUMMARY</div>
-            <p style="margin-top: 0; margin-bottom: 15px; color: #333;">
-                {summary_text}
-            </p>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Top Strength</div>
-                    <div style="font-weight: 600; color: #333;">{top_strength}</div>
-                </div>
-                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">Key Opportunity</div>
-                    <div style="font-weight: 600; color: #333;">{key_opportunity}</div>
-                </div>
-                <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px;">
-                    <div style="font-size: 0.7rem; color: #5865f2; text-transform: uppercase; letter-spacing: 1px;">ROI Potential</div>
-                    <div style="font-weight: 600; color: #333;">{roi_potential}</div>
-                </div>
-            </div>
+        <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+            <div style="flex: 1; background: #e0f7ec; padding: 1rem; border-left: 4px solid #10b981;"><strong>Top Strength:</strong><br/>{top_strength}</div>
+            <div style="flex: 1; background: #fff4e5; padding: 1rem; border-left: 4px solid #f59e0b;"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>
+            <div style="flex: 1; background: #fef2f2; padding: 1rem; border-left: 4px solid #ef4444;"><strong>ROI Potential:</strong><br/>{roi_potential}</div>
         </div>
-        """, unsafe_allow_html=True)
+        
+        <h3>📌 Detailed Metrics</h3>
+        {metrics_html}
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Add a header for the detailed metrics with properly styled CSS-only approach
-    st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 15px; text-align: center; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Detailed Metrics Analysis</div>', unsafe_allow_html=True)
-    
-    # Create a more professional two-column layout
-    col1, col2 = st.columns(2)
-    
-    # Display metrics in two columns with enhanced styling
-    metrics = list(scores.items())
-    half = len(metrics) // 2 + len(metrics) % 2
-    
-    with col1:
-        for metric, score in metrics[:half]:
-            # Define color based on score
-            if score >= 8:
-                color_code = "#10b981"  # green color
-                emoji = "🔥"
-                label = "STRONG"
-            elif score >= 6:
-                color_code = "#3b82f6"  # blue color
-                emoji = "✓"
-                label = "GOOD"
-            else:
-                color_code = "#f43f5e"  # red color
-                emoji = "⚠️"
-                label = "NEEDS IMPROVEMENT"
-            
-            # Create container for the metric card
-            metric_container = st.container()
-            with metric_container:
-                # Using columns for header
-                header_col1, header_col2 = st.columns([4, 1])
-                header_col1.markdown(f"**{metric}**")
-                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
-                
-                # Description right under the metric name
-                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin: 5px 0 15px 0;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
-                
-                # Custom progress bar using HTML/CSS instead of st.progress
-                progress_width = score * 10  # Convert score to percentage
-                st.markdown(f"""
-                <div style="background-color: #f0f0f0; border-radius: 10px; height: 10px; margin: 10px 0;">
-                    <div style="background-color: {color_code}; width: {progress_width}%; height: 10px; border-radius: 10px;"></div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Score display
-                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
-                
-                # Add some space between cards
-                st.markdown("<br>", unsafe_allow_html=True)
-    
-    with col2:
-        for metric, score in metrics[half:]:
-            # Define color based on score
-            if score >= 8:
-                color_code = "#10b981"  # green color
-                emoji = "🔥"
-                label = "STRONG"
-            elif score >= 6:
-                color_code = "#3b82f6"  # blue color
-                emoji = "✓"
-                label = "GOOD"
-            else:
-                color_code = "#f43f5e"  # red color
-                emoji = "⚠️"
-                label = "NEEDS IMPROVEMENT"
-            
-            # Create container for the metric card
-            metric_container = st.container()
-            with metric_container:
-                # Using columns for header
-                header_col1, header_col2 = st.columns([4, 1])
-                header_col1.markdown(f"**{metric}**")
-                header_col2.markdown(f'<div style="font-size: 0.7rem; background: {color_code}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-align: center;">{label}</div>', unsafe_allow_html=True)
-                
-                # Description right under the metric name
-                st.markdown(f'<div style="font-size: 0.9rem; color: #555; margin: 5px 0 15px 0;">{METRICS[metric][get_score_level(score)]}</div>', unsafe_allow_html=True)
-                
-                # Custom progress bar using HTML/CSS instead of st.progress
-                progress_width = score * 10  # Convert score to percentage
-                st.markdown(f"""
-                <div style="background-color: #f0f0f0; border-radius: 10px; height: 10px; margin: 10px 0;">
-                    <div style="background-color: {color_code}; width: {progress_width}%; height: 10px; border-radius: 10px;"></div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Score display
-                st.markdown(f'<div style="text-align: right; font-weight: 600; color: {color_code}; margin-top: -15px;">{score}/10</div>', unsafe_allow_html=True)
-                
-                # Add some space between cards
-                st.markdown("<br>", unsafe_allow_html=True)
+    # We've replaced the detailed metrics section with the new advanced metric analysis above
     
     # Benchmark comparison with premium enterprise styling
     st.markdown('<h3 style="margin-top: 40px; margin-bottom: 20px;">Competitive Benchmarking</h3>', unsafe_allow_html=True)

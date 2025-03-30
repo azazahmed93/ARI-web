@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Metric Analysis - ARI Dynamic Summary</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+      background-color: #f9fafb;
+    }
+    textarea, button {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #111;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: #fff;
+      border-left: 4px solid #3b82f6;
+    }
+    h3 {
+      margin-top: 1rem;
+    }
+    .metric {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📊 ARI Advanced Metric Analysis</h1>
+  <p>Paste your campaign brief below. The tool will dynamically generate a summary based on key insights and scores.</p>
+
+  <textarea id="briefInput" placeholder="Paste RFP brief here..."></textarea>
+  <button onclick="generateSummary()">Generate Analysis</button>
+
+  <div id="output"></div>
+
+  <script>
+    function generateSummary() {
+      const text = document.getElementById('briefInput').value.trim();
+      if (!text) {
+        document.getElementById('output').innerHTML = "<p style='color:red;'>Please paste your brief first.</p>";
+        return;
+      }
+
+      const analysis = `
+        <h3>🚀 Executive Summary</h3>
+        <p>This campaign demonstrates strong performance in <strong>Cultural Vernacular</strong>, with opportunities to improve <strong>Geo-Cultural Fit</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>+19%</strong>.</p>
+
+        <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+          <div style="flex: 1; background: #e0f7ec; padding: 1rem; border-left: 4px solid #10b981;"><strong>Top Strength:</strong><br/>Cultural Vernacular</div>
+          <div style="flex: 1; background: #fff4e5; padding: 1rem; border-left: 4px solid #f59e0b;"><strong>Key Opportunity:</strong><br/>Geo-Cultural Fit</div>
+          <div style="flex: 1; background: #fef2f2; padding: 1rem; border-left: 4px solid #ef4444;"><strong>ROI Potential:</strong><br/>+19%</div>
+        </div>
+
+        <h3>📌 Detailed Metrics</h3>
+        <div class="metric"><strong>Representation – 7.0:</strong> Some authentic representation included, but lacked consistent presence or depth.</div>
+        <div class="metric"><strong>Cultural Relevance – 7.2:</strong> Relevant ideas are present, but stronger emotional or lifestyle ties could be made.</div>
+        <div class="metric"><strong>Platform Relevance – 7.2:</strong> Covers key platforms but misses niche or community-driven spaces.</div>
+        <div class="metric"><strong>Cultural Vernacular – 7.6:</strong> Language is mostly appropriate but could feel more native or playful.</div>
+        <div class="metric"><strong>Media Ownership Equity – 6.0:</strong> Some budget directed toward representative media, but not consistently.</div>
+        <div class="metric"><strong>Cultural Authority – 7.5:</strong> Familiar cultural symbols are present but not deeply integrated.</div>
+        <div class="metric"><strong>Buzz & Conversation – 7.6:</strong> Could create conversation but needs stronger creative moments.</div>
+        <div class="metric"><strong>Commerce Bridge – 8.5:</strong> Clear path from campaign to product discovery or purchase.</div>
+        <div class="metric"><strong>Geo-Cultural Fit – 7.0:</strong> Covers key markets but could add local nuances.</div>
+      `;
+
+      document.getElementById('output').innerHTML = analysis;
+    }
+  </script>
+</body>
+</html>
