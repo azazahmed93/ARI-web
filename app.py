@@ -1916,20 +1916,20 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 # Determine appropriate VCR range based on audience characteristics
                                 if 'young' in audience_name or 'gen z' in audience_name:
                                     # Younger audiences tend to have lower VCR
-                                    vcr_range = "72-82%"
+                                    vcr_range = "75-85%"
                                 elif 'parent' in audience_name or 'family' in interests:
                                     # Parent/family audience has medium VCR
-                                    vcr_range = "76-86%"  
+                                    vcr_range = "75-85%"  
                                 elif 'professional' in audience_name or 'business' in interests:
                                     # Professional audiences tend to have higher VCR
-                                    vcr_range = "80-90%"
+                                    vcr_range = "75-85%"
                                 else:
                                     # Check demographic targeting when available
                                     age_range = targeting_params.get('age_range', '') if targeting_params else ''
                                     if '18-34' in age_range:
-                                        vcr_range = "74-84%"
+                                        vcr_range = "75-85%"
                                     elif '35-54' in age_range:
-                                        vcr_range = "78-88%"
+                                        vcr_range = "75-85%"
                                     else:
                                         # Default if we can't determine specifics
                                         vcr_range = "75-85%"
@@ -1941,20 +1941,20 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 # Determine appropriate LTR range based on audience characteristics
                                 if 'young' in audience_name or 'gen z' in audience_name:
                                     # Younger audiences tend to have lower LTR ranges
-                                    ltr_range = "77-87%"
+                                    ltr_range = "80-90%"
                                 elif 'fitness' in audience_name or 'health' in interests:
                                     # Fitness audience has medium-high LTR
                                     ltr_range = "80-90%"
                                 elif 'professional' in audience_name or 'business' in interests:
                                     # Professional audiences tend to have high LTR
-                                    ltr_range = "83-93%"
+                                    ltr_range = "80-90%"
                                 else:
                                     # Check demographic targeting when available
                                     age_range = targeting_params.get('age_range', '') if targeting_params else ''
                                     if '18-34' in age_range:
-                                        ltr_range = "78-88%"
+                                        ltr_range = "80-90%"
                                     elif '35-54' in age_range:
-                                        ltr_range = "81-91%"
+                                        ltr_range = "80-90%"
                                     else:
                                         # Default if we can't determine specifics
                                         ltr_range = "80-90%"
@@ -2202,45 +2202,45 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
             # Create a dynamic range based on targeting params or segment name
             if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
                 # Younger audiences tend to have lower LTR ranges
-                ctr = "75-90%"
+                ctr = "80-90%"
             elif 'fitness' in segment.get('name', '').lower() or 'health' in interests_str.lower():
                 # Fitness audience has medium-high LTR
-                ctr = "80-95%"
+                ctr = "80-90%"
             elif 'professional' in segment.get('name', '').lower() or 'business' in interests_str.lower():
                 # Professional audiences tend to have high LTR
-                ctr = "85-100%"
+                ctr = "80-90%"
             else:
                 # Default range - check demographic targeting
                 age_range = targeting_params.get('age_range', '') if targeting_params else ''
                 if '18-34' in age_range:
-                    ctr = "78-93%"
+                    ctr = "80-90%"
                 elif '35-54' in age_range:
-                    ctr = "82-97%"
+                    ctr = "80-90%"
                 else:
                     # Default if we can't determine specifics
-                    ctr = "80-95%"
+                    ctr = "80-90%"
         elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
             metric_name = "Expected VCR"
             # Create a dynamic range based on targeting params or segment name
             if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
                 # Younger audiences tend to have lower VCR
-                ctr = "70-85%"
+                ctr = "75-85%"
             elif 'parent' in segment.get('name', '').lower() or 'family' in interests_str.lower():
                 # Parent/family audience has medium VCR
-                ctr = "75-90%"
+                ctr = "75-85%"
             elif 'professional' in segment.get('name', '').lower() or 'business' in interests_str.lower():
                 # Professional audiences tend to have higher VCR
-                ctr = "80-95%"
+                ctr = "75-85%"
             else:
                 # Default range - check demographic targeting
                 age_range = targeting_params.get('age_range', '') if targeting_params else ''
                 if '18-34' in age_range:
-                    ctr = "70-88%"
+                    ctr = "75-85%"
                 elif '35-54' in age_range:
-                    ctr = "75-93%"
+                    ctr = "75-85%"
                 else:
                     # Default if we can't determine specifics
-                    ctr = "70-95%"
+                    ctr = "75-85%"
     
     # Get segment description if available
     description = segment.get('description', '')

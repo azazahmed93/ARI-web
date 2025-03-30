@@ -803,8 +803,8 @@ Additional audience data for SiteOne Hispanic campaign:
         4. Platform-specific targeting recommendations (use generic platform types, not brand names)
         5. Key performance indicators and benchmark rates to expect for omnichannel campaigns
            - For display formats: Use CTR of 0.05-0.7%
-           - For video/OTT/CTV formats: Use VCR (Video Completion Rate) of 70-95% instead of CTR
-           - For audio formats: Use LTR (Listen-Through Rate) of 80-100% instead of CTR
+           - For video/OTT/CTV formats: Use VCR (Video Completion Rate) of 75-85% instead of CTR
+           - For audio formats: Use LTR (Listen-Through Rate) of 80-90% instead of CTR
         6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
         Format the response as a valid JSON array with objects containing:
@@ -878,7 +878,7 @@ Additional audience data for SiteOne Hispanic campaign:
                             {"platform": "Mobile Gaming", "targeting_approach": "Reach users on mobile devices through sports apps and games with Spanish language options"}
                         ],
                         "expected_performance": {
-                            "CTR": "0.3-0.7%",  # For display; would be 70-95% for video formats
+                            "CTR": "0.3-0.7%",  # For display; would be 75-85% for video formats
                             "CPA": "20-25% below account average for Spanish creative", 
                             "engagement_rate": "3.5-4.2%"
                         },
@@ -915,7 +915,7 @@ Additional audience data for SiteOne Hispanic campaign:
                         {"platform": "Sports Streaming Services", "targeting_approach": "Focus on live game audiences and pre/post-game content with high-impact ad placements"}
                     ],
                     "expected_performance": {
-                        "CTR": "70-95%",  # For video platforms, this becomes VCR (video completion rate)
+                        "CTR": "75-85%",  # For video platforms, this becomes VCR (video completion rate)
                         "CPA": "15-20% below account average", 
                         "engagement_rate": "4.5-5.2%"
                     },
