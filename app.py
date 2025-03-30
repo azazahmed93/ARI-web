@@ -839,6 +839,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         analysis = '<div class="metric-analysis">'
         analysis += f'<h3>Executive Summary</h3>'
         analysis += f'<p>{summary_text}</p>'
+        # Add debug info for tracking
+        st.session_state['final_values'] = {
+            "top_strength": top_strength,
+            "key_opportunity": key_opportunity,
+            "roi_potential": roi_potential
+        }
+        
         analysis += '<div class="metric-box">'
         analysis += f'<div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>'
         analysis += f'<div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>'
@@ -951,6 +958,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         top_strength = ai_insights.get('strengths', [{}])[0].get('area', 'Cultural Relevance') if ai_insights.get('strengths') else 'Cultural Relevance'
         key_opportunity = ai_insights.get('improvements', [{}])[0].get('area', 'Audience Engagement') if ai_insights.get('improvements') else 'Audience Engagement'
         
+        # Add debug info to see where these values are coming from
+        st.session_state['debug_info'] = {
+            "source": "ai_insights",
+            "top_strength": top_strength,
+            "key_opportunity": key_opportunity
+        }
+        
         # Extract potential ROI from performance prediction if available
         prediction = ai_insights.get('performance_prediction', '')
         if prediction and '%' in prediction:
@@ -970,6 +984,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         
         # Use the lowest scoring metric as the key opportunity
         key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
+        
+        # Add debug info to see where these values are coming from
+        st.session_state['debug_info'] = {
+            "source": "calculated_scores",
+            "top_strength": top_strength,
+            "key_opportunity": key_opportunity,
+            "metric_scores": {name: score for name, score in metric_scores}
+        }
     
     # If we couldn't extract ROI from AI insights, calculate based on the scores
     if not roi_potential:
@@ -1134,6 +1156,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """, unsafe_allow_html=True)
     
     # This section is now handled directly within tab1
+    
+    # Add debug information display
+    if 'debug_info' in st.session_state:
+        with st.expander("Debug Information"):
+            st.write(st.session_state['debug_info'])
     
     # Create a dashboard-style KPI row
     col1, col2, col3 = st.columns(3)
