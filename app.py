@@ -1907,20 +1907,22 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 </svg>
                                 <span>AI-Powered Audience Segmentation Recommendation</span>
                             </h4>
-                            <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Target Segment</span>
+                            <p style="margin-bottom: 8px;">
+                                <span style="font-weight:600; font-size: 1.05rem;">{}</span>
+                            </p>
+                            <p style="margin-bottom: 15px; font-style: italic; color: #555; font-size: 0.9rem;">
                                 {}
                             </p>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Demographics</span>
+                                <span style="font-weight:600; margin-right:5px;">Demographics</span>
                                 {}
                             </p>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Key Interests</span>
+                                <span style="font-weight:600; margin-right:5px;">Key Interests</span>
                                 {}
                             </p>
                             <p style="margin-bottom: 8px; display:flex; align-items:flex-start;">
-                                <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Platform Strategy</span>
+                                <span style="font-weight:600; margin-right:5px;">Platform Strategy</span>
                                 {}
                             </p>
                             {}
@@ -1928,11 +1930,12 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         </div>
                         """.format(
                             growth_segment.get('name', 'Emerging Growth Segment'),
+                            growth_segment.get('description', 'This audience segment shows high potential for growth based on analysis of your brief and market trends.'),
                             demographics_str,
                             interests_str,
                             platform_strategy,
-                            f'<p style="margin-bottom: 8px; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Optimization Strategy</span> {bidding_str}</p>' if bidding_str else '',
-                            f'<p style="margin-bottom: 0; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Expected Performance</span> {performance_str}</p>' if performance_str else ''
+                            f'<p style="margin-bottom: 8px; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px;">Optimization Strategy</span> {bidding_str}</p>' if bidding_str else '',
+                            f'<p style="margin-bottom: 0; display:flex; align-items:flex-start;"><span style="font-weight:600; margin-right:5px;">Expected Performance</span> {performance_str}</p>' if performance_str else ''
                         ), unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
@@ -2112,28 +2115,34 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
             # Set listen-through rates to be 80%-100% range
             ctr = "80-100%"
     
+    # Get segment description if available
+    description = segment.get('description', '')
+    
     # Create the segment card
     st.markdown(f"""
     <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="color: {color}; font-weight: 600; font-size: 0.8rem; display:flex; align-items:center;">
-                {segment_type} Audience {display_tip_bubble("audience", "Audience Segment", inline=True)}
+            <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
+                {segment_type} Audience
             </span>
-            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; display:flex; align-items:center;">
-                {metric_name}: {ctr} {display_tip_bubble("audience", "Expected CTR", inline=True)}
+            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
+                {metric_name}: {ctr}
             </span>
         </div>
-        <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
+        <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
+        <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
+            {description}
+        </p>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
-            <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Demographics {display_tip_bubble("audience", "Demographics", inline=True)}</span>
+            <span style="font-weight:600; margin-right:5px;">Demographics</span>
             {demographics_str}
         </p>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
-            <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Interests {display_tip_bubble("audience", "Interest Categories", inline=True)}</span>
+            <span style="font-weight:600; margin-right:5px;">Interests</span>
             {interests_str}
         </p>
         <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555; display:flex; align-items:flex-start;">
-            <span style="font-weight:600; margin-right:5px; display:flex; align-items:center;">Recommended Platform {display_tip_bubble("audience", "Platform Recommendation", inline=True)}</span>
+            <span style="font-weight:600; margin-right:5px;">Recommended Platform</span>
             {platform_rec}
         </p>
     </div>
