@@ -427,12 +427,22 @@ def main():
                         
                         # Calculate benchmark percentile and improvement areas
                         percentile = calculate_benchmark_percentile(scores)
-                        improvement_areas = get_improvement_areas(scores)
+                        # Get brand and industry info for enhanced improvement areas analysis
+                        brand_name, industry, product_type = extract_brand_info(brief_text)
+                        
+                        # Get dynamic improvement areas using all contextual data
+                        improvement_areas = get_improvement_areas(
+                            scores, 
+                            brief_text=brief_text,
+                            brand_name=brand_name,
+                            industry=industry
+                        )
                         
                         # Store results in session state
                         st.session_state.has_analyzed = True
                         st.session_state.scores = scores
                         st.session_state.percentile = percentile
+                        st.session_state.brand_info = (brand_name, industry, product_type)
                         st.session_state.improvement_areas = improvement_areas
                         st.session_state.brand_name = brand_name
                         st.session_state.industry = industry
@@ -921,47 +931,57 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         if 'competitor_analysis' in st.session_state and st.session_state.competitor_analysis:
                             comp_analysis = st.session_state.competitor_analysis
                             
-                            # Get the first competitor for explanation
-                            competitor_example = ""
+                            # Directly create a fully pre-written explanation using the competitor data
+                            explanation = "Analysis of competitor digital ad strategies reveals opportunities for differentiation."
+                            
+                            # Add competitor examples if available
                             if comp_analysis.get('competitors') and len(comp_analysis.get('competitors', [])) > 0:
                                 main_competitor = comp_analysis['competitors'][0]
-                                competitor_example = f"{main_competitor.get('name', 'Major competitor')} utilizes {main_competitor.get('digital_tactics', 'broad awareness tactics')}"
+                                competitor_name = main_competitor.get('name', 'Major competitor')
+                                tactics = main_competitor.get('digital_tactics', 'broad awareness tactics')
+                                
+                                # Construct a clean sentence about the competitor without using dynamic string formatting
+                                explanation += f" {competitor_name} employs {tactics}"
                             
-                            # Get the first advantage for recommendation
-                            advantage_text = ""
+                            # Build recommendations section from scratch
+                            recommendations = []
+                            
+                            # Add tactical recommendations based on available data
                             if comp_analysis.get('advantages') and len(comp_analysis.get('advantages', [])) > 0:
                                 advantage = comp_analysis['advantages'][0]
-                                advantage_text = f"Leverage {advantage.get('advantage', 'your strengths')} by implementing {advantage.get('tactical_application', 'targeted strategies')}."
+                                adv_name = advantage.get('advantage', '')
+                                adv_tactic = advantage.get('tactical_application', '')
+                                if adv_name and adv_tactic:
+                                    recommendations.append(f"Leverage your {adv_name} advantage with {adv_tactic}")
                             
-                            # Get the first threat for recommendation
-                            threat_text = ""
                             if comp_analysis.get('threats') and len(comp_analysis.get('threats', [])) > 0:
                                 threat = comp_analysis['threats'][0]
-                                threat_text = f"Counter {threat.get('threat', 'competitive threats')} by {threat.get('tactical_response', 'implementing specialized tactics')}."
+                                threat_name = threat.get('threat', '')
+                                threat_response = threat.get('tactical_response', '')
+                                if threat_name and threat_response:
+                                    recommendations.append(f"Address {threat_name} through {threat_response}")
                             
-                            # Get differentiation opportunity
-                            diff_text = ""
                             if comp_analysis.get('differentiation') and len(comp_analysis.get('differentiation', [])) > 0:
                                 diff = comp_analysis['differentiation'][0]
-                                diff_text = f"On {diff.get('platform', 'digital platforms')}, implement {diff.get('tactical_approach', 'unique approaches to stand out')}."
+                                platform = diff.get('platform', '')
+                                approach = diff.get('tactical_approach', '')
+                                if platform and approach:
+                                    recommendations.append(f"For {platform}, develop {approach}")
                             
-                            # Combine recommendation parts
-                            recommendation = f"{advantage_text} {threat_text} {diff_text}".strip()
+                            # Join all recommendations with proper sentence structure
+                            final_recommendation = ". ".join(recommendations)
+                            if final_recommendation:
+                                final_recommendation += "."
                             
-                            # Clean up any grammatical issues or duplicates in the recommendation
-                            cleaned_recommendation = fix_grammar_and_duplicates(recommendation)
-                            
-                            # Also clean up the competitor example
-                            cleaned_example = fix_grammar_and_duplicates(competitor_example)
-                            
+                            # Display the cleaned content
                             st.markdown(f"""
                             <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
                                 <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
                                 <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
-                                    Analysis of competitor digital ad strategies reveals opportunities for differentiation. {cleaned_example}
+                                    {explanation}
                                 </div>
                                 <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
-                                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {cleaned_recommendation}
+                                    <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {final_recommendation}
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)

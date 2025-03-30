@@ -420,18 +420,91 @@ def calculate_benchmark_percentile(scores):
     
     return percentile
 
-def get_improvement_areas(scores):
+def get_improvement_areas(scores, brief_text=None, brand_name=None, industry=None):
     """
-    Identify the top areas for improvement based on the scores.
+    Identify the top areas for improvement based on the scores and brief content.
+    
+    This enhanced function considers not just the raw scores but also keywords and
+    themes in the brief text to better prioritize improvement areas that will have
+    the most impact for this specific campaign.
     
     Args:
         scores (dict): Dictionary of metric scores
+        brief_text (str, optional): The campaign brief text to analyze for keywords
+        brand_name (str, optional): Brand name for context-specific improvements
+        industry (str, optional): Industry for sector-specific improvements
         
     Returns:
-        list: List of metrics that need improvement
+        list: List of metrics that need improvement, prioritized by impact
     """
-    # Sort the scores and get the bottom 3
+    # First get the bottom scores (initial candidates for improvement)
     sorted_scores = sorted(scores.items(), key=lambda x: x[1])
-    improvement_areas = [item[0] for item in sorted_scores[:3]]
+    candidate_areas = sorted_scores[:5]  # Take more candidates to filter from
+    
+    # Always include "Competitor Tactics" as the last item
+    improvement_areas = []
+    
+    # Keywords that indicate importance of specific metrics
+    importance_keywords = {
+        "Platform Relevance": ["platform", "channel", "tiktok", "instagram", "social", "digital", "mobile"],
+        "Cultural Relevance": ["culture", "trend", "music", "fashion", "lifestyle", "generation"],
+        "Representation": ["diversity", "inclusive", "representation", "community", "minority"],
+        "Cultural Vernacular": ["language", "slang", "authentic", "voice", "speak", "tone", "vernacular"],
+        "Media Ownership Equity": ["diverse media", "minority owned", "equity", "representation", "ownership"],
+        "Cultural Authority": ["authority", "expert", "influencer", "authentic voice", "credibility"],
+        "Buzz & Conversation": ["viral", "share", "engagement", "conversation", "buzz", "talk"],
+        "Commerce Bridge": ["conversion", "purchase", "buy", "sale", "revenue", "attribution"],
+        "Geo-Cultural Fit": ["local", "regional", "geographic", "location", "community"]
+    }
+    
+    # If we have brief text, use it to prioritize improvement areas
+    if brief_text:
+        brief_lower = brief_text.lower()
+        
+        # Calculate priority scores based on keyword mentions
+        priority_scores = {}
+        for area, keywords in importance_keywords.items():
+            # Count keyword mentions in the brief
+            mention_count = sum(1 for keyword in keywords if keyword.lower() in brief_lower)
+            # Adjust score based on mentions (more mentions means higher priority)
+            priority_scores[area] = mention_count * 2
+        
+        # Adjust priorities based on industry if available
+        if industry:
+            industry_lower = industry.lower()
+            # Industry-specific adjustments
+            if "retail" in industry_lower:
+                priority_scores["Commerce Bridge"] = priority_scores.get("Commerce Bridge", 0) + 3
+            elif "technology" in industry_lower:
+                priority_scores["Platform Relevance"] = priority_scores.get("Platform Relevance", 0) + 3
+            elif "fashion" in industry_lower or "beauty" in industry_lower:
+                priority_scores["Cultural Relevance"] = priority_scores.get("Cultural Relevance", 0) + 3
+                priority_scores["Buzz & Conversation"] = priority_scores.get("Buzz & Conversation", 0) + 2
+        
+        # Adjust scores based on the original ARI scores
+        for area, score in scores.items():
+            # Inverse relationship - lower scores get higher priority
+            priority_scores[area] = priority_scores.get(area, 0) + (10 - score) * 1.5
+        
+        # Get top 3 priority areas based on combined factors
+        sorted_priorities = sorted(priority_scores.items(), key=lambda x: x[1], reverse=True)
+        improvement_areas = [item[0] for item in sorted_priorities[:3]]
+    else:
+        # Fallback to simple score-based improvement areas if no brief text
+        improvement_areas = [item[0] for item in candidate_areas[:3]]
+    
+    # Ensure we have exactly 3 improvement areas
+    while len(improvement_areas) < 3:
+        # Add missing areas from the lowest scores
+        for area, _ in candidate_areas:
+            if area not in improvement_areas:
+                improvement_areas.append(area)
+                break
+    
+    # If we somehow have more than 3, trim
+    improvement_areas = improvement_areas[:3]
+    
+    # Always add "Competitor Tactics" as the 4th item
+    improvement_areas.append("Competitor Tactics")
     
     return improvement_areas

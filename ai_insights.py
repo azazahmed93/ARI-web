@@ -14,63 +14,144 @@ client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def fix_grammar_and_duplicates(text):
     """
-    Fixes common grammar issues and duplicate words in AI-generated text.
-    
-    This comprehensive function cleans up various text issues including:
-    - Repeated words ("implement implement")
-    - Brand name repetitions ("Nike is using Nike")
-    - Double punctuation ("sentence..")
-    - Incorrect spacing around punctuation
-    - Awkward phrasing and common AI text artifacts
-    - Verb agreement and tense issues
+    Completely overhauled function to fix grammar issues, duplicates, and
+    awkward phrasing typically found in AI-generated marketing text.
     
     Args:
         text (str): The text to clean up
         
     Returns:
-        str: Cleaned text with grammar issues and duplicate words fixed
+        str: Professionally edited text with all issues fixed
     """
     if not text:
         return text
+    
+    # Step 1: Initial preprocessing and normalization
+    # ---------------------------------------------
+    
+    # Normalize whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Step 2: Fix common AI awkward phrasings
+    # --------------------------------------
+    
+    # List of problematic phrases and their replacements
+    awkward_phrases = [
+        # Basic duplicates
+        (r'\b(\w+)\s+\1\b', r'\1'),
         
-    # Fix duplicate words like "Implement Implement" or "Leverage Leverage"
-    pattern = r'\b(\w+)\s+\1\b'
-    text = re.sub(pattern, r'\1', text, flags=re.IGNORECASE)
+        # Verb + through/by/with + same verb patterns
+        (r'\b(implement|utilize|leverage|develop|create|establish|execute)\s+through\s+\1ing\b', r'\1'),
+        (r'\b(implement|utilize|leverage|develop|create|establish|execute)\s+by\s+\1ing\b', r'\1'),
+        (r'\b(implement|utilize|leverage|develop|create|establish|execute)\s+with\s+\1\b', r'\1'),
+        
+        # Preposition duplications
+        (r'\b(through|by|as|among|for|to|with|in|on|of)\s+\1\b', r'\1'),
+        
+        # Marketing jargon redundancies
+        (r'strategic strategy', 'strategy'),
+        (r'optimized optimization', 'optimization'),
+        (r'engaged engagement', 'engagement'),
+        (r'targeted targeting', 'targeting'),
+        (r'implemented implementation', 'implementation'),
+        (r'leveraged leverage', 'leverage'),
+        (r'utilized utilization', 'utilization'),
+        (r'leveraging leverage', 'leveraging'),
+        
+        # Specific incorrect constructions
+        (r'leverage through', 'leverage by implementing'),
+        (r'implement through', 'implement by'),
+        (r'utilize through', 'utilize by'),
+        
+        # Fix is using/utilizes redundancy
+        (r'is using utilizes', 'utilizes'),
+        (r'is utilizing utilizes', 'utilizes'),
+        (r'utilizes utilizes', 'utilizes'),
+        (r'using utilizes', 'utilizes'),
+        (r'is using uses', 'uses'),
+        
+        # Fix verb-noun agreement issues
+        (r'implements implements', 'implements'),
+        (r'develops develops', 'develops'),
+        (r'creates creates', 'creates'),
+        (r'utilizes utilizes', 'utilizes'),
+        (r'leverages leverages', 'leverages'),
+        
+        # Fix verb-preposition-verb patterns
+        (r'leverage to leverage', 'leverage'),
+        (r'utilize to utilize', 'utilize'),
+        (r'implement to implement', 'implement')
+    ]
     
-    # Fix words with first letter capitalized followed by the same word
+    # Apply all replacements
+    for pattern, replacement in awkward_phrases:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    
+    # Step 3: Fix specific "is using [Verb]" patterns
+    # ---------------------------------------------
+    
+    # Create a comprehensive list of verbs that commonly appear in these patterns
+    marketing_verbs = [
+        'utilizes', 'implements', 'leverages', 'employs', 'develops', 
+        'creates', 'executes', 'deploys', 'establishes', 'incorporates'
+    ]
+    
+    # Fix "[Subject] is using [MarketingVerb]" patterns
+    for verb in marketing_verbs:
+        # Handle capitalized and lowercase variants
+        cap_verb = verb.capitalize()
+        pattern = rf'is using {cap_verb}'
+        text = re.sub(pattern, verb, text, flags=re.IGNORECASE)
+        
+        # Also fix "[Subject] is using and [MarketingVerb]" patterns
+        pattern = rf'is using and {verb}'
+        text = re.sub(pattern, verb, text, flags=re.IGNORECASE)
+    
+    # Step 4: Direct replacements for common problematic patterns
+    # ---------------------------------------------------------
+    direct_replacements = {
+        # Specific problematic patterns
+        "is using Utilizes": "utilizes",
+        "is using utilizes": "utilizes",
+        "Leverage through Leverage": "Leverage by implementing",
+        "leverage through leverage": "leverage by implementing",
+        "is using utilizes": "utilizes",
+        "implements implements": "implements",
+        "leverage leverage": "leverage",
+        "develop develop": "develop",
+        "implement implement": "implement",
+        "create create": "create",
+        "establish establish": "establish",
+    }
+    
+    # Apply direct replacements
+    for bad_phrase, good_phrase in direct_replacements.items():
+        text = text.replace(bad_phrase, good_phrase)
+    
+    # Step 5: Fix capitalization issues
+    # -------------------------------
+    
+    # Fix words with first letter capitalized followed by the same word lowercase
     pattern_capital = r'\b([A-Z][a-z]+)\s+([a-z]+)\b'
-    matches = re.finditer(pattern_capital, text)
-    for match in matches:
+    matches = list(re.finditer(pattern_capital, text))
+    for match in reversed(matches):  # Process in reverse to maintain correct indices
         if match.group(1).lower() == match.group(2).lower():
-            text = text.replace(match.group(0), match.group(1))
-    
-    # Remove adjacent words with through/by/as duplication
-    text = re.sub(r'\b(through|by|as|among|for|to|with|in|on|of)\s+\1\b', r'\1', text, flags=re.IGNORECASE)
-    
-    # Fix "is using Utilizes" pattern
-    text = re.sub(r'is using ([A-Z][a-z]+)', r'utilizes', text)
-    text = re.sub(r'is using utilizes', r'utilizes', text, flags=re.IGNORECASE)
-    
-    # Fix "implement Develop" pattern (capitalized words after verbs)
-    text = re.sub(r'implement ([A-Z][a-z]+)', r'implement', text)
-    text = re.sub(r'develop ([A-Z][a-z]+)', r'develop', text)
-    text = re.sub(r'utilize ([A-Z][a-z]+)', r'utilize', text)
-    text = re.sub(r'leverage ([A-Z][a-z]+)', r'leverage', text)
-    text = re.sub(r'create ([A-Z][a-z]+)', r'create', text)
+            start, end = match.span()
+            text = text[:start] + match.group(1) + text[end:]
     
     # Fix "Company is using Utilizes" pattern
     text = re.sub(r'([A-Za-z\s]+) is using ([A-Z][a-z]+)', r'\1 utilizes', text)
     
-    # Fix "Counter Increasing" capitalization issue
-    text = re.sub(r'Counter ([A-Z][a-z]+)', r'counter \1', text)
+    # Step 6: Fix punctuation and spacing issues
+    # ----------------------------------------
     
-    # Fix double periods, commas, etc.
-    text = re.sub(r'\.\.+', '.', text)  # Handle any number of repeated periods
-    text = re.sub(r',,+', ',', text)    # Handle any number of repeated commas
-    text = re.sub(r'!!+', '!', text)    # Handle repeated exclamation marks
-    text = re.sub(r'\?\?+', '?', text)  # Handle repeated question marks
+    # Fix double punctuation
+    text = re.sub(r'\.\.+', '.', text)
+    text = re.sub(r',,+', ',', text)
+    text = re.sub(r'!!+', '!', text)
+    text = re.sub(r'\?\?+', '?', text)
     
-    # Fix spaces before periods and commas
+    # Fix spaces before punctuation
     text = re.sub(r'\s+\.', '.', text)
     text = re.sub(r'\s+,', ',', text)
     text = re.sub(r'\s+!', '!', text)
@@ -81,63 +162,26 @@ def fix_grammar_and_duplicates(text):
     # Fix double periods after sentences
     text = re.sub(r'\.\s+\.', '.', text)
     
-    # Fix brand/company is using brand/company type errors
-    text = re.sub(r'([A-Za-z]+) is using \1', r'\1 is using', text)
-    text = re.sub(r'([A-Za-z]+) are using \1', r'\1 are using', text)
+    # Fix incorrect capitalization after periods
+    def capitalize_after_period(match):
+        return match.group(1) + match.group(2).upper() + match.group(3)
     
-    # Fix repetitive marketing terms (more comprehensive list)
-    marketing_terms = [
-        'recommend', 'suggest', 'consider', 'implement', 'leverage', 'utilize',
-        'create', 'develop', 'optimize', 'enhance', 'increase', 'decrease',
-        'improve', 'target', 'focus', 'engage', 'prioritize', 'establish',
-        'deploy', 'execute', 'analyze', 'measure', 'track', 'position',
-        'integrate', 'incorporate', 'amplify', 'strengthen', 'boost', 'elevate'
-    ]
+    text = re.sub(r'(\.\s+)([a-z])(\w*)', capitalize_after_period, text)
     
-    for term in marketing_terms:
-        pattern = fr'\b{term}\s+{term}\b'
-        text = re.sub(pattern, term, text, flags=re.IGNORECASE)
+    # Step 7: Final cleanup and normalization
+    # -------------------------------------
     
-    # Fix common transition phrase repetitions
-    transitions = [
-        'in order to', 'in addition', 'furthermore', 'therefore', 'however',
-        'moreover', 'consequently', 'as a result', 'for instance', 'for example',
-        'in conclusion', 'to summarize', 'in summary', 'in particular',
-        'specifically', 'notably', 'in fact', 'indeed', 'in other words'
-    ]
-    
-    for phrase in transitions:
-        pattern = fr'\b{phrase}\s+{phrase}\b'
-        text = re.sub(pattern, phrase, text, flags=re.IGNORECASE)
-    
-    # Fix multiple spaces
+    # Fix double spaces (again, after all the replacements)
     text = re.sub(r'\s+', ' ', text)
     
-    # Ensure proper spacing after periods (for sentence breaks)
-    text = re.sub(r'\.([A-Z])', '. \1', text)
+    # Fix spaces at beginning and end
+    text = text.strip()
     
-    # Fix common AI text artifacts that indicate uncertainty
-    text = re.sub(r'I (would|recommend|suggest|believe)', r'We \1', text)
-    text = re.sub(r'Based on (my|the) analysis', 'Based on analysis', text)
+    # Ensure the text ends with proper punctuation
+    if text and text[-1] not in '.!?':
+        text += '.'
     
-    # Fix word repetitions with special characters between them
-    text = re.sub(r'([A-Za-z]+)[,:\-\s]+\1', r'\1', text, flags=re.IGNORECASE)
-    
-    # Fix "implementation implementation" type errors (with plural variations)
-    nouns = [
-        'implementation', 'strategy', 'tactic', 'approach', 'solution',
-        'campaign', 'initiative', 'effort', 'program', 'project', 'plan',
-        'framework', 'method', 'technique', 'process'
-    ]
-    
-    for noun in nouns:
-        # Fix repetitions with plural forms
-        pattern_singular = fr'\b{noun}\s+{noun}s?\b'
-        pattern_plural = fr'\b{noun}s\s+{noun}s?\b'
-        text = re.sub(pattern_singular, noun, text, flags=re.IGNORECASE)
-        text = re.sub(pattern_plural, f"{noun}s", text, flags=re.IGNORECASE)
-    
-    return text.strip()
+    return text
 
 def is_siteone_hispanic_content(text):
     """
