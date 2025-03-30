@@ -1788,7 +1788,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <path d="M17.4933 21.8731H6.50669C5.9091 21.8731 5.32949 21.652 4.88942 21.2537C4.44935 20.8554 4.19147 20.318 4.14859 19.7435L3.75744 15.1506C3.70675 14.4998 3.95313 13.8595 4.4291 13.4005C4.90507 12.9415 5.56466 12.6778 6.25079 12.6724H7.23084M12 11.4351V3M12 11.4351L9.23087 8.75662M12 11.4351L14.7692 8.75662" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M20.2424 15.1507L19.8512 19.7436C19.8083 20.3181 19.5505 20.8556 19.1104 21.2538C18.6703 21.6521 18.0907 21.8732 17.4931 21.8732H6.50645C5.90887 21.8732 5.32926 21.6521 4.88919 21.2538C4.44911 20.8556 4.19124 20.3181 4.14835 19.7436L3.7572 15.1507C3.70652 14.5 3.9529 13.8596 4.42887 13.4006C4.90484 12.9416 5.56443 12.6779 6.25056 12.6725H17.749C18.4351 12.6779 19.0947 12.9416 19.5707 13.4006C20.0467 13.8596 20.293 14.5 20.2424 15.1507Z" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>Growth Audience Segmentation</span>
+                        <span>Growth Audience Insights</span>
                     </h3>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1815,7 +1815,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         with col2:
                             if len(segment_list) > 1:
                                 secondary_segment = segment_list[1]
-                                display_audience_segment(secondary_segment, 'Secondary', '#6366f1', '#f5f7ff')
+                                display_audience_segment(secondary_segment, 'Secondary Growth', '#6366f1', '#f5f7ff')
                     
                     # Select the last segment as the growth audience (if available)
                     if len(segment_list) > 2:
@@ -1885,11 +1885,55 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         if performance:
                             metrics = []
                             if video_platform and 'CTR' in performance:
-                                # Show VCR instead of CTR for video content with range from 70%-95%
-                                metrics.append(f"Expected VCR: 70-95%")  # Using fixed high range for video completion rates
+                                # Show VCR instead of CTR for video content with dynamic ranges based on audience
+                                audience_name = growth_segment.get('name', '').lower()
+                                interests = interests_str.lower()
+                                # Determine appropriate VCR range based on audience characteristics
+                                if 'young' in audience_name or 'gen z' in audience_name:
+                                    # Younger audiences tend to have lower VCR
+                                    vcr_range = "70-85%"
+                                elif 'parent' in audience_name or 'family' in interests:
+                                    # Parent/family audience has medium VCR
+                                    vcr_range = "75-90%"  
+                                elif 'professional' in audience_name or 'business' in interests:
+                                    # Professional audiences tend to have higher VCR
+                                    vcr_range = "80-95%"
+                                else:
+                                    # Check demographic targeting when available
+                                    age_range = targeting_params.get('age_range', '') if targeting_params else ''
+                                    if '18-34' in age_range:
+                                        vcr_range = "70-88%"
+                                    elif '35-54' in age_range:
+                                        vcr_range = "75-93%"
+                                    else:
+                                        # Default if we can't determine specifics
+                                        vcr_range = "70-95%"
+                                metrics.append(f"Expected VCR: {vcr_range}")
                             elif audio_platform and 'CTR' in performance:
-                                # Show LTR instead of CTR for audio content with range from 80%-100%
-                                metrics.append(f"Expected LTR: 80-100%")  # Using fixed high range for listen-through rates
+                                # Show LTR instead of CTR for audio content with dynamic ranges based on audience
+                                audience_name = growth_segment.get('name', '').lower()
+                                interests = interests_str.lower()
+                                # Determine appropriate LTR range based on audience characteristics
+                                if 'young' in audience_name or 'gen z' in audience_name:
+                                    # Younger audiences tend to have lower LTR ranges
+                                    ltr_range = "75-90%"
+                                elif 'fitness' in audience_name or 'health' in interests:
+                                    # Fitness audience has medium-high LTR
+                                    ltr_range = "80-95%"
+                                elif 'professional' in audience_name or 'business' in interests:
+                                    # Professional audiences tend to have high LTR
+                                    ltr_range = "85-100%"
+                                else:
+                                    # Check demographic targeting when available
+                                    age_range = targeting_params.get('age_range', '') if targeting_params else ''
+                                    if '18-34' in age_range:
+                                        ltr_range = "78-93%"
+                                    elif '35-54' in age_range:
+                                        ltr_range = "82-97%"
+                                    else:
+                                        # Default if we can't determine specifics
+                                        ltr_range = "80-95%"
+                                metrics.append(f"Expected LTR: {ltr_range}")
                             elif 'CTR' in performance:
                                 metrics.append(f"Expected CTR: {performance['CTR']}")
                             if 'CPA' in performance:
@@ -2108,12 +2152,48 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         platform_lower = platform_rec.lower()
         if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
             metric_name = "Expected LTR"
-            # Set listen-through rates to be 80%-100% range
-            ctr = "80-100%"
+            # Create a dynamic range based on targeting params or segment name
+            if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
+                # Younger audiences tend to have lower LTR ranges
+                ctr = "75-90%"
+            elif 'fitness' in segment.get('name', '').lower() or 'health' in interests_str.lower():
+                # Fitness audience has medium-high LTR
+                ctr = "80-95%"
+            elif 'professional' in segment.get('name', '').lower() or 'business' in interests_str.lower():
+                # Professional audiences tend to have high LTR
+                ctr = "85-100%"
+            else:
+                # Default range - check demographic targeting
+                age_range = targeting_params.get('age_range', '') if targeting_params else ''
+                if '18-34' in age_range:
+                    ctr = "78-93%"
+                elif '35-54' in age_range:
+                    ctr = "82-97%"
+                else:
+                    # Default if we can't determine specifics
+                    ctr = "80-95%"
         elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
             metric_name = "Expected VCR"
-            # Set video completion rates to be 70%-95% range
-            ctr = "70-95%"
+            # Create a dynamic range based on targeting params or segment name
+            if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
+                # Younger audiences tend to have lower VCR
+                ctr = "70-85%"
+            elif 'parent' in segment.get('name', '').lower() or 'family' in interests_str.lower():
+                # Parent/family audience has medium VCR
+                ctr = "75-90%"
+            elif 'professional' in segment.get('name', '').lower() or 'business' in interests_str.lower():
+                # Professional audiences tend to have higher VCR
+                ctr = "80-95%"
+            else:
+                # Default range - check demographic targeting
+                age_range = targeting_params.get('age_range', '') if targeting_params else ''
+                if '18-34' in age_range:
+                    ctr = "70-88%"
+                elif '35-54' in age_range:
+                    ctr = "75-93%"
+                else:
+                    # Default if we can't determine specifics
+                    ctr = "70-95%"
     
     # Get segment description if available
     description = segment.get('description', '')
