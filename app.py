@@ -2278,7 +2278,7 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
                 {segment_type} Audience {audience_segment_tip}
             </span>
             <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
-                {metric_name} {expected_ctr_tip}: {ctr}
+                {metric_name}: {ctr}
             </span>
         </div>
         <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
