@@ -1282,7 +1282,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">
-                PERCENTILE RANK {display_tip_bubble("advanced", "Benchmark Percentile", inline=True)}
+                PERCENTILE RANK
             </div>
             <div style="font-size: 2.5rem; font-weight: 700; color: #5865f2; margin: 10px 0;">Top {percentile}%</div>
             <div style="font-size: 0.85rem; color: #555;">Among all analyzed campaigns</div>
@@ -1788,7 +1788,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <path d="M17.4933 21.8731H6.50669C5.9091 21.8731 5.32949 21.652 4.88942 21.2537C4.44935 20.8554 4.19147 20.318 4.14859 19.7435L3.75744 15.1506C3.70675 14.4998 3.95313 13.8595 4.4291 13.4005C4.90507 12.9415 5.56466 12.6778 6.25079 12.6724H7.23084M12 11.4351V3M12 11.4351L9.23087 8.75662M12 11.4351L14.7692 8.75662" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M20.2424 15.1507L19.8512 19.7436C19.8083 20.3181 19.5505 20.8556 19.1104 21.2538C18.6703 21.6521 18.0907 21.8732 17.4931 21.8732H6.50645C5.90887 21.8732 5.32926 21.6521 4.88919 21.2538C4.44911 20.8556 4.19124 20.3181 4.14835 19.7436L3.7572 15.1507C3.70652 14.5 3.9529 13.8596 4.42887 13.4006C4.90484 12.9416 5.56443 12.6779 6.25056 12.6725H17.749C18.4351 12.6779 19.0947 12.9416 19.5707 13.4006C20.0467 13.8596 20.293 14.5 20.2424 15.1507Z" stroke="#5865f2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>AI-Powered Audience Segmentation</span> {display_tip_bubble("methodology", "AI-Powered Audience Segmentation", inline=True)}
+                        <span>Growth Audience Segmentation</span>
                     </h3>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1905,7 +1905,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                     <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
                                 </svg>
-                                <span>AI-Powered Audience Segmentation Recommendation</span>
+                                <span>Growth Audience Recommendation</span>
                             </h4>
                             <p style="margin-bottom: 8px;">
                                 <span style="font-weight:600; font-size: 1.05rem;">{}</span>
@@ -2166,7 +2166,7 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     from assets.learning_tips import display_tip_bubble
     
     # Create a summary section header with a learning tip
-    st.markdown(f'<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix {display_tip_bubble("advanced", "Hyperdimensional Matrix", inline=True)}</h4></div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align: center;"><h4>Hyperdimensional Campaign Performance Matrix</h4></div>', unsafe_allow_html=True)
     
     # Calculate average scores
     avg_score = sum(scores.values()) / len(scores)
@@ -2403,7 +2403,7 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
             <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">
-                Resonance Convergence Coefficient {display_tip_bubble("advanced", "Resonance Convergence Coefficient", inline=True)}
+                Resonance Convergence Coefficient
             </div>
             <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{rcc_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
         </div>
