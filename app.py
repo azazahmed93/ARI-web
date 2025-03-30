@@ -987,9 +987,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <div class="competitor-description">Enter a competitor brand to receive differentiated strategy insights:</div>
                         """, unsafe_allow_html=True)
                         
-                        # Add the input field and button
+                        # Add the input fields and button
+                        st.markdown("""
+                        <p>Enter a competitor brand and your campaign's goal or summary to see how to strategically counter their approach.</p>
+                        """, unsafe_allow_html=True)
+                        
                         competitor_brand = st.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key="competitor_brand_input")
-                        generate_button = st.button("Generate Insights", key="generate_insights_button")
+                        campaign_goal = st.text_area("", placeholder="Brief description of your campaign goals...", height=100, key="campaign_goal_input")
+                        generate_button = st.button("Generate Strategy", key="generate_insights_button")
                         
                         # Continue with the HTML structure for outputs
                         st.markdown("""
@@ -997,21 +1002,27 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         """, unsafe_allow_html=True)
                         
                         # If button is clicked, display the strategic differentiation
-                        if generate_button and competitor_brand.strip():
+                        if generate_button and competitor_brand.strip() and campaign_goal.strip():
                             st.markdown(f"""
-                                <h3>📊 Strategic Differentiation vs. <strong>{competitor_brand}</strong></h3>
-                                <ul>
-                                    <li><strong>Own the Cultural Moment:</strong> While {competitor_brand} focuses on high-frequency exposure, DCG can capitalize on culturally resonant campaigns tied to seasonal or regional celebrations with first-language and values-driven content.</li>
-                                    <li><strong>Expertise over Volume:</strong> DCG highlights niche expertise (e.g., pro services, landscape tech) where {competitor_brand} relies on generic mass messaging.</li>
-                                    <li><strong>Community Creators:</strong> DCG activates local influencers and trusted creators for storytelling, unlike {competitor_brand}'s top-down voice.</li>
-                                    <li><strong>Geo-Personalization:</strong> Leverage dynamic creative and zip-based targeting to personalize ads—areas {competitor_brand} may overlook.</li>
-                                    <li><strong>1P Data & Lookalikes:</strong> DCG can build custom segments for performance targeting, while {competitor_brand} prioritizes volume-based retargeting.</li>
+                                <h3>📊 Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
+                                <p><strong>Campaign Goal:</strong> {campaign_goal}</p>
+                                <ul style="line-height: 1.7;">
+                                    <li><strong>Capitalize on Cultural Moments:</strong> Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.</li>
+                                    <li><strong>Highlight Specialization:</strong> Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.</li>
+                                    <li><strong>Leverage Authentic Storytelling:</strong> Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.</li>
+                                    <li><strong>Enhance Local Relevance:</strong> Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.</li>
+                                    <li><strong>Activate Emerging Platforms:</strong> Extend the campaign to newer or underutilized platforms (like TikTok, Discord, or niche newsletters) where {competitor_brand} has little presence.</li>
                                 </ul>
+                            """, unsafe_allow_html=True)
+                        elif generate_button and (not competitor_brand.strip() or not campaign_goal.strip()):
+                            # Error message when fields aren't filled out
+                            st.markdown("""
+                                <p style='color:red;'>Please enter both the competitor brand and campaign summary.</p>
                             """, unsafe_allow_html=True)
                         else:
                             # Default message when no brand entered
                             st.markdown("""
-                                <p>Strategy insights will appear here after you enter a competitor brand.</p>
+                                <p>Strategy insights will appear here after you enter the required information and click Generate Strategy.</p>
                             """, unsafe_allow_html=True)
                         
                         # Close the competitor output div
@@ -1137,9 +1148,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <div class="competitor-description">Enter a competitor brand to receive differentiated strategy insights:</div>
                         """, unsafe_allow_html=True)
                         
-                        # Add the input field and button
+                        # Add the input fields and button
+                        st.markdown("""
+                        <p>Enter a competitor brand and your campaign's goal or summary to see how to strategically counter their approach.</p>
+                        """, unsafe_allow_html=True)
+                        
                         competitor_brand = st.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key="competitor_brand_input_fallback")
-                        generate_button = st.button("Generate Insights", key="generate_insights_button_fallback")
+                        campaign_goal = st.text_area("", placeholder="Brief description of your campaign goals...", height=100, key="campaign_goal_input_fallback")
+                        generate_button = st.button("Generate Strategy", key="generate_insights_button_fallback")
                         
                         # Continue with the HTML structure for outputs
                         st.markdown("""
@@ -1147,21 +1163,27 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         """, unsafe_allow_html=True)
                         
                         # If button is clicked, display the strategic differentiation
-                        if generate_button and competitor_brand.strip():
+                        if generate_button and competitor_brand.strip() and campaign_goal.strip():
                             st.markdown(f"""
-                                <h3>📊 Strategic Differentiation vs. <strong>{competitor_brand}</strong></h3>
-                                <ul>
-                                    <li><strong>Own the Cultural Moment:</strong> While {competitor_brand} focuses on high-frequency exposure, DCG can capitalize on culturally resonant campaigns tied to seasonal or regional celebrations with first-language and values-driven content.</li>
-                                    <li><strong>Expertise over Volume:</strong> DCG highlights niche expertise (e.g., pro services, landscape tech) where {competitor_brand} relies on generic mass messaging.</li>
-                                    <li><strong>Community Creators:</strong> DCG activates local influencers and trusted creators for storytelling, unlike {competitor_brand}'s top-down voice.</li>
-                                    <li><strong>Geo-Personalization:</strong> Leverage dynamic creative and zip-based targeting to personalize ads—areas {competitor_brand} may overlook.</li>
-                                    <li><strong>1P Data & Lookalikes:</strong> DCG can build custom segments for performance targeting, while {competitor_brand} prioritizes volume-based retargeting.</li>
+                                <h3>📊 Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
+                                <p><strong>Campaign Goal:</strong> {campaign_goal}</p>
+                                <ul style="line-height: 1.7;">
+                                    <li><strong>Capitalize on Cultural Moments:</strong> Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.</li>
+                                    <li><strong>Highlight Specialization:</strong> Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.</li>
+                                    <li><strong>Leverage Authentic Storytelling:</strong> Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.</li>
+                                    <li><strong>Enhance Local Relevance:</strong> Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.</li>
+                                    <li><strong>Activate Emerging Platforms:</strong> Extend the campaign to newer or underutilized platforms (like TikTok, Discord, or niche newsletters) where {competitor_brand} has little presence.</li>
                                 </ul>
+                            """, unsafe_allow_html=True)
+                        elif generate_button and (not competitor_brand.strip() or not campaign_goal.strip()):
+                            # Error message when fields aren't filled out
+                            st.markdown("""
+                                <p style='color:red;'>Please enter both the competitor brand and campaign summary.</p>
                             """, unsafe_allow_html=True)
                         else:
                             # Default message when no brand entered
                             st.markdown("""
-                                <p>Strategy insights will appear here after you enter a competitor brand and click Generate Insights. For detailed competitive intelligence, ensure OpenAI API integration is enabled.</p>
+                                <p>Strategy insights will appear here after you enter the required information and click Generate Strategy. For enhanced competitive intelligence, ensure OpenAI API integration is enabled.</p>
                             """, unsafe_allow_html=True)
                         
                         # Close the competitor output div
