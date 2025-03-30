@@ -649,7 +649,7 @@ def get_default_audience_segments(brief_text, ari_scores):
                 "description": "Young basketball enthusiasts who actively follow the sport and engage with basketball culture",
                 "interest_categories": ["Basketball Enthusiasts", "Sports Apparel", "Sneakerheads", "Live Sports Events"],
                 "targeting_params": {
-                    "age_range": "16-24",
+                    "age_range": "18-24",
                     "gender_targeting": "All",
                     "income_targeting": "Below $50k"
                 },
@@ -898,7 +898,7 @@ Additional audience data for SiteOne Hispanic campaign:
                     {
                         "name": "Gen Z Hoops Fanatics",
                         "targeting_params": {
-                            "age_range": "16-24",
+                            "age_range": "18-24",
                             "gender_targeting": "All",
                             "income_targeting": "Below $50k",
                             "education_targeting": "High school or some college",

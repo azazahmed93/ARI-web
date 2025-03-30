@@ -71,7 +71,8 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             'streaming': True,
             'psychographic': True,
             'audience': True,
-            'next_steps': True
+            'competitor_tactics': True,
+            'trends': True
         }
     
     # Define styles
@@ -534,6 +535,27 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                 
             content.append(Paragraph(audience_text, normal_style))
             
+        content.append(Spacer(1, 12))
+    
+    # Competitor Tactics
+    if include_sections.get('competitor_tactics', True):
+        content.append(Paragraph("Competitor Tactics", heading1_style))
+        
+        # Check if we have competitor tactics in session state
+        has_competitor_tactics = False
+        if hasattr(st, 'session_state') and 'competitor_tactics' in st.session_state and st.session_state.competitor_tactics:
+            competitor_tactics = st.session_state.competitor_tactics
+            has_competitor_tactics = len(competitor_tactics) > 0
+        
+        # If we have tactics, format them nicely for the PDF
+        if has_competitor_tactics:
+            for i, tactic in enumerate(competitor_tactics):
+                content.append(Paragraph(f"{i+1}. {tactic}", normal_style))
+                content.append(Spacer(1, 6))
+        else:
+            # Default competitor tactics text
+            content.append(Paragraph("Competitor tactics analysis not available. Visit the Competitor Tactics tab to generate custom competitive strategy recommendations.", normal_style))
+        
         content.append(Spacer(1, 12))
     
     # Marketing Trend Analysis

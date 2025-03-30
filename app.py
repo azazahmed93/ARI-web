@@ -260,6 +260,17 @@ def display_competitor_tactics_tab(tab):
                 for strategy in strategies:
                     strategy_items += f"<li>{strategy}</li>"
                 
+                # Store strategies in session state for PDF generation
+                if 'competitor_tactics' not in st.session_state:
+                    st.session_state.competitor_tactics = []
+                
+                # Clear existing tactics if any
+                st.session_state.competitor_tactics = []
+                
+                # Store each strategy in session state
+                for strategy in strategies:
+                    st.session_state.competitor_tactics.append(strategy)
+                
                 # Display the formatted output
                 tab.markdown(f"""
                 <div class="fortune500-output">
@@ -291,6 +302,17 @@ def display_competitor_tactics_tab(tab):
                             competitor_brand.strip(), 
                             campaign_goal
                         )
+                        
+                        # Store strategies in session state for PDF generation
+                        if 'competitor_tactics' not in st.session_state:
+                            st.session_state.competitor_tactics = []
+                        
+                        # Clear existing tactics if any
+                        st.session_state.competitor_tactics = []
+                        
+                        # Store each strategy in session state
+                        for strategy in strategies:
+                            st.session_state.competitor_tactics.append(strategy)
                         
                         # Format the strategies as list items
                         strategy_items = ""
@@ -387,6 +409,8 @@ if 'competitor_analysis' not in st.session_state:
     st.session_state.competitor_analysis = None
 if 'audience_segments' not in st.session_state:
     st.session_state.audience_segments = None
+if 'competitor_tactics' not in st.session_state:
+    st.session_state.competitor_tactics = []
 if 'use_openai' not in st.session_state:
     # Check if OpenAI API key is available
     st.session_state.use_openai = bool(os.environ.get("OPENAI_API_KEY"))
@@ -2075,6 +2099,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             
             # Additional checkbox for trend analysis with highlight styling
             include_trends = st.checkbox("Marketing Trend Analysis", value=True, help="Include the marketing trend heatmap and key trend insights in your report", key="trends")
+            
+            # Add competitor tactics checkbox
+            include_competitor_tactics = st.checkbox("Competitor Tactics", value=True, help="Include competitor strategy recommendations in your report", key="competitor_tactics")
         
         # Create dictionary of sections to include
         include_sections = {
@@ -2086,7 +2113,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             'psychographic': include_psychographic,
             'audience': include_audience,
             'next_steps': False,  # Removed Next Steps option as requested
-            'trends': include_trends
+            'trends': include_trends,
+            'competitor_tactics': include_competitor_tactics
         }
         
         # Generate and display the PDF download link with section selections
