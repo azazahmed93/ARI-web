@@ -105,6 +105,11 @@ LEARNING_TIPS = {
             "title": "Platform Recommendation",
             "content": "The optimal advertising platform or channel for reaching this audience segment based on their media consumption habits and engagement patterns.",
             "learn_more": "Platform-optimized campaigns show 45% higher engagement than platform-agnostic approaches."
+        },
+        "Optimization Strategy": {
+            "title": "Optimization Strategy",
+            "content": "Advanced bid management and targeting approach tailored to this audience segment, including bid adjustments, dayparting, and other tactical optimizations.",
+            "learn_more": "Properly optimized bidding strategies can improve campaign efficiency by up to 35%."
         }
     },
     
