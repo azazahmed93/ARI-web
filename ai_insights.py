@@ -625,6 +625,128 @@ Additional audience data for SiteOne Hispanic campaign:
             ]
         }
 
+def get_default_audience_segments(brief_text, ari_scores):
+    """
+    Generate default audience segments when AI generation is unavailable.
+    
+    Args:
+        brief_text (str): The marketing brief or RFP text
+        ari_scores (dict): The Audience Resonance Index scores
+        
+    Returns:
+        dict: A dictionary containing default audience segments
+    """
+    # Extract brand/industry information for more relevant defaults
+    from analysis import extract_brand_info
+    brand_name, industry, product_type = extract_brand_info(brief_text)
+    
+    # Default segments structure with placeholder content
+    segments = {
+        "segments": [
+            # Primary audience segment
+            {
+                "name": "Gen Z Basketball Enthusiasts",
+                "description": "Young basketball fans who actively follow the sport and purchase related merchandise",
+                "interest_categories": ["Basketball Enthusiasts", "Sports Apparel", "Sneakerheads", "Live Sports Events"],
+                "targeting_params": {
+                    "age_range": "18-24",
+                    "gender_targeting": "All",
+                    "income_targeting": "Below $50k"
+                },
+                "platform_targeting": [
+                    {
+                        "platform": "Programmatic Video Platforms",
+                        "targeting_approach": "Interest-based targeting with sports content adjacency"
+                    }
+                ],
+                "expected_performance": {
+                    "CTR": "0.3-0.7%",
+                    "engagement_rate": "6.2%"
+                },
+                "bidding_strategy": {
+                    "bid_adjustments": "Higher bids on weekends",
+                    "dayparting": "Evenings and weekends"
+                }
+            },
+            # Secondary audience segment
+            {
+                "name": "Tech-Savvy Active Lifestylers",
+                "description": "Fitness-focused consumers who track workouts and prioritize performance gear",
+                "interest_categories": ["Athletic Footwear", "Wearable Technology", "Health & Fitness Tracking"],
+                "targeting_params": {
+                    "age_range": "18-34",
+                    "gender_targeting": "All",
+                    "income_targeting": "Above $50k"
+                },
+                "platform_targeting": [
+                    {
+                        "platform": "Audio Streaming Platforms",
+                        "targeting_approach": "Workout playlists and fitness podcast listeners"
+                    }
+                ],
+                "expected_performance": {
+                    "CTR": "0.3-1.0%",
+                    "engagement_rate": "5.8%"
+                },
+                "bidding_strategy": {
+                    "bid_adjustments": "Morning and evening workout hours",
+                    "dayparting": "6-9am and 5-8pm weekdays"
+                }
+            },
+            # Growth opportunity segment
+            {
+                "name": "Fashion-Forward Urban Professionals",
+                "description": "Style-conscious young professionals who blend athletic and casual wear",
+                "interest_categories": ["Urban Fashion", "Premium Streetwear", "Casual Office Attire"],
+                "targeting_params": {
+                    "age_range": "25-34",
+                    "gender_targeting": "All",
+                    "income_targeting": "$75k+"
+                },
+                "platform_targeting": [
+                    {
+                        "platform": "Premium Display Networks",
+                        "targeting_approach": "Fashion and lifestyle content adjacency"
+                    }
+                ],
+                "expected_performance": {
+                    "CTR": "0.2-0.5%",
+                    "CPA": "$45-60",
+                    "engagement_rate": "4.2%"
+                },
+                "bidding_strategy": {
+                    "bid_adjustments": "Higher bids on payday periods",
+                    "dayparting": "Lunch hours and evenings"
+                }
+            }
+        ]
+    }
+    
+    # Customize based on industry if possible
+    if "fashion" in industry.lower() or "apparel" in industry.lower():
+        segments["segments"][0]["name"] = "Style-Conscious Trendsetters"
+        segments["segments"][1]["name"] = "Fashion-Forward Professionals"
+    elif "tech" in industry.lower() or "technology" in industry.lower():
+        segments["segments"][0]["name"] = "Tech Early Adopters"
+        segments["segments"][1]["name"] = "Digital Experience Seekers"
+    elif "auto" in industry.lower() or "car" in industry.lower():
+        segments["segments"][0]["name"] = "Auto Enthusiasts"
+        segments["segments"][1]["name"] = "Luxury Car Aspirants"
+    elif "food" in industry.lower() or "beverage" in industry.lower():
+        segments["segments"][0]["name"] = "Culinary Explorers"
+        segments["segments"][1]["name"] = "Health-Conscious Foodies"
+    
+    # Modify interests based on brief content keywords
+    brief_lower = brief_text.lower()
+    if "luxury" in brief_lower or "premium" in brief_lower:
+        segments["segments"][0]["interest_categories"].append("Luxury Lifestyle")
+        segments["segments"][1]["interest_categories"].append("Premium Brands")
+    if "sustainable" in brief_lower or "eco" in brief_lower:
+        segments["segments"][0]["interest_categories"].append("Sustainability")
+        segments["segments"][1]["interest_categories"].append("Eco-Friendly Products")
+    
+    return segments
+
 def generate_audience_segments(brief_text, ari_scores):
     """
     Generate audience segment recommendations based on the brief text and ARI scores.
@@ -636,7 +758,7 @@ def generate_audience_segments(brief_text, ari_scores):
         ari_scores (dict): The Audience Resonance Index scores
         
     Returns:
-        list: A list of audience segments with descriptions and affinities, including growth opportunities
+        dict: A dictionary containing audience segments with descriptions and affinities
     """
     try:
         # Check if this is the SiteOne Hispanic campaign
