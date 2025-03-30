@@ -893,17 +893,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
     
     # Modify the template to replace placeholders with our dynamic data
-    analysis = template_html.split("<script>")[0]  # Remove the script part
-    
-    # Replace the static content with our dynamic content
-    analysis = analysis.replace("<h1>📊 ARI Advanced Metric Analysis</h1>", "")
-    analysis = analysis.replace("<p>Paste your campaign brief below. The tool will dynamically generate a summary based on key insights and scores.</p>", "")
-    analysis = analysis.replace("<textarea id=\"briefInput\" placeholder=\"Paste RFP brief here...\"></textarea>", "")
-    analysis = analysis.replace("<button onclick=\"generateSummary()\">Generate Analysis</button>", "")
-    
-    # Replace the output div with our dynamic content
-    analysis = analysis.replace("<div id=\"output\"></div>", f"""
-    <div id="output">
+    # Generate our analysis content directly, not using the template HTML which is causing rendering issues
+    analysis = f"""
+    <div style="margin-top: 2rem; padding: 1.5rem; background: #fff; border-left: 4px solid #3b82f6;">
         <h3>🚀 Executive Summary</h3>
         <p>{summary_text}</p>
 
@@ -916,7 +908,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         <h3>📌 Detailed Metrics</h3>
         {metrics_html}
     </div>
-    """)
+    """
     
     st.markdown(analysis, unsafe_allow_html=True)
     
