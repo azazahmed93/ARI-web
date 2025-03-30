@@ -598,7 +598,7 @@ Additional audience data for SiteOne Hispanic campaign:
                     {"threat": "Mobile App Competition for Hispanic Users", "tactical_response": "Focus on high-performance mobile placements with sports content adjacencies using Spanish language interfaces."}
                 ],
                 "differentiation": [
-                    {"platform": "Mobile Video", "tactical_approach": "Create mobile-first vertical video assets in Spanish featuring landscape professionals succeeding on job sites, with specific product placements."},
+                    {"platform": "Mobile Video", "tactical_approach": "Create mobile-first vertical video assets in Spanish featuring landscape professionals succeeding on job sites, with specific product placements. Use VCR (Video Completion Rate) of 70-95% as the benchmark for performance."},
                     {"platform": "Audio Streaming", "tactical_approach": "Develop Spanish-language audio ads targeting listeners of sports content and traditional music genres with mobile companion banners."}
                 ]
             }
@@ -660,7 +660,7 @@ def get_default_audience_segments(brief_text, ari_scores):
                     }
                 ],
                 "expected_performance": {
-                    "CTR": "0.3-0.7%",
+                    "CTR": "70-95%",  # For video platforms, this becomes VCR (video completion rate)
                     "engagement_rate": "6.2%"
                 },
                 "bidding_strategy": {
@@ -812,7 +812,9 @@ Additional audience data for SiteOne Hispanic campaign:
         2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
         3. Digital platform interest categories and behavior targeting options
         4. Platform-specific targeting recommendations (use generic platform types, not brand names)
-        5. Key performance indicators and benchmark CTRs/conversion rates to expect for omnichannel campaigns
+        5. Key performance indicators and benchmark rates to expect for omnichannel campaigns
+           - For display formats: Use CTR of 0.05-0.7%
+           - For video/OTT/CTV formats: Use VCR (Video Completion Rate) of 70-95% instead of CTR
         6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
         Format the response as a valid JSON array with objects containing:
@@ -820,7 +822,7 @@ Additional audience data for SiteOne Hispanic campaign:
         - targeting_params: object with age_range, gender_targeting, income_targeting, education_targeting, and location_targeting
         - interest_categories: array of strings (specific interests to target in ad platforms)
         - platform_targeting: array of objects with 'platform' and 'targeting_approach' 
-        - expected_performance: object with CTR (click-through rate), CPA (cost per acquisition), and engagement_rate
+        - expected_performance: object with CTR (click-through rate or video completion rate for video content), CPA (cost per acquisition), and engagement_rate
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed 
@@ -886,7 +888,7 @@ Additional audience data for SiteOne Hispanic campaign:
                             {"platform": "Mobile Gaming", "targeting_approach": "Reach users on mobile devices through sports apps and games with Spanish language options"}
                         ],
                         "expected_performance": {
-                            "CTR": "0.3-0.7%", 
+                            "CTR": "0.3-0.7%",  # For display; would be 70-95% for video formats
                             "CPA": "20-25% below account average for Spanish creative", 
                             "engagement_rate": "3.5-4.2%"
                         },
@@ -923,7 +925,7 @@ Additional audience data for SiteOne Hispanic campaign:
                         {"platform": "Video Platforms", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
                     ],
                     "expected_performance": {
-                        "CTR": "0.5-0.8%", 
+                        "CTR": "70-95%",  # For video platforms, this becomes VCR (video completion rate)
                         "CPA": "15-20% below account average", 
                         "engagement_rate": "4.5-5.2%"
                     },
