@@ -100,7 +100,7 @@ def generate_competitor_strategy_html(competitor_brand, campaign_goal, brief_tex
         
         # Return the HTML content
         return f"""
-            <h3>📊 Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
+            <h3>Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
             <p><strong>Campaign Goal:</strong> {campaign_goal}</p>
             <ul style="line-height: 1.7;">
                 {strategy_items}
@@ -172,7 +172,7 @@ def display_competitor_tactics_tab(tab):
     # Add the HTML for the competitor analyzer UI
     tab.markdown("""
     <div class="fortune500-analyzer">
-        <div class="fortune500-heading">🏢 Fortune 500 Competitor Strategy Generator</div>
+        <div class="fortune500-heading">Fortune 500 Competitor Strategy Generator</div>
         <p class="fortune500-description">Enter a Fortune 500 brand to generate dynamic counter-strategy recommendations that leverage your campaign's strengths.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -262,7 +262,7 @@ def display_competitor_tactics_tab(tab):
                 # Display the formatted output
                 tab.markdown(f"""
                 <div class="fortune500-output">
-                    <h2>📍 Strategy Against <strong>{brand_lower.title()}</strong></h2>
+                    <h2>Strategy Against <strong>{brand_lower.title()}</strong></h2>
                     <ul>
                         {strategy_items}
                     </ul>
@@ -306,7 +306,7 @@ def display_competitor_tactics_tab(tab):
                         # Display the formatted output
                         tab.markdown(f"""
                         <div class="fortune500-output">
-                            <h2>📍 Custom Strategy Against <strong>{competitor_brand}</strong></h2>
+                            <h2>Custom Strategy Against <strong>{competitor_brand}</strong></h2>
                             <ul>
                                 {strategy_items}
                             </ul>
@@ -316,7 +316,7 @@ def display_competitor_tactics_tab(tab):
                     # Brand not in database and no brief text available
                     tab.markdown(f"""
                     <div class="fortune500-output">
-                        <h2>⚠️ Brand Not Found</h2>
+                        <h2>Brand Not Found</h2>
                         <p>This tool currently includes a subset of Fortune 500 brands. Please try one of the suggested brands or upload a brief for AI-powered custom recommendations.</p>
                     </div>
                     """, unsafe_allow_html=True)
@@ -355,7 +355,7 @@ from assets.content import (
 # Set page config
 st.set_page_config(
     page_title="ARI Analyzer - Digital Culture Group",
-    page_icon="📊",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="collapsed"
 )
