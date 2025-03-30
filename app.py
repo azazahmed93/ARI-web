@@ -721,16 +721,6 @@ def main():
                                     ai_insights = generate_deep_insights(brief_text, scores)
                                     st.session_state.ai_insights = ai_insights
                                     
-                                    # Debug info for AI insights
-                                    st.sidebar.write("### AI Insights Debug")
-                                    if ai_insights and isinstance(ai_insights, dict):
-                                        st.sidebar.write("Top strength: ", ai_insights.get('strengths', [{}])[0].get('area', 'None') if ai_insights.get('strengths') else 'None')
-                                        st.sidebar.write("Top improvement: ", ai_insights.get('improvements', [{}])[0].get('area', 'None') if ai_insights.get('improvements') else 'None')
-                                        st.sidebar.write("Hidden insight available: ", "Yes" if ai_insights.get('hidden_insight') else "No")
-                                        st.sidebar.write("Performance prediction: ", ai_insights.get('performance_prediction', 'None'))
-                                    else:
-                                        st.sidebar.write("AI insights not available or in unexpected format")
-                                    
                                     # Generate competitor analysis
                                     competitor_analysis = generate_competitor_analysis(brief_text, industry)
                                     st.session_state.competitor_analysis = competitor_analysis
@@ -855,8 +845,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             # Fall back to calculated bottom metric
             key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
         
-        # Add debug info
-        st.session_state['debug_info'] = {
+        # Track values internally
+        internal_tracking = {
             "source": "ai_insights",
             "top_strength": top_strength,
             "key_opportunity": key_opportunity,
@@ -882,8 +872,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Use the lowest scoring metric as the key opportunity
         key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
         
-        # Add debug info
-        st.session_state['debug_info'] = {
+        # Track values internally
+        internal_tracking = {
             "source": "calculated_scores",
             "top_strength": top_strength,
             "key_opportunity": key_opportunity,
@@ -1274,11 +1264,6 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     """, unsafe_allow_html=True)
     
     # This section is now handled directly within tab1
-    
-    # Add debug information display
-    if 'debug_info' in st.session_state:
-        with st.expander("Debug Information"):
-            st.write(st.session_state['debug_info'])
     
     # Create a dashboard-style KPI row
     col1, col2, col3 = st.columns(3)

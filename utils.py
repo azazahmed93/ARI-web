@@ -27,7 +27,8 @@ def strip_html(text):
     """Remove HTML tags from a string."""
     return re.sub('<[^<]+?>', '', text).strip()
 
-def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="Unknown", industry="General", product_type="Product"):
+def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="Unknown", industry="General", product_type="Product", 
+                       include_sections=None):
     """
     Create a PDF report and return a download link.
     
@@ -38,7 +39,11 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         brand_name (str): Name of the brand
         industry (str): Industry of the brand
         product_type (str): Type of product being promoted
-        
+        include_sections (dict, optional): Dictionary of section flags to include/exclude
+            keys: 'metrics', 'benchmark', 'media_affinities', 'tv_networks', 
+                 'streaming', 'psychographic', 'audience', 'next_steps'
+            values: boolean (True to include, False to exclude)
+    
     Returns:
         str: HTML link for downloading the PDF
     """
@@ -54,6 +59,19 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         topMargin=30,
         bottomMargin=30
     )
+    
+    # Default sections to include if not specified
+    if include_sections is None:
+        include_sections = {
+            'metrics': True,
+            'benchmark': True,
+            'media_affinities': True,
+            'tv_networks': True,
+            'streaming': True,
+            'psychographic': True,
+            'audience': True,
+            'next_steps': True
+        }
     
     # Define styles
     styles = getSampleStyleSheet()
@@ -121,75 +139,77 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         content.append(Spacer(1, 12))
     
     # Metric Breakdown
-    content.append(Paragraph("Metric Breakdown", heading1_style))
-    
-    # Create tables for metrics
-    metrics_data = []
-    
-    # Add headers
-    headers = ["Metric", "Score", "Description"]
-    
-    # Create a header for the table
-    metrics_data.append([
-        Paragraph("<b>Metric</b>", normal_style),
-        Paragraph("<b>Score</b>", normal_style),
-        Paragraph("<b>Description</b>", normal_style)
-    ])
-    
-    # Row styles
-    row_styles = [
-        # Header row styling
-        ('BACKGROUND', (0, 0), (-1, 0), HexColor('#dbeafe')),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]
-    
-    # Add metrics data with alternating row colors
-    for i, (metric, score) in enumerate(scores.items()):
-        level = "high" if score >= 7 else "medium" if score >= 4 else "low"
-        description = METRICS[metric][level]
+    if include_sections.get('metrics', True):
+        content.append(Paragraph("Metric Breakdown", heading1_style))
         
-        # All text should be normal black with consistent styling
+        # Create tables for metrics
+        metrics_data = []
+        
+        # Add headers
+        headers = ["Metric", "Score", "Description"]
+        
+        # Create a header for the table
         metrics_data.append([
-            Paragraph(f"<b>{metric}</b>", normal_style),
-            Paragraph(f"<b>{score}/10</b>", normal_style),
-            Paragraph(description, description_style)
+            Paragraph("<b>Metric</b>", normal_style),
+            Paragraph("<b>Score</b>", normal_style),
+            Paragraph("<b>Description</b>", normal_style)
         ])
         
-        # Add alternating row colors
-        if i % 2 == 0:
-            row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#e0edff')))
-        else:
-            row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#f0f9ff')))
-    
-    # Create table
-    metrics_table = Table(metrics_data, colWidths=[120, 50, 330], repeatRows=1)
-    metrics_table.setStyle(TableStyle(row_styles))
-    
-    content.append(metrics_table)
-    content.append(Spacer(1, 12))
+        # Row styles
+        row_styles = [
+            # Header row styling
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#dbeafe')),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]
+        
+        # Add metrics data with alternating row colors
+        for i, (metric, score) in enumerate(scores.items()):
+            level = "high" if score >= 7 else "medium" if score >= 4 else "low"
+            description = METRICS[metric][level]
+            
+            # All text should be normal black with consistent styling
+            metrics_data.append([
+                Paragraph(f"<b>{metric}</b>", normal_style),
+                Paragraph(f"<b>{score}/10</b>", normal_style),
+                Paragraph(description, description_style)
+            ])
+            
+            # Add alternating row colors
+            if i % 2 == 0:
+                row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#e0edff')))
+            else:
+                row_styles.append(('BACKGROUND', (0, i+1), (-1, i+1), HexColor('#f0f9ff')))
+        
+        # Create table
+        metrics_table = Table(metrics_data, colWidths=[120, 50, 330], repeatRows=1)
+        metrics_table.setStyle(TableStyle(row_styles))
+        
+        content.append(metrics_table)
+        content.append(Spacer(1, 12))
     
     # Benchmark section
-    content.append(Paragraph("Benchmark Comparison", heading1_style))
-    
-    # Simplified benchmark text without industry references
-    benchmark_text = (f"This campaign ranks in the top {percentile}% of all campaigns "
-                    f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
-                    f"campaigns in relevance, authenticity, and emotional connection — based on "
-                    f"Digital Culture Group's analysis of 300+ marketing efforts.")
-    
-    improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
-    
-    content.append(Paragraph(benchmark_text, normal_style))
-    content.append(Spacer(1, 6))
-    content.append(Paragraph(improvement_text, normal_style))
-    content.append(Spacer(1, 12))
+    if include_sections.get('benchmark', True):
+        content.append(Paragraph("Benchmark Comparison", heading1_style))
+        
+        # Simplified benchmark text without industry references
+        benchmark_text = (f"This campaign ranks in the top {percentile}% of all campaigns "
+                        f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
+                        f"campaigns in relevance, authenticity, and emotional connection — based on "
+                        f"Digital Culture Group's analysis of 300+ marketing efforts.")
+        
+        improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
+        
+        content.append(Paragraph(benchmark_text, normal_style))
+        content.append(Spacer(1, 6))
+        content.append(Paragraph(improvement_text, normal_style))
+        content.append(Spacer(1, 12))
     
     # Media Affinity section - use the same title_style for consistent centering
     content.append(Paragraph("Media Affinities & Audience Insights", title_style))
