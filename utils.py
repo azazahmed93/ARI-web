@@ -377,8 +377,163 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Audience Summary
     if include_sections.get('audience', True):
         content.append(Paragraph("Audience Summary", heading1_style))
-        audience_text = strip_html(AUDIENCE_SUMMARY)
-        content.append(Paragraph(audience_text, normal_style))
+        
+        # Check if we have dynamic audience segments in session state
+        has_dynamic_segments = False
+        if hasattr(st, 'session_state') and 'audience_segments' in st.session_state and st.session_state.audience_segments:
+            segments = st.session_state.audience_segments.get('segments', [])
+            has_dynamic_segments = len(segments) > 0
+        
+        # If we have dynamic segments, format them nicely for the PDF
+        if has_dynamic_segments:
+            segments = st.session_state.audience_segments.get('segments', [])
+            
+            # Add Core Audience (Primary)
+            if len(segments) > 0:
+                primary = segments[0]
+                content.append(Paragraph("Core Audience:", 
+                                ParagraphStyle('SubHeading', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
+                
+                # Format the primary audience description
+                primary_text = f"{primary.get('name', 'Primary Audience')}: {primary.get('description', 'Core target audience')}"
+                content.append(Paragraph(primary_text, normal_style))
+                
+                # Add demographics if available
+                targeting_params = primary.get('targeting_params', {})
+                if targeting_params:
+                    demo_parts = []
+                    if 'age_range' in targeting_params:
+                        demo_parts.append(f"Age: {targeting_params['age_range']}")
+                    if 'gender_targeting' in targeting_params:
+                        demo_parts.append(f"Gender: {targeting_params['gender_targeting']}")
+                    if 'income_targeting' in targeting_params:
+                        demo_parts.append(f"Income: {targeting_params['income_targeting']}")
+                    
+                    if demo_parts:
+                        demo_text = "Demographics: " + " | ".join(demo_parts)
+                        content.append(Paragraph(demo_text, normal_style))
+                
+                # Add platform information with appropriate metrics
+                platform_targeting = primary.get('platform_targeting', [])
+                if platform_targeting and len(platform_targeting) > 0:
+                    platform = platform_targeting[0].get('platform', '')
+                    
+                    # Determine appropriate metric based on platform type
+                    performance = primary.get('expected_performance', {})
+                    metric_value = performance.get('CTR', 'N/A')
+                    metric_name = "Expected CTR"
+                    
+                    # Check for video platforms
+                    if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
+                                    or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
+                        metric_name = "Expected VCR"
+                        metric_value = "70-95%"  # Dynamic range for video completion
+                    
+                    # Check for audio platforms
+                    elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
+                                      or 'music' in platform.lower()):
+                        metric_name = "Expected LTR"
+                        metric_value = "80-95%"  # Dynamic range for audio listen-through
+                    
+                    platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
+                    content.append(Paragraph(platform_text, normal_style))
+                
+                content.append(Spacer(1, 8))
+            
+            # Add Secondary Growth Audience
+            if len(segments) > 1:
+                secondary = segments[1]
+                content.append(Paragraph("Secondary Growth Audience:", 
+                                ParagraphStyle('SubHeading', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
+                
+                # Format the secondary audience description
+                secondary_text = f"{secondary.get('name', 'Secondary Growth Audience')}: {secondary.get('description', 'Additional target audience')}"
+                content.append(Paragraph(secondary_text, normal_style))
+                
+                # Add platform information with appropriate metrics
+                platform_targeting = secondary.get('platform_targeting', [])
+                if platform_targeting and len(platform_targeting) > 0:
+                    platform = platform_targeting[0].get('platform', '')
+                    
+                    # Determine appropriate metric based on platform type
+                    performance = secondary.get('expected_performance', {})
+                    metric_value = performance.get('CTR', 'N/A')
+                    metric_name = "Expected CTR"
+                    
+                    # Check for video platforms
+                    if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
+                                    or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
+                        metric_name = "Expected VCR"
+                        metric_value = "70-95%"  # Dynamic range for video completion
+                    
+                    # Check for audio platforms
+                    elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
+                                      or 'music' in platform.lower()):
+                        metric_name = "Expected LTR"
+                        metric_value = "80-95%"  # Dynamic range for audio listen-through
+                    
+                    platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
+                    content.append(Paragraph(platform_text, normal_style))
+                
+                content.append(Spacer(1, 8))
+            
+            # Add Emerging Audience Opportunity
+            if len(segments) > 2:
+                growth = segments[-1]  # Use the last segment as growth opportunity
+                content.append(Paragraph("Emerging Audience Opportunity:", 
+                                ParagraphStyle('SubHeading', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
+                
+                # Format the growth audience description
+                growth_text = f"{growth.get('name', 'Emerging Audience')}: {growth.get('description', 'Growth potential audience')}"
+                content.append(Paragraph(growth_text, normal_style))
+                
+                # Add interests if available
+                interests = growth.get('interest_categories', [])
+                if interests:
+                    interests_text = "Key Interests: " + ", ".join(interests)
+                    content.append(Paragraph(interests_text, normal_style))
+                
+                # Add platform information with appropriate metrics
+                platform_targeting = growth.get('platform_targeting', [])
+                if platform_targeting and len(platform_targeting) > 0:
+                    platform = platform_targeting[0].get('platform', '')
+                    
+                    # Determine appropriate metric based on platform type
+                    performance = growth.get('expected_performance', {})
+                    metric_value = performance.get('CTR', 'N/A')
+                    metric_name = "Expected CTR"
+                    
+                    # Check for video platforms
+                    if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
+                                    or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
+                        metric_name = "Expected VCR"
+                        metric_value = "70-95%"  # Dynamic range for video completion
+                    
+                    # Check for audio platforms
+                    elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
+                                      or 'music' in platform.lower()):
+                        metric_name = "Expected LTR"
+                        metric_value = "80-95%"  # Dynamic range for audio listen-through
+                    
+                    platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
+                    content.append(Paragraph(platform_text, normal_style))
+            
+        else:
+            # Determine if this is a SiteOne Hispanic campaign by checking the brief text
+            is_siteone_hispanic = False
+            if brief_text and "SiteOne" in brief_text and ("Hispanic" in brief_text or "Spanish" in brief_text):
+                is_siteone_hispanic = True
+                
+            # Use the static audience summary, selecting the appropriate one based on campaign type
+            if is_siteone_hispanic:
+                # Import here to avoid circular import issues
+                from assets.content import SITEONE_HISPANIC_SUMMARY
+                audience_text = strip_html(SITEONE_HISPANIC_SUMMARY)
+            else:
+                audience_text = strip_html(AUDIENCE_SUMMARY)
+                
+            content.append(Paragraph(audience_text, normal_style))
+            
         content.append(Spacer(1, 12))
     
     # Marketing Trend Analysis
