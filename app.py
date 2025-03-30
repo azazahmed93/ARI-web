@@ -795,12 +795,91 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     from marketing_trends import display_trend_heatmap
     st.markdown("---")
     
-    # These are just initial placeholder values that will be overwritten
-    # based on the actual calculated scores from the brief
-    summary_text = "This campaign shows promising elements in cultural resonance alongside opportunities for optimization."
-    top_strength = ""  # Will be set based on highest score from the metrics
-    key_opportunity = ""  # Will be set based on lowest score or improvement areas
-    roi_potential = "15-20%"
+    # Initialize values that will be set based on scores or AI insights
+    summary_text = ""
+    top_strength = ""
+    key_opportunity = ""
+    roi_potential = ""
+    
+    # Extract top strength and key opportunity
+    # Initialize variables to avoid "possibly unbound" errors
+    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+        ai_insights = st.session_state.ai_insights
+        
+        # Extract the first strength and improvement for the executive summary
+        top_strength = ai_insights.get('strengths', [{}])[0].get('area', 'Cultural Relevance') if ai_insights.get('strengths') else 'Cultural Relevance'
+        key_opportunity = ai_insights.get('improvements', [{}])[0].get('area', 'Audience Engagement') if ai_insights.get('improvements') else 'Audience Engagement'
+        
+        # Add debug info to see where these values are coming from
+        st.session_state['debug_info'] = {
+            "source": "ai_insights",
+            "top_strength": top_strength,
+            "key_opportunity": key_opportunity
+        }
+        
+        # Extract potential ROI from performance prediction if available
+        prediction = ai_insights.get('performance_prediction', '')
+        if prediction and '%' in prediction:
+            import re
+            roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
+            if roi_match:
+                roi_potential = roi_match.group(0)
+                if not roi_potential.startswith('+'):
+                    roi_potential = f"+{roi_potential}"
+    else:
+        # Calculate based on the scores if AI insights aren't available
+        metric_scores = list(scores.items())
+        metric_scores.sort(key=lambda x: x[1], reverse=True)
+        
+        # Use the highest scoring metric as the top strength
+        top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
+        
+        # Use the lowest scoring metric as the key opportunity
+        key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
+        
+        # Add debug info to see where these values are coming from
+        st.session_state['debug_info'] = {
+            "source": "calculated_scores",
+            "top_strength": top_strength,
+            "key_opportunity": key_opportunity,
+            "metric_scores": {name: score for name, score in metric_scores}
+        }
+    
+    # If we couldn't extract ROI from AI insights, calculate based on the scores
+    if not roi_potential:
+        # Calculate based on the average score - higher scores = higher potential
+        avg_score = sum(scores.values()) / len(scores)
+        # Convert to a percentage between 5-25%
+        roi_percent = int(5 + (avg_score / 10) * 20)
+        roi_potential = f"+{roi_percent}%"
+    
+    # Generate summary text from the insights - make it more dynamic and specific to the brief
+    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+        ai_insights = st.session_state.ai_insights
+        
+        # Get the top strength explanation if available
+        top_strength_explanation = ""
+        for strength in ai_insights.get('strengths', []):
+            if strength.get('area') == top_strength and 'explanation' in strength:
+                top_strength_explanation = strength['explanation']
+                break
+        
+        # Get the key opportunity explanation if available
+        key_opportunity_explanation = ""
+        for improvement in ai_insights.get('improvements', []):
+            if improvement.get('area') == key_opportunity and 'explanation' in improvement:
+                key_opportunity_explanation = improvement['explanation']
+                break
+        
+        # If we have detailed explanations, use them in a more detailed summary
+        if top_strength_explanation and key_opportunity_explanation:
+            summary_text = f"This campaign excels in <strong>{top_strength}</strong>: {top_strength_explanation[0].lower() + top_strength_explanation[1:]} However, there's an opportunity to enhance <strong>{key_opportunity}</strong>: {key_opportunity_explanation[0].lower() + key_opportunity_explanation[1:]} Our AI-powered analysis suggests implementing targeted tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+        else:
+            # Fall back to the simpler summary if we don't have detailed explanations
+            summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+    else:
+        # Default summary when no AI insights are available
+        summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
     
     # Check if this is a SiteOne Hispanic campaign
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
@@ -947,87 +1026,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             # Add this metric to the HTML - use string concatenation instead of f-strings with triple quotes
             metrics_html += f'<div style="margin-bottom: 1rem;"><strong>{metric} – {formatted_score}:</strong> {description}</div>'
     
-    # Extract top strength and key opportunity
-    # Initialize variables to avoid "possibly unbound" errors
-    roi_potential = ""
-    
-    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
-        ai_insights = st.session_state.ai_insights
-        
-        # Extract the first strength and improvement for the executive summary
-        top_strength = ai_insights.get('strengths', [{}])[0].get('area', 'Cultural Relevance') if ai_insights.get('strengths') else 'Cultural Relevance'
-        key_opportunity = ai_insights.get('improvements', [{}])[0].get('area', 'Audience Engagement') if ai_insights.get('improvements') else 'Audience Engagement'
-        
-        # Add debug info to see where these values are coming from
-        st.session_state['debug_info'] = {
-            "source": "ai_insights",
-            "top_strength": top_strength,
-            "key_opportunity": key_opportunity
-        }
-        
-        # Extract potential ROI from performance prediction if available
-        prediction = ai_insights.get('performance_prediction', '')
-        if prediction and '%' in prediction:
-            import re
-            roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
-            if roi_match:
-                roi_potential = roi_match.group(0)
-                if not roi_potential.startswith('+'):
-                    roi_potential = f"+{roi_potential}"
-    else:
-        # Calculate based on the scores if AI insights aren't available
-        metric_scores = list(scores.items())
-        metric_scores.sort(key=lambda x: x[1], reverse=True)
-        
-        # Use the highest scoring metric as the top strength
-        top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
-        
-        # Use the lowest scoring metric as the key opportunity
-        key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
-        
-        # Add debug info to see where these values are coming from
-        st.session_state['debug_info'] = {
-            "source": "calculated_scores",
-            "top_strength": top_strength,
-            "key_opportunity": key_opportunity,
-            "metric_scores": {name: score for name, score in metric_scores}
-        }
-    
-    # If we couldn't extract ROI from AI insights, calculate based on the scores
-    if not roi_potential:
-        # Calculate based on the average score - higher scores = higher potential
-        avg_score = sum(scores.values()) / len(scores)
-        # Convert to a percentage between 5-25%
-        roi_percent = int(5 + (avg_score / 10) * 20)
-        roi_potential = f"+{roi_percent}%"
-    
-    # Generate summary text from the insights - make it more dynamic and specific to the brief
-    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
-        ai_insights = st.session_state.ai_insights
-        
-        # Get the top strength explanation if available
-        top_strength_explanation = ""
-        for strength in ai_insights.get('strengths', []):
-            if strength.get('area') == top_strength and 'explanation' in strength:
-                top_strength_explanation = strength['explanation']
-                break
-        
-        # Get the key opportunity explanation if available
-        key_opportunity_explanation = ""
-        for improvement in ai_insights.get('improvements', []):
-            if improvement.get('area') == key_opportunity and 'explanation' in improvement:
-                key_opportunity_explanation = improvement['explanation']
-                break
-        
-        # If we have detailed explanations, use them in a more detailed summary
-        if top_strength_explanation and key_opportunity_explanation:
-            summary_text = f"This campaign excels in <strong>{top_strength}</strong>: {top_strength_explanation[0].lower() + top_strength_explanation[1:]} However, there's an opportunity to enhance <strong>{key_opportunity}</strong>: {key_opportunity_explanation[0].lower() + key_opportunity_explanation[1:]} Our AI-powered analysis suggests implementing targeted tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
-        else:
-            # Fall back to the simpler summary if we don't have detailed explanations
-            summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
-    else:
-        # Default summary when no AI insights are available
-        summary_text = f"This campaign demonstrates strong performance in <strong>{top_strength}</strong>, with opportunities to improve <strong>{key_opportunity}</strong>. Our AI-powered analysis suggests tactical adjustments that could increase overall effectiveness by <strong>{roi_potential}</strong>."
+    # Just add spacing after the metrics
     
     # Premium styled CSS for Advanced Metric Analysis with simplified bar styling (no animations that might conflict with Streamlit)
     st.markdown("""
