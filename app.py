@@ -1009,9 +1009,33 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 score_color = "#ef4444"
                 bar_class = "needs-improvement"
                 
+            # Add tooltip descriptions for complex metrics
+            tooltip_content = ""
+            if metric == "Cultural Authority":
+                tooltip_content = "A measure of how effectively the campaign leverages culturally significant elements or voices with credibility in the target audience space."
+            elif metric == "Cultural Vernacular":
+                tooltip_content = "Evaluates how well the campaign uses language patterns, expressions, and communication styles authentic to the target audience."
+            elif metric == "Media Ownership Equity":
+                tooltip_content = "Analyzes the diversity of media partnerships and distribution channels, with higher scores for more inclusive and equitable media representation."
+            elif metric == "Commerce Bridge":
+                tooltip_content = "Measures how effectively the campaign connects brand storytelling to purchase opportunities across the customer journey."
+            elif metric == "Geo-Cultural Fit":
+                tooltip_content = "Evaluates how well the campaign accounts for geographical and cultural variations within the target audience."
+            elif metric == "Platform Relevance":
+                tooltip_content = "Assesses how effectively the campaign utilizes media platforms aligned with the target audience's consumption behaviors."
+            elif metric == "Buzz & Conversation":
+                tooltip_content = "Evaluates the campaign's potential to generate organic discussion and sharing among the target audience."
+            elif metric == "Representation":
+                tooltip_content = "Measures how authentically the campaign represents the diversity of perspectives, experiences, and identities within the target audience."
+            elif metric == "Cultural Relevance":
+                tooltip_content = "Evaluates how well the campaign connects with currently relevant cultural themes important to the target audience."
+                
+            # Add tooltip HTML if available
+            tooltip_html = f'<div class="tooltip"><i class="info-icon">i</i><span class="tooltiptext">{tooltip_content}</span></div>' if tooltip_content else ""
+            
             # Add metric with custom-styled progress bar (using inline styles for reliability)
             analysis += f'<div class="metric-item">'
-            analysis += f'<div class="metric-header"><strong>{metric}</strong> <span style="font-weight: 600; border-radius: 100px; padding: 0.3rem 0.8rem; font-size: 0.9rem; background: {score_bg}; color: {score_color};">{formatted_score}</span></div>'
+            analysis += f'<div class="metric-header"><strong>{metric}</strong> {tooltip_html} <span style="font-weight: 600; border-radius: 100px; padding: 0.3rem 0.8rem; font-size: 0.9rem; background: {score_bg}; color: {score_color};">{formatted_score}</span></div>'
             analysis += f'<div style="height: 8px; width: 100%; background: #e2e8f0; border-radius: 100px; margin-bottom: 1rem; overflow: hidden; position: relative;">'
             analysis += f'<div style="position: absolute; top: 0; left: 0; height: 100%; width: {percent}%; background: {bar_bg}; border-radius: 100px;"></div>'
             analysis += f'</div>'
@@ -1190,6 +1214,61 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     .metric-analysis strong {
         color: #0f172a;
         font-weight: 600;
+    }
+    /* Tooltip Styles */
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        margin-left: 5px;
+        vertical-align: middle;
+    }
+    .info-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        background-color: #e2e8f0;
+        color: #64748b;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: bold;
+        font-style: normal;
+        cursor: help;
+    }
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 280px;
+        background-color: #1e293b;
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 8px 12px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -140px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        font-weight: normal;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    .tooltip .tooltiptext::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #1e293b transparent transparent transparent;
+    }
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
     }
     </style>
     """, unsafe_allow_html=True)

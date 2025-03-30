@@ -250,14 +250,19 @@ def render_footer():
     </div>
     """, unsafe_allow_html=True)
     
-    # Copyright and links
+    # Copyright and links with disclaimer
     st.markdown("""
-    <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 0.8rem; color: #777;">
-        <div>© 2025 Digital Culture Group, LLC. All rights reserved.</div>
-        <div>
-            <span style="margin-right: 15px;">Privacy Policy</span>
-            <span style="margin-right: 15px;">Terms of Service</span>
-            <span>Contact</span>
+    <div style="margin-top: 20px; font-size: 0.8rem; color: #777;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <div>© 2025 Digital Culture Group, LLC. All rights reserved.</div>
+            <div>
+                <span style="margin-right: 15px;">Privacy Policy</span>
+                <span style="margin-right: 15px;">Terms of Service</span>
+                <span>Contact</span>
+            </div>
+        </div>
+        <div style="font-style: italic; color: #888; text-align: center; padding-top: 10px; border-top: 1px solid #f0f0f0;">
+            Disclaimer: This analysis provides directional data intended to guide marketing decisions. Results may vary based on campaign execution and market conditions.
         </div>
     </div>
     """, unsafe_allow_html=True)
