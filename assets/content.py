@@ -128,7 +128,7 @@ status, and excitement</strong>.
 </div>
 
 <div style="margin-bottom: 15px;">
-<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Gen Z Hoops Fanatics</strong> (young basketball enthusiasts, 16-24) who demonstrate high engagement with sports content, gaming, and social media platforms. This audience shows 2.8x higher conversion rates when targeted with authentic basketball-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
+<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Gen Z Hoops Fanatics</strong> (young basketball enthusiasts, 18-24) who demonstrate high engagement with sports content, gaming, and social media platforms. This audience shows 2.8x higher conversion rates when targeted with authentic basketball-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
 </div>
 
 <div>
