@@ -2032,7 +2032,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Add space between sections
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Customize Your Report section - with enhanced styling
+        # Customize Your Report section with improved styling
         st.markdown("""
         <div style="background-color: #f8fafc; border-radius: 12px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
             <h3 style="margin-top: 0; color: #1e293b; font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center;">
@@ -2046,18 +2046,18 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 Customize Your Report
             </h3>
             <p style="color: #475569; margin-bottom: 20px; font-size: 1rem;">Select which sections to include in your PDF report:</p>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div style="background-color: #f0f9ff; padding: 18px; border-radius: 10px; border: 1px solid #e0f2fe;">
-                    <div style="margin-bottom: 12px; font-weight: 600; color: #0369a1; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Core Analytics
-                    </div>
+        </div>
         """, unsafe_allow_html=True)
         
-        # Create three columns to organize the checkboxes better
+        # Create a clean two-column layout for the checkboxes
         col1, col2 = st.columns(2)
         
         with col1:
+            st.markdown("""
+            <div style="margin-bottom: 12px; font-weight: 600; color: #0369a1; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Core Analytics
+            </div>
+            """, unsafe_allow_html=True)
             include_metrics = st.checkbox("Advanced Metrics", value=True, key="metrics")
             include_benchmark = st.checkbox("Benchmark Comparison", value=True, key="benchmark")
             include_media = st.checkbox("Media Affinities", value=True, key="media")
@@ -2066,10 +2066,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         
         with col2:
             st.markdown("""
-            <div style="background-color: #f0f7f5; padding: 18px; border-radius: 10px; border: 1px solid #d1e7dd;">
-                <div style="margin-bottom: 12px; font-weight: 600; color: #0f766e; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Audience Intelligence
-                </div>
+            <div style="margin-bottom: 12px; font-weight: 600; color: #0f766e; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Audience Intelligence
             </div>
             """, unsafe_allow_html=True)
             include_psychographic = st.checkbox("Psychographic Highlights", value=True, key="psychographic")
