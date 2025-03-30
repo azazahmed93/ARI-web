@@ -818,8 +818,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # Initialize values that will be set based on scores or AI insights
     summary_text = ""
-    top_strength = ""
-    key_opportunity = ""
+    # These will be dynamically set based on actual metric scores, ensuring no static data
+    top_strength = None
+    key_opportunity = None
     roi_potential = ""
     
     # Extract top strength and key opportunity
@@ -867,14 +868,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         if strengths:
             top_strength = strengths[0].get('area', 'Cultural Relevance')
         else:
-            # Fall back to calculated top strength
-            top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
+            # Fall back to calculated top strength - fully dynamic
+            top_strength = metric_scores[0][0] if metric_scores and len(metric_scores) > 0 else None
             
         if improvements:
             key_opportunity = improvements[0].get('area', 'Audience Engagement')
         else:
-            # Fall back to calculated bottom metric
-            key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
+            # Fall back to calculated bottom metric - fully dynamic
+            key_opportunity = metric_scores[-1][0] if metric_scores and len(metric_scores) > 0 else None
         
         # Track values internally
         internal_tracking = {
@@ -897,11 +898,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     else:
         # Calculate based on the scores if AI insights aren't available
         
-        # Use the highest scoring metric as the top strength
-        top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
+        # Use the highest scoring metric as the top strength - fully dynamic
+        top_strength = metric_scores[0][0] if metric_scores and len(metric_scores) > 0 else None
         
-        # Use the lowest scoring metric as the key opportunity
-        key_opportunity = metric_scores[-1][0] if metric_scores else "Geo-Cultural Fit"
+        # Use the lowest scoring metric as the key opportunity - fully dynamic
+        key_opportunity = metric_scores[-1][0] if metric_scores and len(metric_scores) > 0 else None
         
         # Track values internally
         internal_tracking = {
@@ -2304,8 +2305,9 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     metric_scores = list(scores.items())
     metric_scores.sort(key=lambda x: x[1], reverse=True)
     
-    # Get top metrics for campaign strengths
-    top_strength = metric_scores[0][0] if metric_scores else "Cultural Vernacular"
+    # Get top metrics for campaign strengths - dynamically based on actual scores
+    # This ensures consistency with the executive summary
+    top_strength = metric_scores[0][0] if metric_scores and len(metric_scores) > 0 else None
     
     # Calculate ROI potential - use the same formula as in the executive summary
     weighted_metrics = {
