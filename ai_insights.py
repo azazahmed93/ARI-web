@@ -775,3 +775,117 @@ Additional audience data for SiteOne Hispanic campaign:
                 }
             ]
         }
+
+
+def generate_competitor_strategy(brief_text, competitor_brand, campaign_goal):
+    """
+    Generate a custom strategy to counter a specific competitor brand based on campaign goals.
+    
+    Args:
+        brief_text (str): The marketing brief or RFP text for context
+        competitor_brand (str): The name of the competitor brand
+        campaign_goal (str): The description of the campaign goals
+        
+    Returns:
+        list: A list of strategic recommendations to counter the competitor
+    """
+    try:
+        import os
+        from openai import OpenAI
+        
+        # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
+        # do not change this unless explicitly requested by the user
+        
+        # If there's no API key, return a default response
+        if not os.environ.get("OPENAI_API_KEY"):
+            # Return a default list of strategies
+            return [
+                f"Capitalize on Cultural Moments: Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.",
+                f"Highlight Specialization: Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.",
+                f"Leverage Authentic Storytelling: Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.",
+                f"Enhance Local Relevance: Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.",
+                f"Activate Emerging Platforms: Extend the campaign to newer or underutilized platforms where {competitor_brand} has little presence."
+            ]
+        
+        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        
+        # Prepare a prompt that includes context from the brief, competitor, and campaign goal
+        prompt = f"""
+        I need to create a digital advertising strategy that will effectively counter our competitor, {competitor_brand}.
+        
+        Campaign Goal: {campaign_goal}
+        
+        Additional context from our marketing brief:
+        {brief_text[:2000]}  # Limit brief text to reasonable length
+        
+        Please provide 5 specific strategic recommendations that will help us differentiate and outperform {competitor_brand}.
+        Each recommendation should:
+        1. Start with a clear tactical approach (2-4 words)
+        2. Explain how it contrasts with {competitor_brand}'s approach
+        3. Be specific to digital advertising tactics
+        4. Be actionable and measurable
+        5. IMPORTANT: Do not mention specific publisher names, social platforms, or network names. 
+           Instead use generic terms like "audio platforms", "rich media formats", "high impact placements", "interactive video", etc.
+        
+        Format each recommendation as a single paragraph. Begin each recommendation with a bold header.
+        """
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=1200
+        )
+        
+        # Extract the recommendations from the response
+        raw_text = response.choices[0].message.content
+        
+        # Preprocess the text to identify recommendation paragraphs
+        lines = raw_text.split('\n')
+        recommendations = []
+        current_rec = ""
+        
+        for line in lines:
+            if line.strip().startswith(('1.', '2.', '3.', '4.', '5.', '**', '- ')):
+                if current_rec:  # If we have a recommendation in progress
+                    recommendations.append(fix_grammar_and_duplicates(current_rec))
+                    current_rec = ""
+                current_rec = line.strip().lstrip('123456789.- *').strip()
+            elif line.strip() and current_rec:  # If this is content for the current recommendation
+                current_rec += " " + line.strip()
+        
+        # Add the last recommendation
+        if current_rec:
+            recommendations.append(fix_grammar_and_duplicates(current_rec))
+        
+        # If no recommendations were found, format the entire response
+        if not recommendations:
+            paragraphs = [p for p in raw_text.split('\n\n') if p.strip()]
+            recommendations = [fix_grammar_and_duplicates(p) for p in paragraphs[:5]]
+        
+        # Ensure we return at most 5 recommendations
+        recommendations = recommendations[:5]
+        
+        # Ensure we have at least 5 recommendations
+        if len(recommendations) < 5:
+            default_recs = [
+                f"Capitalize on Cultural Moments: Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.",
+                f"Highlight Specialization: Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.",
+                f"Leverage Authentic Storytelling: Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.",
+                f"Enhance Local Relevance: Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.",
+                f"Activate Emerging Platforms: Extend the campaign to newer or underutilized platforms where {competitor_brand} has little presence."
+            ]
+            recommendations.extend(default_recs[len(recommendations):])
+        
+        return recommendations
+    
+    except Exception as e:
+        print(f"Error generating competitor strategy: {str(e)}")
+        # Return a default list of strategies
+        return [
+            f"Capitalize on Cultural Moments: Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.",
+            f"Highlight Specialization: Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.",
+            f"Leverage Authentic Storytelling: Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.",
+            f"Enhance Local Relevance: Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.",
+            f"Activate Emerging Platforms: Extend the campaign to newer or underutilized platforms where {competitor_brand} has little presence."
+        ]

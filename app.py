@@ -56,6 +56,50 @@ def hash(text):
         h = (h * 31 + ord(c)) & 0xFFFFFFFF
     return h % 100  # Return a number between 0-99
 
+def generate_competitor_strategy_html(competitor_brand, campaign_goal, brief_text=""):
+    """
+    Generate the HTML for competitor strategy recommendations.
+    
+    Args:
+        competitor_brand (str): The competitor brand name
+        campaign_goal (str): The campaign goal or description
+        brief_text (str): The brief text for context (optional)
+        
+    Returns:
+        str: HTML content for the competitor strategy
+    """
+    with st.spinner(get_random_spinner_message()):
+        # Generate competitor strategies using the AI
+        if not brief_text and 'brief_text' in st.session_state:
+            brief_text = st.session_state.brief_text
+            
+        strategies = generate_competitor_strategy(
+            brief_text, 
+            competitor_brand.strip(), 
+            campaign_goal.strip()
+        )
+        
+        # Create HTML list items from strategies
+        strategy_items = ""
+        for strategy in strategies:
+            # Split by colon to get the header and content
+            if ":" in strategy:
+                parts = strategy.split(":", 1)
+                header = parts[0].strip()
+                content = parts[1].strip() if len(parts) > 1 else ""
+                strategy_items += f'<li><strong>{header}:</strong> {content}</li>'
+            else:
+                strategy_items += f'<li>{strategy}</li>'
+        
+        # Return the HTML content
+        return f"""
+            <h3>📊 Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
+            <p><strong>Campaign Goal:</strong> {campaign_goal}</p>
+            <ul style="line-height: 1.7;">
+                {strategy_items}
+            </ul>
+        """
+
 from analysis import (
     analyze_campaign_brief, 
     get_score_level, 
@@ -74,7 +118,8 @@ from ai_insights import (
     generate_competitor_analysis,
     generate_audience_segments,
     ensure_valid_url_in_sites,
-    is_siteone_hispanic_content
+    is_siteone_hispanic_content,
+    generate_competitor_strategy
 )
 from database import benchmark_db, BLOCKED_KEYWORDS
 from assets.content import (
@@ -901,22 +946,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         
                         # If button is clicked, display the strategic differentiation
                         if generate_button and competitor_brand.strip() and campaign_goal.strip():
-                            st.markdown(f"""
-                                <h3>📊 Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
-                                <p><strong>Campaign Goal:</strong> {campaign_goal}</p>
-                                <ul style="line-height: 1.7;">
-                                    <li><strong>Capitalize on Cultural Moments:</strong> Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.</li>
-                                    <li><strong>Highlight Specialization:</strong> Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.</li>
-                                    <li><strong>Leverage Authentic Storytelling:</strong> Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.</li>
-                                    <li><strong>Enhance Local Relevance:</strong> Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.</li>
-                                    <li><strong>Activate Emerging Platforms:</strong> Extend the campaign to newer or underutilized platforms (like TikTok, Discord, or niche newsletters) where {competitor_brand} has little presence.</li>
-                                </ul>
-                            """, unsafe_allow_html=True)
+                            # Use the helper function to generate the strategy HTML
+                            strategy_html = generate_competitor_strategy_html(
+                                competitor_brand, 
+                                campaign_goal, 
+                                st.session_state.get("brief_text", "")
+                            )
+                            st.markdown(strategy_html, unsafe_allow_html=True)
                         elif generate_button and (not competitor_brand.strip() or not campaign_goal.strip()):
                             # Error message when fields aren't filled out
-                            st.markdown("""
-                                <p style='color:red;'>Please enter both the competitor brand and campaign summary.</p>
-                            """, unsafe_allow_html=True)
+                            st.markdown("<p style='color:red;'>Please enter both the competitor brand and campaign summary.</p>", unsafe_allow_html=True)
                         else:
                             # Default message when no brand entered
                             st.markdown("""
@@ -1062,27 +1101,19 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         
                         # If button is clicked, display the strategic differentiation
                         if generate_button and competitor_brand.strip() and campaign_goal.strip():
-                            st.markdown(f"""
-                                <h3>📊 Strategic Recommendations to Counter <strong>{competitor_brand}</strong></h3>
-                                <p><strong>Campaign Goal:</strong> {campaign_goal}</p>
-                                <ul style="line-height: 1.7;">
-                                    <li><strong>Capitalize on Cultural Moments:</strong> Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.</li>
-                                    <li><strong>Highlight Specialization:</strong> Position the campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.</li>
-                                    <li><strong>Leverage Authentic Storytelling:</strong> Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.</li>
-                                    <li><strong>Enhance Local Relevance:</strong> Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.</li>
-                                    <li><strong>Activate Emerging Platforms:</strong> Extend the campaign to newer or underutilized platforms (like TikTok, Discord, or niche newsletters) where {competitor_brand} has little presence.</li>
-                                </ul>
-                            """, unsafe_allow_html=True)
+                            # Use the helper function to generate the strategy HTML
+                            strategy_html = generate_competitor_strategy_html(
+                                competitor_brand, 
+                                campaign_goal, 
+                                st.session_state.get("brief_text", "")
+                            )
+                            st.markdown(strategy_html, unsafe_allow_html=True)
                         elif generate_button and (not competitor_brand.strip() or not campaign_goal.strip()):
-                            # Error message when fields aren't filled out
-                            st.markdown("""
-                                <p style='color:red;'>Please enter both the competitor brand and campaign summary.</p>
-                            """, unsafe_allow_html=True)
+                            # Error message when fields are not filled out
+                            st.markdown("<p style='color:red;'>Please enter both the competitor brand and campaign summary.</p>", unsafe_allow_html=True)
                         else:
                             # Default message when no brand entered
-                            st.markdown("""
-                                <p>Strategy insights will appear here after you enter the required information and click Generate Strategy. For enhanced competitive intelligence, ensure OpenAI API integration is enabled.</p>
-                            """, unsafe_allow_html=True)
+                            st.markdown("<p>Strategy insights will appear here after you enter the required information and click Generate Strategy. For enhanced competitive intelligence, ensure OpenAI API integration is enabled.</p>", unsafe_allow_html=True)
                         
                         # Close the competitor output div
                         st.markdown("""
