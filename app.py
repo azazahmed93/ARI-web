@@ -1869,7 +1869,7 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience</span>
-            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">CTR: {ctr}</span>
+            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">Expected CTR: {ctr}</span>
         </div>
         <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">

@@ -663,14 +663,19 @@ Additional audience data for SiteOne Hispanic campaign:
         
         # Craft a prompt for the OpenAI API
         prompt = f"""
-        You are a digital media buying and audience segmentation expert specializing in advertising platforms.
+        You are a digital media buying and audience segmentation expert specializing in omnichannel advertising platforms.
         
         Based on the following marketing campaign information and Audience Resonance Index scores,
-        identify 3 key audience segments for targeted digital advertising with specific platform targeting parameters.
+        identify 3 key audience segments for targeted omnichannel digital advertising with specific platform targeting parameters.
         
-        IMPORTANT: Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned 
-        in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
-        This should be a growth opportunity audience that the campaign isn't currently addressing.
+        IMPORTANT GUIDELINES:
+        1. Focus on OMNICHANNEL digital advertising solutions - including display, video, CTV/OTT, audio, rich media, high impact, 
+           interactive, programmatic digital out-of-home (DOOH), etc.
+        2. DO NOT focus on search or social media campaigns, which typically have higher CTRs than other digital channels
+        3. CTR estimates should reflect realistic omnichannel expectations (typically 0.05-0.7% for display, 0.3-1.5% for video)
+        4. Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned 
+           in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
+           This should be a growth opportunity audience that the campaign isn't currently addressing.
         
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
@@ -685,7 +690,7 @@ Additional audience data for SiteOne Hispanic campaign:
         2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
         3. Digital platform interest categories and behavior targeting options
         4. Platform-specific targeting recommendations (use generic platform types, not brand names)
-        5. Key performance indicators and benchmark CTRs/conversion rates to expect
+        5. Key performance indicators and benchmark CTRs/conversion rates to expect for omnichannel campaigns
         6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
         Format the response as a valid JSON array with objects containing:
@@ -759,7 +764,7 @@ Additional audience data for SiteOne Hispanic campaign:
                             {"platform": "Mobile Gaming", "targeting_approach": "Reach users on mobile devices through sports apps and games with Spanish language options"}
                         ],
                         "expected_performance": {
-                            "CTR": "1.8-2.3%", 
+                            "CTR": "0.3-0.7%", 
                             "CPA": "20-25% below account average for Spanish creative", 
                             "engagement_rate": "3.5-4.2%"
                         },
@@ -796,7 +801,7 @@ Additional audience data for SiteOne Hispanic campaign:
                         {"platform": "Video Platforms", "targeting_approach": "Focus on interest-based targeting with creator affinity segments, use engagement custom audiences"}
                     ],
                     "expected_performance": {
-                        "CTR": "2.3-2.8%", 
+                        "CTR": "0.5-0.8%", 
                         "CPA": "15-20% below account average", 
                         "engagement_rate": "4.5-5.2%"
                     },
