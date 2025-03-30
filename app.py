@@ -801,14 +801,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         </div>
         """, unsafe_allow_html=True)
     
-    # Add the Hyperdimensional Campaign Performance Matrix section
+    # Add an informative benchmark section
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
-        <h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem;">🚀 Hyperdimensional Campaign Performance Matrix</h2>
-        <p style="font-size: 1rem; color: #333; margin-bottom: 1rem;">
-          This AI-powered matrix visualizes your campaign's resonance across multiple cultural and audience dimensions.
-          The analysis identifies strengths, opportunities, and potential ROI improvements through advanced pattern recognition.
-        </p>
+        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
     """, unsafe_allow_html=True)
     
     # Display benchmark text with dynamic AI-driven content
@@ -859,7 +855,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
         </div>
         <div style="margin-top: 2rem;">
-            <h3>📌 Actionable Recommendations</h3>
+            <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Priority Improvement Areas</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -912,7 +908,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{sample_size}</span> national marketing efforts.
         </div>
         <div style="margin-top: 2rem;">
-            <h3>📌 Actionable Recommendations</h3>
+            <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Priority Improvement Areas</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -982,7 +978,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             # Display the cleaned content
                             st.markdown(f"""
                             <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
                                 <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
                                     {explanation}
                                 </div>
@@ -1000,7 +996,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 improvement = competitor_imp[0]
                                 st.markdown(f"""
                                 <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                    <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
+                                    <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
                                     <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">{improvement['explanation']}</div>
                                     <div style="background: #f8fafc; padding: 10px; border-left: 3px solid #3b82f6; font-size: 0.9rem;">
                                         <span style="font-weight: 500; color: #3b82f6;">Recommendation:</span> {improvement['recommendation']}
@@ -1058,7 +1054,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 
                                 st.markdown(f"""
                                 <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                                    <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
+                                    <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
                                     <div style="color: #333; font-size: 0.9rem; margin-bottom: 12px;">
                                         {cleaned_explanation}
                                     </div>
@@ -1141,7 +1137,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     if i == len(area_tabs) - 1:
                         st.markdown(f"""
                         <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
-                            <div style="font-weight: 600; color: #f43f5e; margin-bottom: 8px;">Competitor Tactics</div>
+                            <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Competitor Tactics</div>
                             <div style="color: #333; font-size: 0.9rem;">
                                 Analysis of competitor digital ad strategies reveals significant opportunities for differentiation in the market.
                                 For detailed competitive intelligence, ensure OpenAI API integration is enabled.
@@ -1520,9 +1516,9 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
         
         # Display the Resonance Convergence Coefficient with the dynamic score
         st.markdown(f"""
-        <div style="background:#f7faff; padding: 1.5rem; border-left: 4px solid #3b82f6; margin: 20px 0;">
-            <h3 style="margin: 0 0 0.5rem;">📈 Resonance Convergence Coefficient</h3>
-            <p style="margin: 0; font-size: 1.1rem;"><strong>{rcc_score:.1f} / 10</strong></p>
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; margin: 20px 0; text-align: center;">
+            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">Resonance Convergence Coefficient</div>
+            <div style="font-size: 3rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{rcc_score:.1f}<span style="font-size: 1.5rem; color: #777;">/10</span></div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1547,18 +1543,21 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
                         if not roi_potential.startswith('+'):
                             roi_potential = f"+{roi_potential}"
                 
-                # Create the Top Strength, Key Opportunity, ROI Potential display
+                # Display strengths as cards in the older design style
+                st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
+                
+                for strength in strengths[:2]:  # Display top 2 strengths
+                    area = strength.get('area', 'Cultural Alignment')
+                    st.markdown(f"""
+                    <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
+                        <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{area}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                # Display ROI potential separately
                 st.markdown(f"""
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                    <div style="flex: 1; background: #e0f7ec; padding: 1rem; border-left: 4px solid #10b981;">
-                        <strong>Top Strength:</strong><br/> {top_strength}
-                    </div>
-                    <div style="flex: 1; background: #fff4e5; padding: 1rem; border-left: 4px solid #f59e0b;">
-                        <strong>Key Opportunity:</strong><br/> {key_opportunity}
-                    </div>
-                    <div style="flex: 1; background: #fef2f2; padding: 1rem; border-left: 4px solid #ef4444;">
-                        <strong>ROI Potential:</strong><br/> {roi_potential}
-                    </div>
+                <div style="background: #fff8f0; border-radius: 6px; padding: 10px 15px; margin: 15px 0;">
+                    <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">ROI Potential: {roi_potential}</div>
                 </div>
                 """, unsafe_allow_html=True)
         
@@ -1571,7 +1570,7 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
             
             st.markdown(f"""
             <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
-                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">Quantum Neural Analysis</div>
+                <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">AI Deep Insights</div>
                 <p style="margin: 0; font-size: 0.9rem; color: #333;">
                     {hidden_insight}
                 </p>
@@ -1615,7 +1614,7 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
             
             st.markdown(f"""
             <div style="background: #f0fdf9; border-radius: 8px; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px;">
-                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981; margin-bottom: 5px;">Quantum Neural Analysis</div>
+                <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">AI Deep Insights</div>
                 <p style="margin: 0; font-size: 0.9rem; color: #333;">
                     {cleaned_insight_text}
                 </p>
