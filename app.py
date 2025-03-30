@@ -925,13 +925,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             competitor_example = ""
                             if comp_analysis.get('competitors') and len(comp_analysis.get('competitors', [])) > 0:
                                 main_competitor = comp_analysis['competitors'][0]
-                                competitor_example = f"{main_competitor.get('name', 'Major competitor')} is using {main_competitor.get('digital_tactics', 'broad awareness tactics')}."
+                                competitor_example = f"{main_competitor.get('name', 'Major competitor')} utilizes {main_competitor.get('digital_tactics', 'broad awareness tactics')}"
                             
                             # Get the first advantage for recommendation
                             advantage_text = ""
                             if comp_analysis.get('advantages') and len(comp_analysis.get('advantages', [])) > 0:
                                 advantage = comp_analysis['advantages'][0]
-                                advantage_text = f"Leverage {advantage.get('advantage', 'your strengths')} through {advantage.get('tactical_application', 'targeted strategies')}."
+                                advantage_text = f"Leverage {advantage.get('advantage', 'your strengths')} by implementing {advantage.get('tactical_application', 'targeted strategies')}."
                             
                             # Get the first threat for recommendation
                             threat_text = ""
@@ -952,7 +952,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             cleaned_recommendation = fix_grammar_and_duplicates(recommendation)
                             
                             # Also clean up the competitor example
-                            cleaned_example = fix_grammar_and_duplicates(competitor_example.replace(" is using The Home Depot", ""))
+                            cleaned_example = fix_grammar_and_duplicates(competitor_example)
                             
                             st.markdown(f"""
                             <div style="background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 15px; margin: 10px 0 15px 0;">
