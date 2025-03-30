@@ -271,7 +271,8 @@ def display_competitor_tactics_tab(tab):
             else:
                 # Use the AI to generate insights for unknown brands
                 if 'brief_text' in st.session_state and st.session_state.brief_text:
-                    with tab.spinner("Generating custom strategy recommendations..."):
+                    # Using st.spinner instead of tab.spinner
+                    with st.spinner(get_random_spinner_message()):
                         campaign_goal = "Increase brand awareness and drive sales"
                         brief_text = st.session_state.brief_text
                         
