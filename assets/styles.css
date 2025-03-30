@@ -1,0 +1,153 @@
+/* Global styles for ARI Analyzer */
+
+/* Main component styles */
+.main-container {
+    font-family: 'Helvetica Neue', sans-serif;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Header and section styles */
+.section-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4F46E5;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.subsection-header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #7C3AED;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+/* Card styles for sections */
+.card-container {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Metric styles */
+.metric-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.metric-value {
+    font-weight: 600;
+    font-size: 1.8rem;
+    color: #4F46E5;
+}
+
+.metric-description {
+    font-size: 0.85rem;
+    color: #6B7280;
+    margin-top: 5px;
+}
+
+/* Competitor Analyzer styles */
+.competitor-analyzer {
+    font-family: 'Helvetica Neue', sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    padding: 15px;
+    margin: 10px 0 15px 0;
+}
+
+.competitor-heading {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #5865f2;
+    margin-bottom: 10px;
+}
+
+.competitor-output {
+    margin-top: 15px;
+    background: #fff;
+    padding: 15px;
+    border-left: 4px solid #3b82f6;
+    font-size: 0.9rem;
+}
+
+.strategy-list {
+    line-height: 1.7;
+}
+
+/* Hyperdimensional Matrix styles */
+.matrix-container {
+    border-radius: 8px;
+    background: linear-gradient(145deg, #ffffff, #f9fafb);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.matrix-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #4F46E5;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.matrix-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #4B5563;
+    margin-bottom: 15px;
+}
+
+/* Tech overlay animation styles */
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    49% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+/* Improvement areas styles */
+.improvement-area {
+    background: #F3F4F6;
+    border-left: 4px solid #4F46E5;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+}
+
+.improvement-title {
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 5px;
+}
+
+.improvement-desc {
+    font-size: 0.85rem;
+    color: #4B5563;
+    line-height: 1.5;
+}
+
+/* Footer styles */
+.footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    padding: 20px 0;
+    margin-top: 50px;
+    border-top: 1px solid #E5E7EB;
+}

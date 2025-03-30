@@ -17,7 +17,14 @@ import re
 
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
-from ai_insights import fix_grammar_and_duplicates
+from ai_insights import (
+    fix_grammar_and_duplicates,
+    generate_competitor_strategy,
+    generate_deep_insights,
+    generate_competitor_analysis,
+    generate_audience_segments,
+    is_siteone_hispanic_content
+)
 
 # Fun spinner messages for loading states
 SPINNER_MESSAGES = [
@@ -100,6 +107,67 @@ def generate_competitor_strategy_html(competitor_brand, campaign_goal, brief_tex
             </ul>
         """
 
+def display_competitor_tactics_tab(tab):
+    """
+    Displays the competitor tactics tab with consistent styling.
+    
+    Args:
+        tab: The streamlit tab object to render content in
+    """
+    # Read the Competitor Strategy No Campaign Input HTML template
+    with open("attached_assets/Competitor_Strategy_NoCampaignInput.html", "r") as file:
+        competitor_html = file.read()
+    
+    # Extract just the body content (without html, head, body tags and script)
+    body_content = competitor_html.split("<body>")[1].split("<script>")[0]
+    
+    # The styles are now loaded from the global CSS file in main()
+    
+    # Add the HTML for the competitor analyzer UI
+    tab.markdown("""
+    <div class="competitor-analyzer">
+        <div class="competitor-heading">🕵🏽‍♂️ Competitor Tactics Analyzer</div>
+        <p>Enter a competitor brand to generate strategic recommendations to counter their known digital tactics.</p>
+    """, unsafe_allow_html=True)
+    
+    # Add the input and button
+    competitor_brand = tab.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key=f"competitor_brand_input_{hash(str(tab))}")
+    generate_button = tab.button("Generate Strategy", key=f"generate_insights_button_{hash(str(tab))}")
+    
+    # Output container
+    tab.markdown('<div class="competitor-output" id="output"></div>', unsafe_allow_html=True)
+    
+    # If the button is clicked, process the input
+    if generate_button and competitor_brand:
+        # Default campaign goal if no brief text is available
+        campaign_goal = "Increase brand awareness and drive sales"
+        
+        # Use brief text from session state if available
+        if 'brief_text' in st.session_state and st.session_state.brief_text:
+            # Extract brief goal from the text (simplified here)
+            brief_text = st.session_state.brief_text
+            # Try to determine a better campaign goal based on the brief
+            if "goal" in brief_text.lower() or "objective" in brief_text.lower():
+                # Find a sentence with goal or objective
+                sentences = brief_text.split('.')
+                for sentence in sentences:
+                    if "goal" in sentence.lower() or "objective" in sentence.lower():
+                        campaign_goal = sentence.strip()
+                        break
+        
+        # Generate the competitor strategy HTML
+        strategy_html = generate_competitor_strategy_html(
+            competitor_brand, 
+            campaign_goal
+        )
+        
+        # Display the strategy
+        tab.markdown(f"""
+        <div class="competitor-output">
+            {strategy_html}
+        </div>
+        """, unsafe_allow_html=True)
+
 from analysis import (
     analyze_campaign_brief, 
     get_score_level, 
@@ -113,14 +181,7 @@ from utils import (
     get_tone_of_brief
 )
 from assets.styles import apply_styles, header_section, render_footer
-from ai_insights import (
-    generate_deep_insights,
-    generate_competitor_analysis,
-    generate_audience_segments,
-    ensure_valid_url_in_sites,
-    is_siteone_hispanic_content,
-    generate_competitor_strategy
-)
+from ai_insights import ensure_valid_url_in_sites
 from database import benchmark_db, BLOCKED_KEYWORDS
 from assets.content import (
     METRICS, 
@@ -235,6 +296,10 @@ def extract_text_from_file(uploaded_file):
 
 # Define main function
 def main():
+    # Load global CSS styles
+    with open("assets/styles.css", "r") as css_file:
+        st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
+    
     # Display header
     header_section()
     
@@ -896,81 +961,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 with tab:
                     # Check if this is the Competitor Tactics tab (last tab)
                     if i == len(area_tabs) - 1:
-                        # Read the Competitor Strategy No Campaign Input HTML template
-                        with open("attached_assets/Competitor_Strategy_NoCampaignInput.html", "r") as file:
-                            competitor_html = file.read()
-                        
-                        # Extract just the body content (without html, head, body tags and script)
-                        body_content = competitor_html.split("<body>")[1].split("<script>")[0]
-                        
-                        # Create a style tag with both original styles and additional styles
-                        st.markdown("""
-                        <style>
-                            .competitor-analyzer {
-                                font-family: 'Helvetica Neue', sans-serif;
-                                max-width: 900px;
-                                margin: 0 auto;
-                                background: #ffffff;
-                                border-radius: 8px;
-                                box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-                                padding: 15px;
-                                margin: 10px 0 15px 0;
-                            }
-                            .competitor-heading {
-                                font-size: 1.2rem;
-                                font-weight: 600;
-                                color: #5865f2;
-                                margin-bottom: 10px;
-                            }
-                            .competitor-output {
-                                margin-top: 15px;
-                                background: #fff;
-                                padding: 15px;
-                                border-left: 4px solid #3b82f6;
-                                font-size: 0.9rem;
-                            }
-                            h2 {
-                                margin-top: 0;
-                            }
-                            .strategy-list {
-                                line-height: 1.7;
-                            }
-                        </style>
-                        """, unsafe_allow_html=True)
-                        
-                        # Add the HTML for the competitor analyzer UI
-                        st.markdown("""
-                        <div class="competitor-analyzer">
-                            <div class="competitor-heading">🕵🏽‍♂️ Competitor Tactics Analyzer</div>
-                            <p>Enter a competitor brand to generate strategic recommendations to counter their known digital tactics.</p>
-                        """, unsafe_allow_html=True)
-                        
-                        # Add the input and button
-                        competitor_brand = st.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key="competitor_brand_input")
-                        generate_button = st.button("Generate Strategy", key="generate_insights_button")
-                        
-                        # Output container
-                        st.markdown('<div class="competitor-output" id="output"></div>', unsafe_allow_html=True)
-                        
-                        # Handle the button click
-                        if generate_button:
-                            if not competitor_brand.strip():
-                                st.markdown("<p style='color:red;'>Please enter the competitor brand name.</p>", unsafe_allow_html=True)
-                            else:
-                                # Display the counter strategy
-                                st.markdown(f"""
-                                <h2>📊 Counter Strategy for <strong>{competitor_brand}</strong></h2>
-                                <ul class="strategy-list">
-                                    <li><strong>Capitalize on Cultural Moments:</strong> Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.</li>
-                                    <li><strong>Highlight Specialization:</strong> Position your campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.</li>
-                                    <li><strong>Leverage Authentic Storytelling:</strong> Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.</li>
-                                    <li><strong>Enhance Local Relevance:</strong> Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.</li>
-                                    <li><strong>Activate Emerging Platforms:</strong> Extend the campaign to newer or underutilized platforms (like TikTok, Discord, or niche newsletters) where {competitor_brand} has little presence.</li>
-                                </ul>
-                                """, unsafe_allow_html=True)
-                        
-                        # Close the main container div
-                        st.markdown('</div>', unsafe_allow_html=True)
+                        # Use the dedicated helper function to display the competitor tactics interface
+                        display_competitor_tactics_tab(tab)
                     else:
                         # For regular improvement area tabs
                         # Find the matching improvement from AI insights
@@ -1042,81 +1034,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 with tab:
                     # For the last tab (Competitor Tactics)
                     if i == len(area_tabs) - 1:
-                        # Read the Competitor Strategy No Campaign Input HTML template
-                        with open("attached_assets/Competitor_Strategy_NoCampaignInput.html", "r") as file:
-                            competitor_html = file.read()
-                        
-                        # Extract just the body content (without html, head, body tags and script)
-                        body_content = competitor_html.split("<body>")[1].split("<script>")[0]
-                        
-                        # Create a style tag with both original styles and additional styles
-                        st.markdown("""
-                        <style>
-                            .competitor-analyzer {
-                                font-family: 'Helvetica Neue', sans-serif;
-                                max-width: 900px;
-                                margin: 0 auto;
-                                background: #ffffff;
-                                border-radius: 8px;
-                                box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-                                padding: 15px;
-                                margin: 10px 0 15px 0;
-                            }
-                            .competitor-heading {
-                                font-size: 1.2rem;
-                                font-weight: 600;
-                                color: #5865f2;
-                                margin-bottom: 10px;
-                            }
-                            .competitor-output {
-                                margin-top: 15px;
-                                background: #fff;
-                                padding: 15px;
-                                border-left: 4px solid #3b82f6;
-                                font-size: 0.9rem;
-                            }
-                            h2 {
-                                margin-top: 0;
-                            }
-                            .strategy-list {
-                                line-height: 1.7;
-                            }
-                        </style>
-                        """, unsafe_allow_html=True)
-                        
-                        # Add the HTML for the competitor analyzer UI
-                        st.markdown("""
-                        <div class="competitor-analyzer">
-                            <div class="competitor-heading">🕵🏽‍♂️ Competitor Tactics Analyzer</div>
-                            <p>Enter a competitor brand to generate strategic recommendations to counter their known digital tactics.</p>
-                        """, unsafe_allow_html=True)
-                        
-                        # Add the input and button
-                        competitor_brand = st.text_input("", placeholder="Enter competitor brand (e.g., Lowe's)", key="competitor_brand_input_fallback")
-                        generate_button = st.button("Generate Strategy", key="generate_insights_button_fallback")
-                        
-                        # Output container
-                        st.markdown('<div class="competitor-output" id="output"></div>', unsafe_allow_html=True)
-                        
-                        # Handle the button click
-                        if generate_button:
-                            if not competitor_brand.strip():
-                                st.markdown("<p style='color:red;'>Please enter the competitor brand name.</p>", unsafe_allow_html=True)
-                            else:
-                                # Display the counter strategy
-                                st.markdown(f"""
-                                <h2>📊 Counter Strategy for <strong>{competitor_brand}</strong></h2>
-                                <ul class="strategy-list">
-                                    <li><strong>Capitalize on Cultural Moments:</strong> Unlike {competitor_brand}'s mass approach, build engagement through culturally relevant events, holidays, and seasonal activations using tailored creative.</li>
-                                    <li><strong>Highlight Specialization:</strong> Position your campaign around specific expertise or product benefits that contrast {competitor_brand}'s broad and general messaging.</li>
-                                    <li><strong>Leverage Authentic Storytelling:</strong> Use community voices, user-generated content, or influencer partnerships to add credibility—areas where {competitor_brand} may rely on traditional ads.</li>
-                                    <li><strong>Enhance Local Relevance:</strong> Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.</li>
-                                    <li><strong>Activate Emerging Platforms:</strong> Extend the campaign to newer or underutilized platforms (like TikTok, Discord, or niche newsletters) where {competitor_brand} has little presence.</li>
-                                </ul>
-                                """, unsafe_allow_html=True)
-                        
-                        # Close the main container div
-                        st.markdown('</div>', unsafe_allow_html=True)
+                        # Use the dedicated helper function to display the competitor tactics interface
+                        display_competitor_tactics_tab(tab)
                     else:
                         # For regular improvement area tabs
                         area = improvement_areas[i]
