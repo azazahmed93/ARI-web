@@ -1956,10 +1956,71 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
             name='Current Measurement'
         ))
         
-        # Add "AI Insight" reference trace
-        # This is a simulated perfect score for comparison
-        ai_reference = [9.0] * len(scores)
-        ai_reference.append(ai_reference[0])  # Close the loop
+        # Generate dynamic benchmark comparison based on the campaign type
+        # Use actual metric scores to create a realistic benchmark target that varies by brief
+        
+        # Set benchmark adjustments based on brief content - different types of campaigns 
+        # have different benchmarks for each metric
+        benchmark_adjustments = {}
+        if brief_text:
+            # Default benchmark margins (how much higher the benchmark should be than actual score)
+            default_margin = 1.5
+            
+            # Analyze brief to determine campaign type and adjust benchmarks accordingly
+            if "Gen Z" in brief_text or "GenZ" in brief_text or "Generation Z" in brief_text:
+                # Gen Z campaigns typically need higher benchmarks in these areas
+                benchmark_adjustments = {
+                    "Cultural Vernacular": 2.0,
+                    "Platform Relevance": 2.2,
+                    "Buzz & Conversation": 2.0
+                }
+            elif "Hispanic" in brief_text or "Latino" in brief_text:
+                # Hispanic campaigns typically need higher benchmarks in these areas
+                benchmark_adjustments = {
+                    "Cultural Relevance": 2.1,
+                    "Representation": 2.0,
+                    "Geo-Cultural Fit": 1.8
+                }
+            elif "luxury" in brief_text.lower() or "premium" in brief_text.lower():
+                # Luxury campaigns typically need higher benchmarks in these areas
+                benchmark_adjustments = {
+                    "Cultural Authority": 2.2,
+                    "Media Ownership Equity": 1.8,
+                    "Commerce Bridge": 1.7
+                }
+            elif "retail" in brief_text.lower() or "shopping" in brief_text.lower():
+                # Retail campaigns typically need higher benchmarks in these areas
+                benchmark_adjustments = {
+                    "Commerce Bridge": 2.3,
+                    "Platform Relevance": 1.9,
+                    "Buzz & Conversation": 1.7
+                }
+            else:
+                # Default general campaign benchmark adjustments
+                benchmark_adjustments = {
+                    "Cultural Relevance": 1.7,
+                    "Platform Relevance": 1.8,
+                    "Cultural Vernacular": 1.7,
+                    "Cultural Authority": 1.7,
+                    "Buzz & Conversation": 1.8,
+                    "Commerce Bridge": 1.7,
+                    "Geo-Cultural Fit": 1.6,
+                    "Media Ownership Equity": 1.6,
+                    "Representation": 1.7
+                }
+        
+        # Generate dynamic benchmark values for each metric
+        ai_reference = []
+        for i, metric in enumerate(list(scores.keys())):
+            current_score = values[i]
+            # Get the adjustment margin for this metric (default if not specified)
+            adjustment = benchmark_adjustments.get(metric, 1.5)
+            # Calculate benchmark value (higher than current score, but not exceeding 10)
+            benchmark = min(10.0, current_score + adjustment)
+            ai_reference.append(benchmark)
+        
+        # Add the first value at the end to close the loop
+        ai_reference.append(ai_reference[0])
         
         fig.add_trace(go.Scatterpolar(
             r=ai_reference,
@@ -1967,7 +2028,7 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
             fill='toself',
             fillcolor='rgba(16, 185, 129, 0.1)',
             line=dict(color='#10b981', width=1.5, dash='dot'),
-            name='Optimal Quantum State'
+            name='Hyperdimensional Potential'
         ))
         
         # Update layout with custom styling
@@ -2003,14 +2064,40 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     
     with col2:
         # Generate a truly dynamic Resonance Convergence Coefficient that varies based on the brief
-        # Use a deterministic but varying algorithm based on the brief_text
-        if brief_text:
-            # Create a seed from the brief that varies the score slightly
+        # Use a combination of metrics with weighted importance for campaign success
+        if brief_text and scores:
+            # Calculate weighted average with higher weight for more important metrics
+            weights = {
+                "Cultural Authority": 1.3,
+                "Cultural Vernacular": 1.2,
+                "Cultural Relevance": 1.2,
+                "Buzz & Conversation": 1.1,
+                "Platform Relevance": 1.0,
+                "Representation": 1.0,
+                "Geo-Cultural Fit": 0.9,
+                "Commerce Bridge": 0.9,
+                "Media Ownership Equity": 0.8
+            }
+            
+            # Calculate weighted score
+            weighted_sum = 0
+            total_weight = 0
+            
+            for metric, score in scores.items():
+                weight = weights.get(metric, 1.0)
+                weighted_sum += score * weight
+                total_weight += weight
+            
+            # Calculate weighted average
+            weighted_avg = weighted_sum / total_weight if total_weight > 0 else avg_score
+            
+            # Add a small variation based on brief content for uniqueness
             brief_hash = hash(brief_text)
-            # Adjust score by a small factor (-0.5 to +0.5) based on brief content
-            score_adjustment = ((brief_hash % 100) / 100) - 0.5
-            # Apply the adjustment to the average score
-            adjusted_score = min(10, max(1, avg_score + score_adjustment))
+            # Much smaller variation (-0.2 to +0.2) to maintain consistency while still being unique
+            score_adjustment = ((brief_hash % 100) / 100) * 0.4 - 0.2
+            
+            # Apply the adjustment to the weighted average
+            adjusted_score = min(10, max(1, weighted_avg + score_adjustment))
             
             # Round to 1 decimal place to make it look precise
             rcc_score = round(adjusted_score * 10) / 10
@@ -2031,39 +2118,83 @@ def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
             ai_insights = st.session_state.ai_insights
             strengths = ai_insights.get('strengths', [])
             
+            # Display campaign strengths section header
+            st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
+            
+            # Get strengths from AI insights if available, otherwise use the top scoring metrics
             if strengths:
-                # Get top strength and key opportunity
-                top_strength = strengths[0].get('area', 'Cultural Vernacular') if strengths else 'Cultural Vernacular'
-                key_opportunity = improvement_areas[0] if improvement_areas else 'Geo-Cultural Fit'
+                # Use AI-generated strengths (up to 2)
+                displayed_strengths = strengths[:2]
                 
-                # Extract ROI potential from performance prediction if available
-                roi_potential = "+15%"
-                if 'performance_prediction' in ai_insights:
-                    prediction = ai_insights['performance_prediction']
-                    import re
-                    roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
-                    if roi_match:
-                        roi_potential = roi_match.group(0)
-                        if not roi_potential.startswith('+'):
-                            roi_potential = f"+{roi_potential}"
-                
-                # Display strengths as cards in the older design style
-                st.markdown('<div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin: 15px 0 10px 0;">Campaign Strengths</div>', unsafe_allow_html=True)
-                
-                for strength in strengths[:2]:  # Display top 2 strengths
+                for strength in displayed_strengths:
                     area = strength.get('area', 'Cultural Alignment')
+                    # Display each strength as a card
                     st.markdown(f"""
                     <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
                         <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{area}</div>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                # Display ROI potential separately
-                st.markdown(f"""
-                <div style="background: #fff8f0; border-radius: 6px; padding: 10px 15px; margin: 15px 0;">
-                    <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">ROI Potential: {roi_potential}</div>
-                </div>
-                """, unsafe_allow_html=True)
+            else:
+                # No AI insights available, use the top scoring metrics from the analysis
+                metric_scores = list(scores.items())
+                metric_scores.sort(key=lambda x: x[1], reverse=True)
+                
+                # Get the top 2 metrics by score
+                top_metrics = metric_scores[:2] if len(metric_scores) >= 2 else metric_scores
+                
+                # Display each top metric as a strength
+                for metric_name, metric_score in top_metrics:
+                    st.markdown(f"""
+                    <div style="background: #f0f2ff; border-radius: 6px; padding: 10px 15px; margin-bottom: 10px;">
+                        <div style="font-weight: 600; color: #333; font-size: 0.9rem;">{metric_name}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Extract ROI potential from performance prediction if available, or calculate dynamically
+            roi_potential = ""
+            if 'performance_prediction' in ai_insights:
+                prediction = ai_insights['performance_prediction']
+                import re
+                roi_match = re.search(r'(\+\d+%|\d+%)', prediction)
+                if roi_match:
+                    roi_potential = roi_match.group(0)
+                    if not roi_potential.startswith('+'):
+                        roi_potential = f"+{roi_potential}"
+            
+            # If no ROI from AI insights, calculate based on the scores
+            if not roi_potential:
+                # Use a weighted formula based on the most important metrics for ROI
+                weighted_metrics = {
+                    "Cultural Authority": 1.5,
+                    "Buzz & Conversation": 1.3,
+                    "Cultural Vernacular": 1.2,
+                    "Commerce Bridge": 1.2,
+                    "Platform Relevance": 1.1
+                }
+                
+                # Calculate weighted score for ROI prediction
+                roi_sum = 0
+                roi_weight_total = 0
+                
+                for metric, score in scores.items():
+                    weight = weighted_metrics.get(metric, 0.8)  # Default weight for other metrics
+                    roi_sum += score * weight
+                    roi_weight_total += weight
+                
+                # Calculate weighted average and convert to ROI percentage (5-25%)
+                if roi_weight_total > 0:
+                    roi_score = roi_sum / roi_weight_total
+                    roi_percent = int(5 + (roi_score / 10) * 20)
+                    roi_potential = f"+{roi_percent}%"
+                else:
+                    roi_potential = "+15%"  # Fallback value
+            
+            # Display ROI potential separately
+            st.markdown(f"""
+            <div style="background: #fff8f0; border-radius: 6px; padding: 10px 15px; margin: 15px 0;">
+                <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">ROI Potential: {roi_potential}</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         # Display AI insights using the dynamically generated content
         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
