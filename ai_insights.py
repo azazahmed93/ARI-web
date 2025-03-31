@@ -691,83 +691,57 @@ def get_default_audience_segments(brief_text, ari_scores):
             # Fall back to the default segments if Apple data loading fails
             pass
     
-    # Default segments structure with placeholder content
+    # Default segments structure matching the required image format
     segments = {
         "segments": [
             # Primary audience segment
             {
-                "name": "Gen Z Hoops Fanatics",
-                "description": "Young basketball enthusiasts who actively follow the sport and engage with basketball culture",
-                "interest_categories": ["Basketball Enthusiasts", "Sports Apparel", "Sneakerheads", "Live Sports Events"],
+                "name": "Tech-Savvy Streamers",
+                "description": "Age: 25-45 | Gender: All | Income: Mid to High",
+                "interest_categories": ["Technology Enthusiasts", "Early Adopters", "Streaming Services", "Digital Entertainment"],
                 "targeting_params": {
-                    "age_range": "18-24",
+                    "age_range": "25-45",
                     "gender_targeting": "All",
-                    "income_targeting": "Below $50k"
+                    "income_targeting": "Mid to High"
                 },
                 "platform_targeting": [
                     {
-                        "platform": "Programmatic Video Platforms",
-                        "targeting_approach": "Interest-based targeting with sports content adjacency"
+                        "platform": "OTT/CTV",
+                        "targeting_approach": "Technology focused content and premium streaming environments"
                     }
                 ],
                 "expected_performance": {
-                    "CTR": "70-95%",  # For video platforms, this becomes VCR (video completion rate)
-                    "engagement_rate": "6.2%"
+                    "CTR": "75-85%",  # For video platforms, this becomes VCR (video completion rate)
+                    "engagement_rate": "5.2%"
                 },
                 "bidding_strategy": {
-                    "bid_adjustments": "Higher bids on weekends",
+                    "bid_adjustments": "Higher bids for premium content",
                     "dayparting": "Evenings and weekends"
                 }
             },
-            # Secondary audience segment
+            # Secondary audience segment - Lifestyle & Culture Enthusiasts
             {
-                "name": "Multi-Platform Sports Enthusiasts",
-                "description": "Older Gen Z and young adults who consume sports content across multiple devices and platforms",
-                "interest_categories": ["Athletic Lifestyle", "Premium Sports Content", "Cross-Device Media"],
+                "name": "Lifestyle & Culture Enthusiasts",
+                "description": "Age: 30-50 | Gender: All | Income: Mid to High",
+                "interest_categories": ["Culture & Arts", "Lifestyle", "TV Shows & Movies", "Digital Subscriptions"],
                 "targeting_params": {
-                    "age_range": "21-34",
+                    "age_range": "30-50",
                     "gender_targeting": "All",
-                    "income_targeting": "Above $50k"
+                    "income_targeting": "Mid to High"
                 },
                 "platform_targeting": [
                     {
-                        "platform": "Audio Streaming Platforms",
-                        "targeting_approach": "Sports podcast listeners and game streaming audiences"
+                        "platform": "Desktop and Tablet Display",
+                        "targeting_approach": "Premium lifestyle content and entertainment environments"
                     }
                 ],
                 "expected_performance": {
-                    "CTR": "80-95%",  # For audio platforms, this becomes LTR (listen-through rate)
-                    "engagement_rate": "5.8%"
+                    "CTR": "80-90%",  # For audio platforms, this becomes LTR (listen-through rate)
+                    "engagement_rate": "4.8%"
                 },
                 "bidding_strategy": {
-                    "bid_adjustments": "Evening and weekend hours",
-                    "dayparting": "5-11pm weekdays, all day weekends"
-                }
-            },
-            # Growth opportunity segment
-            {
-                "name": "Fashion-Forward Urban Professionals",
-                "description": "Style-conscious young professionals who blend athletic and casual wear",
-                "interest_categories": ["Urban Fashion", "Premium Streetwear", "Casual Office Attire"],
-                "targeting_params": {
-                    "age_range": "25-34",
-                    "gender_targeting": "All",
-                    "income_targeting": "$75k+"
-                },
-                "platform_targeting": [
-                    {
-                        "platform": "Premium Display Networks",
-                        "targeting_approach": "Fashion and lifestyle content adjacency"
-                    }
-                ],
-                "expected_performance": {
-                    "CTR": "0.2-0.5%",
-                    "CPA": "$45-60",
-                    "engagement_rate": "4.2%"
-                },
-                "bidding_strategy": {
-                    "bid_adjustments": "Higher bids on payday periods",
-                    "dayparting": "Lunch hours and evenings"
+                    "bid_adjustments": "Content category optimization",
+                    "dayparting": "Peak entertainment hours"
                 }
             }
         ]
