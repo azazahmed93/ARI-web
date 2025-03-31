@@ -696,7 +696,7 @@ def main():
                              caption="Media Consumption Patterns", use_column_width=True)
                 
                 # Read and display the Apple TV+ campaign brief
-                with open("apple_phone_campaign.txt", "r") as f:
+                with open("apple_tv_campaign.txt", "r") as f:
                     apple_campaign_text = f.read()
                 
                 # Show the brief in a styled text area
@@ -704,6 +704,28 @@ def main():
                 st.markdown("<div style='font-weight: 600; color: #0369a1; margin-bottom: 8px;'>Apple TV+ Campaign Brief</div>", unsafe_allow_html=True)
                 st.text_area("Campaign Brief", value=apple_campaign_text, height=250, disabled=True, key="apple_brief_display")
                 st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Quick analysis summary for the Apple TV+ campaign
+                st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-weight: 600; font-size: 18px;'>Apple TV+ Campaign Analysis</div>", unsafe_allow_html=True)
+                st.markdown("""
+                <div style="background: #fefefe; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0; margin-top: 12px;">
+                    <p style="margin-bottom: 12px;">This Apple TV+ campaign focuses on driving new subscriptions and promoting original content with specific parameters:</p>
+                    <ul style="margin-left: 20px; list-style-type: disc;">
+                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Flight dates:</span> April 21 - May 11, 2025</li>
+                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Creative format:</span> 1x :15s non-skippable video</li>
+                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Platforms:</span> Desktop, tablet, mobile, connected TV</li>
+                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Frequency cap:</span> 3 impressions per day per user</li>
+                        <li><span style="font-weight: 500;">Benchmark VCR:</span> 75-85%</li>
+                    </ul>
+                    <p style="margin-top: 12px;">Click "Analyze Brief" to generate a comprehensive ARI analysis tailored to this streaming campaign.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Add a button to use this brief for analysis
+                if st.button("Analyze Brief", key="analyze_apple_tv"):
+                    brief_text = apple_campaign_text
+                    analysis_completed = True
                 
                 # Featured content highlights
                 st.markdown("<div style='background: #f7f2ff; padding: 16px; border-radius: 8px; border-left: 4px solid #8b5cf6; margin: 20px 0;'>", unsafe_allow_html=True)
@@ -2271,78 +2293,113 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     if not segment:
         return
     
-    # Format interests if available
-    interests = segment.get('interest_categories', [])
-    interests_str = ", ".join(interests) if interests else "Identified through AI pattern recognition"
+    # Check if this is an Apple TV+ specific audience segment (from apple_audience_data.py)
+    is_apple_segment = 'expected_vcr' in segment or 'expected_ctr' in segment
     
-    # Format demographic information
-    targeting_params = segment.get('targeting_params', {})
-    demographics = []
-    
-    if targeting_params:
-        if 'age_range' in targeting_params:
-            demographics.append(f"Age: {targeting_params['age_range']}")
-        if 'gender_targeting' in targeting_params:
-            demographics.append(f"Gender: {targeting_params['gender_targeting']}")
-        if 'income_targeting' in targeting_params:
-            demographics.append(f"Income: {targeting_params['income_targeting']}")
-            
-    demographics_str = " | ".join(demographics) if demographics else "Custom targeting parameters"
-    
-    # Get platform recommendations
-    platform_targeting = segment.get('platform_targeting', [])
-    platform_rec = ""
-    if platform_targeting and len(platform_targeting) > 0:
-        platform_rec = platform_targeting[0].get('platform', '') 
+    if is_apple_segment:
+        # Handle Apple TV+ specific audience segment format
+        segment_name = segment.get('name', 'Audience Segment')
+        segment_description = segment.get('description', '')
+        segment_size = segment.get('size', '')
+        
+        # Format affinities
+        affinities = segment.get('affinities', [])
+        affinities_str = ", ".join(affinities) if affinities else "Premium content interests"
+        
+        # Format channels and devices
+        channels = segment.get('channels', [])
+        devices = segment.get('devices', [])
+        
+        # Performance metrics
+        expected_ctr = segment.get('expected_ctr', '')
+        expected_vcr = segment.get('expected_vcr', '')
+        
+    else:
+        # Handle standard audience segment format
+        segment_name = segment.get('name', 'Audience Segment')
+        segment_description = segment.get('description', '')
+        segment_size = segment.get('size', segment.get('audience_size', ''))
+        
+        # Format interests if available
+        interests = segment.get('interest_categories', segment.get('affinities', []))
+        affinities_str = ", ".join(interests) if interests else "Identified through AI pattern recognition"
+        
+        # Format demographic information
+        targeting_params = segment.get('targeting_params', {})
+        demographics = []
+        
+        if targeting_params:
+            if 'age_range' in targeting_params:
+                demographics.append(f"Age: {targeting_params['age_range']}")
+            if 'gender_targeting' in targeting_params:
+                demographics.append(f"Gender: {targeting_params['gender_targeting']}")
+            if 'income_targeting' in targeting_params:
+                demographics.append(f"Income: {targeting_params['income_targeting']}")
+                
+        # Get platform recommendations
+        platform_targeting = segment.get('platform_targeting', [])
         
     # Get performance metrics
     performance = segment.get('expected_performance', {})
     ctr = performance.get('CTR', 'N/A')
     
-    # Check platform type to show appropriate metric name and value
-    metric_name = "Expected CTR"
-    if platform_rec:
-        platform_lower = platform_rec.lower()
-        if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
-            metric_name = "Expected LTR"
-            # Create a dynamic range based on targeting params or segment name
-            if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
-                # Younger audiences tend to have lower LTR ranges
-                ctr = "80-90%"
-            elif 'fitness' in segment.get('name', '').lower() or 'health' in interests_str.lower():
-                # Fitness audience has medium-high LTR
-                ctr = "80-90%"
-            elif 'professional' in segment.get('name', '').lower() or 'business' in interests_str.lower():
-                # Professional audiences tend to have high LTR
-                ctr = "80-90%"
-            else:
-                # Default range - check demographic targeting
-                age_range = targeting_params.get('age_range', '') if targeting_params else ''
-                if '18-34' in age_range:
+    # For standard (non-Apple) segments, handle platform-specific metrics
+    if not is_apple_segment:
+        # Initialize variables to avoid undefined issues
+        platform_rec = ""
+        demographics_str = "Custom targeting parameters"
+        metric_name = "Expected CTR"
+        ctr = "0.20%"
+
+        # Get platform recommendations
+        platform_targeting = segment.get('platform_targeting', [])
+        if platform_targeting and len(platform_targeting) > 0:
+            platform_rec = platform_targeting[0].get('platform', '')
+
+        # Get performance metrics
+        performance = segment.get('expected_performance', {})
+        ctr = performance.get('CTR', '0.20%')
+        
+        # Format demographic information if it exists
+        if targeting_params:
+            demographics = []
+            if 'age_range' in targeting_params:
+                demographics.append(f"Age: {targeting_params['age_range']}")
+            if 'gender_targeting' in targeting_params:
+                demographics.append(f"Gender: {targeting_params['gender_targeting']}")
+            if 'income_targeting' in targeting_params:
+                demographics.append(f"Income: {targeting_params['income_targeting']}")
+            demographics_str = " | ".join(demographics) if demographics else "Custom targeting parameters"
+        
+        # Check platform type to show appropriate metric name and value
+        if platform_rec:
+            platform_lower = platform_rec.lower()
+            if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
+                metric_name = "Expected LTR"
+                # Create a dynamic range based on segment name
+                if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
+                    # Younger audiences tend to have lower LTR ranges
                     ctr = "80-90%"
-                elif '35-54' in age_range:
+                elif 'fitness' in segment.get('name', '').lower():
+                    # Fitness audience has medium-high LTR
+                    ctr = "80-90%"
+                elif 'professional' in segment.get('name', '').lower():
+                    # Professional audiences tend to have high LTR
                     ctr = "80-90%"
                 else:
                     # Default if we can't determine specifics
                     ctr = "80-90%"
-        elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
-            metric_name = "Expected VCR"
-            # Create a dynamic range based on targeting params or segment name
-            if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
-                # Younger audiences tend to have lower VCR
-                ctr = "75-85%"
-            elif 'parent' in segment.get('name', '').lower() or 'family' in interests_str.lower():
-                # Parent/family audience has medium VCR
-                ctr = "75-85%"
-            elif 'professional' in segment.get('name', '').lower() or 'business' in interests_str.lower():
-                # Professional audiences tend to have higher VCR
-                ctr = "75-85%"
-            else:
-                # Default range - check demographic targeting
-                age_range = targeting_params.get('age_range', '') if targeting_params else ''
-                if '18-34' in age_range:
+            elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
+                metric_name = "Expected VCR"
+                # Create a dynamic range based on segment name
+                if 'young' in segment.get('name', '').lower() or 'gen z' in segment.get('name', '').lower():
+                    # Younger audiences tend to have lower VCR
                     ctr = "75-85%"
-                elif '35-54' in age_range:
+                elif 'parent' in segment.get('name', '').lower() or 'family' in segment.get('name', '').lower():
+                    # Parent/family audience has medium VCR
+                    ctr = "75-85%"
+                elif 'professional' in segment.get('name', '').lower():
+                    # Professional audiences tend to have higher VCR
                     ctr = "75-85%"
                 else:
                     # Default if we can't determine specifics
@@ -2358,35 +2415,80 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
     interests_tip = display_tip_bubble("audience", "Interest Categories", inline=True)
     platform_tip = display_tip_bubble("audience", "Platform Recommendation", inline=True)
     
-    # Create the segment card
-    st.markdown(f"""
-    <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
-                {segment_type} Audience {audience_segment_tip}
-            </span>
-            <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
-                {metric_name}: {ctr}
-            </span>
+    # Create the segment card differently based on if it's an Apple TV+ segment or standard segment
+    if is_apple_segment:
+        # Special display for Apple TV+ segments
+        channel_str = ", ".join(channels) if channels else "Multiple channels"
+        device_str = ", ".join(devices) if devices else "Multiple devices"
+        
+        st.markdown(f"""
+        <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
+                    {segment_type} Audience {audience_segment_tip}
+                </span>
+                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
+                    Estimated Size: {segment_size}
+                </span>
+            </div>
+            <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4>
+            <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
+                {segment_description}
+            </p>
+            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+                <span style="font-weight:600; margin-right:5px; display:inline-block;">Affinities {interests_tip}:</span>
+                {affinities_str}
+            </p>
+            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+                <span style="font-weight:600; margin-right:5px; display:inline-block;">Channels {platform_tip}:</span>
+                {channel_str}
+            </p>
+            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+                <span style="font-weight:600; margin-right:5px; display:inline-block;">Devices:</span>
+                {device_str}
+            </p>
+            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <div style="background-color: rgba(16, 185, 129, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;">
+                    <span style="font-weight:600; font-size: 0.75rem; color: #065f46;">Expected CTR:</span>
+                    <span style="font-size: 0.75rem; color: #065f46;">{expected_ctr}</span>
+                </div>
+                <div style="background-color: rgba(79, 70, 229, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;">
+                    <span style="font-weight:600; font-size: 0.75rem; color: #4338ca;">Expected VCR:</span>
+                    <span style="font-size: 0.75rem; color: #4338ca;">{expected_vcr}</span>
+                </div>
+            </div>
         </div>
-        <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment.get('name', 'Audience Segment')}</h4>
-        <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
-            {description}
-        </p>
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
-            {demographics_str}
-        </p>
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-            <span style="font-weight:600; margin-right:5px; display:inline-block;">Interests {interests_tip}:</span>
-            {interests_str}
-        </p>
-        <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
-            <span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_tip}:</span>
-            {platform_rec}
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    else:
+        # Standard display for non-Apple TV+ segments
+        st.markdown(f"""
+        <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
+                    {segment_type} Audience {audience_segment_tip}
+                </span>
+                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
+                    {metric_name}: {ctr}
+                </span>
+            </div>
+            <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4>
+            <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
+                {segment_description}
+            </p>
+            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+                <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
+                {demographics_str}
+            </p>
+            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
+                <span style="font-weight:600; margin-right:5px; display:inline-block;">Interests {interests_tip}:</span>
+                {affinities_str}
+            </p>
+            <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
+                <span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_tip}:</span>
+                {platform_rec}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
 def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     """

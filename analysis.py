@@ -123,6 +123,13 @@ def extract_brand_info(brief_text):
             product_type = matches.group(1).strip().title()
             break
     
+    # Special case handling for Apple TV+
+    if ("apple" in text) and any(tv_term in text for tv_term in ["tv+", "tv plus", "apple tv", "streaming", "original series"]):
+        brand_name = "Apple"
+        industry = "Entertainment"
+        product_type = "Streaming"
+        return brand_name, industry, product_type
+        
     # If product type still unknown, try to infer from content
     if product_type == "Product":
         product_keywords = {
@@ -132,7 +139,8 @@ def extract_brand_info(brief_text):
             "Software": ["app", "application", "software", "platform", "program", "digital"],
             "Food": ["food", "snack", "meal", "nutrition", "diet", "edible"],
             "Beverage": ["drink", "beverage", "liquid", "refreshment", "hydration"],
-            "Service": ["service", "assistance", "support", "help", "subscription"]
+            "Service": ["service", "assistance", "support", "help", "subscription"],
+            "Streaming": ["streaming", "content", "show", "episode", "series", "tv+", "tv plus", "original"]
         }
         
         # Count product keywords in text
@@ -214,7 +222,9 @@ def analyze_campaign_brief(brief_text):
         "Healthcare": ['wellness', 'health', 'patient', 'care', 'treatment', 'medical', 'professional', 
                        'therapy', 'diagnosis', 'prevention', 'solution', 'provider', 'clinic'],
         "Entertainment": ['audience', 'viewer', 'fan', 'artist', 'streaming', 'content', 'platform', 
-                          'subscription', 'experience', 'show', 'episode', 'release', 'premiere'],
+                          'subscription', 'experience', 'show', 'episode', 'release', 'premiere', 
+                          'original', 'series', 'awards', 'tv+', 'tv plus', 'video', 'film', 'movie',
+                          'documentary', 'drama', 'comedy', 'talent', 'director', 'producer', 'binge'],
         "General": ['customer', 'consumer', 'client', 'market', 'industry', 'sector', 'service', 
                     'solution', 'innovation', 'strategy', 'initiative', 'program']
     }
