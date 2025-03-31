@@ -106,9 +106,12 @@ SITEONE_HISPANIC_STREAMING = [
 
 # Additional content sections
 PSYCHOGRAPHIC_HIGHLIGHTS = """
-This audience is highly motivated by <strong>wealth, admiration, and excitement</strong>. 
-They over-index for <strong>social status and peer recognition</strong>, and are more likely 
-to play basketball, value athletic accomplishments, and participate in teams or classes.
+This audience values <strong>life full of excitement, novelties, and challenges (index 138)</strong>, 
+<strong>acquiring wealth and influence (index 134)</strong>, and <strong>being in charge and directing people (index 133)</strong>. 
+Their top psychological drivers include <strong>living an exciting life (index 116)</strong> and <strong>creativity (index 106)</strong>.
+They have exceptionally high indexes for <strong>international travel (index 152)</strong>, <strong>group travel (index 140)</strong>, 
+and <strong>yoga/meditation (index 137)</strong>. Their daily routines emphasize <strong>athletic accomplishments (index 124)</strong>, 
+<strong>nutrition-based food choices (index 114)</strong>, and <strong>regular exercise (index 113)</strong>.
 """
 
 # SiteOne Hispanic Psychographic Highlights based on Resonate data
@@ -122,17 +125,15 @@ and <strong>basketball (249)</strong>.
 
 AUDIENCE_SUMMARY = """
 <div style="margin-bottom: 15px;">
-<strong>Core Audience:</strong> This audience skews <strong>young, male, and single</strong> with a strong affinity for sports, 
-education tools, and socially driven platforms. They're <strong>highly motivated by admiration, 
-status, and excitement</strong>.
+<strong>Core Audience:</strong> This audience skews <strong>female (57%)</strong> with a <strong>mean age of 44</strong> and <strong>19% in the $100-150k income bracket</strong> (mean income: $107,914). They have a strong affinity for Apple TV+ (index 189), health & fitness apps (32%), and premium streaming content. <strong>57% are married</strong> and <strong>59% do not have children under age 18</strong>.
 </div>
 
 <div style="margin-bottom: 15px;">
-<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Gen Z Hoops Fanatics</strong> (young basketball enthusiasts, 18-24) who demonstrate high engagement with sports content, gaming, and social media platforms. This audience shows 2.8x higher conversion rates when targeted with authentic basketball-focused messaging and exhibits strong response to high-impact interactive video formats on premium CTV/OTT platforms.
+<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Premium Content Enthusiasts</strong> who value life full of excitement, novelties, and challenges (index 138). They have high engagement with international travel (index 152) and group travel (index 140). This audience shows strong affinities for connected TV (index 132) and premium digital video, with 2.8x higher completion rates when targeted with high-quality storytelling that emphasizes exciting experiences and creative content.
 </div>
 
 <div>
-<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Multi-Platform Sports Enthusiasts</strong> (older Gen Z and young adults, 21-34) who index high for athletic lifestyle, premium sports content, and cross-device media behaviors.
+<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Active Lifestyle Streamers</strong> who value athletic accomplishments (index 124), buy food based on nutrition (index 114), and exercise 2x or more weekly (index 113). This segment indexes high for health & fitness content (index 150) and demonstrates strong engagement with yoga/meditation (index 137).
 </div>
 """
 
