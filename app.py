@@ -1763,26 +1763,42 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             </h3>
             """, unsafe_allow_html=True)
             
-            # Create three columns for the platform affinities
-            col1, col2, col3 = st.columns(3)
+            st.markdown("*AVI = Affinity Value Index, indicating audience alignment strength*")
             
-            # Display platform affinities in the first column
-            with col1:
-                st.subheader("Media Platforms")
-                for platform, score in affinity_data["platforms"].items():
-                    st.markdown(f"**{platform}:** {score}")
+            # Create grid layout for platform affinities
+            platform_cols = st.columns(5)
             
-            # Display device affinities in the second column
-            with col2:
-                st.subheader("Devices")
-                for device, score in affinity_data["devices"].items():
-                    st.markdown(f"**{device}:** {score}")
+            # Get platform data
+            platforms = [(k, v) for k, v in affinity_data["platforms"].items()]
             
-            # Display content affinities in the third column
-            with col3:
-                st.subheader("Content Types")
-                for content, score in affinity_data["content"].items():
-                    st.markdown(f"**{content}:** {score}")
+            # Display each platform in a card
+            for i, (platform, score) in enumerate(platforms):
+                with platform_cols[i % 5]:
+                    st.markdown(f"""
+                    <div style="background:#e0edff; padding:15px; border-radius:10px; height:110px; margin-bottom:15px; overflow:hidden;">
+                        <div style="font-weight:bold; font-size:0.95rem; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform}</div>
+                        <div style="font-size:0.85rem; margin-bottom:8px;">Media</div>
+                        <div style="font-weight:bold; color:#3b82f6;">AVI: {score}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Create grid layout for content affinities
+            st.markdown("<div style='margin-top:25px;'></div>", unsafe_allow_html=True)
+            content_cols = st.columns(5)
+            
+            # Get content data
+            contents = [(k, v) for k, v in affinity_data["content"].items()]
+            
+            # Display each content type in a card
+            for i, (content, score) in enumerate(contents):
+                with content_cols[i % 5]:
+                    st.markdown(f"""
+                    <div style="background:#dbeafe; padding:15px; border-radius:10px; height:110px; margin-bottom:15px; overflow:hidden;">
+                        <div style="font-weight:bold; font-size:0.95rem; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{content}</div>
+                        <div style="font-size:0.85rem; margin-bottom:8px;">Content</div>
+                        <div style="font-weight:bold; color:#3b82f6;">AVI: {score}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
             
             # Display Demographic and Lifestyle Affinities
             st.markdown("""
@@ -1794,20 +1810,42 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             </h3>
             """, unsafe_allow_html=True)
             
-            # Create two columns for demographic and lifestyle affinities
-            col1, col2 = st.columns(2)
+            st.markdown("*AVI = Affinity Value Index, indicating audience preference strength*")
             
-            # Display demographic affinities in the first column
-            with col1:
-                st.subheader("Demographics")
-                for demo, score in affinity_data["demographics"].items():
-                    st.markdown(f"**{demo}:** {score}")
+            # Create grid layout for demographic affinities
+            demo_cols = st.columns(5)
             
-            # Display lifestyle affinities in the second column
-            with col2:
-                st.subheader("Lifestyle")
-                for lifestyle, score in affinity_data["lifestyle"].items():
-                    st.markdown(f"**{lifestyle}:** {score}")
+            # Get demographic data
+            demographics = [(k, v) for k, v in affinity_data["demographics"].items()]
+            
+            # Display each demographic in a card
+            for i, (demo, score) in enumerate(demographics):
+                with demo_cols[i % 5]:
+                    st.markdown(f"""
+                    <div style="background:#d1fae5; padding:15px; border-radius:10px; height:110px; margin-bottom:15px; overflow:hidden;">
+                        <div style="font-weight:bold; font-size:0.95rem; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{demo}</div>
+                        <div style="font-size:0.85rem; margin-bottom:8px;">Demographic</div>
+                        <div style="font-weight:bold; color:#10b981;">AVI: {score}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Create grid layout for lifestyle affinities
+            st.markdown("<div style='margin-top:25px;'></div>", unsafe_allow_html=True)
+            lifestyle_cols = st.columns(5)
+            
+            # Get lifestyle data
+            lifestyles = [(k, v) for k, v in affinity_data["lifestyle"].items()]
+            
+            # Display each lifestyle in a card
+            for i, (lifestyle, score) in enumerate(lifestyles):
+                with lifestyle_cols[i % 5]:
+                    st.markdown(f"""
+                    <div style="background:#fef3c7; padding:15px; border-radius:10px; height:110px; margin-bottom:15px; overflow:hidden;">
+                        <div style="font-weight:bold; font-size:0.95rem; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{lifestyle}</div>
+                        <div style="font-size:0.85rem; margin-bottom:8px;">Lifestyle</div>
+                        <div style="font-weight:bold; color:#d97706;">AVI: {score}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
             
             # Add a divider before showing standard media affinity data
             st.markdown("<hr style='margin-top: 40px; margin-bottom: 40px;'>", unsafe_allow_html=True)
