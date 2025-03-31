@@ -2243,7 +2243,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             'audience': include_audience,
             'next_steps': False,  # Removed Next Steps option as requested
             'trends': include_trends,
-            'competitor_tactics': include_competitor_tactics
+            'competitor_tactics': include_competitor_tactics if isinstance(include_competitor_tactics, bool) else True
         }
         
         # Generate and display the PDF download link with section selections
