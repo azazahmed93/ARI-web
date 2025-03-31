@@ -129,11 +129,11 @@ AUDIENCE_SUMMARY = """
 </div>
 
 <div style="margin-bottom: 15px;">
-<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Premium Content Enthusiasts</strong> who value life full of excitement, novelties, and challenges (index 138). They have high engagement with international travel (index 152) and group travel (index 140). This audience shows strong affinities for connected TV (index 132) and premium digital video, with 2.8x higher completion rates when targeted with high-quality storytelling that emphasizes exciting experiences and creative content.
+<strong>Growth Audience - Data Signal Insight:</strong> Our AI analysis identifies <strong>Tech-Savvy Streamers</strong> who value life full of excitement, novelties, and challenges (index 138). They have high engagement with international travel (index 152) and group travel (index 140). This audience shows strong affinities for connected TV (index 132) and premium digital video, with 2.8x higher completion rates when targeted with high-quality storytelling that emphasizes exciting experiences and creative content.
 </div>
 
 <div>
-<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Active Lifestyle Streamers</strong> who value athletic accomplishments (index 124), buy food based on nutrition (index 114), and exercise 2x or more weekly (index 113). This segment indexes high for health & fitness content (index 150) and demonstrates strong engagement with yoga/meditation (index 137).
+<strong>Secondary Growth Audience:</strong> Additional opportunity exists with <strong>Lifestyle & Culture Enthusiasts</strong> who value arts and entertainment (index 124), premium lifestyle content (index 114), and cultural experiences (index 113). This segment indexes high for digital subscriptions (index 150) and demonstrates strong engagement with TV shows & movies content (index 137).
 </div>
 """
 
