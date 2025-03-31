@@ -629,8 +629,8 @@ def main():
         st.markdown("### Pre-Launch Campaign Intelligence")
         st.markdown("Analyze your Advertising RFP or Marketing Brief to leverage our AI-powered Audience Resonance Index™ framework. We employ computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation.")
         
-        # Create tabs for input methods
-        tab1, tab2 = st.tabs(["Upload Document", "Paste Text"])
+        # Create tabs for input methods including the Apple campaign option
+        tab1, tab2, tab3 = st.tabs(["Upload Document", "Paste Text", "Apple Phone Campaign"])
         
         brief_text = ""
         
@@ -678,6 +678,84 @@ def main():
                 for keyword in BLOCKED_KEYWORDS:
                     input_brief_text = input_brief_text.replace(keyword, "[FILTERED]")
                 brief_text = input_brief_text
+                
+        with tab3:
+            # Apple Phone Campaign option
+            st.markdown('<div style="margin-top: 12px;"></div>', unsafe_allow_html=True)  # Add some spacing
+            
+            try:
+                # Check if the apple_phone_campaign.txt file exists, if not create it with placeholder content
+                if not os.path.exists("apple_phone_campaign.txt"):
+                    with open("apple_phone_campaign.txt", "w") as f:
+                        f.write("""Apple iPhone Marketing Campaign Brief
+
+Campaign Summary:
+Launch a targeted campaign to drive awareness and consideration for the latest iPhone model targeting tech enthusiasts and early adopters.
+
+Campaign Duration:
+4/21/2025 - 5/11/2025 (3 weeks, subject to change)
+
+Creative Assets:
+- 1x :15s Video ad (non-skippable)
+- Key messaging focuses on innovation, premium experience, and ecosystem integration
+
+Media Requirements:
+- Platform distribution: Desktop, tablet, mobile, connected TV
+- No syndicated or embedded players on other properties
+- Frequency cap: 3x per day per campaign
+
+Target Audience:
+- Primary: Tech enthusiasts and early adopters (18-34)
+- Secondary: Premium smartphone users considering upgrades (25-45)
+- Household income: $75k+
+- Interests: Technology, innovation, premium lifestyle, photography, productivity
+
+Campaign Goals:
+- Drive awareness of new iPhone features and capabilities
+- Increase consideration among Android users looking to switch
+- Reinforce premium positioning and ecosystem advantages
+- Generate qualified traffic to Apple's website for more information
+
+KPIs:
+- View completion rate
+- Engagement rate
+- Click-through rate to product pages
+- Post-view site visits
+- Brand lift metrics""")
+                
+                # Display audience data images with appropriate styling
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.image("attached_assets/Audience_06fef464_Introduction_03_31_25.png", 
+                             caption="Apple Audience Demographics", use_column_width=True)
+                
+                with col2:
+                    st.image("attached_assets/Audience_06fef464_Media_Consumption_03_31_25.png", 
+                             caption="Media Consumption Patterns", use_column_width=True)
+                
+                # Read and display the Apple campaign brief
+                with open("apple_phone_campaign.txt", "r") as f:
+                    apple_campaign_text = f.read()
+                
+                # Show the brief in a styled text area
+                st.markdown("<div style='background: #f0f9ff; padding: 16px; border-radius: 8px; border-left: 4px solid #0ea5e9; margin: 20px 0;'>", unsafe_allow_html=True)
+                st.markdown("<div style='font-weight: 600; color: #0369a1; margin-bottom: 8px;'>Apple Phone (OEM) Campaign Brief</div>", unsafe_allow_html=True)
+                st.text_area("Campaign Brief", value=apple_campaign_text, height=250, disabled=True, key="apple_brief_display")
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Button to use the Apple campaign brief
+                if st.button("Use Apple Campaign for Analysis", type="primary", key="apple_campaign_button"):
+                    brief_text = apple_campaign_text
+                    # Set additional campaign details
+                    st.session_state.brand_name = "Apple"
+                    st.session_state.industry = "Technology"
+                    st.session_state.product_type = "Smartphone"
+                    st.success("Apple Phone Campaign brief loaded successfully!")
+                
+            except Exception as e:
+                st.error(f"Error loading Apple campaign data: {str(e)}")
+                st.info("Please use another method to input your brief.")
         
         # Analysis and Restart buttons in columns
         col1, col2 = st.columns([3, 1])
