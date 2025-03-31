@@ -2559,84 +2559,12 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         ai_insight_html = ""
         ai_insight_tip = display_tip_bubble("audience", "AI Insight", inline=True)
         if ai_insight:
-            ai_insight_html = f"""
-            <div style="margin-top: 12px; padding: 8px 12px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;">
-                <p style="margin: 0; font-size: 0.85rem; color: #333;">
-                    <span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>
-                    {ai_insight}
-                </p>
-            </div>
-            """
+            ai_insight_html = f"""<div style="margin-top: 12px; padding: 8px 12px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;"><p style="margin: 0; font-size: 0.85rem; color: #333;"><span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>{ai_insight}</p></div>"""
         
-        st.markdown(f"""
-        <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
-                    {segment_type} Audience {audience_segment_tip}
-                </span>
-                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
-                    Estimated Size: {segment_size}
-                </span>
-            </div>
-            <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4>
-            <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
-                {segment_description}
-            </p>
-            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-                <span style="font-weight:600; margin-right:5px; display:inline-block;">Affinities {interests_tip}:</span>
-                {affinities_str}
-            </p>
-            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-                <span style="font-weight:600; margin-right:5px; display:inline-block;">Channels {platform_tip}:</span>
-                {channel_str}
-            </p>
-            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-                <span style="font-weight:600; margin-right:5px; display:inline-block;">Devices:</span>
-                {device_str}
-            </p>
-            <div style="display: flex; gap: 12px; margin-top: 8px;">
-                <div style="background-color: rgba(16, 185, 129, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;">
-                    <span style="font-weight:600; font-size: 0.75rem; color: #065f46;">Expected CTR:</span>
-                    <span style="font-size: 0.75rem; color: #065f46;">{expected_ctr}</span>
-                </div>
-                <div style="background-color: rgba(79, 70, 229, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;">
-                    <span style="font-weight:600; font-size: 0.75rem; color: #4338ca;">Expected VCR:</span>
-                    <span style="font-size: 0.75rem; color: #4338ca;">{expected_vcr}</span>
-                </div>
-            </div>
-            {ai_insight_html}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience {audience_segment_tip}</span><span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">Estimated Size: {segment_size}</span></div><h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4><p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment_description}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Affinities {interests_tip}:</span>{affinities_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Channels {platform_tip}:</span>{channel_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Devices:</span>{device_str}</p><div style="display: flex; gap: 12px; margin-top: 8px;"><div style="background-color: rgba(16, 185, 129, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #065f46;">Expected CTR:</span><span style="font-size: 0.75rem; color: #065f46;">{expected_ctr}</span></div><div style="background-color: rgba(79, 70, 229, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #4338ca;">Expected VCR:</span><span style="font-size: 0.75rem; color: #4338ca;">{expected_vcr}</span></div></div>{ai_insight_html}</div>""", unsafe_allow_html=True)
     else:
         # Standard display for non-Apple TV+ segments
-        st.markdown(f"""
-        <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">
-                    {segment_type} Audience {audience_segment_tip}
-                </span>
-                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">
-                    {metric_name}: {ctr}
-                </span>
-            </div>
-            <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4>
-            <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">
-                {segment_description}
-            </p>
-            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-                <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
-                {demographics_str}
-            </p>
-            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;">
-                <span style="font-weight:600; margin-right:5px; display:inline-block;">Interests {interests_tip}:</span>
-                {affinities_str}
-            </p>
-            <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
-                <span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_tip}:</span>
-                {platform_rec}
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience {audience_segment_tip}</span><span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">{metric_name}: {ctr}</span></div><h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4><p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment_description}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>{demographics_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Interests {interests_tip}:</span>{affinities_str}</p><p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_tip}:</span>{platform_rec}</p></div>""", unsafe_allow_html=True)
 
 def display_summary_metrics(scores, improvement_areas=None, brief_text=""):
     """
