@@ -66,13 +66,13 @@ SITEONE_HISPANIC_SOCIAL_MEDIA = [
     {"name": "Reddit", "category": "Forums", "qvi": 140}
 ]
 
-# TV Network affinities
+# TV Network affinities - Updated based on Audience_06fef464_Media_Consumption data
 TV_NETWORKS = [
-    {"name": "NBA TV", "category": "Sports", "qvi": 459},
-    {"name": "Adult Swim", "category": "Alt Animation", "qvi": 315},
-    {"name": "Cartoon Network", "category": "Youth", "qvi": 292},
-    {"name": "MTV", "category": "Music / Culture", "qvi": 288},
-    {"name": "Nickelodeon", "category": "Kids / Family", "qvi": 263}
+    {"name": "The Learning Channel (TLC)", "category": "Education", "qvi": 132},
+    {"name": "Home & Garden Television (HGTV)", "category": "Lifestyle", "qvi": 123},
+    {"name": "ESPN 2", "category": "Sports", "qvi": 120},
+    {"name": "Fox Sports 1", "category": "Sports", "qvi": 120},
+    {"name": "None of the Above", "category": "Other", "qvi": 116}
 ]
 
 # SiteOne Hispanic TV Networks based on Resonate data
@@ -84,14 +84,14 @@ SITEONE_HISPANIC_TV_NETWORKS = [
     {"name": "HBO", "category": "Premium", "qvi": 195}
 ]
 
-# Streaming platforms
+# Streaming platforms - Updated based on Audience_06fef464_Media_Consumption data
 STREAMING_PLATFORMS = [
-    {"name": "Peacock Premium", "category": "Entertainment", "qvi": 216},
-    {"name": "HBO Max", "category": "Drama / Comedy", "qvi": 188},
-    {"name": "Hulu", "category": "Variety", "qvi": 173},
-    {"name": "ESPN+", "category": "Sports", "qvi": 172},
-    {"name": "YouTube Premium", "category": "Video", "qvi": 167},
-    {"name": "Disney+", "category": "Family / Animation", "qvi": 165}
+    {"name": "Apple TV+", "category": "Entertainment", "qvi": 189},
+    {"name": "Disney+ (without ads)", "category": "Entertainment", "qvi": 130},
+    {"name": "Netflix (without ads)", "category": "Entertainment", "qvi": 130},
+    {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 129},
+    {"name": "ESPN+", "category": "Sports", "qvi": 122},
+    {"name": "Paramount+ (without ads)", "category": "Entertainment", "qvi": 120}
 ]
 
 # SiteOne Hispanic Streaming Platforms based on Resonate data

@@ -158,14 +158,12 @@ def generate_audience_affinities():
         "Yoga/Meditation": 137
     }
     
-    # Device affinities
+    # Device affinities - Updated based on Audience_06fef464_Media_Consumption data
     device_affinities = {
-        "Smart TVs": 138,
-        "Premium Mobile": 124,
-        "Tablets": 116,
-        "Laptops": 114,
-        "Desktop": 106,
-        "Connected Devices": 113
+        "Smart TV": 93,
+        "Streaming Box (e.g., Roku, Fire TV, Apple TV)": 90,
+        "Laptop/ Computer": 89,
+        "Mobile Phone": 68
     }
     
     return {
@@ -204,7 +202,7 @@ def generate_apple_specific_targeting_recommendations():
         },
         {
             "title": "Connected TV Premium Content Strategy",
-            "description": "Prioritize Connected TV placements which score 138 in audience affinity, with contextually relevant environments.",
+            "description": "Prioritize Smart TV and Streaming Box placements which score 93 and 90 in audience affinity, with contextually relevant environments.",
             "implementation": "Develop contextual targeting segments based on content genre and viewing quality to ensure alignment with premium positioning.",
             "expected_lift": "12-15% higher completion rates and brand recall"
         },
