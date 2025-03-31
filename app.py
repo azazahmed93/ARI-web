@@ -2203,6 +2203,21 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         interests_tip = display_tip_bubble("audience", "Interest Categories", inline=True)
                         platform_strategy_tip = display_tip_bubble("audience", "Platform Strategy", inline=True)
                         
+                        # Check if there's an AI insight for the growth segment
+                        ai_insight = growth_segment.get('ai_insight', '')
+                        ai_insight_html = ""
+                        ai_insight_tip = display_tip_bubble("audience", "AI Insight", inline=True)
+                        
+                        if ai_insight:
+                            ai_insight_html = f"""
+                            <div style="margin: 15px 0; padding: 10px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;">
+                                <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                                    <span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>
+                                    {ai_insight}
+                                </p>
+                            </div>
+                            """
+                        
                         # Create the emerging audience HTML content
                         html_content = f"""
                         <div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
@@ -2219,6 +2234,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                             <p style="margin-bottom: 15px; font-style: italic; color: #555; font-size: 0.9rem;">
                                 {growth_segment.get('description', 'This audience segment shows high potential for growth based on analysis of your brief and market trends.')}
                             </p>
+                            {ai_insight_html}
                             <p style="margin-bottom: 8px;">
                                 <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
                                 {demographics_str}
@@ -2439,6 +2455,9 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         expected_ctr = segment.get('expected_ctr', '')
         expected_vcr = segment.get('expected_vcr', '')
         
+        # AI insight
+        ai_insight = segment.get('ai_insight', '')
+        
     else:
         # Handle standard audience segment format
         segment_name = segment.get('name', 'Audience Segment')
@@ -2546,6 +2565,19 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         channel_str = ", ".join(channels) if channels else "Multiple channels"
         device_str = ", ".join(devices) if devices else "Multiple devices"
         
+        # Create an AI insight HTML content if available
+        ai_insight_html = ""
+        ai_insight_tip = display_tip_bubble("audience", "AI Insight", inline=True)
+        if ai_insight:
+            ai_insight_html = f"""
+            <div style="margin-top: 12px; padding: 8px 12px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;">
+                <p style="margin: 0; font-size: 0.85rem; color: #333;">
+                    <span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>
+                    {ai_insight}
+                </p>
+            </div>
+            """
+        
         st.markdown(f"""
         <div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -2582,6 +2614,7 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
                     <span style="font-size: 0.75rem; color: #4338ca;">{expected_vcr}</span>
                 </div>
             </div>
+            {ai_insight_html}
         </div>
         """, unsafe_allow_html=True)
     else:
