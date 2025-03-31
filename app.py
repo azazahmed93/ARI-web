@@ -2095,7 +2095,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         interests_tip = display_tip_bubble("audience", "Interest Categories", inline=True)
                         platform_strategy_tip = display_tip_bubble("audience", "Platform Strategy", inline=True)
                         
-                        st.markdown(f"""
+                        # Create the emerging audience HTML content
+                        html_content = f"""
                         <div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
                             <h4 style="margin-top: 0; color: #4338ca; display: flex; align-items: center;">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
@@ -2105,35 +2106,50 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                 <span>Emerging Audience Opportunity {emerging_audience_tip}</span>
                             </h4>
                             <p style="margin-bottom: 8px;">
-                                <span style="font-weight:600; font-size: 1.05rem;">{{0}}</span>
+                                <span style="font-weight:600; font-size: 1.05rem;">{growth_segment.get('name', 'Emerging Growth Segment')}</span>
                             </p>
                             <p style="margin-bottom: 15px; font-style: italic; color: #555; font-size: 0.9rem;">
-                                {{1}}
+                                {growth_segment.get('description', 'This audience segment shows high potential for growth based on analysis of your brief and market trends.')}
                             </p>
                             <p style="margin-bottom: 8px;">
                                 <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
-                                {{2}}
+                                {demographics_str}
                             </p>
                             <p style="margin-bottom: 8px;">
                                 <span style="font-weight:600; margin-right:5px; display:inline-block;">Key Interests {interests_tip}:</span>
-                                {{3}}
+                                {interests_str}
                             </p>
                             <p style="margin-bottom: 8px;">
                                 <span style="font-weight:600; margin-right:5px; display:inline-block;">Platform Strategy {platform_strategy_tip}:</span>
-                                {{4}}
+                                {platform_strategy}
                             </p>
-                            {{5}}
-                            {{6}}
+                        """
+                        
+                        # Add optimization strategy if available
+                        if bidding_str:
+                            html_content += f"""
+                            <p style="margin-bottom: 8px;">
+                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Optimization Strategy:</span>
+                                {bidding_str}
+                            </p>
+                            """
+                        
+                        # Add performance metrics if available
+                        if performance_str:
+                            html_content += f"""
+                            <p style="margin-bottom: 0;">
+                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Expected Performance:</span>
+                                {performance_str}
+                            </p>
+                            """
+                        
+                        # Close the div
+                        html_content += """
                         </div>
-                        """.format(
-                            growth_segment.get('name', 'Emerging Growth Segment'),
-                            growth_segment.get('description', 'This audience segment shows high potential for growth based on analysis of your brief and market trends.'),
-                            demographics_str,
-                            interests_str,
-                            platform_strategy,
-                            f'<p style="margin-bottom: 8px;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Optimization Strategy:</span> {bidding_str}</p>' if bidding_str else '',
-                            f'<p style="margin-bottom: 0;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Expected Performance:</span> {performance_str}</p>' if performance_str else ''
-                        ), unsafe_allow_html=True)
+                        """
+                        
+                        # Display the HTML content
+                        st.markdown(html_content, unsafe_allow_html=True)
             except Exception as e:
                 # Silent fail - don't show error if there's an issue with the growth audience
                 pass
