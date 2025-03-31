@@ -1743,7 +1743,76 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # TAB 3: MEDIA AFFINITIES
     with tab3:
-        # Media Affinity section
+        # Check if we're analyzing Apple TV+ data
+        is_apple_tv_campaign = "Apple TV+" in st.session_state.get("brief_text", "") or "Apple TV" in st.session_state.get("brief_text", "")
+        
+        if is_apple_tv_campaign:
+            # Import Apple audience data functions
+            from apple_audience_data import generate_audience_affinities
+            
+            # Get the audience affinities
+            affinity_data = generate_audience_affinities()
+            
+            # Display Platform Affinities
+            st.markdown("""
+            <h3 style="display:flex; align-items:center; gap:10px; margin-top: 20px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 4H5C3.89 4 3 4.9 3 6V18C3 19.1 3.89 20 5 20H19C20.1 20 21 19.1 21 18V6C21 4.9 20.1 4 19 4ZM19 18H5V8H19V18ZM9 10H7V16H9V10ZM13 10H11V16H13V10ZM17 10H15V16H17V10Z" fill="#5865f2"/>
+                </svg>
+                <span>Apple TV+ Platform Affinities</span>
+            </h3>
+            """, unsafe_allow_html=True)
+            
+            # Create three columns for the platform affinities
+            col1, col2, col3 = st.columns(3)
+            
+            # Display platform affinities in the first column
+            with col1:
+                st.subheader("Media Platforms")
+                for platform, score in affinity_data["platforms"].items():
+                    st.markdown(f"**{platform}:** {score}")
+            
+            # Display device affinities in the second column
+            with col2:
+                st.subheader("Devices")
+                for device, score in affinity_data["devices"].items():
+                    st.markdown(f"**{device}:** {score}")
+            
+            # Display content affinities in the third column
+            with col3:
+                st.subheader("Content Types")
+                for content, score in affinity_data["content"].items():
+                    st.markdown(f"**{content}:** {score}")
+            
+            # Display Demographic and Lifestyle Affinities
+            st.markdown("""
+            <h3 style="display:flex; align-items:center; gap:10px; margin-top: 40px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#5865f2"/>
+                </svg>
+                <span>Apple TV+ Audience Affinities</span>
+            </h3>
+            """, unsafe_allow_html=True)
+            
+            # Create two columns for demographic and lifestyle affinities
+            col1, col2 = st.columns(2)
+            
+            # Display demographic affinities in the first column
+            with col1:
+                st.subheader("Demographics")
+                for demo, score in affinity_data["demographics"].items():
+                    st.markdown(f"**{demo}:** {score}")
+            
+            # Display lifestyle affinities in the second column
+            with col2:
+                st.subheader("Lifestyle")
+                for lifestyle, score in affinity_data["lifestyle"].items():
+                    st.markdown(f"**{lifestyle}:** {score}")
+            
+            # Add a divider before showing standard media affinity data
+            st.markdown("<hr style='margin-top: 40px; margin-bottom: 40px;'>", unsafe_allow_html=True)
+        
+        # Standard Media Affinity section (shown for all campaigns)
         st.markdown("""
         <h3 style="display:flex; align-items:center; gap:10px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1928,7 +1997,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 audience_insights_tip = display_tip_bubble("audience", "Growth Audience Insights", inline=True)
                 
                 # Title for the audience segments section
-                st.markdown(f"""
+                title_html = f"""
                 <div style="margin-top: 30px; margin-bottom: 15px;">
                     <h3 style="display:flex; align-items:center; gap:10px;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1938,7 +2007,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         <span>Growth Audience Insights {audience_insights_tip}</span>
                     </h3>
                 </div>
-                """, unsafe_allow_html=True)
+                """
+                st.markdown(title_html, unsafe_allow_html=True)
                 
                 # Import the learning tips module
                 from assets.learning_tips import display_tip_bubble
@@ -2246,7 +2316,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             include_trends = st.checkbox("Marketing Trend Analysis", value=True, help="Include the marketing trend heatmap and key trend insights in your report", key="trends")
             
             # Add competitor tactics checkbox
-            include_competitor_tactics = st.checkbox("Competitor Tactics", value=True, help="Include competitor strategy recommendations in your report", key="competitor_tactics")
+            # Use a different key name to avoid conflicts with session state
+            include_competitor_tactics = st.checkbox("Competitor Tactics", value=True, help="Include competitor strategy recommendations in your report", key="include_competitor_tactics")
         
         # Create dictionary of sections to include
         include_sections = {

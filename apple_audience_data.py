@@ -13,33 +13,34 @@ def get_apple_audience_data():
         dict: Dictionary containing Apple TV+ audience data
     """
     # Primary audience segments for Apple TV+
+    # Updated based on Audience_06fef464_Introduction_03_31_25.png data
     primary_segments = [
         {
-            "name": "Premium Content Seekers",
-            "description": "Affluent professionals (25-54) who prioritize quality storytelling and production value over quantity of content. They're willing to pay for premium entertainment experiences.",
-            "size": "32M",
-            "affinities": ["High-quality dramas", "Award-winning content", "Premium tech products", "Design-forward brands"],
-            "expected_ctr": "0.18%",
+            "name": "Premium Content Enthusiasts",
+            "description": "57% female, with a mean age of 44, who prioritize quality storytelling and production value. They value life full of excitement, novelties, and challenges.",
+            "size": "77.5M",
+            "affinities": ["International travel", "Group travel", "Yoga and meditation", "High-quality dramas"],
+            "expected_ctr": "0.22%",
             "expected_vcr": "83%",
             "channels": ["Connected TV", "Premium digital video", "Audio streaming", "High-impact display"],
             "devices": ["Smart TVs", "High-end mobile devices", "Tablets", "Laptops"]
         },
         {
-            "name": "Entertainment Enthusiasts",
-            "description": "Adults (25-45) who actively seek out critically acclaimed shows and films. They value original content and participate in entertainment culture conversations.",
-            "size": "28M",
-            "affinities": ["Prestige television", "Film festivals", "Cultural events", "Premium audio content"],
-            "expected_ctr": "0.22%",
+            "name": "Young Adult Streamers",
+            "description": "19% are 18-24 years of age, who actively seek out critically acclaimed shows and films. They value creativity and living an exciting life.",
+            "size": "32.7M",
+            "affinities": ["Creativity", "Living an exciting life", "Athletic accomplishments", "Premium video content"],
+            "expected_ctr": "0.25%",
             "expected_vcr": "79%",
             "channels": ["Connected TV", "Interactive video", "Rich media", "Premium digital environments"],
             "devices": ["Smart TVs", "Gaming consoles", "Premium mobile devices", "Laptops"]
         },
         {
-            "name": "Apple Ecosystem Users",
-            "description": "Current Apple product owners (18-65) who haven't yet subscribed to Apple TV+. They value ecosystem integration and the Apple design philosophy.",
-            "size": "45M",
-            "affinities": ["Apple hardware", "Minimalist design", "Premium tech services", "Ecosystem integrations"],
-            "expected_ctr": "0.31%",
+            "name": "Affluent Household Subscribers",
+            "description": "19% with household income of $100-150k (mean income: $107,914), who are current or potential Apple TV+ subscribers. They value acquiring wealth and influence.",
+            "size": "103.2M",
+            "affinities": ["Acquiring wealth and influence", "Being in charge", "Premium tech services", "Nutrition-focused"],
+            "expected_ctr": "0.28%",
             "expected_vcr": "81%",
             "channels": ["Connected device targeting", "Premium digital video", "Rich media", "Interactive display"],
             "devices": ["Apple devices", "Smart TVs", "Connected home devices"]
@@ -49,21 +50,21 @@ def get_apple_audience_data():
     # Secondary audience segments
     secondary_segments = [
         {
-            "name": "Culture-Forward Millennials",
-            "description": "Adults (25-40) who use entertainment choices as cultural currency and regularly discuss shows on social platforms and in person.",
-            "size": "22M",
-            "affinities": ["Trending shows", "Cultural commentary", "Premium experiences", "Social discussions"],
+            "name": "Educated Professionals",
+            "description": "32% with some college education who use entertainment choices as cultural currency and regularly discuss shows with others.",
+            "size": "40M",
+            "affinities": ["Respect from others", "Cultural commentary", "Premium experiences", "International travel"],
             "expected_ctr": "0.19%",
             "expected_vcr": "77%",
             "channels": ["Digital video", "Audio streaming", "Interactive formats", "High-impact units"],
             "devices": ["Mobile devices", "Smart TVs", "Laptops", "Tablets"]
         },
         {
-            "name": "Quality-Conscious Gen X",
-            "description": "Adults (40-55) who prefer thoughtful, well-crafted content over mainstream entertainment and have high disposable income.",
-            "size": "18M",
-            "affinities": ["Literary adaptations", "Historical dramas", "Quality journalism", "Premium experiences"],
-            "expected_ctr": "0.15%",
+            "name": "Married Entertainment Seekers",
+            "description": "57% are married adults who prefer thoughtful, well-crafted content over mainstream entertainment and exercise regularly.",
+            "size": "65M",
+            "affinities": ["Exercise 2x or more weekly", "Food based on nutrition", "Literary adaptations", "Premium experiences"],
+            "expected_ctr": "0.17%",
             "expected_vcr": "84%",
             "channels": ["Connected TV", "Premium digital environments", "Audio streaming", "High-impact display"],
             "devices": ["Smart TVs", "Tablets", "Desktop computers", "Premium mobile devices"]
@@ -73,21 +74,21 @@ def get_apple_audience_data():
     # Growth opportunity segments
     growth_segments = [
         {
-            "name": "Content-Curious Gen Z",
-            "description": "Young adults (18-24) who actively seek out unique, diverse storytelling and value authenticity in entertainment.",
-            "size": "14M",
-            "affinities": ["Diverse creators", "Unique storytelling", "Authentic narratives", "Short-form complementary content"],
+            "name": "Child-Free Entertainment Enthusiasts",
+            "description": "59% do not have children under age 18, who actively seek out unique, diverse storytelling and value authenticity in entertainment.",
+            "size": "68M",
+            "affinities": ["Diverse creators", "Unique storytelling", "Athletic accomplishments", "International travel"],
             "expected_ctr": "0.24%",
-            "expected_vcr": "75%",
+            "expected_vcr": "80%",
             "channels": ["Digital video", "Audio streaming", "Interactive formats", "Rich media"],
             "devices": ["Mobile devices", "Smart TVs", "Gaming consoles", "Laptops"]
         },
         {
-            "name": "Subscription Optimizers",
-            "description": "Budget-conscious entertainment fans (25-45) who carefully curate their streaming services based on current content offerings.",
-            "size": "30M",
-            "affinities": ["Free trials", "Bundle offerings", "Award-winning content", "Limited series"],
-            "expected_ctr": "0.16%",
+            "name": "Lifestyle-Focused Viewers",
+            "description": "Adults who exercise 2x or more weekly and buy food based on nutrition. They carefully select entertainment that aligns with their values.",
+            "size": "35M",
+            "affinities": ["Yoga and meditation", "Athletic accomplishments", "Nutrition-focused content", "Limited series"],
+            "expected_ctr": "0.20%",
             "expected_vcr": "76%",
             "channels": ["Connected TV", "Digital video", "Audio streaming", "High-impact units"],
             "devices": ["Smart TVs", "Mobile devices", "Desktop computers", "Streaming devices"]
@@ -107,54 +108,65 @@ def generate_audience_affinities():
     Returns:
         dict: A dictionary containing platform and content affinities
     """
-    # Platform affinities for Apple TV+
+    # Platform affinities for Apple TV+ - Updated based on Audience_06fef464 data
     platform_affinities = {
-        "Connected TV": 88,
-        "Premium Digital Video": 82,
-        "Audio Streaming": 76,
-        "Rich Media Display": 68,
-        "Interactive Video": 70,
-        "High-Impact Units": 66,
-        "Digital Out-of-Home": 59
+        "Connected TV": 138,
+        "Premium Digital Video": 124,
+        "Audio Streaming": 116,
+        "Rich Media Display": 114,
+        "Interactive Video": 113,
+        "High-Impact Units": 106,
+        "Digital Out-of-Home": 100
     }
     
-    # Content affinities
+    # Content affinities - Updated based on Top Personal Values and Psychological Drivers
     content_affinities = {
-        "Drama Series": 85,
-        "Prestige Television": 82,
-        "Documentary Content": 79,
-        "Comedy Series": 77,
-        "Premium Films": 81,
-        "Sci-Fi/Speculative": 72,
-        "Quality Family Content": 68
+        "Exciting Life Content": 138,
+        "Wealth & Influence Shows": 134,
+        "Leadership Stories": 133,
+        "Creative Content": 116, 
+        "Prestige Storytelling": 114,
+        "International Travel Content": 152,
+        "Health & Wellness Programming": 137
     }
     
     # Demographic affinities (always showing ages 18+ for compliance)
     demographic_affinities = {
-        "Adults 25-34": 80,
-        "Adults 35-44": 85,
-        "Adults 45-54": 76,
-        "Adults 18-24": 69,
-        "Adults 55+": 62,
-        "High Income": 83,
-        "College Educated": 79
+        "Adults 35-44": 140,
+        "Adults 45-54": 120,
+        "Adults 18-24": 119,
+        "High Income ($100-150k)": 134,
+        "College Educated": 132,
+        "Female": 157,
+        "Married": 157
+    }
+    
+    # Lifestyle affinities - Based on Daily Routine data
+    lifestyle_affinities = {
+        "Athletic Accomplishments": 124,
+        "Nutrition-Focused": 114,
+        "Exercise 2x Weekly": 113,
+        "International Travel": 152,
+        "Group Travel": 140,
+        "Yoga/Meditation": 137
     }
     
     # Device affinities
     device_affinities = {
-        "Smart TVs": 86,
-        "Premium Mobile": 82,
-        "Tablets": 78,
-        "Laptops": 72,
-        "Desktop": 65,
-        "Connected Devices": 80
+        "Smart TVs": 138,
+        "Premium Mobile": 124,
+        "Tablets": 116,
+        "Laptops": 114,
+        "Desktop": 106,
+        "Connected Devices": 113
     }
     
     return {
         "platforms": platform_affinities,
         "content": content_affinities,
         "demographics": demographic_affinities,
-        "devices": device_affinities
+        "devices": device_affinities,
+        "lifestyle": lifestyle_affinities
     }
 
 def generate_apple_specific_targeting_recommendations():
@@ -166,34 +178,34 @@ def generate_apple_specific_targeting_recommendations():
     """
     recommendations = [
         {
-            "title": "Premium Content Environment Targeting",
-            "description": "Target placements within premium content environments that align with Apple's brand values of quality, creativity, and innovation.",
-            "implementation": "Focus on high-viewability inventory within curated premium content environments with strong brand safety measures.",
-            "expected_lift": "15-20% higher engagement compared to standard targeting"
+            "title": "Lifestyle Enthusiast Targeting",
+            "description": "Target audiences who engage with travel, fitness, and nutrition content that aligns with the top personal values and daily routines of the Apple TV+ audience.",
+            "implementation": "Create custom audience segments based on international travel interests, yoga/meditation participation, and nutrition-focused content consumption.",
+            "expected_lift": "18-24% higher engagement among lifestyle-focused viewers"
         },
         {
-            "title": "Apple Device Precision Targeting",
-            "description": "Leverage device data to identify and target current Apple hardware users who haven't yet subscribed to Apple TV+.",
-            "implementation": "Create device-specific creative variations that highlight ecosystem benefits and simplified sign-up process.",
-            "expected_lift": "25-30% higher conversion rates among existing Apple customers"
+            "title": "Affluent Household Precision Targeting",
+            "description": "Leverage household income data to identify and target the 19% of potential viewers with household incomes of $100-150k who value premium content.",
+            "implementation": "Create contextual alignments with content themes focused on wealth, influence, and leadership to resonate with this high-value segment.",
+            "expected_lift": "25-30% higher conversion rates among affluent households"
         },
         {
-            "title": "Entertainment Enthusiast Behavioral Targeting",
-            "description": "Target users who actively engage with entertainment content, reviews, and cultural discussion forums.",
-            "implementation": "Implement behavioral targeting based on content consumption patterns and entertainment-related interests.",
-            "expected_lift": "18-22% improvement in qualified audience reach"
+            "title": "Female-Skewed Creative Optimization",
+            "description": "Develop creative messaging that appeals to the 57% female audience while still maintaining broader appeal.",
+            "implementation": "Test multiple creative variations optimized for female viewers with an emphasis on excitement, novelty, and creativity themes.",
+            "expected_lift": "15-20% improvement in female audience engagement"
         },
         {
-            "title": "Connected TV Contextual Alignment",
-            "description": "Place ads in contextually relevant streaming environments that won't compete directly with Apple TV+ content.",
+            "title": "Connected TV Premium Content Strategy",
+            "description": "Prioritize Connected TV placements which score 138 in audience affinity, with contextually relevant environments.",
             "implementation": "Develop contextual targeting segments based on content genre and viewing quality to ensure alignment with premium positioning.",
             "expected_lift": "12-15% higher completion rates and brand recall"
         },
         {
-            "title": "Audio Companion Strategy",
-            "description": "Complement video strategy with premium audio placements to extend reach and reinforce messaging.",
-            "implementation": "Target premium audio inventory with high listening completion rates and complement with synchronized display messaging.",
-            "expected_lift": "10-15% incremental reach with 80-90% expected listen-through rates"
+            "title": "Cross-Platform Travel Content Alignment",
+            "description": "Align messaging with travel content, given the exceptional 152 affinity score for international travel among the target audience.",
+            "implementation": "Place ads adjacent to travel content and develop creative that subtly incorporates travel themes alongside streaming entertainment messaging.",
+            "expected_lift": "20-25% higher engagement in travel-adjacent content environments"
         }
     ]
     
