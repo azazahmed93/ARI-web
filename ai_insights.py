@@ -640,6 +640,57 @@ def get_default_audience_segments(brief_text, ari_scores):
     from analysis import extract_brand_info
     brand_name, industry, product_type = extract_brand_info(brief_text)
     
+    # Check if this is an Apple TV+ campaign first
+    if "Apple TV+" in brief_text or "Apple TV Plus" in brief_text:
+        # Use Apple TV+ specific audience data
+        import streamlit as st
+        
+        # If we have Apple audience data in session state, use it directly
+        if 'audience_data' in st.session_state and st.session_state.audience_data is not None:
+            apple_data = st.session_state.audience_data
+            all_segments = []
+            
+            # Add primary segments
+            if 'primary' in apple_data:
+                all_segments.extend(apple_data['primary'])
+                
+            # Add secondary segments
+            if 'secondary' in apple_data:
+                all_segments.extend(apple_data['secondary'])
+                
+            # Add growth segments
+            if 'growth' in apple_data:
+                all_segments.extend(apple_data['growth'])
+            
+            # If we have segments, return them in the expected format
+            if all_segments:
+                return {"segments": all_segments}
+            
+        # If we don't have the audience_data in session_state, try to load it directly
+        try:
+            from apple_audience_data import get_apple_audience_data
+            apple_data = get_apple_audience_data()
+            all_segments = []
+            
+            # Add primary segments
+            if 'primary' in apple_data:
+                all_segments.extend(apple_data['primary'])
+                
+            # Add secondary segments
+            if 'secondary' in apple_data:
+                all_segments.extend(apple_data['secondary'])
+                
+            # Add growth segments
+            if 'growth' in apple_data:
+                all_segments.extend(apple_data['growth'])
+            
+            # If we have segments, return them in the expected format
+            if all_segments:
+                return {"segments": all_segments}
+        except:
+            # Fall back to the default segments if Apple data loading fails
+            pass
+    
     # Default segments structure with placeholder content
     segments = {
         "segments": [
