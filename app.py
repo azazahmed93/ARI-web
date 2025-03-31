@@ -2209,68 +2209,58 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         ai_insight_tip = display_tip_bubble("audience", "AI Insight", inline=True)
                         
                         if ai_insight:
-                            ai_insight_html = f"""
-                            <div style="margin: 15px 0; padding: 10px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;">
-                                <p style="margin: 0; font-size: 0.85rem; color: #333;">
-                                    <span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>
-                                    {ai_insight}
-                                </p>
-                            </div>
-                            """
+                            ai_insight_html = f"""<div style="margin: 15px 0; padding: 10px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;">
+<p style="margin: 0; font-size: 0.85rem; color: #333;">
+<span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>
+{ai_insight}
+</p>
+</div>"""
                         
                         # Create the emerging audience HTML content
-                        html_content = f"""
-                        <div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
-                            <h4 style="margin-top: 0; color: #4338ca; display: flex; align-items: center;">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                                    <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
-                                </svg>
-                                <span>Emerging Audience Opportunity {emerging_audience_tip}</span>
-                            </h4>
-                            <p style="margin-bottom: 8px;">
-                                <span style="font-weight:600; font-size: 1.05rem;">{growth_segment.get('name', 'Emerging Growth Segment')}</span>
-                            </p>
-                            <p style="margin-bottom: 15px; font-style: italic; color: #555; font-size: 0.9rem;">
-                                {growth_segment.get('description', 'This audience segment shows high potential for growth based on analysis of your brief and market trends.')}
-                            </p>
-                            {ai_insight_html}
-                            <p style="margin-bottom: 8px;">
-                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
-                                {demographics_str}
-                            </p>
-                            <p style="margin-bottom: 8px;">
-                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Key Interests {interests_tip}:</span>
-                                {interests_str}
-                            </p>
-                            <p style="margin-bottom: 8px;">
-                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Platform Strategy {platform_strategy_tip}:</span>
-                                {platform_strategy}
-                            </p>
-                        """
+                        html_content = f"""<div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
+<h4 style="margin-top: 0; color: #4338ca; display: flex; align-items: center;">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+<path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="12" cy="12" r="2.5" fill="#4338ca"/>
+</svg>
+<span>Emerging Audience Opportunity {emerging_audience_tip}</span>
+</h4>
+<p style="margin-bottom: 8px;">
+<span style="font-weight:600; font-size: 1.05rem;">{growth_segment.get('name', 'Emerging Growth Segment')}</span>
+</p>
+<p style="margin-bottom: 15px; font-style: italic; color: #555; font-size: 0.9rem;">
+{growth_segment.get('description', 'This audience segment shows high potential for growth based on analysis of your brief and market trends.')}
+</p>
+{ai_insight_html}
+<p style="margin-bottom: 8px;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>
+{demographics_str}
+</p>
+<p style="margin-bottom: 8px;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Key Interests {interests_tip}:</span>
+{interests_str}
+</p>
+<p style="margin-bottom: 8px;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Platform Strategy {platform_strategy_tip}:</span>
+{platform_strategy}
+</p>"""
                         
                         # Add optimization strategy if available
                         if bidding_str:
-                            html_content += f"""
-                            <p style="margin-bottom: 8px;">
-                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Optimization Strategy:</span>
-                                {bidding_str}
-                            </p>
-                            """
+                            html_content += f"""<p style="margin-bottom: 8px;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Optimization Strategy:</span>
+{bidding_str}
+</p>"""
                         
                         # Add performance metrics if available
                         if performance_str:
-                            html_content += f"""
-                            <p style="margin-bottom: 0;">
-                                <span style="font-weight:600; margin-right:5px; display:inline-block;">Expected Performance:</span>
-                                {performance_str}
-                            </p>
-                            """
+                            html_content += f"""<p style="margin-bottom: 0;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Expected Performance:</span>
+{performance_str}
+</p>"""
                         
                         # Close the div
-                        html_content += """
-                        </div>
-                        """
+                        html_content += """</div>"""
                         
                         # Display the HTML content
                         st.markdown(html_content, unsafe_allow_html=True)
@@ -2565,7 +2555,7 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         channel_str = ", ".join(channels) if channels else "Multiple channels"
         device_str = ", ".join(devices) if devices else "Multiple devices"
         
-        # Create an AI insight HTML content if available
+        # Create an AI insight HTML content if available - fix to prevent raw HTML display
         ai_insight_html = ""
         ai_insight_tip = display_tip_bubble("audience", "AI Insight", inline=True)
         if ai_insight:
