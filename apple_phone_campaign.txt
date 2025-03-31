@@ -1,39 +1,36 @@
-Apple Phone (OEM) Campaign
+Apple TV+ Marketing Campaign Brief
 
-Flighting: 4/21 – 5/11 (Subject to Change)
-Creative: 1x :15s Video
+Campaign Summary:
+Launch a targeted campaign to drive awareness and subscription growth for Apple TV+ streaming service, highlighting original content and premium viewing experience.
 
-Guidelines:
-* Not skippable
-* Ads can only run on Desktop, tablet, mobile, connected TV
-* No syndicated or embedded players on other proprieties
-* Frequency cap per campaign: 3x per day
+Campaign Duration:
+4/21/2025 - 5/11/2025 (3 weeks, subject to change)
 
-Audience Profile (06fef464):
-- 57% are Female
-- 19% are 18-24 Years of Age (Mean Age: 44, Median Age: 44)
-- 19% with Household Income of $100-150k (Mean Income: $107,914)
-- 32% with Some College
-- 57% are Married
-- 59% do not have Children Under Age 18
+Creative Assets:
+- 1x :15s Video ad (non-skippable)
+- Key messaging focuses on exclusive original content, award-winning shows, and seamless viewing experience
 
-Motivations & Lifestyle:
-- Top Personal Values: Life Full of Excitement, Acquiring Wealth and Influence, Being in Charge
-- Top Psychological Drivers: Living an Exciting Life, Creativity, Respect From Others
-- Top Hobbies: International Travel, Group Travel, Yoga/Pilates/Meditation
-- Daily Routine: Value Athletic Accomplishments, Nutrition-based Food Choices, Regular Exercise
+Media Requirements:
+- Platform distribution: Desktop, tablet, mobile, connected TV
+- No syndicated or embedded players on other properties
+- Frequency cap: 3x per day per campaign
 
-Media Consumption:
-- High affinity for Apple TV+ (Index 189, 19% composition)
-- Top TV Networks: The Learning Channel, Home & Garden Television, ESPN 2
-- Top Streaming Devices: Smart TV (93), Streaming Box (90), Laptop/Computer (89)
-- 31% spend 20-40 hours online per week
-- Over The Top Devices: Apple TV (255), Smart TV (107)
-- Top Social Media: X (Twitter), LinkedIn, Snapchat
-- Top App Categories: Health & Fitness (150, 32%), Travel (142), Finance/Stocks (137)
+Target Audience:
+- Primary: Entertainment enthusiasts and streaming content viewers (18-34)
+- Secondary: Premium entertainment consumers looking for quality content (25-45)
+- Household income: $75k+
+- Interests: Streaming media, premium entertainment, technology, film and TV enthusiasts
 
-Campaign Objectives:
-- Highlight the innovative features of the latest Apple Phone
-- Connect with audience's lifestyle values focusing on excitement, wellness and productivity
-- Drive consideration and purchase intent
-- Leverage non-skippable 15-second video format across connected devices
+Campaign Goals:
+- Drive awareness of Apple TV+ original content library
+- Increase consideration among viewers of competing streaming services
+- Highlight award-winning shows and exclusive content
+- Generate qualified traffic to Apple TV+ subscription page
+
+KPIs:
+- View completion rate
+- Engagement rate
+- Click-through rate to subscription page
+- Free trial signups
+- Subscription conversion rate
+- Brand lift metrics
