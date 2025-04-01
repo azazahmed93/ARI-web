@@ -16,13 +16,13 @@ def get_apple_audience_data():
     # Updated based on Audience_06fef464_Introduction_03_31_25.png data
     primary_segments = [
         {
-            "name": "Premium Content Enthusiasts",
-            "description": "57% female, with a mean age of 44, who prioritize quality storytelling and production value. They value life full of excitement, novelties, and challenges.",
+            "name": "Tech-Savvy Streamers",
+            "description": "Age: 25-45 | Gender: All | Income: Mid to High",
             "size": "77.5M",
-            "affinities": ["International travel", "Group travel", "Yoga and meditation", "High-quality dramas"],
+            "affinities": ["Technology Enthusiasts", "Early Adopters", "Streaming Services", "Digital Entertainment"],
             "expected_ctr": "0.22%",
-            "expected_vcr": "83%",
-            "channels": ["Connected TV", "Premium digital video", "Audio streaming", "High-impact display"],
+            "expected_vcr": "75-85%",
+            "channels": ["OTT/CTV", "Premium digital video", "Audio streaming", "High-impact display"],
             "devices": ["Smart TVs", "High-end mobile devices", "Tablets", "Laptops"],
             "ai_insight": "Our AI analysis identifies this segment has 2.8x higher completion rates when targeted with high-quality storytelling that emphasizes exciting experiences and creative content. They respond most strongly to premium placements with sophisticated narratives."
         },
@@ -53,13 +53,13 @@ def get_apple_audience_data():
     # Secondary audience segments
     secondary_segments = [
         {
-            "name": "Educated Professionals",
-            "description": "32% with some college education who use entertainment choices as cultural currency and regularly discuss shows with others.",
+            "name": "Lifestyle & Culture Enthusiasts",
+            "description": "Age: 30-50 | Gender: All | Income: Mid to High",
             "size": "40M",
-            "affinities": ["Respect from others", "Cultural commentary", "Premium experiences", "International travel"],
+            "affinities": ["Culture & Arts", "Lifestyle", "TV Shows & Movies", "Digital Subscriptions"],
             "expected_ctr": "0.19%",
-            "expected_vcr": "77%",
-            "channels": ["Digital video", "Audio streaming", "Interactive formats", "High-impact units"],
+            "expected_vcr": "80-90%",
+            "channels": ["Desktop and Tablet Display", "Audio streaming", "Interactive formats", "High-impact units"],
             "devices": ["Mobile devices", "Smart TVs", "Laptops", "Tablets"],
             "ai_insight": "Our AI analysis shows this segment has 3.1x higher social sharing rates for premium content and drives 42% more word-of-mouth referrals when targeted with intellectually stimulating messaging and culturally relevant narratives."
         },
