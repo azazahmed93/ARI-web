@@ -2069,7 +2069,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         
                         with col2:
                             if len(segment_list) > 1:
-                                secondary_segment = segment_list[1]
+                                # For Apple TV+ campaigns, specifically use the "Lifestyle & Culture Enthusiasts" segment
+                                if "Apple TV+" in st.session_state.get("brief_text", ""):
+                                    # Find the segment with the specific name
+                                    lifestyle_segment = next((segment for segment in segment_list if segment.get("name") == "Lifestyle & Culture Enthusiasts"), None)
+                                    if lifestyle_segment:
+                                        secondary_segment = lifestyle_segment
+                                    else:
+                                        secondary_segment = segment_list[1]
+                                else:
+                                    secondary_segment = segment_list[1]
                                 display_audience_segment(secondary_segment, 'Secondary Growth', '#6366f1', '#f5f7ff')
                     
                     # Select the last segment as the growth audience (if available)
