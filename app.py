@@ -629,8 +629,8 @@ def main():
         st.markdown("### Pre-Launch Campaign Intelligence")
         st.markdown("Analyze your Advertising RFP or Marketing Brief to leverage our AI-powered Audience Resonance Index™ framework. We employ computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation.")
         
-        # Create tabs for input methods including the Apple TV+ campaign option
-        tab1, tab2, tab3 = st.tabs(["Upload Document", "Paste Text", "Apple TV+ Campaign"])
+        # Create tabs for input methods
+        tab1, tab2 = st.tabs(["Upload Document", "Paste Text"])
         
         brief_text = ""
         
@@ -679,115 +679,6 @@ def main():
                     input_brief_text = input_brief_text.replace(keyword, "[FILTERED]")
                 brief_text = input_brief_text
                 
-        with tab3:
-            # Apple TV+ Campaign option
-            st.markdown('<div style="margin-top: 12px;"></div>', unsafe_allow_html=True)  # Add some spacing
-            
-            try:
-                # Display audience data images with appropriate styling
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.image("attached_assets/Audience_06fef464_Introduction_03_31_25.png", 
-                             caption="Apple TV+ Audience Demographics", use_column_width=True)
-                
-                with col2:
-                    st.image("attached_assets/Audience_06fef464_Media_Consumption_03_31_25.png", 
-                             caption="Media Consumption Patterns", use_column_width=True)
-                
-                # Read and display the Apple TV+ campaign brief
-                with open("apple_tv_campaign.txt", "r") as f:
-                    apple_campaign_text = f.read()
-                
-                # Show the brief in a styled text area
-                st.markdown("<div style='background: #f0f9ff; padding: 16px; border-radius: 8px; border-left: 4px solid #0ea5e9; margin: 20px 0;'>", unsafe_allow_html=True)
-                st.markdown("<div style='font-weight: 600; color: #0369a1; margin-bottom: 8px;'>Apple TV+ Campaign Brief</div>", unsafe_allow_html=True)
-                st.text_area("Campaign Brief", value=apple_campaign_text, height=250, disabled=True, key="apple_brief_display")
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Quick analysis summary for the Apple TV+ campaign
-                st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
-                st.markdown("<div style='font-weight: 600; font-size: 18px;'>Apple TV+ Campaign Analysis</div>", unsafe_allow_html=True)
-                st.markdown("""
-                <div style="background: #fefefe; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0; margin-top: 12px;">
-                    <p style="margin-bottom: 12px;">This Apple TV+ campaign focuses on driving new subscriptions and promoting original content with specific parameters:</p>
-                    <ul style="margin-left: 20px; list-style-type: disc;">
-                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Flight dates:</span> April 21 - May 11, 2025</li>
-                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Creative format:</span> 1x :15s non-skippable video</li>
-                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Platforms:</span> Desktop, tablet, mobile, connected TV</li>
-                        <li style="margin-bottom: 8px;"><span style="font-weight: 500;">Frequency cap:</span> 3 impressions per day per user</li>
-                        <li><span style="font-weight: 500;">Benchmark VCR:</span> 75-85%</li>
-                    </ul>
-                    <p style="margin-top: 12px;">Click "Analyze Brief" to generate a comprehensive ARI analysis tailored to this streaming campaign.</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Add a button to use this brief for analysis
-                if st.button("Analyze Brief", key="analyze_apple_tv"):
-                    brief_text = apple_campaign_text
-                    analysis_completed = True
-                
-                # Featured content highlights
-                st.markdown("<div style='background: #f7f2ff; padding: 16px; border-radius: 8px; border-left: 4px solid #8b5cf6; margin: 20px 0;'>", unsafe_allow_html=True)
-                st.markdown("<div style='font-weight: 600; color: #6d28d9; margin-bottom: 8px;'>Featured Apple TV+ Original Content</div>", unsafe_allow_html=True)
-                
-                # Original content grid
-                content_col1, content_col2, content_col3 = st.columns(3)
-                with content_col1:
-                    st.markdown("""
-                    **Premium Drama Series**
-                    - Award-winning ensemble casts
-                    - High production value
-                    - Critically acclaimed storytelling
-                    """)
-                with content_col2:
-                    st.markdown("""
-                    **Exclusive Film Releases**
-                    - Major director projects
-                    - Star-powered features
-                    - Festival favorites
-                    """)
-                with content_col3:
-                    st.markdown("""
-                    **Documentary Programming**
-                    - Cultural phenomena deep dives
-                    - Celebrity-produced features
-                    - Topical and timely subjects
-                    """)
-                
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Campaign targeting highlights
-                st.markdown("<div style='background: #f0fdf4; padding: 16px; border-radius: 8px; border-left: 4px solid #10b981; margin: 20px 0;'>", unsafe_allow_html=True)
-                st.markdown("<div style='font-weight: 600; color: #047857; margin-bottom: 8px;'>Campaign Targeting Highlights</div>", unsafe_allow_html=True)
-                st.markdown("""
-                - **Premium Content Viewers**: Target audiences actively engaged with high-quality streaming content
-                - **Cross-Device Strategy**: Coordinated messaging across CTV, mobile, and desktop
-                - **Behavioral Targeting**: Focus on entertainment enthusiasts and streaming content viewers
-                - **Frequency Management**: Strategic 3x daily frequency cap to control messaging
-                """, unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Button to use the Apple campaign brief
-                if st.button("Use Apple TV+ Campaign for Analysis", type="primary", key="apple_campaign_button"):
-                    brief_text = apple_campaign_text
-                    # Set additional campaign details
-                    st.session_state.brand_name = "Apple"
-                    st.session_state.industry = "Entertainment"
-                    st.session_state.product_type = "Streaming"
-                    
-                    # Import Apple TV+ specific audience data
-                    from apple_audience_data import get_apple_audience_data
-                    
-                    # Store audience data in session state for analysis
-                    if 'audience_data' not in st.session_state:
-                        st.session_state.audience_data = get_apple_audience_data()
-                        
-                    st.success("Apple TV+ Campaign brief loaded successfully! Click 'Run Predictive Analysis' to continue.")
-                
-            except Exception as e:
-                st.error(f"Error loading Apple TV+ campaign data: {str(e)}")
-                st.info("Please use another method to input your brief.")
         
         # Analysis and Restart buttons in columns
         col1, col2 = st.columns([3, 1])
