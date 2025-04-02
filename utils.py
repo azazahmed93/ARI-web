@@ -871,32 +871,53 @@ def create_infographic_download_link(scores, improvement_areas, percentile, bran
         # Take top 5 metrics
         top_metrics = sorted_metrics[:5]
         
-        # Create the bar chart
-        chart = VerticalBarChart()
-        chart.x = 10
-        chart.y = 10
-        chart.height = 100
-        chart.width = 180
+        # Instead of using the VerticalBarChart, we'll create a custom bar chart with rectangles
+        # Define dimensions
+        chart_height = 100
+        chart_width = 180
+        max_value = 10
+        bar_width = chart_width / len(top_metrics) * 0.8
+        spacing = chart_width / len(top_metrics) * 0.2
         
-        # Add data
-        chart.data = [[score for _, score in top_metrics]]
+        # Draw axes
+        x_axis = Line(10, 10, 10 + chart_width, 10, strokeColor=colors.black)
+        y_axis = Line(10, 10, 10, 10 + chart_height, strokeColor=colors.black)
+        drawing.add(x_axis)
+        drawing.add(y_axis)
         
-        # Configure the chart
-        chart.strokeColor = colors.white
-        chart.valueAxis.valueMin = 0
-        chart.valueAxis.valueMax = 10
-        chart.valueAxis.valueStep = 2
-        chart.categoryAxis.labels.boxAnchor = 'ne'
-        chart.categoryAxis.labels.dx = -5
-        chart.categoryAxis.labels.dy = -2
-        chart.categoryAxis.labels.angle = 30
-        chart.categoryAxis.categoryNames = [metric.replace(' ', '\n') for metric, _ in top_metrics]
+        # Add bars
+        for i, (metric, score) in enumerate(top_metrics):
+            # Calculate bar height proportional to score
+            bar_height = (score / max_value) * chart_height
+            
+            # Calculate bar position
+            x = 10 + i * (bar_width + spacing) + spacing/2
+            y = 10
+            
+            # Create bar
+            bar = Rect(x, y, bar_width, bar_height, fillColor=HexColor('#4338ca'), strokeColor=None)
+            drawing.add(bar)
+            
+            # Add value on top of bar
+            value_text = String(x + bar_width/2, y + bar_height + 5, str(score), 
+                              textAnchor='middle', fontSize=8)
+            drawing.add(value_text)
+            
+            # Add metric name under the bar
+            # Shorten metric name if needed
+            metric_display = metric
+            if len(metric) > 12:
+                metric_display = metric[:10] + '..'
+                
+            metric_text = String(x + bar_width/2, y - 10, metric_display, 
+                               textAnchor='middle', fontSize=7, fillColor=colors.darkblue)
+            drawing.add(metric_text)
         
-        # Set bar colors
-        for i in range(len(top_metrics)):
-            chart.bars[0][i].fillColor = HexColor('#4338ca')
+        # Add a title
+        title = String(10 + chart_width/2, 10 + chart_height + 20, "Top Metrics", 
+                     textAnchor='middle', fontSize=10, fillColor=colors.black)
+        drawing.add(title)
         
-        drawing.add(chart)
         return drawing
     
     # Add the metrics chart
