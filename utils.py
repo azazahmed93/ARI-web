@@ -3,15 +3,17 @@ import io
 import pandas as pd
 import streamlit as st
 import re
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Flowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.units import inch
-from reportlab.graphics.shapes import Drawing, Wedge, Line, Circle, String
+from reportlab.graphics.shapes import Drawing, Wedge, Line, Circle, String, Rect
 from reportlab.graphics.charts.legends import Legend
-from reportlab.lib.colors import HexColor
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.charts.barcharts import VerticalBarChart
+from reportlab.lib.colors import HexColor, toColor
 from assets.content import (
     MEDIA_AFFINITY_SITES, 
     TV_NETWORKS, 
@@ -703,3 +705,293 @@ def get_tone_of_brief(brief_text):
     # This would be replaced with actual tone analysis in a real implementation
     index = len(brief_text.strip()) % len(tones)
     return tones[index]
+    
+def create_infographic_download_link(scores, improvement_areas, percentile, brand_name="Unknown", top_audience=None):
+    """
+    Create a shareable infographic that can be sent via email.
+    
+    Args:
+        scores (dict): Dictionary of ARI scores
+        improvement_areas (list): List of improvement areas 
+        percentile (float): Benchmark percentile
+        brand_name (str): Name of the brand
+        top_audience (dict, optional): Top audience segment details
+        
+    Returns:
+        str: HTML link for downloading the infographic
+    """
+    # Create a PDF buffer
+    buf = io.BytesIO()
+    
+    # Create PDF document in landscape orientation
+    doc = SimpleDocTemplate(
+        buf, 
+        pagesize=landscape(letter),
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=20,
+        bottomMargin=20
+    )
+    
+    # Define styles
+    styles = getSampleStyleSheet()
+    
+    # Create custom styles
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Title'],
+        fontSize=18,
+        alignment=TA_CENTER,
+        spaceAfter=10,
+        textColor=colors.black
+    )
+    
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        parent=styles['Normal'],
+        fontSize=12,
+        alignment=TA_CENTER,
+        spaceAfter=10,
+        textColor=colors.darkgray
+    )
+    
+    heading_style = ParagraphStyle(
+        'Heading',
+        parent=styles['Heading1'],
+        fontSize=14,
+        spaceAfter=6,
+        spaceBefore=6,
+        textColor=HexColor('#4338ca')
+    )
+    
+    normal_style = ParagraphStyle(
+        'Normal',
+        parent=styles['Normal'],
+        fontSize=10
+    )
+    
+    # Custom styles for the infographic
+    metric_title_style = ParagraphStyle(
+        'MetricTitle',
+        parent=styles['Normal'],
+        fontSize=11,
+        fontName='Helvetica-Bold',
+        textColor=HexColor('#4338ca')
+    )
+    
+    # Create content for the infographic
+    content = []
+    
+    # Add title with brand name
+    if brand_name != "Unknown":
+        content.append(Paragraph(f"{brand_name} Campaign Performance Snapshot", title_style))
+    else:
+        content.append(Paragraph("Campaign Performance Snapshot", title_style))
+    
+    # Add subtitle
+    content.append(Paragraph("Powered by the Audience Resonance Index™", subtitle_style))
+    content.append(Spacer(1, 10))
+    
+    # Create a 3-column layout for the main content
+    data = [[None, None, None]]
+    
+    # Column 1: ARI Score and Percentile
+    # Create a donut chart showing the percentile
+    def create_percentile_chart():
+        drawing = Drawing(200, 200)
+        
+        # Add the donut chart
+        donut = Pie()
+        donut.x = 100
+        donut.y = 100
+        donut.width = 100
+        donut.height = 100
+        donut.data = [percentile, 100-percentile]
+        donut.labels = None
+        
+        # Set slice colors - main slice in indigo, rest in light gray
+        donut.slices[0].fillColor = HexColor('#4338ca')
+        donut.slices[1].fillColor = HexColor('#e0e0e0')
+        
+        # Create a hole in the middle to make it a donut
+        donut.innerRadius = 30
+        donut.sideLabels = False
+        
+        # Add the percentile text in the center
+        percentile_text = String(100, 95, f"{percentile}%", textAnchor='middle')
+        percentile_text.fontName = 'Helvetica-Bold'
+        percentile_text.fontSize = 20
+        percentile_text.fillColor = HexColor('#4338ca')
+        
+        # Add "Percentile" text under the number
+        label_text = String(100, 75, "Percentile", textAnchor='middle')
+        label_text.fontName = 'Helvetica'
+        label_text.fontSize = 10
+        label_text.fillColor = colors.darkgray
+        
+        drawing.add(donut)
+        drawing.add(percentile_text)
+        drawing.add(label_text)
+        
+        return drawing
+    
+    # Create the first column content with benchmark percentile
+    col1_content = []
+    col1_content.append(Paragraph("Campaign Performance", heading_style))
+    col1_content.append(create_percentile_chart())
+    col1_content.append(Paragraph(f"This campaign outperforms {percentile}% of all campaigns analyzed by Digital Culture Group.", normal_style))
+    
+    # Column 2: Top Metrics and Areas for Improvement
+    col2_content = []
+    col2_content.append(Paragraph("Key Metrics", heading_style))
+    
+    # Create a mini bar chart for the top metrics
+    def create_metrics_chart():
+        drawing = Drawing(200, 150)
+        
+        # Sort metrics by score
+        sorted_metrics = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        
+        # Take top 5 metrics
+        top_metrics = sorted_metrics[:5]
+        
+        # Create the bar chart
+        chart = VerticalBarChart()
+        chart.x = 10
+        chart.y = 10
+        chart.height = 100
+        chart.width = 180
+        
+        # Add data
+        chart.data = [[score for _, score in top_metrics]]
+        
+        # Configure the chart
+        chart.strokeColor = colors.white
+        chart.valueAxis.valueMin = 0
+        chart.valueAxis.valueMax = 10
+        chart.valueAxis.valueStep = 2
+        chart.categoryAxis.labels.boxAnchor = 'ne'
+        chart.categoryAxis.labels.dx = -5
+        chart.categoryAxis.labels.dy = -2
+        chart.categoryAxis.labels.angle = 30
+        chart.categoryAxis.categoryNames = [metric.replace(' ', '\n') for metric, _ in top_metrics]
+        
+        # Set bar colors
+        for i in range(len(top_metrics)):
+            chart.bars[0][i].fillColor = HexColor('#4338ca')
+        
+        drawing.add(chart)
+        return drawing
+    
+    # Add the metrics chart
+    col2_content.append(create_metrics_chart())
+    
+    # Add improvement areas
+    col2_content.append(Paragraph("Areas for Improvement:", metric_title_style))
+    for area in improvement_areas[:3]:  # Limit to top 3
+        col2_content.append(Paragraph(f"• {area}", normal_style))
+    
+    # Column 3: Audience Snapshot
+    col3_content = []
+    col3_content.append(Paragraph("Primary Audience Snapshot", heading_style))
+    
+    # Add audience information if available
+    if top_audience:
+        audience_name = top_audience.get('name', 'Primary Audience')
+        audience_desc = top_audience.get('description', 'No description available')
+        
+        col3_content.append(Paragraph(f"<b>{audience_name}</b>", normal_style))
+        col3_content.append(Paragraph(audience_desc, normal_style))
+        
+        # Add interests if available
+        interests = top_audience.get('interest_categories', [])
+        if interests:
+            col3_content.append(Paragraph("<b>Key Interests:</b>", normal_style))
+            interest_text = ", ".join(interests[:5])  # Limit to 5 interests
+            col3_content.append(Paragraph(interest_text, normal_style))
+        
+        # Add platform targeting if available
+        platforms = top_audience.get('platform_targeting', [])
+        if platforms:
+            col3_content.append(Paragraph("<b>Recommended Platforms:</b>", normal_style))
+            platform_list = []
+            for platform in platforms[:3]:  # Limit to 3 platforms
+                platform_name = platform.get('platform', '')
+                if platform_name:
+                    platform_list.append(platform_name)
+            platform_text = ", ".join(platform_list)
+            col3_content.append(Paragraph(platform_text, normal_style))
+            
+        # Add performance metrics if available
+        performance = top_audience.get('expected_performance', {})
+        if performance:
+            col3_content.append(Paragraph("<b>Expected Performance:</b>", normal_style))
+            perf_list = []
+            for metric, value in performance.items():
+                if metric in ['CTR', 'engagement_rate', 'CPA']:
+                    perf_list.append(f"{metric}: {value}")
+            perf_text = " | ".join(perf_list)
+            col3_content.append(Paragraph(perf_text, normal_style))
+    else:
+        col3_content.append(Paragraph("Audience data not available", normal_style))
+    
+    # Create tables to hold column content
+    col1_table = Table([[col] for col in col1_content], colWidths=[250])
+    col2_table = Table([[col] for col in col2_content], colWidths=[250])
+    col3_table = Table([[col] for col in col3_content], colWidths=[250])
+    
+    # Style the column tables
+    col_style = TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ])
+    
+    col1_table.setStyle(col_style)
+    col2_table.setStyle(col_style)
+    col3_table.setStyle(col_style)
+    
+    # Create a table to organize the three columns
+    data = [[col1_table, col2_table, col3_table]]
+    table = Table(data, colWidths=[250, 250, 250])
+    
+    # Style the main table
+    table_style = TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    table.setStyle(table_style)
+    
+    content.append(table)
+    
+    # Add footer
+    content.append(Spacer(1, 20))
+    footer_text = "© 2025 Digital Culture Group, LLC. All rights reserved. This data is directional only."
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=8,
+        alignment=TA_CENTER,
+        textColor=colors.darkgray
+    )
+    content.append(Paragraph(footer_text, footer_style))
+    
+    # Build the document
+    doc.build(content)
+    
+    # Get PDF as base64 string
+    pdf_data = buf.getvalue()
+    b64 = base64.b64encode(pdf_data).decode()
+    
+    # Create download link
+    filename = f"{brand_name.replace(' ', '_')}_Snapshot.pdf" if brand_name != "Unknown" else "Campaign_Snapshot.pdf"
+    href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}" style="text-decoration: none; display: inline-block; padding: 10px 20px; background-color: #4338ca; color: white; border-radius: 5px; font-weight: 500;">Download Infographic for Email</a>'
+    
+    return href
