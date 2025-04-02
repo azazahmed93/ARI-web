@@ -800,36 +800,52 @@ def create_infographic_download_link(scores, improvement_areas, percentile, bran
     def create_percentile_chart():
         drawing = Drawing(200, 200)
         
-        # Add the donut chart
-        donut = Pie()
-        donut.x = 100
-        donut.y = 100
-        donut.width = 100
-        donut.height = 100
-        donut.data = [percentile, 100-percentile]
-        donut.labels = None
+        # Create a manual donut chart using a combination of wedges
+        # Parameters for the wedges
+        centerx, centery = 100, 100
+        outer_radius = 50
+        inner_radius = 20
         
-        # Set slice colors - main slice in indigo, rest in light gray
-        donut.slices[0].fillColor = HexColor('#4338ca')
-        donut.slices[1].fillColor = HexColor('#e0e0e0')
+        # Calculate the angles for the percentage wedge
+        percent_angle = percentile * 3.6  # Convert percentage to degrees (out of 360)
         
-        # Create a hole in the middle to make it a donut
-        donut.innerRadius = 30
-        donut.sideLabels = False
+        # Create wedge for the colored portion (if not 0%)
+        if percentile > 0:
+            # Colored wedge (main percentage)
+            w1 = Wedge(centerx, centery, outer_radius, 0, percent_angle, 
+                      fillColor=HexColor('#4338ca'), strokeColor=None)
+            drawing.add(w1)
+            
+            # Inner circle cutout for colored portion
+            if percentile < 100:
+                w3 = Wedge(centerx, centery, inner_radius, 0, percent_angle, 
+                          fillColor='white', strokeColor=None)
+                drawing.add(w3)
+        
+        # Create wedge for the remaining portion (if not 100%)
+        if percentile < 100:
+            # Gray wedge (remaining percentage)
+            w2 = Wedge(centerx, centery, outer_radius, percent_angle, 360, 
+                      fillColor=HexColor('#e0e0e0'), strokeColor=None)
+            drawing.add(w2)
+            
+            # Inner circle cutout for gray portion
+            w4 = Wedge(centerx, centery, inner_radius, percent_angle, 360, 
+                      fillColor='white', strokeColor=None)
+            drawing.add(w4)
         
         # Add the percentile text in the center
-        percentile_text = String(100, 95, f"{percentile}%", textAnchor='middle')
+        percentile_text = String(centerx, centery + 5, f"{percentile}%", textAnchor='middle')
         percentile_text.fontName = 'Helvetica-Bold'
         percentile_text.fontSize = 20
         percentile_text.fillColor = HexColor('#4338ca')
         
         # Add "Percentile" text under the number
-        label_text = String(100, 75, "Percentile", textAnchor='middle')
+        label_text = String(centerx, centery - 15, "Percentile", textAnchor='middle')
         label_text.fontName = 'Helvetica'
         label_text.fontSize = 10
         label_text.fillColor = colors.darkgray
         
-        drawing.add(donut)
         drawing.add(percentile_text)
         drawing.add(label_text)
         
