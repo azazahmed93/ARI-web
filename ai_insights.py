@@ -684,6 +684,18 @@ def get_default_audience_segments(brief_text, ari_scores):
             if 'growth' in apple_data:
                 all_segments.extend(apple_data['growth'])
             
+            # Save the original apple_data to session_state if not already there
+            # This is important so we can access the emerging audience separately
+            import streamlit as st
+            if 'audience_data' not in st.session_state or st.session_state.audience_data is None:
+                st.session_state.audience_data = apple_data
+                
+            # Add emerging audience as a separate segment if available
+            # This will make it distinct from the growth segments
+            if 'emerging' in apple_data:
+                # Add emerging audience to the segment list
+                all_segments.append(apple_data['emerging'])
+            
             # If we have segments, return them in the expected format
             if all_segments:
                 return {"segments": all_segments}

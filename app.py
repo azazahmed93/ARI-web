@@ -1639,10 +1639,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         
         if is_apple_tv_campaign:
             # Import Apple audience data functions
-            from apple_audience_data import generate_audience_affinities
+            from apple_audience_data import generate_audience_affinities, get_apple_audience_data
             
             # Get the audience affinities
             affinity_data = generate_audience_affinities()
+            
+            # Store the full audience data in session state if not already there
+            if 'audience_data' not in st.session_state or st.session_state.audience_data is None:
+                st.session_state.audience_data = get_apple_audience_data()
             
             # Display Platform Affinities
             st.markdown("""
@@ -1972,12 +1976,22 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                                     secondary_segment = segment_list[1]
                                 display_audience_segment(secondary_segment, 'Secondary Growth', '#6366f1', '#f5f7ff')
                     
-                    # Select the last segment as the growth audience (if available)
-                    if len(segment_list) > 2:
-                        growth_segment = segment_list[-1]  # Use the last segment as growth opportunity
+                    # Try to find the emerging audience in the audience_data if available
+                    emerging_audience = None
+                    if 'audience_data' in st.session_state and st.session_state.audience_data is not None:
+                        if 'emerging' in st.session_state.audience_data:
+                            emerging_audience = st.session_state.audience_data['emerging']
+                    
+                    # If no emerging audience is found, select the last segment as the growth audience (if available)
+                    if emerging_audience is None:
+                        if len(segment_list) > 2:
+                            growth_segment = segment_list[-1]  # Use the last segment as growth opportunity
+                        else:
+                            # If we don't have at least 3 segments, use the last available one
+                            growth_segment = segment_list[-1] if segment_list else None
                     else:
-                        # If we don't have at least 3 segments, use the last available one
-                        growth_segment = segment_list[-1] if segment_list else None
+                        # Use the emerging audience as our growth segment
+                        growth_segment = emerging_audience
                         
                     # Skip the rest if we don't have a growth segment
                     if growth_segment:
@@ -2408,6 +2422,8 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         # Check platform type to show appropriate metric name and value
         if platform_rec:
             platform_lower = platform_rec.lower()
+            
+            # ONLY show Expected LTR for Audio platforms
             if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
                 metric_name = "Expected LTR"
                 # Create a dynamic range based on segment name
@@ -2423,6 +2439,8 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
                 else:
                     # Default if we can't determine specifics
                     ctr = "80-90%"
+            
+            # ONLY show Expected VCR for Video platforms
             elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
                 metric_name = "Expected VCR"
                 # Create a dynamic range based on segment name
@@ -2438,6 +2456,21 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
                 else:
                     # Default if we can't determine specifics
                     ctr = "75-85%"
+            
+            # ONLY show Expected CTR for Display platforms
+            elif 'display' in platform_lower or 'banner' in platform_lower or 'rich' in platform_lower or 'interactive' in platform_lower or 'high-impact' in platform_lower:
+                metric_name = "Expected CTR"
+                # Keep the provided CTR or use a default
+                if performance and 'CTR' in performance:
+                    ctr = performance.get('CTR')
+                else:
+                    # Default based on segment type
+                    if 'primary' in segment_type.lower():
+                        ctr = "0.22%"
+                    elif 'secondary' in segment_type.lower():
+                        ctr = "0.19%"
+                    else:
+                        ctr = "0.18%"
     
     # Get segment description if available
     description = segment.get('description', '')
@@ -2461,7 +2494,35 @@ def display_audience_segment(segment, segment_type='Primary', color='#10b981', b
         if ai_insight:
             ai_insight_html = f"""<div style="margin-top: 12px; padding: 8px 12px; background-color: rgba(88, 101, 242, 0.1); border-radius: 6px; border-left: 3px solid #5865f2;"><p style="margin: 0; font-size: 0.85rem; color: #333;"><span style="font-weight:600; margin-right:5px; display:inline-block; color: #4338ca;">AI Insight {ai_insight_tip}:</span>{ai_insight}</p></div>"""
         
-        st.markdown(f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience {audience_segment_tip}</span><span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">Estimated Size: {segment_size}</span></div><h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4><p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment_description}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Affinities {interests_tip}:</span>{affinities_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Channels {platform_tip}:</span>{channel_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Devices:</span>{device_str}</p><div style="display: flex; gap: 12px; margin-top: 8px;"><div style="background-color: rgba(16, 185, 129, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #065f46;">Expected CTR:</span><span style="font-size: 0.75rem; color: #065f46;">{expected_ctr}</span></div><div style="background-color: rgba(79, 70, 229, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #4338ca;">Expected VCR:</span><span style="font-size: 0.75rem; color: #4338ca;">{expected_vcr}</span></div></div>{ai_insight_html}</div>""", unsafe_allow_html=True)
+        # Determine which metrics to show based on channel types
+        # Check if we have video channels
+        has_video = any('video' in ch.lower() or 'ctv' in ch.lower() or 'streaming' in ch.lower() for ch in channels)
+        # Check if we have audio channels
+        has_audio = any('audio' in ch.lower() or 'podcast' in ch.lower() for ch in channels)
+        # Check if we have display channels
+        has_display = any('display' in ch.lower() or 'rich' in ch.lower() or 'high-impact' in ch.lower() or 'interactive' in ch.lower() for ch in channels)
+        
+        # Build metrics HTML based on channel types
+        metrics_html = '<div style="display: flex; gap: 12px; margin-top: 8px;">'
+        
+        # Only add CTR for display channels
+        if has_display:
+            metrics_html += f'<div style="background-color: rgba(16, 185, 129, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #065f46;">Expected CTR:</span><span style="font-size: 0.75rem; color: #065f46;">{expected_ctr}</span></div>'
+        
+        # Only add VCR for video channels
+        if has_video:
+            metrics_html += f'<div style="background-color: rgba(79, 70, 229, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #4338ca;">Expected VCR:</span><span style="font-size: 0.75rem; color: #4338ca;">{expected_vcr}</span></div>'
+        
+        # Add LTR for audio channels
+        if has_audio:
+            # Get expected LTR (use 80-90% as default range)
+            expected_ltr = "80-90%"
+            metrics_html += f'<div style="background-color: rgba(249, 115, 22, 0.1); padding: 5px 8px; border-radius: 4px; flex: 1;"><span style="font-weight:600; font-size: 0.75rem; color: #9a3412;">Expected LTR:</span><span style="font-size: 0.75rem; color: #9a3412;">{expected_ltr}</span></div>'
+        
+        # Close metrics div
+        metrics_html += '</div>'
+        
+        st.markdown(f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience {audience_segment_tip}</span><span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">Estimated Size: {segment_size}</span></div><h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4><p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment_description}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Affinities {interests_tip}:</span>{affinities_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Channels {platform_tip}:</span>{channel_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Devices:</span>{device_str}</p>{metrics_html}{ai_insight_html}</div>""", unsafe_allow_html=True)
     else:
         # Standard display for non-Apple TV+ segments
         st.markdown(f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment_type} Audience {audience_segment_tip}</span><span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">{metric_name}: {ctr}</span></div><h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment_name}</h4><p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment_description}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Demographics {demographics_tip}:</span>{demographics_str}</p><p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Interests {interests_tip}:</span>{affinities_str}</p><p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;"><span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_tip}:</span>{platform_rec}</p></div>""", unsafe_allow_html=True)

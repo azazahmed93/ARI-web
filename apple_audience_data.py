@@ -102,10 +102,40 @@ def get_apple_audience_data():
         }
     ]
     
+    # Emerging audience opportunity (completely different from growth segments)
+    emerging_audience = {
+        "name": "Tech-Savvy Late-Night Streamers",
+        "description": "Urban adults 25-45 who primarily consume content between 9PM-1AM, have multiple streaming subscriptions, and display high digital literacy.",
+        "size": "42M",
+        "targeting_params": {
+            "age_range": "25-45",
+            "gender_targeting": "All",
+            "income_targeting": "Middle to High"
+        },
+        "interest_categories": ["Original drama series", "Technology news", "International cinema", "Industry documentaries"],
+        "platform_targeting": [
+            {
+                "platform": "Connected TV",
+                "targeting_approach": "Late-night time blocks with frequency capping"
+            }
+        ],
+        "expected_performance": {
+            "CTR": "0.21%",
+            "CPA": "$22.50",
+            "engagement_rate": "12.8%"
+        },
+        "bidding_strategy": {
+            "bid_adjustments": "+15% for weeknights 10PM-12AM",
+            "dayparting": "Emphasis on Weds-Sun evenings"
+        },
+        "ai_insight": "Our AI analysis indicates this emerging segment has 3.4x higher subscription conversion rates during weeknight prime hours and demonstrates strong affinity for complex narrative structures. They typically engage across multiple devices with 76% maintaining parallel browsing behavior during streaming sessions."
+    }
+    
     return {
         "primary": primary_segments,
         "secondary": secondary_segments,
-        "growth": growth_segments
+        "growth": growth_segments,
+        "emerging": emerging_audience
     }
 
 def generate_audience_affinities():
