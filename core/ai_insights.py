@@ -3,11 +3,16 @@ AI Insights module for enhanced analysis capabilities using OpenAI's API.
 This module provides advanced natural language processing and analysis 
 for marketing briefs and RFPs.
 """
-
+from typing import  Any
 import os
 import json
 import re
 from openai import OpenAI
+import base64
+import json
+from assets.content import PSYCHOGRAPHIC_HIGHLIGHTS
+
+demo = True
 
 # Initialize the OpenAI client with the API key from environment variables
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -183,35 +188,6 @@ def fix_grammar_and_duplicates(text):
     
     return text
 
-def is_siteone_hispanic_content(text):
-    """
-    Detect if the content is related to SiteOne Hispanic audience targeting.
-    
-    Args:
-        text (str): The text content to analyze
-        
-    Returns:
-        bool: True if the content is SiteOne Hispanic related, False otherwise
-    """
-    if not text:
-        return False
-    
-    # Convert text to lowercase for case-insensitive matching
-    text_lower = text.lower()
-    
-    # Check for SiteOne brand mentions
-    siteone_terms = ['siteone', 'site one', 'site-one']
-    has_siteone = any(term in text_lower for term in siteone_terms)
-    
-    # Check for Hispanic audience targeting keywords
-    hispanic_terms = [
-        'hispanic', 'latino', 'latina', 'latinx', 
-        'español', 'espanol', 'spanish-language', 'spanish language'
-    ]
-    has_hispanic = any(term in text_lower for term in hispanic_terms)
-    
-    # Return True if both SiteOne and Hispanic indicators are found
-    return has_siteone and has_hispanic
 
 def ensure_valid_url_in_sites(site_data):
     """
@@ -333,7 +309,7 @@ Additional audience data for SiteOne Hispanic campaign:
     
     try:
         # Extract brand name, industry, and product for context-specific insights
-        from analysis import extract_brand_info
+        from core.analysis import extract_brand_info
         brand_name, industry, product_type = extract_brand_info(brief_text)
         
         # Craft an enhanced prompt for the OpenAI API with stronger brief-specific guidance
@@ -637,7 +613,7 @@ def get_default_audience_segments(brief_text, ari_scores):
         dict: A dictionary containing default audience segments
     """
     # Extract brand/industry information for more relevant defaults
-    from analysis import extract_brand_info
+    from core.analysis import extract_brand_info
     brand_name, industry, product_type = extract_brand_info(brief_text)
     
     # Check if this is an Apple TV+ campaign first
@@ -668,7 +644,7 @@ def get_default_audience_segments(brief_text, ari_scores):
             
         # If we don't have the audience_data in session_state, try to load it directly
         try:
-            from apple_audience_data import get_apple_audience_data
+            from core.audience.apple_audience_data import get_apple_audience_data
             apple_data = get_apple_audience_data()
             all_segments = []
             
@@ -888,6 +864,7 @@ Additional audience data for SiteOne Hispanic campaign:
         return segments
         
     except Exception as e:
+        print(f"Error generating audience segments: {str(e)}")
         # If there's an error, check if it's a SiteOne Hispanic campaign and return tailored fallback data
         is_siteone_targeting_hispanic = "SiteOne" in brief_text and ("Hispanic" in brief_text or "Spanish" in brief_text)
         
@@ -963,6 +940,86 @@ Additional audience data for SiteOne Hispanic campaign:
                     }
                 }
             ]
+        }
+
+
+def generate_audience_summary(brief_text, ari_scores, primary_segment, secondary_segment, psychographic_highglights):
+    """
+    Generate a summary of audience segments based on the brief text and ARI scores.
+    
+    Args:
+        brief_text (str): The marketing brief or RFP text
+        ari_scores (dict): The Audience Resonance Index scores
+        primary_segment (dict): The primary audience segment
+        secondary_segment (dict): The secondary audience segment
+        psychographic_highglights (string): Psychographic highlights text
+        
+    Returns:
+        dict: A dictionary containing the audience summary
+    """
+    try:
+        # Format the scores for inclusion in the prompt
+        scores_str = "\n".join([f"- {metric}: {score}/10" for metric, score in ari_scores.items()])
+        
+        # Craft a prompt for the OpenAI API
+        prompt = f"""
+        You are a digital media buying and audience segmentation expert specializing in omnichannel advertising platforms.
+        
+        Based on the following marketing campaign information and Audience Resonance Index scores,
+        summarize the key audience segments for targeted omnichannel digital advertising.
+        
+        Campaign Information:
+        {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
+        
+        ARI Scores:
+        {scores_str}
+        
+        Primary Segment:
+        {primary_segment}
+        
+        Secondary Segment:
+        {secondary_segment}
+        
+        Psychographic Highlights:
+        {psychographic_highglights}
+        
+        Please provide a summary of the audience segments, including:
+        1. Key characteristics of each segment
+        2. Targeting recommendations for digital advertising platforms
+        3. Expected performance metrics and benchmarks
+        4. Psychographic insights that can be leveraged in messaging and creative development
+        
+        Format the response as a valid JSON object with keys:
+        - summary: string (summary of audience segments)
+        """
+        
+        # Call the OpenAI API
+        response = client.chat.completions.create(
+            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+            messages=[
+                {"role": "system", "content": "You are a digital advertising audience specialist with expertise in platform-specific targeting parameters, lookalike modeling, and programmatic audience segmentation."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=1500
+        )
+        
+        # Parse the 
+        summary = json.loads(response.choices[0].message.content)
+        # Clean up grammar and duplicate words in the summary
+        if 'summary' in summary:
+            summary['summary'] = fix_grammar_and_duplicates(summary['summary'])
+        return summary
+    except Exception as e:
+        # If there's an error, return a default summary
+        return {
+            "error": str(e),
+            "summary": {
+                "key_characteristics": "Unable to generate summary due to error.",
+                "targeting_recommendations": "Unable to generate targeting recommendations due to error.",
+                "expected_performance_metrics": "Unable to generate performance metrics due to error.",
+                "psychographic_insights": "Unable to generate psychographic insights due to error."
+            }
         }
 
 
@@ -1078,3 +1135,407 @@ def generate_competitor_strategy(brief_text, competitor_brand, campaign_goal):
             f"Enhance Local Relevance: Create geo-targeted or bilingual messaging that speaks directly to underserved or high-potential regions where {competitor_brand} underdelivers.",
             f"Activate Emerging Platforms: Extend the campaign to newer or underutilized platforms where {competitor_brand} has little presence."
         ]
+
+# Helper to convert image to base64
+def encode_image_to_base64(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
+
+# Function to send image to GPT-4 Vision and extract structured JSON
+def generate_audience_insights(image_path):
+    if demo:
+        return {
+    "demographics": [
+      "66% are Male",
+      "70% are 18-24 Years of Age",
+      "21% with Household Income of $50-75k",
+      "39% with High School Degree",
+      "81% are Single",
+      "68% do not have Children Under Age 18"
+    ],
+    "values": [
+      {"trait": "Acquiring Wealth and Influence", "index": 325},
+      {"trait": "Show Abilities and Be Admired", "index": 295},
+      {"trait": "Life Full of Excitement, Novelties, & Challenges", "index": 192}
+    ],
+    "psychological_drivers": [
+      {"trait": "Social/Professional Status", "index": 263},
+      {"trait": "Living an Exciting Life", "index": 171},
+      {"trait": "Recognition From Peers", "index": 160}
+    ],
+    "activities": [
+      {"trait": "Played Basketball", "index": 500},
+      {"trait": "Played Soccer", "index": 394},
+      {"trait": "Playing Fantasy Sports", "index": 310}
+    ],
+    "daily_routines": [
+      {"trait": "Participate in Teams/Classes", "index": 263},
+      {"trait": "Value Athletic Accomplishments", "index": 222},
+      {"trait": "Physically Active Family", "index": 124}
+    ]
+}
+
+    base64_image = encode_image_to_base64(image_path)
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a helpful assistant that extracts marketing insights from visuals."
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "Please extract the psychographic and demographic data from this image "
+                            "and format it into the following JSON structure:\n\n"
+                            "{\n"
+                        "    \"demographics\": [\"string\", \"string\", ...],\n"
+                        "    \"values\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
+                        "    \"psychological_drivers\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
+                        "    \"activities\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
+                        "    \"daily_routines\": [{\"trait\": \"string\", \"qvi\": integer}, ...]\n"
+                            "}"
+                        )
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        response_format={"type": "json_object"},
+        max_tokens=1000
+    )
+
+    return response.choices[0].message.content
+
+def generate_media_consumption(image_path):
+    if demo:
+        return {
+    "streaming_platforms": [
+      {"name": "Peacock Premium (Without Ads)", "category": "Entertainment", "qvi": 216},
+      {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 188},
+      {"name": "Hulu (Without Ads)", "category": "Entertainment", "qvi": 173},
+      {"name": "ESPN+", "category": "Sports", "qvi": 172},
+      {"name": "YouTube TV/YouTube Premium", "category": "Video Sharing Platform", "qvi": 167},
+      {"name": "Disney+ (Without Ads)", "category": "Entertainment", "qvi": 165}
+    ],
+    "devices": [
+      {"name": "Apple TV", "qvi": 255},
+      {"name": "Amazon Fire TV Stick", "qvi": 127},
+      {"name": "Google Chromecast", "qvi": 119},
+      {"name": "Roku", "qvi": 110},
+      {"name": "Other", "qvi": 103}
+    ],
+    "newspapers": [
+      {"name": "Los Angeles Times", "qvi": 351},
+      {"name": "New York Post", "qvi": 252},
+      {"name": "New York Times", "qvi": 226},
+      {"name": "Wall Street Journal", "qvi": 212},
+      {"name": "Washington Post", "qvi": 184}
+    ],
+    "tv_networks": [
+      {"name": "NBA TV", "category": "Sports", "qvi": 459},
+      {"name": "Adult Swim", "category": "Entertainment", "qvi": 315},
+      {"name": "Cartoon Network", "category": "Entertainment", "qvi": 292},
+      {"name": "MTV", "category": "Entertainment", "qvi": 288},
+      {"name": "Nickelodeon", "category": "Entertainment", "qvi": 263}
+    ],
+    "streaming_devices": [
+      {"name": "Laptop/Computer", "qvi": 196},
+      {"name": "Mobile Phone", "qvi": 161},
+      {"name": "Streaming Box", "qvi": 146},
+      {"name": "Tablet", "qvi": 126}
+    ],
+    "social_media_networks": [
+      {"name": "BeReal", "qvi": 673},
+      {"name": "Twitch", "qvi": 354},
+      {"name": "Discord", "qvi": 284},
+      {"name": "Snapchat", "qvi": 264}
+    ],
+    "magazine_reads": [
+      {"name": "Women's Health", "qvi": 333},
+      {"name": "National Geographic", "qvi": 262},
+      {"name": "Forbes", "qvi": 251},
+      {"name": "Rolling Stone", "qvi": 248},
+      {"name": "Food Network Magazine", "qvi": 243}
+    ],
+    "apps_by_category": [
+      {"name": "Sports", "qvi": 246},
+      {"name": "Food & Drink", "qvi": 196},
+      {"name": "Business Tools / Productivity", "qvi": 180},
+      {"name": "Entertainment / Lifestyle", "qvi": 180},
+      {"name": "Books / Educational Materials", "qvi": 163},
+      {"name": "Photo & Video Services", "qvi": 161}
+    ],
+    "hours_online_per_week": [
+      {"range": "1-5 Hours", "composition": 7},
+      {"range": "5-10 Hours", "composition": 15},
+      {"range": "10-20 Hours", "composition": 27},
+      {"range": "20-40 Hours", "composition": 29},
+      {"range": "40+ Hours", "composition": 21}
+    ]
+}
+    
+
+    base64_image = encode_image_to_base64(image_path)
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a data extraction assistant that processes visual charts of audience media consumption into structured JSON for marketing purposes."
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "Extract media consumption insights from the attached image and return them in the following JSON format:\n\n"
+                            "{\n"
+                        "    \"streaming_platforms\": [\n"
+                        "      {\"name\": \"string\", \"category\": \"string\", \"qvi\": integer} // Infer primary categories like 'Video Sharing Platform' 'Entertainment', 'Sports' etc \n"
+                        "    ],\n"
+                        "    \"devices\": [\n"
+                        "      {\"name\": \"string\", \"qvi\": integer}\n"
+                        "    ],\n"
+                        "    \"newspapers\": [\n"
+                        "      {\"name\": \"string\", \"qvi\": integer}\n"
+                        "    ],\n"
+                        "    \"tv_networks\": [\n"
+                        "      {\"name\": \"string\", \"category\": \"string\", \"qvi\": integer} // Infer primary categories like 'Video Sharing Platform' 'Entertainment', 'Sports' etc \n"
+                        "    ],\n"
+                        "    \"streaming_devices\": [\n"
+                        "      {\"name\": \"string\", \"qvi\": integer}\n"
+                        "    ],\n"
+                        "    \"social_media_networks\": [\n"
+                        "      {\"name\": \"string\", \"qvi\": integer}\n"
+                        "    ],\n"
+                        "    \"magazine_reads\": [\n"
+                        "      {\"name\": \"string\", \"qvi\": integer}\n"
+                        "    ],\n"
+                        "    \"apps_by_category\": [\n"
+                        "      {\"name\": \"string\", \"qvi\": integer}\n"
+                        "    ],\n"
+                        "    \"hours_online_per_week\": [\n"
+                        "      {\"range\": \"string\", \"composition\": integer}  // Skip the one where composition is not found\n"
+                        "    ]\n"
+                            "}"
+                        )
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        response_format={"type": "json_object"},
+        max_tokens=2000
+    )
+
+    return response.choices[0].message.content
+
+
+def generate_media_affinity(audience_insights, media_consumption) -> dict[str, list[dict[str, Any]]] | str | None:
+    if demo:
+        return {
+  "media_affinity_sites": [
+    {
+      "name": "BeReal",
+      "category": "Social Media",
+      "qvi": 673,
+      "url": "https://bere.al/",
+      "tooltip": "Top social media platform for young adults."
+    },
+    {
+      "name": "NBA TV",
+      "category": "Sports",
+      "qvi": 459,
+      "url": "https://www.nba.com/nbatv",
+      "tooltip": "Key sports network for basketball fans."
+    },
+    {
+      "name": "Twitch",
+      "category": "Video Streaming",
+      "qvi": 354,
+      "url": "https://www.twitch.tv/",
+      "tooltip": "Popular streaming site for interactive content."
+    },
+    {
+      "name": "Los Angeles Times",
+      "category": "News/Media",
+      "qvi": 351,
+      "url": "https://www.latimes.com/",
+      "tooltip": "Major newspaper preferable for many readers."
+    },
+    {
+      "name": "ESPN+",
+      "category": "Sports",
+      "qvi": 172,
+      "url": "https://plus.espn.com/",
+      "tooltip": "Preferred sports content streaming service."
+    }
+  ]
+}
+    prompt = f"""
+You are an AI trained in behavioral and psychographic marketing analysis.
+
+You are given:
+1. Audience Insights
+2. Media Consumption Data
+
+Based on these, generate a list of **media affinity sites** and for each site, provide:
+- Name
+- Category
+- QVI (Quantified Value Index)
+
+If the QVI is not directly provided, infer it reasonably using patterns from audience behavior and other available QVIs. Always return results in the following JSON format:
+
+{{
+  "media_affinity_sites": [
+    {{
+      "name": "<Media Name>",
+      "category": "<Category>",
+      "qvi": <QVI as number>,
+      "url": <URL of the site>,
+      "tooltip": <A short description of the site and its relevance to the audience, less than 70 characters>,
+    }},
+    ...
+  ]
+}}
+
+Audience Insights:
+{audience_insights}
+
+Media Consumption:
+{media_consumption}
+
+Generate a complete media_affinity_sites JSON object below containing top 5 results:
+"""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        response_format={"type": "json_object"},
+        # temperature=0.3
+    )
+
+    return json.loads(response.choices[0].message.content)
+
+
+def generate_pychographic_highlights(audience_insights):
+    prompt = f"""
+You are an AI trained in behavioral and psychographic marketing analysis.
+
+Given the following psychographic payload:
+{audience_insights}
+
+Generate a paragraph called a "psychographic highlight" in the following tone and format:
+
+"{PSYCHOGRAPHIC_HIGHLIGHTS}"
+
+Use the top 3 highest-indexed items in each category from the payload. Format the text with HTML <strong> tags around the traits and indexes. Match the tone, length, and structure shown in the sample.
+"""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message.content
+
+def generate_core_audience_summary(audience_insights, media_consumption, brief_text):
+    prompt = f"""
+You are an AI trained in behavioral and psychographic marketing analysis.
+
+Given the following payload:
+
+Psychographic Payload:
+{audience_insights}
+
+Media Consumption Payload:
+{media_consumption}
+
+Generate a paragraph called a "core audience" in the following tone and format:
+
+"This audience skews <strong>female (57%)</strong> with a <strong>mean age of 44</strong> and <strong>19% in the $100-150k income bracket</strong> (mean income: $107,914). They have a strong affinity for Apple TV+ (index 189), health & fitness apps (32%), and premium streaming content. <strong>57% are married</strong> and <strong>59% do not have children under age 18</strong>."
+
+Use the top 3 highest-indexed items in each category from the payload. Format the text with HTML <strong> tags around the traits and indexes. Match the tone, length, and structure shown in the sample.
+"""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message.content.strip()
+
+def generate_primary_audience_signal(audience_insights, media_consumption, segment_name, brief_text):
+    prompt = f"""
+You are an AI trained in behavioral and psychographic marketing analysis.
+
+Given the following payload:
+
+Psychographic Payload:
+{audience_insights}
+
+Media Consumption Payload:
+{media_consumption}
+
+Segment Name:
+{segment_name}
+
+Generate a paragraph called "primary audience" in the following tone and format:
+
+"Our AI analysis identifies <strong id='segment_name'>Tech-Savvy Streamers</strong> who value life full of excitement, novelties, and challenges (index 138). They have high engagement with international travel (index 152) and group travel (index 140). This audience shows strong affinities for connected TV (index 132) and premium digital video, with 2.8x higher completion rates when targeted with high-quality storytelling that emphasizes exciting experiences and creative content."
+
+Use the top 3 highest-indexed items in each category from the payload. Format the text with HTML <strong> tags around the traits and indexes. Strictly match the tone, length, and structure shown in the sample. Use "index" instead of "qvi" as shown in the sample. Always utilise the provided segment_name: {segment_name}
+"""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message.content.strip()
+
+def generate_secondary_audience_signal(audience_insights, media_consumption, segment_name, brief_text):
+    prompt = f"""
+You are an AI trained in behavioral and psychographic marketing analysis.
+
+Given the following payload:
+
+Psychographic Payload:
+{audience_insights}
+
+Media Consumption Payload:
+{media_consumption}
+
+Segment Name:
+{segment_name}
+
+Generate a paragraph called "secondary audience" in the following tone and format:
+
+"Additional opportunity exists with <strong id='segment_name'>Lifestyle & Culture Enthusiasts</strong> who value arts and entertainment (index 124), premium lifestyle content (index 114), and cultural experiences (index 113). This segment indexes high for digital subscriptions (index 150) and demonstrates strong engagement with TV shows & movies content (index 137)."
+
+Use the top 3 highest-indexed items in each category from the payload. Format the text with HTML <strong> tags around the traits and indexes. Strictly match the tone, length, and structure shown in the sample. Use "index" instead of "qvi" as shown in the sample. Always utilise the provided segment_name: {segment_name}
+"""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message.content.strip()

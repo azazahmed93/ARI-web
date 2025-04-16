@@ -50,13 +50,21 @@ METRICS = {
 }
 
 # Media affinity sites with their QVI scores
-MEDIA_AFFINITY_SITES = [
-    {"name": "sparknotes.com", "category": "Education", "qvi": 562, "url": "https://sparknotes.com", "tooltip": "Great for literary tools and student engagement"},
-    {"name": "basketball-reference.com", "category": "Sports", "qvi": 558, "url": "https://www.basketball-reference.com", "tooltip": "High-indexing for sports stats and active fans"},
-    {"name": "coolmathgames.com", "category": "Education", "qvi": 543, "url": "https://www.coolmathgames.com", "tooltip": "Casual educational games popular with teens"},
-    {"name": "nba.com", "category": "Sports", "qvi": 461, "url": "https://www.nba.com", "tooltip": "Official NBA content, big Gen Z crossover"},
-    {"name": "theverge.com", "category": "Tech", "qvi": 450, "url": "https://www.theverge.com", "tooltip": "Tech and culture content with style relevance"}
-]
+# MEDIA_AFFINITY_SITES = [
+#     {"name": "sparknotes.com", "category": "Education", "qvi": 562, "url": "https://sparknotes.com", "tooltip": "Great for literary tools and student engagement"},
+#     {"name": "basketball-reference.com", "category": "Sports", "qvi": 558, "url": "https://www.basketball-reference.com", "tooltip": "High-indexing for sports stats and active fans"},
+#     {"name": "coolmathgames.com", "category": "Education", "qvi": 543, "url": "https://www.coolmathgames.com", "tooltip": "Casual educational games popular with teens"},
+#     {"name": "nba.com", "category": "Sports", "qvi": 461, "url": "https://www.nba.com", "tooltip": "Official NBA content, big Gen Z crossover"},
+#     {"name": "theverge.com", "category": "Tech", "qvi": 450, "url": "https://www.theverge.com", "tooltip": "Tech and culture content with style relevance"}
+# ]
+
+# MEDIA_AFFINITY_SITES = [
+#     {"name": "BeReal", "category": "Social Media", "qvi": 673, "url": "https://bere.al", "tooltip": "Authentic social sharing popular with younger demographics"},
+#     {"name": "Twitch", "category": "Streaming", "qvi": 354, "url": "https://www.twitch.tv", "tooltip": "Live streaming platform popular with gamers and sports fans"},
+#     {"name": "Discord", "category": "Social Media", "qvi": 284, "url": "https://discord.com", "tooltip": "Communication platform with strong gaming and community focus"},
+#     {"name": "Snapchat", "category": "Social Media", "qvi": 264, "url": "https://www.snapchat.com", "tooltip": "Visual communication app popular with younger audiences"},
+#     {"name": "Los Angeles Times", "category": "News", "qvi": 351, "url": "https://www.latimes.com", "tooltip": "Regional news with strong sports coverage"}
+# ]
 
 # SiteOne Hispanic Media Affinities based on Resonate data
 SITEONE_HISPANIC_SOCIAL_MEDIA = [
@@ -67,13 +75,21 @@ SITEONE_HISPANIC_SOCIAL_MEDIA = [
 ]
 
 # TV Network affinities - Updated based on Audience_06fef464_Media_Consumption data
-TV_NETWORKS = [
-    {"name": "The Learning Channel (TLC)", "category": "Education", "qvi": 132},
-    {"name": "Home & Garden Television (HGTV)", "category": "Lifestyle", "qvi": 123},
-    {"name": "ESPN 2", "category": "Sports", "qvi": 120},
-    {"name": "Fox Sports 1", "category": "Sports", "qvi": 120},
-    {"name": "None of the Above", "category": "Other", "qvi": 116}
-]
+# TV_NETWORKS = [
+#     {"name": "The Learning Channel (TLC)", "category": "Education", "qvi": 132},
+#     {"name": "Home & Garden Television (HGTV)", "category": "Lifestyle", "qvi": 123},
+#     {"name": "ESPN 2", "category": "Sports", "qvi": 120},
+#     {"name": "Fox Sports 1", "category": "Sports", "qvi": 120},
+#     {"name": "None of the Above", "category": "Other", "qvi": 116}
+# ]
+
+# TV_NETWORKS = [
+#     {"name": "NBA TV", "category": "Sports", "qvi": 459},
+#     {"name": "Adult Swim", "category": "Entertainment", "qvi": 315},
+#     {"name": "Cartoon Network", "category": "Entertainment", "qvi": 292},
+#     {"name": "MTV", "category": "Entertainment", "qvi": 288},
+#     {"name": "Nickelodeon", "category": "Entertainment", "qvi": 263}
+# ]
 
 # SiteOne Hispanic TV Networks based on Resonate data
 SITEONE_HISPANIC_TV_NETWORKS = [
@@ -85,14 +101,24 @@ SITEONE_HISPANIC_TV_NETWORKS = [
 ]
 
 # Streaming platforms - Updated based on Audience_06fef464_Media_Consumption data
-STREAMING_PLATFORMS = [
-    {"name": "Apple TV+", "category": "Entertainment", "qvi": 189},
-    {"name": "Disney+ (without ads)", "category": "Entertainment", "qvi": 130},
-    {"name": "Netflix (without ads)", "category": "Entertainment", "qvi": 130},
-    {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 129},
-    {"name": "ESPN+", "category": "Sports", "qvi": 122},
-    {"name": "Paramount+ (without ads)", "category": "Entertainment", "qvi": 120}
-]
+# STREAMING_PLATFORMS = [
+#     {"name": "Apple TV+", "category": "Entertainment", "qvi": 189},
+#     {"name": "Disney+ (without ads)", "category": "Entertainment", "qvi": 130},
+#     {"name": "Netflix (without ads)", "category": "Entertainment", "qvi": 130},
+#     {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 129},
+#     {"name": "ESPN+", "category": "Sports", "qvi": 122},
+#     {"name": "Paramount+ (without ads)", "category": "Entertainment", "qvi": 120}
+# ]
+
+# STREAMING_PLATFORMS = [
+#     {"name": "Peacock Premium (without ads)", "category": "Entertainment", "qvi": 216},
+#     {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 188},
+#     {"name": "Hulu (Without Ads)", "category": "Entertainment", "qvi": 173},
+#     {"name": "ESPN+", "category": "Sports", "qvi": 172},
+#     {"name": "YouTube TV/YouTube Premium", "category": "Entertainment", "qvi": 167},
+#     {"name": "Disney+ (without ads)", "category": "Entertainment", "qvi": 165}
+# ]
+
 
 # SiteOne Hispanic Streaming Platforms based on Resonate data
 SITEONE_HISPANIC_STREAMING = [

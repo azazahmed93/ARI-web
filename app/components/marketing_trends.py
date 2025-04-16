@@ -159,7 +159,7 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
         title (str): Title for the heatmap
     """
     # Import learning tips
-    from assets.learning_tips import display_tip_bubble
+    from app.components.learning_tips import display_tip_bubble
     
     # Create title with tooltip
     heatmap_tip = display_tip_bubble("methodology", "Marketing Trend Heatmap", inline=True)

@@ -479,7 +479,7 @@ def calculate_benchmark_percentile(scores):
         float: Percentile rank for the campaign
     """
     # Import the benchmark database for real-time comparisons
-    from database import benchmark_db
+    from core.database import benchmark_db
     import streamlit as st
     
     # Average the scores to get an overall score

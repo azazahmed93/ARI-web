@@ -15,14 +15,14 @@ from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.lib.colors import HexColor, toColor
 from assets.content import (
-    MEDIA_AFFINITY_SITES, 
-    TV_NETWORKS, 
-    STREAMING_PLATFORMS, 
     PSYCHOGRAPHIC_HIGHLIGHTS,
     AUDIENCE_SUMMARY,
     NEXT_STEPS,
     METRICS
 )
+from core.database import benchmark_db, BLOCKED_KEYWORDS
+import docx
+import PyPDF2
 
 # Remove HTML tags from a string
 def strip_html(text):
@@ -231,7 +231,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         media_site_data = []
         row = []
         
-        for i, site in enumerate(MEDIA_AFFINITY_SITES):
+        for i, site in enumerate(st.session_state.media_affinity['media_affinity_sites']):
             site_cell = f"""<b>{site['name']}</b><br/>
             {site['category']}<br/>
             <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
@@ -240,7 +240,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             row.append(Paragraph(site_cell, normal_style))
             
             # After 5 sites, start a new row
-            if (i + 1) % 5 == 0 or i == len(MEDIA_AFFINITY_SITES) - 1:
+            if (i + 1) % 5 == 0 or i == len(st.session_state.media_affinity['media_affinity_sites']) - 1:
                 # Pad the row if needed
                 while len(row) < 5:
                     row.append("")
@@ -282,7 +282,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         row = []
         tv_col_width = 100  # Define column width for TV networks
         
-        for i, network in enumerate(TV_NETWORKS):
+        for i, network in enumerate(st.session_state.audience_media_consumption['tv_networks']):
             network_cell = f"""<b>{network['name']}</b><br/>
             {network['category']}<br/>
             <font color="#1e88e5"><b>QVI: {network['qvi']}</b></font>"""
@@ -290,7 +290,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             row.append(Paragraph(network_cell, normal_style))
             
             # After 5 networks, start a new row
-            if (i + 1) % 5 == 0 or i == len(TV_NETWORKS) - 1:
+            if (i + 1) % 5 == 0 or i == len(st.session_state.audience_media_consumption['tv_networks']) - 1:
                 # Pad the row if needed
                 while len(row) < 5:
                     row.append("")
@@ -330,7 +330,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         streaming_data = []
         row = []
         
-        for i, platform in enumerate(STREAMING_PLATFORMS):
+        for i, platform in enumerate(st.session_state.audience_media_consumption['streaming_platforms']):
             platform_cell = f"""<b>{platform['name']}</b><br/>
             {platform['category']}<br/>
             <font color="#059669"><b>QVI: {platform['qvi']}</b></font>"""
@@ -338,7 +338,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             row.append(Paragraph(platform_cell, normal_style))
             
             # After 3 platforms, start a new row
-            if (i + 1) % 3 == 0 or i == len(STREAMING_PLATFORMS) - 1:
+            if (i + 1) % 3 == 0 or i == len(st.session_state.audience_media_consumption['streaming_platforms']) - 1:
                 # Pad the row if needed
                 while len(row) < 3:
                     row.append("")
@@ -373,7 +373,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     # Psychographic Highlights
     if include_sections.get('psychographic', True):
         content.append(Paragraph("Psychographic Highlights", heading1_style))
-        psycho_text = strip_html(PSYCHOGRAPHIC_HIGHLIGHTS)
+        psycho_text = strip_html(st.session_state.pychographic_highlights)
         content.append(Paragraph(psycho_text, normal_style))
         content.append(Spacer(1, 12))
     
@@ -573,7 +573,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                               ParagraphStyle('SubHeading', parent=normal_style, fontSize=12, fontName='Helvetica-Bold')))
         
         # Import marketing trends data
-        from marketing_trends import generate_simplified_trend_data
+        from app.components.marketing_trends import generate_simplified_trend_data
         top_trends, top_markets, top_combinations = generate_simplified_trend_data(brief_text=brief_text)
         
         # Add top trends
@@ -653,59 +653,6 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     b64 = base64.b64encode(buf.getbuffer()).decode()
     return f'<a href="data:application/pdf;base64,{b64}" download="ari_scorecard.pdf" style="display: inline-block; padding: 10px 15px; background-color: #5865f2; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">⬇ Download Report</a>'
 
-def display_metric_bar(metric, score):
-    """
-    Display a metric with a colored progress bar and contextual learning tip.
-    
-    Args:
-        metric (str): Name of the metric
-        score (float): Score value (0-10)
-    """
-    # Import the learning tips module
-    from assets.learning_tips import metric_with_tip
-    
-    # Create a container for the metric
-    metric_container = st.container()
-    
-    with metric_container:
-        # Display metric label and score
-        col1, col2 = st.columns([4, 1])
-        
-        # Add the metric name with learning tip bubble
-        col1.markdown(metric_with_tip(metric), unsafe_allow_html=True)
-        col2.markdown(f"**{score}/10**")
-        
-        # Show the progress bar
-        st.progress(score/10, "rgb(88, 101, 242)")
-
-def get_tone_of_brief(brief_text):
-    """
-    Analyze the tone of a campaign brief. This is a simulated function that
-    would be replaced with actual NLP analysis in a real implementation.
-    
-    Args:
-        brief_text (str): The campaign brief text
-        
-    Returns:
-        str: Tone description
-    """
-    tones = [
-        "professional and strategic",
-        "creative and innovative",
-        "data-driven and analytical",
-        "adventurous and bold",
-        "modern and tech-savvy",
-        "community-focused and authentic"
-    ]
-    
-    if not brief_text or brief_text.strip() == "":
-        return tones[0]
-    
-    # Choose tone based on text length as a simple heuristic
-    # This would be replaced with actual tone analysis in a real implementation
-    index = len(brief_text.strip()) % len(tones)
-    return tones[index]
-    
 def create_infographic_download_link(scores, improvement_areas, percentile, brand_name="Unknown", top_audience=None):
     """
     Create a shareable infographic that can be sent via email.
@@ -1032,3 +979,125 @@ def create_infographic_download_link(scores, improvement_areas, percentile, bran
     href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}" style="text-decoration: none; display: inline-block; padding: 10px 20px; background-color: #4338ca; color: white; border-radius: 5px; font-weight: 500;">Download Infographic for Email</a>'
     
     return href
+
+# Define function to extract text from various file types
+def extract_text_from_file(uploaded_file):
+    """
+    Extract text from various file types including docx, pdf and txt.
+    
+    Args:
+        uploaded_file: The file uploaded through Streamlit's file_uploader
+        
+    Returns:
+        str: The extracted text from the file
+    """
+    try:
+        # Get the file extension from the name
+        file_type = uploaded_file.name.split('.')[-1].lower()
+        
+        # Convert the uploaded file to bytes for processing
+        file_bytes = io.BytesIO(uploaded_file.getvalue())
+        
+        if file_type == 'txt':
+            # For text files
+            text = uploaded_file.getvalue().decode('utf-8')
+        
+        elif file_type == 'docx':
+            try:
+                # For Word documents
+                doc = docx.Document(file_bytes)
+                text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+            except Exception as e:
+                st.error(f"Error processing DOCX file: {str(e)}")
+                return None
+        
+        elif file_type == 'pdf':
+            try:
+                # For PDF files
+                pdf_reader = PyPDF2.PdfReader(file_bytes)
+                text = ""
+                for page_num in range(len(pdf_reader.pages)):
+                    text += pdf_reader.pages[page_num].extract_text()
+            except Exception as e:
+                st.error(f"Error processing PDF file: {str(e)}")
+                return None
+        
+        else:
+            # Unsupported file type
+            st.error(f"Unsupported file type: {file_type}. Please use txt, pdf, or docx files.")
+            return None
+        
+        # Check for blocked keywords and remove them
+        for keyword in BLOCKED_KEYWORDS:
+            text = text.replace(keyword, "[FILTERED]")
+        
+        return text
+    
+    except Exception as e:
+        st.error(f"An error occurred while processing the file: {str(e)}")
+        return None
+
+def hash(text):
+    """Simple hash function for generating a deterministic number from text."""
+    if not text:
+        return 0
+    h = 0
+    for c in text:
+        h = (h * 31 + ord(c)) & 0xFFFFFFFF
+    return h % 100  # Return a number between 0-99
+
+
+
+
+def is_siteone_hispanic_campaign(brand_name, brief_text):
+    """
+    Detect if this is a SiteOne Hispanic-targeted campaign based on brand name and brief text.
+    
+    Args:
+        brand_name (str): Brand name extracted from the brief
+        brief_text (str): The full text of the brief
+        
+    Returns:
+        bool: True if this is a SiteOne Hispanic campaign, False otherwise
+    """
+    if not brief_text:
+        return False
+        
+    # Add brand name to brief text for more robust detection
+    combined_text = f"{brand_name} {brief_text}" if brand_name else brief_text
+    
+    # Use the centralized detection function from ai_insights module
+    return is_siteone_hispanic_content(combined_text)
+
+
+
+
+def is_siteone_hispanic_content(text):
+    """
+    Detect if the content is related to SiteOne Hispanic audience targeting.
+    
+    Args:
+        text (str): The text content to analyze
+        
+    Returns:
+        bool: True if the content is SiteOne Hispanic related, False otherwise
+    """
+    if not text:
+        return False
+    
+    # Convert text to lowercase for case-insensitive matching
+    text_lower = text.lower()
+    
+    # Check for SiteOne brand mentions
+    siteone_terms = ['siteone', 'site one', 'site-one']
+    has_siteone = any(term in text_lower for term in siteone_terms)
+    
+    # Check for Hispanic audience targeting keywords
+    hispanic_terms = [
+        'hispanic', 'latino', 'latina', 'latinx', 
+        'español', 'espanol', 'spanish-language', 'spanish language'
+    ]
+    has_hispanic = any(term in text_lower for term in hispanic_terms)
+    
+    # Return True if both SiteOne and Hispanic indicators are found
+    return has_siteone and has_hispanic
