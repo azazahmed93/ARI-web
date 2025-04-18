@@ -591,7 +591,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         content.append(Spacer(1, 6))
         
         # Add top markets
-        content.append(Paragraph("High-Performance Markets:", 
+        content.append(Paragraph("High-Performance Targets:", 
                               ParagraphStyle('BulletHeader', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
         
         for market in top_markets[:3]:  # Show top 3 markets
