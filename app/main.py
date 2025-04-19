@@ -1,15 +1,13 @@
-
-
-
 import streamlit as st
 import os
 import sys
+import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.layouts.landing_layout import landing_layout
-from assets.styles import apply_styles
 from app.sections.results import display_results
-from app.components.admin import is_admin
+from app.components.restricted_access import is_logged_in
+from app.sections.admin_uploads import admin_uploads
 from core.ai_insights import generate_audience_insights, generate_media_consumption,generate_media_affinity, generate_pychographic_highlights
 
 # Define main function
@@ -67,6 +65,8 @@ def main():
         st.session_state.use_openai = bool(os.environ.get("OPENAI_API_KEY"))
     if "admin_authenticated" not in st.session_state:
         st.session_state.admin_authenticated = False
+    if "user_authenticated" not in st.session_state:
+        st.session_state.user_authenticated = False
 
     inner_content = None
     # Display results if analysis has been performed
@@ -74,24 +74,20 @@ def main():
         inner_content = display_results
 
     if st.query_params.get('mode') != 'admin':
-        landing_layout(inner_content)
-
-    if st.query_params.get('mode') == 'admin' and is_admin():
-        st.write("Upload configs and do secret admin stuff here.")
-            # Add your file upload, config save, etc. logic here
-
+        if(is_logged_in()):
+            landing_layout(inner_content)
+    else:
+        admin_uploads()
 
 # Run the app
 if __name__ == "__main__":
     main()
 
 
-image_path = "audience-image/Audience_7930a9ae_Introduction_03_24_25.png"
-audience_insights = generate_audience_insights(image_path)
+audience_insights = generate_audience_insights()
 st.session_state.audience_insights = audience_insights
 
-image_path_2 = "audience-image/Audience_7930a9ae_Media_Consumption_03_24_25.png"
-media_consumption = generate_media_consumption(image_path_2)
+media_consumption = generate_media_consumption()
 st.session_state.audience_media_consumption = media_consumption
 
 media_affinity = generate_media_affinity(audience_insights, media_consumption)
@@ -101,5 +97,7 @@ pychographic_highlights = generate_pychographic_highlights(audience_insights)
 st.session_state.pychographic_highlights = pychographic_highlights
 
 
-# print(st.session_state.media_affinity['media_affinity_sites'])
-# print(st.session_state.pychographic_highlights)
+if isinstance(st.session_state.audience_insights, str):
+    st.session_state.audience_insights = json.loads(st.session_state.audience_insights)
+if isinstance(st.session_state.audience_media_consumption, str):
+    st.session_state.audience_media_consumption = json.loads(st.session_state.audience_media_consumption)
