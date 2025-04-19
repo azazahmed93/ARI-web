@@ -272,7 +272,7 @@ def landing_layout(inner_content):
             else:
                 with st.spinner(get_random_spinner_message()):
                     # Simulate analysis time
-                    time.sleep(1.5)
+                    # time.sleep(1.5)
                     
                     # Analyze the content
                     result = analyze_campaign_brief(brief_text)
