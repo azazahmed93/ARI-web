@@ -50,6 +50,9 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     Returns:
         str: HTML link for downloading the PDF
     """
+
+    if isinstance(st.session_state.audience_media_consumption, str):
+        st.session_state.audience_media_consumption = json.loads(st.session_state.audience_media_consumption)
     # Create a PDF buffer
     buf = io.BytesIO()
     
