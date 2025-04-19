@@ -1,6 +1,6 @@
+import json
 import base64
 import io
-import pandas as pd
 import streamlit as st
 import re
 from reportlab.lib.pagesizes import letter, landscape
@@ -23,6 +23,9 @@ from assets.content import (
 from core.database import benchmark_db, BLOCKED_KEYWORDS
 import docx
 import PyPDF2
+import os
+import shutil
+
 
 # Remove HTML tags from a string
 def strip_html(text):
@@ -1104,3 +1107,28 @@ def is_siteone_hispanic_content(text):
     
     # Return True if both SiteOne and Hispanic indicators are found
     return has_siteone and has_hispanic
+
+
+def upload_file(uploaded_file, save_path):
+    """
+    Uploads a file to the specified path.
+    """
+
+    # Remove the whole directory if it exists
+    if os.path.exists(save_path):
+        shutil.rmtree(save_path)
+    
+    os.makedirs(save_path, exist_ok=True)
+    file_path = os.path.join(save_path, uploaded_file.name)
+
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    st.success(f"File saved to {file_path}")
+
+def get_first_file_name(folder_path):
+    if os.path.exists(folder_path):
+      files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+      return files[0] if files else None
+
+
