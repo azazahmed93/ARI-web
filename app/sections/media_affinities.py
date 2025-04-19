@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 from core.ai_insights import ensure_valid_url_in_sites
 from assets.content import (
@@ -7,6 +8,10 @@ from assets.content import (
 )
 
 def media_affinities(is_siteone_hispanic):
+    if isinstance(st.session_state.audience_media_consumption, str):
+        st.session_state.audience_media_consumption = json.loads(st.session_state.audience_media_consumption)
+
+
     # Check if we're analyzing Apple TV+ data
     is_apple_tv_campaign = "Apple TV+" in st.session_state.get("brief_text", "") or "Apple TV" in st.session_state.get("brief_text", "")
     
