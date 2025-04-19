@@ -1,4 +1,6 @@
 import streamlit as st
+import os
+
 def is_admin():
     if st.session_state.admin_authenticated:
         return True
@@ -8,9 +10,9 @@ def is_admin():
 def admin_login():
     with st.expander("🔐 Admin Login"):
         password = st.text_input("Enter admin password", type="password")
-        if password == "password":
+        if password == os.environ.get("ADMIN_PASSWORD"):
             st.session_state.admin_authenticated = True
-            return True
+            st.rerun()
         elif password:
             st.error("Incorrect password")
     return False
