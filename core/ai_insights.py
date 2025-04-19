@@ -11,7 +11,14 @@ from openai import OpenAI
 import base64
 import json
 from assets.content import PSYCHOGRAPHIC_HIGHLIGHTS
+from core.utils import get_first_file_name
 
+PATHS = {
+    "JSON": "research/json",
+    "PSYCHOGRAPHY": "research/psychography-uploads",
+    "MEDIA_CONSUMPTION": "research/media-consumption-uploads",
+    "SITES_AFFINITY": "research/sites-affinity-uploads"
+}
 demo = True
 
 # Initialize the OpenAI client with the API key from environment variables
@@ -829,7 +836,7 @@ Additional audience data for SiteOne Hispanic campaign:
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed 
-        in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities.
+        in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
         """
         
         # Call the OpenAI API
@@ -1142,39 +1149,17 @@ def encode_image_to_base64(image_path):
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 # Function to send image to GPT-4 Vision and extract structured JSON
-def generate_audience_insights(image_path):
-    if demo:
-        return {
-    "demographics": [
-      "66% are Male",
-      "70% are 18-24 Years of Age",
-      "21% with Household Income of $50-75k",
-      "39% with High School Degree",
-      "81% are Single",
-      "68% do not have Children Under Age 18"
-    ],
-    "values": [
-      {"trait": "Acquiring Wealth and Influence", "index": 325},
-      {"trait": "Show Abilities and Be Admired", "index": 295},
-      {"trait": "Life Full of Excitement, Novelties, & Challenges", "index": 192}
-    ],
-    "psychological_drivers": [
-      {"trait": "Social/Professional Status", "index": 263},
-      {"trait": "Living an Exciting Life", "index": 171},
-      {"trait": "Recognition From Peers", "index": 160}
-    ],
-    "activities": [
-      {"trait": "Played Basketball", "index": 500},
-      {"trait": "Played Soccer", "index": 394},
-      {"trait": "Playing Fantasy Sports", "index": 310}
-    ],
-    "daily_routines": [
-      {"trait": "Participate in Teams/Classes", "index": 263},
-      {"trait": "Value Athletic Accomplishments", "index": 222},
-      {"trait": "Physically Active Family", "index": 124}
-    ]
-}
+def generate_audience_insights():
+    image_file_name = get_first_file_name(PATHS.get('PSYCHOGRAPHY'))
+    base_file_name = os.path.splitext(image_file_name)[0]
+    json_file_name =  f"{PATHS.get('JSON')}/{base_file_name}.json"
+    image_path = f"{PATHS.get('PSYCHOGRAPHY')}/{image_file_name}"
 
+    if os.path.exists(json_file_name):
+        with open(json_file_name, "r") as f:
+            return json.load(f)
+
+    
     base64_image = encode_image_to_base64(image_path)
 
     response = client.chat.completions.create(
@@ -1214,76 +1199,22 @@ def generate_audience_insights(image_path):
         max_tokens=1000
     )
 
-    return response.choices[0].message.content
+    os.makedirs(os.path.dirname(json_file_name), exist_ok=True)
+    with open(json_file_name, "w") as f:
+        json.dump(response.choices[0].message.content, f, indent=4)
 
-def generate_media_consumption(image_path):
-    if demo:
-        return {
-    "streaming_platforms": [
-      {"name": "Peacock Premium (Without Ads)", "category": "Entertainment", "qvi": 216},
-      {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 188},
-      {"name": "Hulu (Without Ads)", "category": "Entertainment", "qvi": 173},
-      {"name": "ESPN+", "category": "Sports", "qvi": 172},
-      {"name": "YouTube TV/YouTube Premium", "category": "Video Sharing Platform", "qvi": 167},
-      {"name": "Disney+ (Without Ads)", "category": "Entertainment", "qvi": 165}
-    ],
-    "devices": [
-      {"name": "Apple TV", "qvi": 255},
-      {"name": "Amazon Fire TV Stick", "qvi": 127},
-      {"name": "Google Chromecast", "qvi": 119},
-      {"name": "Roku", "qvi": 110},
-      {"name": "Other", "qvi": 103}
-    ],
-    "newspapers": [
-      {"name": "Los Angeles Times", "qvi": 351},
-      {"name": "New York Post", "qvi": 252},
-      {"name": "New York Times", "qvi": 226},
-      {"name": "Wall Street Journal", "qvi": 212},
-      {"name": "Washington Post", "qvi": 184}
-    ],
-    "tv_networks": [
-      {"name": "NBA TV", "category": "Sports", "qvi": 459},
-      {"name": "Adult Swim", "category": "Entertainment", "qvi": 315},
-      {"name": "Cartoon Network", "category": "Entertainment", "qvi": 292},
-      {"name": "MTV", "category": "Entertainment", "qvi": 288},
-      {"name": "Nickelodeon", "category": "Entertainment", "qvi": 263}
-    ],
-    "streaming_devices": [
-      {"name": "Laptop/Computer", "qvi": 196},
-      {"name": "Mobile Phone", "qvi": 161},
-      {"name": "Streaming Box", "qvi": 146},
-      {"name": "Tablet", "qvi": 126}
-    ],
-    "social_media_networks": [
-      {"name": "BeReal", "qvi": 673},
-      {"name": "Twitch", "qvi": 354},
-      {"name": "Discord", "qvi": 284},
-      {"name": "Snapchat", "qvi": 264}
-    ],
-    "magazine_reads": [
-      {"name": "Women's Health", "qvi": 333},
-      {"name": "National Geographic", "qvi": 262},
-      {"name": "Forbes", "qvi": 251},
-      {"name": "Rolling Stone", "qvi": 248},
-      {"name": "Food Network Magazine", "qvi": 243}
-    ],
-    "apps_by_category": [
-      {"name": "Sports", "qvi": 246},
-      {"name": "Food & Drink", "qvi": 196},
-      {"name": "Business Tools / Productivity", "qvi": 180},
-      {"name": "Entertainment / Lifestyle", "qvi": 180},
-      {"name": "Books / Educational Materials", "qvi": 163},
-      {"name": "Photo & Video Services", "qvi": 161}
-    ],
-    "hours_online_per_week": [
-      {"range": "1-5 Hours", "composition": 7},
-      {"range": "5-10 Hours", "composition": 15},
-      {"range": "10-20 Hours", "composition": 27},
-      {"range": "20-40 Hours", "composition": 29},
-      {"range": "40+ Hours", "composition": 21}
-    ]
-}
-    
+    return json.loads(response.choices[0].message.content)
+
+def generate_media_consumption():
+    image_file_name = get_first_file_name(PATHS.get('MEDIA_CONSUMPTION'))
+    base_file_name = os.path.splitext(image_file_name)[0]
+    json_file_name =  f"{PATHS.get('JSON')}/{base_file_name}.json"
+    image_path = f"{PATHS.get('MEDIA_CONSUMPTION')}/{image_file_name}"
+
+    if os.path.exists(json_file_name):
+        with open(json_file_name, "r") as f:
+            return json.load(f)
+
 
     base64_image = encode_image_to_base64(image_path)
 
@@ -1345,94 +1276,63 @@ def generate_media_consumption(image_path):
         max_tokens=2000
     )
 
-    return response.choices[0].message.content
+    os.makedirs(os.path.dirname(json_file_name), exist_ok=True)
+    with open(json_file_name, "w") as f:
+        json.dump(response.choices[0].message.content, f, indent=4)
+
+    return json.loads(response.choices[0].message.content)
 
 
 def generate_media_affinity(audience_insights, media_consumption) -> dict[str, list[dict[str, Any]]] | str | None:
     if demo:
-        return {
-  "media_affinity_sites": [
-    {
-      "name": "BeReal",
-      "category": "Social Media",
-      "qvi": 673,
-      "url": "https://bere.al/",
-      "tooltip": "Top social media platform for young adults."
-    },
-    {
-      "name": "NBA TV",
-      "category": "Sports",
-      "qvi": 459,
-      "url": "https://www.nba.com/nbatv",
-      "tooltip": "Key sports network for basketball fans."
-    },
-    {
-      "name": "Twitch",
-      "category": "Video Streaming",
-      "qvi": 354,
-      "url": "https://www.twitch.tv/",
-      "tooltip": "Popular streaming site for interactive content."
-    },
-    {
-      "name": "Los Angeles Times",
-      "category": "News/Media",
-      "qvi": 351,
-      "url": "https://www.latimes.com/",
-      "tooltip": "Major newspaper preferable for many readers."
-    },
-    {
-      "name": "ESPN+",
-      "category": "Sports",
-      "qvi": 172,
-      "url": "https://plus.espn.com/",
-      "tooltip": "Preferred sports content streaming service."
-    }
-  ]
-}
-    prompt = f"""
-You are an AI trained in behavioral and psychographic marketing analysis.
+        return { "media_affinity_sites": [{'name': 'Essence', 'category': 'Magazine', 'qvi': 981, 'url': 'https://www.essence.com/', 'tooltip': 'Focuses on issues for Black women.'}, {'name': 'Ebony', 'category': 'Magazine', 'qvi': 773, 'url': 'https://www.ebony.com/', 'tooltip': 'Culture and lifestyle for Black Americans.'}, {'name': 'VH1', 'category': 'Entertainment', 'qvi': 568, 'url': 'https://www.vh1.com/', 'tooltip': 'Music and pop culture entertainment.'}, {'name': 'OWN (Oprah Winfrey Network)', 'category': 'Entertainment', 'qvi': 563, 'url': 'http://www.oprah.com/app/own-tv.html', 'tooltip': 'Empowering content for women.'}, {'name': 'BET', 'category': 'Entertainment', 'qvi': 535, 'url': 'https://www.bet.com/', 'tooltip': 'Focused on African-American culture.'}]}
+    try:
+        prompt = f"""
+    You are an AI trained in behavioral and psychographic marketing analysis.
 
-You are given:
-1. Audience Insights
-2. Media Consumption Data
+    You are given:
+    1. Audience Insights
+    2. Media Consumption Data
 
-Based on these, generate a list of **media affinity sites** and for each site, provide:
-- Name
-- Category
-- QVI (Quantified Value Index)
+    Based on these, generate a list of **media affinity sites** and for each site, provide:
+    - Name
+    - Category
+    - QVI (Quantified Value Index)
 
-If the QVI is not directly provided, infer it reasonably using patterns from audience behavior and other available QVIs. Always return results in the following JSON format:
+    If the QVI is not directly provided, infer it reasonably using patterns from audience behavior and other available QVIs. Always return results in the following JSON format:
 
-{{
-  "media_affinity_sites": [
     {{
-      "name": "<Media Name>",
-      "category": "<Category>",
-      "qvi": <QVI as number>,
-      "url": <URL of the site>,
-      "tooltip": <A short description of the site and its relevance to the audience, less than 70 characters>,
-    }},
-    ...
-  ]
-}}
+    "media_affinity_sites": [
+        {{
+        "name": "<Media Name>",
+        "category": "<Category>",
+        "qvi": <QVI as number>,
+        "url": <URL of the site>,
+        "tooltip": <A short description of the site and its relevance to the audience, less than 70 characters>,
+        }},
+        ...
+    ]
+    }}
 
-Audience Insights:
-{audience_insights}
+    Audience Insights:
+    {audience_insights}
 
-Media Consumption:
-{media_consumption}
+    Media Consumption:
+    {media_consumption}
 
-Generate a complete media_affinity_sites JSON object below containing top 5 results:
-"""
-    
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}],
-        response_format={"type": "json_object"},
-        # temperature=0.3
-    )
+    Generate a complete media_affinity_sites JSON object below containing top 5 results:
+    """
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            # temperature=0.3
+        )
 
-    return json.loads(response.choices[0].message.content)
+        return json.loads(response.choices[0].message.content)
+    except Exception as e:
+        print(f"Error generating AI insights: {str(e)}")
 
 
 def generate_pychographic_highlights(audience_insights):
@@ -1474,13 +1374,15 @@ Generate a paragraph called a "core audience" in the following tone and format:
 
 Use the top 3 highest-indexed items in each category from the payload. Format the text with HTML <strong> tags around the traits and indexes. Match the tone, length, and structure shown in the sample.
 """
-    
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-    return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error generating AI insights: {str(e)}")
 
 def generate_primary_audience_signal(audience_insights, media_consumption, segment_name, brief_text):
     prompt = f"""
