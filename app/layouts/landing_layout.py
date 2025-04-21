@@ -343,15 +343,9 @@ def landing_layout(inner_content):
                                     if ai_audience_segments and 'segments' in ai_audience_segments:
                                         st.session_state.audience_segments = ai_audience_segments
                                         segments = st.session_state.audience_segments.get('segments', [])
-                                        print("Segment 1 Name:")
-                                        print(segments[0].get('name'))
-                                        print("Segment 2 Name:")
-                                        print(segments[1].get('name'))
                                         st.session_state.audience_summary['core_audience'] = generate_core_audience_summary(st.session_state.audience_insights, st.session_state.audience_media_consumption, brief_text)
                                         st.session_state.audience_summary['primary_audience'] = generate_primary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[0].get('name'), brief_text)
                                         st.session_state.audience_summary['secondary_audience'] = generate_secondary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
-
-                                        print(st.session_state.audience_summary['core_audience'])
                                     
 
                                     
