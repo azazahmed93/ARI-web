@@ -237,7 +237,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         media_site_data = []
         row = []
         
-        for i, site in enumerate(st.session_state.media_affinity['media_affinity_sites']):
+        for i, site in enumerate(json.loads(st.session_state.media_affinity)):
             site_cell = f"""<b>{site['name']}</b><br/>
             {site['category']}<br/>
             <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
@@ -246,7 +246,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             row.append(Paragraph(site_cell, normal_style))
             
             # After 5 sites, start a new row
-            if (i + 1) % 5 == 0 or i == len(st.session_state.media_affinity['media_affinity_sites']) - 1:
+            if (i + 1) % 5 == 0 or i == len(json.loads(st.session_state.media_affinity)) - 1:
                 # Pad the row if needed
                 while len(row) < 5:
                     row.append("")

@@ -142,7 +142,7 @@ def media_affinities(is_siteone_hispanic):
     if is_siteone_hispanic:
         social_media_sites = ensure_valid_url_in_sites(SITEONE_HISPANIC_SOCIAL_MEDIA)
     else:
-        social_media_sites = ensure_valid_url_in_sites(st.session_state.media_affinity['media_affinity_sites'])
+        social_media_sites = ensure_valid_url_in_sites(json.loads(st.session_state.media_affinity))
     
     for i, site in enumerate(social_media_sites):
         with cols[i % 5]:
