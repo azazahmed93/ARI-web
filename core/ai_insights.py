@@ -1283,56 +1283,21 @@ def generate_media_consumption():
     return json.loads(response.choices[0].message.content)
 
 
-def generate_media_affinity(audience_insights, media_consumption) -> dict[str, list[dict[str, Any]]] | str | None:
-    if demo:
-        return { "media_affinity_sites": [{'name': 'Essence', 'category': 'Magazine', 'qvi': 981, 'url': 'https://www.essence.com/', 'tooltip': 'Focuses on issues for Black women.'}, {'name': 'Ebony', 'category': 'Magazine', 'qvi': 773, 'url': 'https://www.ebony.com/', 'tooltip': 'Culture and lifestyle for Black Americans.'}, {'name': 'VH1', 'category': 'Entertainment', 'qvi': 568, 'url': 'https://www.vh1.com/', 'tooltip': 'Music and pop culture entertainment.'}, {'name': 'OWN (Oprah Winfrey Network)', 'category': 'Entertainment', 'qvi': 563, 'url': 'http://www.oprah.com/app/own-tv.html', 'tooltip': 'Empowering content for women.'}, {'name': 'BET', 'category': 'Entertainment', 'qvi': 535, 'url': 'https://www.bet.com/', 'tooltip': 'Focused on African-American culture.'}]}
-    try:
-        prompt = f"""
-    You are an AI trained in behavioral and psychographic marketing analysis.
-
-    You are given:
-    1. Audience Insights
-    2. Media Consumption Data
-
-    Based on these, generate a list of **media affinity sites** and for each site, provide:
-    - Name
-    - Category
-    - QVI (Quantified Value Index)
-
-    If the QVI is not directly provided, infer it reasonably using patterns from audience behavior and other available QVIs. Always return results in the following JSON format:
-
-    {{
-    "media_affinity_sites": [
-        {{
-        "name": "<Media Name>",
-        "category": "<Category>",
-        "qvi": <QVI as number>,
-        "url": <URL of the site>,
-        "tooltip": <A short description of the site and its relevance to the audience, less than 70 characters>,
-        }},
-        ...
-    ]
-    }}
-
-    Audience Insights:
-    {audience_insights}
-
-    Media Consumption:
-    {media_consumption}
-
-    Generate a complete media_affinity_sites JSON object below containing top 5 results:
-    """
-        
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            # temperature=0.3
-        )
-
-        return json.loads(response.choices[0].message.content)
-    except Exception as e:
-        print(f"Error generating AI insights: {str(e)}")
+def generate_media_affinity():
+    import pandas as pd
+    base_file_name = get_first_file_name(PATHS.get('SITES_AFFINITY'))
+    if not base_file_name:
+        return
+    df = pd.read_csv(f"{PATHS.get('SITES_AFFINITY')}/{base_file_name}")
+    df['QVI Audience'] = pd.to_numeric(df['QVI Audience'], errors='coerce')
+    top_5 = df.sort_values(by='QVI Audience', ascending=False).head(5)
+    top_5['name'] = top_5['Domain Name']
+    top_5['url'] = 'https://' + top_5['Domain Name'].str.strip()
+    top_5 = top_5.rename(columns={
+        'Category': 'category',
+        'QVI Audience': 'qvi'
+    })
+    return top_5[['name', 'url', 'category', 'qvi']].to_json(orient='records')
 
 
 def generate_pychographic_highlights(audience_insights):

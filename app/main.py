@@ -90,7 +90,7 @@ st.session_state.audience_insights = audience_insights
 media_consumption = generate_media_consumption()
 st.session_state.audience_media_consumption = media_consumption
 
-media_affinity = generate_media_affinity(audience_insights, media_consumption)
+media_affinity = generate_media_affinity()
 st.session_state.media_affinity = media_affinity
 
 pychographic_highlights = generate_pychographic_highlights(audience_insights)
@@ -101,3 +101,4 @@ if isinstance(st.session_state.audience_insights, str):
     st.session_state.audience_insights = json.loads(st.session_state.audience_insights)
 if isinstance(st.session_state.audience_media_consumption, str):
     st.session_state.audience_media_consumption = json.loads(st.session_state.audience_media_consumption)
+
