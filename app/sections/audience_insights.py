@@ -143,6 +143,7 @@ def audience_insights(is_siteone_hispanic):
                     # Format interests if available in interest_categories
                     interests = growth_segment.get('interest_categories', [])
                     interests_str = ", ".join(interests) if interests else "Identified through AI pattern recognition"
+                    rationale = growth_segment.get('rationale', "")
                     
                     # Get platform strategy
                     platform_targeting = growth_segment.get('platform_targeting', [])
@@ -313,9 +314,14 @@ def audience_insights(is_siteone_hispanic):
                     
                     # Add performance metrics if available
                     if performance_str:
-                        html_content += f"""<p style="margin-bottom: 0;">
+                        html_content += f"""<p style="margin-bottom: 8px;">
 <span style="font-weight:600; margin-right:5px; display:inline-block;">Expected Performance:</span>
 {performance_str}
+</p>"""
+                    if rationale:
+                        html_content += f"""<p style="margin-bottom: 0;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Rationale:</span>
+{rationale}
 </p>"""
                     
                     # Close the div
