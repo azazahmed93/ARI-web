@@ -182,7 +182,12 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         # Add metrics data with alternating row colors
         for i, (metric, score) in enumerate(scores.items()):
             level = "high" if score >= 7 else "medium" if score >= 4 else "low"
-            description = METRICS[metric][level]
+            metric_details = st.session_state.ai_insights.get('metric_details', {})
+            if metric in metric_details:
+                description = metric_details[metric]
+            else:
+                # Fall back to generic descriptions
+                description = METRICS[metric][level]
             
             # All text should be normal black with consistent styling
             metrics_data.append([
