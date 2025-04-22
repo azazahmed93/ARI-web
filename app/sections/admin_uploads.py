@@ -19,7 +19,7 @@ def admin_uploads():
                 type=["png"],
                 help="Supported formats: PNG"
             )
-        upload_psychography_button_handler = st.button("Replace psychogrpahy research file", type="secondary", use_container_width=True)
+        upload_psychography_button_handler = st.button("Replace psychographic research file", type="secondary", use_container_width=True)
         if upload_psychography_button_handler and uploaded_file_psychography:
             save_path = PATHS.get("PSYCHOGRAPHY")
             upload_file(uploaded_file_psychography, save_path)
