@@ -317,18 +317,6 @@ def landing_layout(inner_content):
                             with st.spinner(get_random_spinner_message()):
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
-                                    print("scores")
-                                    print(scores)
-                                    print("percentile")
-                                    print(percentile)
-                                    print("industry")
-                                    print(industry)
-                                    print("brand_name")
-                                    print(brand_name)
-                                    print("product_type")
-                                    print(product_type)
-                                    print("improvement_areas")
-                                    print(improvement_areas)
                                     # Generate deep insights based on brief and ARI scores
                                     ai_insights = generate_deep_insights(brief_text, scores)
                                     st.session_state.ai_insights = ai_insights
