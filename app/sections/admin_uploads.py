@@ -14,8 +14,8 @@ def admin_uploads():
         
         # PYSCHOGRAPHY
         uploaded_file_psychography = st.file_uploader(
-                "Upload Psychogrpahy Research",
-                key="Upload Psychogrpahy Research",
+                "Upload Psychographic Research",
+                key="Upload Psychographic Research",
                 type=["png"],
                 help="Supported formats: PNG"
             )
@@ -52,9 +52,9 @@ def admin_uploads():
         st.subheader("Uploaded Files")
         psychography_file = get_first_file_name(PATHS.get("PSYCHOGRAPHY"))
         if psychography_file:
-            st.write(f"Psychography Research File: {psychography_file}")
+            st.write(f"Psychographic Research File: {psychography_file}")
         else:
-            st.write("Psychography Research File: No file uploaded yet.")
+            st.write("Psychographic Research File: No file uploaded yet.")
         media_consumption_file = get_first_file_name(PATHS.get("MEDIA_CONSUMPTION"))
         if media_consumption_file:
             st.write(f"Media Consumption Research File: {media_consumption_file}")
