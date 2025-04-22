@@ -108,12 +108,12 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
         # Add infographic download option for email sharing
         st.markdown('<div style="text-align: center; margin-top: 15px;">', unsafe_allow_html=True)
         # Get the primary audience segment if available
-        top_audience = None
-        if st.session_state.audience_segments and 'primary' in st.session_state.audience_segments:
-            top_audience = st.session_state.audience_segments['primary']
+        # top_audience = None
+        # if st.session_state.audience_segments and 'primary' in st.session_state.audience_segments:
+        #     top_audience = st.session_state.audience_segments['primary']
         
-        infographic_link = create_infographic_download_link(scores, improvement_areas, percentile, brand_name, top_audience)
-        st.markdown(f'{infographic_link}', unsafe_allow_html=True)
+        # infographic_link = create_infographic_download_link(scores, improvement_areas, percentile, brand_name, top_audience)
+        # st.markdown(f'{infographic_link}', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
         # Close the outer div
