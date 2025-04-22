@@ -498,6 +498,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                 
                 # Add interests if available
                 interests = growth.get('interest_categories', [])
+                rationale = growth.get('rationale', "")
                 if interests:
                     interests_text = "Key Interests: " + ", ".join(interests)
                     content.append(Paragraph(interests_text, normal_style))
@@ -526,6 +527,10 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                     
                     platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
                     content.append(Paragraph(platform_text, normal_style))
+                
+                if rationale:
+                    rationale_text = "Rationale: " + rationale
+                    content.append(Paragraph(rationale_text, normal_style))
             
         else:
             # Determine if this is a SiteOne Hispanic campaign by checking the brief text
