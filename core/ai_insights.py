@@ -834,6 +834,7 @@ Additional audience data for SiteOne Hispanic campaign:
         - platform_targeting: array of objects with 'platform' and 'targeting_approach' 
         - expected_performance: object with CTR (click-through rate or video completion rate for video content), CPA (cost per acquisition), and engagement_rate
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
+        - rationale: string with a brief rationale for why it recommends the specific emerging audience, only populate it for emerging audience, max 400 letters. Don't mention that it's not being explicitly targeted.
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed 
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
