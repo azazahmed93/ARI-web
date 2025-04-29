@@ -137,9 +137,9 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Add title with brand name if available
     if brand_name != "Unknown":
-        content.append(Paragraph(f"{brand_name} Audience Resonance Index™ Scorecard", title_style))
+        content.append(Paragraph(f"{brand_name} Audience Resonance Index Scorecard", title_style))
     else:
-        content.append(Paragraph("Audience Resonance Index™ Scorecard", title_style))
+        content.append(Paragraph("Audience Resonance Index Scorecard", title_style))
     content.append(Spacer(1, 12))
     
     # Remove industry info as requested
@@ -215,7 +215,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         
         # Simplified benchmark text without industry references
         benchmark_text = (f"This campaign ranks in the top {percentile}% of all campaigns "
-                        f"for Audience Resonance Index™ (ARI). That means it outperforms the majority of "
+                        f"for Audience Resonance Index (ARI). That means it outperforms the majority of "
                         f"campaigns in relevance, authenticity, and emotional connection — based on "
                         f"Digital Culture Group's analysis of 300+ marketing efforts.")
         
@@ -752,7 +752,7 @@ def create_infographic_download_link(scores, improvement_areas, percentile, bran
         content.append(Paragraph("Campaign Performance Snapshot", title_style))
     
     # Add subtitle
-    content.append(Paragraph("Powered by the Audience Resonance Index™", subtitle_style))
+    content.append(Paragraph("Powered by the Audience Resonance Index", subtitle_style))
     content.append(Spacer(1, 10))
     
     # Create a 3-column layout for the main content

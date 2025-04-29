@@ -195,7 +195,7 @@ def landing_layout(inner_content):
     with col2:
         # Campaign analysis description and input area
         st.markdown("### Pre-Launch Campaign Intelligence")
-        st.markdown("Analyze your Advertising RFP or Marketing Brief to leverage our AI-powered Audience Resonance Index™ framework. We employ computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation.")
+        st.markdown("Analyze your Advertising RFP or Marketing Brief to leverage our AI-powered Audience Resonance Index framework. We employ computational ethnography and cultural intelligence algorithms to forecast resonance patterns, identify opportunity vectors, and optimize cross-cultural alignment before campaign activation.")
         
         # Create tabs for input methods
         tab1, tab2 = st.tabs(["Upload Document", "Paste Text"])

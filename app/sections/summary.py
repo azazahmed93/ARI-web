@@ -118,7 +118,7 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
         st.markdown(f"""
         <div style="color: #333; font-size: 1rem; line-height: 1.6;">
             This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
-            for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in {strength_text} — 
+            for Audience Resonance Index. The campaign outperforms the majority of peer initiatives in {strength_text} — 
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
         </div>
         <div style="margin-top: 2rem;">
@@ -171,7 +171,7 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
         st.markdown(f"""
         <div style="color: #333; font-size: 1rem; line-height: 1.6;">
             This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
-            for Audience Resonance Index™. The campaign outperforms the majority of peer initiatives in {strength_text} — 
+            for Audience Resonance Index. The campaign outperforms the majority of peer initiatives in {strength_text} — 
             based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{sample_size}</span> national marketing efforts.
         </div>
         <div style="margin-top: 2rem;">

@@ -10,7 +10,7 @@ from .metrics_summary import display_metrics_summary
 
 def detailed_metrics(is_siteone_hispanic, scores, improvement_areas, brief_text, summary_text, top_strength, key_opportunity, roi_potential):
     # Display standard scorecard title with no brand reference
-    st.markdown("<h2 style='text-align: center;'>Audience Resonance Index™ Scorecard</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>Audience Resonance Index Scorecard</h2>", unsafe_allow_html=True)
     
     # If this is a SiteOne Hispanic campaign, display a specialized audience tag
     if is_siteone_hispanic:

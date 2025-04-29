@@ -160,7 +160,7 @@ LEARNING_TIPS = {
     # Methodology and framework
     "methodology": {
         "Audience Resonance Index": {
-            "title": "Audience Resonance Index™",
+            "title": "Audience Resonance Index",
             "content": "A proprietary framework that measures how effectively a marketing campaign connects with its intended audience across nine critical dimensions of cultural and commercial relevance.",
             "learn_more": "The ARI methodology has demonstrated 93% accuracy in predicting campaign performance."
         },
