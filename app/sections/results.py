@@ -156,11 +156,12 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "Detailed Metrics", 
         "Audience Insights", 
         "Media Affinities", 
         "Trend Analysis",
+        "Transaction data",
         "Next Steps"
     ])
     
@@ -362,8 +363,34 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # TAB 2: AUDIENCE INSIGHTS
     with tab2:
         audience_insights(is_siteone_hispanic)
-    # TAB 5: NEXT STEPS
+    # TAB 5: Transaction Data
     with tab5:
+        import os
+        import streamlit.components.v1 as components
+        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "index.html") 
+
+        try:
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+                print("HTML FILE READ SUCCESSFULLY")
+
+
+            # Embed the HTML content
+            # You can adjust height and scrolling as needed.
+            # For a full-page-like experience, you might need a large height.
+            # `scrolling=True` allows the component to have its own scrollbar if content overflows.
+            # st.components.v1.html(html_code, height=800)
+            components.html(html_code, height=1000, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+    # TAB 5: NEXT STEPS
+    with tab6:
         next_steps()
 
 
