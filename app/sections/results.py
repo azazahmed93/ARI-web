@@ -18,6 +18,7 @@ from .trend_analysis import trend_analysis
 from .next_steps import next_steps
 from .summary import summary
 from .premium_cta import premium_cta
+from core.analysis import industry_keywords
 
 def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product", brief_text=""):
     """Display the ARI analysis results."""
@@ -374,14 +375,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         try:
             with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
                 html_code = f.read()
-                print("HTML FILE READ SUCCESSFULLY")
-
 
             # Embed the HTML content
             # You can adjust height and scrolling as needed.
             # For a full-page-like experience, you might need a large height.
             # `scrolling=True` allows the component to have its own scrollbar if content overflows.
             # st.components.v1.html(html_code, height=800)
+            html_code = html_code.replace("{{INDUSTRY}}", industry)
+            html_code = html_code.replace("{{KEYWORDS}}", ", ".join(f"'{word}'" for word in industry_keywords[industry]))
             components.html(html_code, height=1000, scrolling=True)
 
         except FileNotFoundError:

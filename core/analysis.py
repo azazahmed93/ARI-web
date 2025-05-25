@@ -24,6 +24,18 @@ except LookupError:
     # Since punkt_tab might not be directly downloadable, we'll modify our code to use punkt instead
     pass
 
+industry_keywords = {
+    "Sports": ["sports", "athletic", "fitness", "running", "training", "performance", "athleisure"],
+    "Technology": ["tech", "digital", "software", "hardware", "electronics", "device", "app", "technology"],
+    "Fashion": ["fashion", "clothing", "apparel", "wear", "style", "outfit", "collection", "designer"],
+    "Food & Beverage": ["food", "drink", "beverage", "restaurant", "taste", "flavor", "menu", "cuisine"],
+    "Beauty": ["beauty", "cosmetic", "skincare", "makeup", "fragrance", "personal care", "grooming"],
+    "Automotive": ["car", "vehicle", "automotive", "drive", "driving", "model", "engine", "motor"],
+    "Finance": ["bank", "finance", "credit", "loan", "payment", "wallet", "money", "financial"],
+    "Healthcare": ["health", "medical", "wellness", "treatment", "patient", "clinic", "care", "therapeutic"],
+    "Entertainment": ["entertainment", "movie", "music", "streaming", "game", "gaming", "artist", "show"]
+}
+
 def extract_brand_info(brief_text):
     """
     Extract brand name and industry from the campaign brief.
@@ -93,18 +105,6 @@ def extract_brand_info(brief_text):
     
     # If industry still unknown, try to infer from content
     if industry == "General":
-        industry_keywords = {
-            "Sports": ["sports", "athletic", "fitness", "running", "training", "performance", "athleisure"],
-            "Technology": ["tech", "digital", "software", "hardware", "electronics", "device", "app", "technology"],
-            "Fashion": ["fashion", "clothing", "apparel", "wear", "style", "outfit", "collection", "designer"],
-            "Food & Beverage": ["food", "drink", "beverage", "restaurant", "taste", "flavor", "menu", "cuisine"],
-            "Beauty": ["beauty", "cosmetic", "skincare", "makeup", "fragrance", "personal care", "grooming"],
-            "Automotive": ["car", "vehicle", "automotive", "drive", "driving", "model", "engine", "motor"],
-            "Finance": ["bank", "finance", "credit", "loan", "payment", "wallet", "money", "financial"],
-            "Healthcare": ["health", "medical", "wellness", "treatment", "patient", "clinic", "care", "therapeutic"],
-            "Entertainment": ["entertainment", "movie", "music", "streaming", "game", "gaming", "artist", "show"]
-        }
-        
         # Count industry keywords in text
         industry_scores = {ind: 0 for ind in industry_keywords}
         for ind, keywords in industry_keywords.items():
