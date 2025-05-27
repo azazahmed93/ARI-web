@@ -162,7 +162,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Audience Insights", 
         "Media Affinities", 
         "Trend Analysis",
-        "Transaction data",
+        "Transaction Data",
         "Next Steps"
     ])
     
