@@ -30,7 +30,8 @@ def generate_trend_data(brief_text=None):
         "Connected TV",
         "Streaming Audio",
         "AI-Dynamic Creative",
-        "Online Video"
+        "Online Video",
+        "Native Ads"
     ]
     
     # These are potential target demographics/markets in the exact specified order
@@ -77,6 +78,9 @@ def generate_trend_data(brief_text=None):
             "social": ["Social Display Boost"],
             "instagram": ["Social Display Boost", "Rich Media"],
             "tiktok": ["Interactive Video", "Social Display Boost"],
+            "native": ["Native Ads"],
+            "sponsored": ["Native Ads"],
+            "content marketing": ["Native Ads"],
             "young": ["Gen Z", "Millennials"],
             "youth": ["Gen Z"],
             "teen": ["Gen Z"],
@@ -125,7 +129,11 @@ def generate_trend_data(brief_text=None):
                 ("Rich Media", "Millennials"): 10,
                 ("DOOH", "Urban"): 15,
                 ("DOOH", "High Income"): 8,
-                ("High Impact Display", "High Income"): 12
+                ("High Impact Display", "High Income"): 12,
+                ("Native Ads", "Millennials"): 15,
+                ("Native Ads", "Gen X"): 12,
+                ("Native Ads", "Mid Income"): 10,
+                ("Native Ads", "Suburban"): 8
             }
             
             # Create a key tuple and use a default of 0 if not found
