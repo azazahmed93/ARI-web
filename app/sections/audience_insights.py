@@ -200,29 +200,8 @@ def audience_insights(is_siteone_hispanic):
                     if performance:
                         metrics = []
                         if video_platform and 'CTR' in performance:
-                            # Show VCR instead of CTR for video content with dynamic ranges based on audience
-                            audience_name = growth_segment.get('name', '').lower()
-                            interests = interests_str.lower()
-                            # Determine appropriate VCR range based on audience characteristics
-                            if 'young' in audience_name or 'gen z' in audience_name:
-                                # Younger audiences tend to have lower VCR
-                                vcr_range = "75-85%"
-                            elif 'parent' in audience_name or 'family' in interests:
-                                # Parent/family audience has medium VCR
-                                vcr_range = "75-85%"  
-                            elif 'professional' in audience_name or 'business' in interests:
-                                # Professional audiences tend to have higher VCR
-                                vcr_range = "75-85%"
-                            else:
-                                # Check demographic targeting when available
-                                age_range = targeting_params.get('age_range', '') if targeting_params else ''
-                                if '18-34' in age_range:
-                                    vcr_range = "75-85%"
-                                elif '35-54' in age_range:
-                                    vcr_range = "75-85%"
-                                else:
-                                    # Default if we can't determine specifics
-                                    vcr_range = "75-85%"
+                            # VCR should be 90-100% for all CTV/OTT recommendations
+                            vcr_range = "90-100%"
                             metrics.append(f"Expected VCR: {vcr_range}")
                         elif audio_platform and 'CTR' in performance:
                             # Show LTR instead of CTR for audio content with dynamic ranges based on audience

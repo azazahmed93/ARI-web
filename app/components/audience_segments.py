@@ -183,19 +183,8 @@ class AudienceSegmentComponent:
             # ONLY show Expected VCR for Video platforms
             elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
                 metric_name = "Expected VCR"
-                # Create a dynamic range based on segment name
-                if 'young' in segment.name.lower() or 'gen z' in segment.name.lower():
-                    # Younger audiences tend to have lower VCR
-                    ctr = "75-85%"
-                elif 'parent' in segment.name.lower() or 'family' in segment.name.lower():
-                    # Parent/family audience has medium VCR
-                    ctr = "75-85%"
-                elif 'professional' in segment.name.lower():
-                    # Professional audiences tend to have higher VCR
-                    ctr = "75-85%"
-                else:
-                    # Default if we can't determine specifics
-                    ctr = "75-85%"
+                # VCR should be 90-100% for all CTV/OTT recommendations
+                ctr = "90-100%"
             
             # ONLY show Expected CTR for Display platforms
             elif 'display' in platform_lower or 'banner' in platform_lower or 'rich' in platform_lower or 'interactive' in platform_lower or 'high-impact' in platform_lower:

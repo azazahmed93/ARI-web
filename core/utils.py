@@ -402,10 +402,10 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         if has_dynamic_segments:
             segments = st.session_state.audience_segments.get('segments', [])
             
-            # Add Core Audience (Primary)
+            # Add Primary Growth Audience
             if len(segments) > 0:
                 primary = segments[0]
-                content.append(Paragraph("Core Audience:", 
+                content.append(Paragraph("Primary Growth Audience:", 
                                 ParagraphStyle('SubHeading', parent=normal_style, fontSize=11, fontName='Helvetica-Bold')))
                 
                 # Format the primary audience description
@@ -441,7 +441,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                     if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
                                     or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
                         metric_name = "Expected VCR"
-                        metric_value = "70-95%"  # Dynamic range for video completion
+                        metric_value = "90-100%"  # Dynamic range for video completion
                     
                     # Check for audio platforms
                     elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
@@ -478,7 +478,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                     if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
                                     or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
                         metric_name = "Expected VCR"
-                        metric_value = "70-95%"  # Dynamic range for video completion
+                        metric_value = "90-100%"  # Dynamic range for video completion
                     
                     # Check for audio platforms
                     elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
@@ -522,7 +522,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                     if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
                                     or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
                         metric_name = "Expected VCR"
-                        metric_value = "70-95%"  # Dynamic range for video completion
+                        metric_value = "90-100%"  # Dynamic range for video completion
                     
                     # Check for audio platforms
                     elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
