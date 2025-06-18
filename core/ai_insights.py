@@ -581,7 +581,7 @@ Additional audience data for SiteOne Hispanic campaign:
                     {"threat": "Mobile App Competition for Hispanic Users", "tactical_response": "Focus on high-performance mobile placements with sports content adjacencies using Spanish language interfaces."}
                 ],
                 "differentiation": [
-                    {"platform": "Mobile Video", "tactical_approach": "Create mobile-first vertical video assets in Spanish featuring landscape professionals succeeding on job sites, with specific product placements. Use VCR (Video Completion Rate) of 70-95% as the benchmark for performance."},
+                    {"platform": "Mobile Video", "tactical_approach": "Create mobile-first vertical video assets in Spanish featuring landscape professionals succeeding on job sites, with specific product placements. Use VCR (Video Completion Rate) of 70-90% as the benchmark for performance."},
                     {"platform": "Audio Streaming", "tactical_approach": "Develop Spanish-language audio ads targeting listeners of sports content and traditional music genres with mobile companion banners."}
                 ]
             }
@@ -706,7 +706,7 @@ def get_default_audience_segments(brief_text, ari_scores):
                     }
                 ],
                 "expected_performance": {
-                    "CTR": "75-85%",  # For video platforms, this becomes VCR (video completion rate)
+                    "CTR": "90-100%",  # For OTT/CTV platforms, this becomes VCR (video completion rate)
                     "engagement_rate": "5.2%"
                 },
                 "bidding_strategy": {
@@ -823,7 +823,8 @@ Additional audience data for SiteOne Hispanic campaign:
         4. Platform-specific targeting recommendations (use generic platform types, not brand names)
         5. Key performance indicators and benchmark rates to expect for omnichannel campaigns
            - For display formats: Use CTR of 0.05-0.7%
-           - For video/OTT/CTV formats: Use VCR (Video Completion Rate) of 75-85% instead of CTR
+           - For video formats: Use VCR (Video Completion Rate) of 70-90% instead of CTR
+           - For CTV/OTT formats: Use VCR (Video Completion Rate) of 90-100% instead of CTR
            - For audio formats: Use LTR (Listen-Through Rate) of 80-90% instead of CTR
         6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
         
@@ -900,7 +901,7 @@ Additional audience data for SiteOne Hispanic campaign:
                             {"platform": "Mobile Gaming", "targeting_approach": "Reach users on mobile devices through sports apps and games with Spanish language options"}
                         ],
                         "expected_performance": {
-                            "CTR": "0.3-0.7%",  # For display; would be 75-85% for video formats
+                            "CTR": "0.3-0.7%",  # For display; would be 70-90% for video formats
                             "CPA": "20-25% below account average for Spanish creative", 
                             "engagement_rate": "3.5-4.2%"
                         },
@@ -937,7 +938,7 @@ Additional audience data for SiteOne Hispanic campaign:
                         {"platform": "Sports Streaming Services", "targeting_approach": "Focus on live game audiences and pre/post-game content with high-impact ad placements"}
                     ],
                     "expected_performance": {
-                        "CTR": "75-85%",  # For video platforms, this becomes VCR (video completion rate)
+                        "CTR": "70-90%",  # For video platforms, this becomes VCR (video completion rate)
                         "CPA": "15-20% below account average", 
                         "engagement_rate": "4.5-5.2%"
                     },
