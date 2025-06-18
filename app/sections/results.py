@@ -685,6 +685,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
 
                 # Replace placeholders with the complete brief analysis data
                 html_code = html_code.replace("{{KEY_AUDIENCES}}", json.dumps(complete_brief_analysis['briefAnalysis'].get('keyAudiences', [])))
+                html_code = html_code.replace("{{MEDIA_RECOMMENDATIONS}}", json.dumps(complete_brief_analysis['briefAnalysis'].get('mediaRecommendations', {})))
                 html_code = html_code.replace("{{RECOMMENDED_DMAS}}", json.dumps(st.session_state.dma_analysis.get('recommendedDMAs')))
                 html_code = html_code.replace("{{AUDIENCE_REACH}}", json.dumps(st.session_state.dma_analysis.get('audienceReach')))
                 html_code = html_code.replace("{{MARKET_INSIGHTS}}", json.dumps(st.session_state.dma_analysis.get('marketInsights')))
