@@ -407,7 +407,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             
             # Extract competitive insights
             competitive_insights = {
-                "competitorCount": len(st.session_state.get('competitor_analysis', {}).get('competitors', [])) if 'competitor_analysis' in st.session_state else 3,
+                "competitorCount": 
+                # len(st.session_state.get('competitor_analysis', {}).get('competitors', [])) 
+                # if 'competitor_analysis' in st.session_state else 
+                3,
                 "marketShare": 27,  # Default as we don't calculate total market share
                 "strengthAreas": []
             }
