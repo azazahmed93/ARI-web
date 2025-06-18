@@ -20,6 +20,9 @@ from core.ai_insights import (
     generate_competitor_analysis,
     generate_audience_segments,
     get_default_audience_segments,
+    generate_recommended_dmas,
+    generate_audience_reach,
+    generate_market_insights,
 )
 
 from components.spinner import get_random_spinner_message
@@ -312,6 +315,31 @@ def landing_layout(inner_content):
                         # This ensures we always have audience segments to display
                         st.session_state.audience_segments = get_default_audience_segments(brief_text, scores)
                         
+                        # Initialize DMA data with default values
+                        # This ensures we have DMA data even without OpenAI
+                        default_dmas = [501, 803, 602, 807]  # NYC, LA, Chicago, SF
+                        default_audience_reach = [
+                            {"name": "New York, NY", "audienceReach": 2.8},
+                            {"name": "Los Angeles, CA", "audienceReach": 2.1},
+                            {"name": "Chicago, IL", "audienceReach": 1.3},
+                            {"name": "San Francisco-Oakland-San Jose, CA", "audienceReach": 1.0},
+                            {"name": "National Campaign", "audienceReach": 28.5}
+                        ]
+                        default_market_insights = {
+                            "primaryMarketName": "New York",
+                            "primaryMarketAudience": "Urban Professionals",
+                            "totalAddressableAudience": 7.2
+                        }
+                        
+                        st.session_state.recommended_dmas = default_dmas
+                        st.session_state.audience_reach = default_audience_reach
+                        st.session_state.market_insights = default_market_insights
+                        st.session_state.dma_analysis = {
+                            "recommendedDMAs": default_dmas,
+                            "audienceReach": default_audience_reach,
+                            "marketInsights": default_market_insights
+                        }
+                        
                         # If OpenAI API key is available, try to generate enhanced insights
                         if st.session_state.use_openai:
                             with st.spinner(get_random_spinner_message()):
@@ -331,11 +359,43 @@ def landing_layout(inner_content):
                                     if ai_audience_segments and 'segments' in ai_audience_segments:
                                         st.session_state.audience_segments = ai_audience_segments
                                         segments = st.session_state.audience_segments.get('segments', [])
-                                        st.session_state.audience_summary['core_audience'] = generate_core_audience_summary(st.session_state.audience_insights, st.session_state.audience_media_consumption, brief_text)
-                                        st.session_state.audience_summary['primary_audience'] = generate_primary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[0].get('name'), brief_text)
-                                        st.session_state.audience_summary['secondary_audience'] = generate_secondary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
+                                        
+                                        # Generate audience summaries if we have the required data
+                                        if 'audience_insights' in st.session_state and 'audience_media_consumption' in st.session_state:
+                                            if 'audience_summary' not in st.session_state:
+                                                st.session_state.audience_summary = {}
+                                            st.session_state.audience_summary['core_audience'] = generate_core_audience_summary(st.session_state.audience_insights, st.session_state.audience_media_consumption, brief_text)
+                                            st.session_state.audience_summary['primary_audience'] = generate_primary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[0].get('name'), brief_text)
+                                            st.session_state.audience_summary['secondary_audience'] = generate_secondary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
                                     
-
+                                    # Generate DMA recommendations
+                                    recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
+                                    st.session_state.recommended_dmas = recommended_dmas
+                                    
+                                    # Generate audience reach for recommended DMAs
+                                    audience_reach = generate_audience_reach(recommended_dmas, st.session_state.audience_segments, industry)
+                                    st.session_state.audience_reach = audience_reach
+                                    
+                                    # Generate market insights
+                                    # Get primary audience (first segment)
+                                    primary_audience = None
+                                    if 'segments' in st.session_state.audience_segments and len(st.session_state.audience_segments['segments']) > 0:
+                                        primary_audience = st.session_state.audience_segments['segments'][0]
+                                    
+                                    market_insights = generate_market_insights(
+                                        recommended_dmas,
+                                        primary_audience,
+                                        st.session_state.audience_segments,
+                                        audience_reach
+                                    )
+                                    st.session_state.market_insights = market_insights
+                                    
+                                    # Store the complete DMA analysis data
+                                    st.session_state.dma_analysis = {
+                                        "recommendedDMAs": recommended_dmas,
+                                        "audienceReach": audience_reach,
+                                        "marketInsights": market_insights
+                                    }
                                     
                                 except Exception as e:
                                     # Show warning but keep using default audience segments already set
