@@ -464,45 +464,45 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     511: {"name": "Washington DC", "state": "DC", "population": 2536000}
                 }
                 
-                # Get audience reach data to calculate index scores
-                audience_reach_by_dma = {}
-                for reach_data in st.session_state.audience_reach:
-                    if reach_data.get('name') != 'National Campaign':
-                        # Extract DMA name without state
-                        dma_name = reach_data['name'].split(',')[0].strip()
-                        audience_reach_by_dma[dma_name] = reach_data.get('audienceReach', 0)
+                # # Get audience reach data to calculate index scores
+                # audience_reach_by_dma = {}
+                # for reach_data in st.session_state.audience_reach:
+                #     if reach_data.get('name') != 'National Campaign':
+                #         # Extract DMA name without state
+                #         dma_name = reach_data['name'].split(',')[0].strip()
+                #         audience_reach_by_dma[dma_name] = reach_data.get('audienceReach', 0)
                 
-                # Calculate index scores based on audience reach relative to population
-                for idx, dma_id in enumerate(st.session_state.recommended_dmas[:4]):  # Top 4 markets
-                    if dma_id in dma_mapping:
-                        dma_info = dma_mapping[dma_id]
-                        dma_name_short = dma_info["name"].split('-')[0].strip()  # Handle multi-city names
+                # # Calculate index scores based on audience reach relative to population
+                # for idx, dma_id in enumerate(st.session_state.recommended_dmas[:4]):  # Top 4 markets
+                #     if dma_id in dma_mapping:
+                #         dma_info = dma_mapping[dma_id]
+                #         dma_name_short = dma_info["name"].split('-')[0].strip()  # Handle multi-city names
                         
-                        # Get audience reach for this DMA
-                        audience_reach = audience_reach_by_dma.get(dma_name_short, 0)
-                        if audience_reach == 0:
-                            # Try full name match
-                            for reach_name, reach_val in audience_reach_by_dma.items():
-                                if dma_name_short in reach_name:
-                                    audience_reach = reach_val
-                                    break
+                #         # Get audience reach for this DMA
+                #         audience_reach = audience_reach_by_dma.get(dma_name_short, 0)
+                #         if audience_reach == 0:
+                #             # Try full name match
+                #             for reach_name, reach_val in audience_reach_by_dma.items():
+                #                 if dma_name_short in reach_name:
+                #                     audience_reach = reach_val
+                #                     break
                         
-                        # Calculate index score based on audience reach vs population
-                        population_millions = dma_info["population"] / 1000000
-                        if population_millions > 0:
-                            reach_percentage = (audience_reach / population_millions) * 100
-                            # Index where 100 = average, higher is better
-                            index_score = int(100 + (reach_percentage - 35) * 2)  # Assuming 35% is average
-                        else:
-                            index_score = 100
+                #         # Calculate index score based on audience reach vs population
+                #         population_millions = dma_info["population"] / 1000000
+                #         if population_millions > 0:
+                #             reach_percentage = (audience_reach / population_millions) * 100
+                #             # Index where 100 = average, higher is better
+                #             index_score = int(100 + (reach_percentage - 35) * 2)  # Assuming 35% is average
+                #         else:
+                #             index_score = 100
                         
-                        geo_data["topMarkets"].append({
-                            "dmaId": dma_id,
-                            "name": dma_info["name"],
-                            "state": dma_info["state"],
-                            "population": dma_info["population"],
-                            "indexScore": max(80, min(180, index_score))  # Keep between 80-180
-                        })
+                #         geo_data["topMarkets"].append({
+                #             "dmaId": dma_id,
+                #             "name": dma_info["name"],
+                #             "state": dma_info["state"],
+                #             "population": dma_info["population"],
+                #             "indexScore": max(80, min(180, index_score))  # Keep between 80-180
+                #         })
             
             # Extract competitor analysis with actual threat levels
             competitors_list = []
