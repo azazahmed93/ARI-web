@@ -57,7 +57,6 @@ def landing_layout(inner_content):
     
     with col1:
         # Create an animated data visualization that looks more sophisticated
-        import numpy as np
         import time
         from datetime import datetime
         
