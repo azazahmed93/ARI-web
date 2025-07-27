@@ -1,0 +1,553 @@
+"""
+Audience Simulation module for generating AI-powered audience responses to marketing scenarios.
+This module simulates different audience segments and their reactions to marketing messages.
+"""
+import os
+import json
+from typing import Dict, List, Optional
+from openai import OpenAI
+import random
+
+# Initialize OpenAI client
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysis_data: Optional[Dict] = None) -> str:
+    """
+    Generate a prompt for the AI to simulate audience response.
+    
+    Args:
+        audience_profile: Dictionary containing audience profile information
+        user_scenario: The marketing scenario to test
+        analysis_data: Optional RFP analysis data from the main analysis
+    
+    Returns:
+        str: Formatted prompt for AI response generation
+    """
+    
+    # Get RFP context if available
+    rfp_context = ""
+    if analysis_data:
+        rfp_context = f"""
+        Based on RFP Analysis:
+        - Industry: {analysis_data.get('industry', 'General')}
+        - Key Audience: {analysis_data.get('keyAudience', 'Professional')}
+        - Campaign Focus: {analysis_data.get('summary', 'Marketing campaign')}
+        """
+    
+    # Include emerging market trends context
+    trend_context = """
+    Market Intelligence Context:
+    - Current trending topics in consumer behavior and digital marketing
+    - Emerging opportunities in sustainable business practices and wellness
+    - Rising interest in authentic brand experiences and premium lifestyle
+    """
+    
+    # Check if this is the core audience
+    if audience_profile.get('is_core', False):
+        # Generate prompt for core audience
+        characteristics = ', '.join(audience_profile.get('traits', []))
+        
+        return f"""You are representing the Core Target Audience from the RFP analysis.
+        Description: {audience_profile.get('description', 'Primary target audience')}
+        Key Characteristics: {characteristics}
+        {rfp_context}
+        {trend_context}
+        Marketing Scenario: "{user_scenario}"
+        
+        Respond as this core audience would to this marketing scenario, considering their primary business objectives, decision-making criteria, and expected outcomes.
+        Focus on how this scenario addresses their fundamental needs, aligns with their values, and meets their expectations.
+        Provide a realistic marketing response (150-200 words) that reflects their engagement level, key considerations, and likelihood to convert based on their core characteristics."""
+    
+    # Check if we have segment data in the profile
+    elif 'segment_data' in audience_profile:
+        segment = audience_profile['segment_data']
+        
+        # Build characteristics from segment data
+        characteristics = []
+        targeting_params = segment.get('targeting_params', {})
+        
+        if targeting_params:
+            if 'age_range' in targeting_params:
+                characteristics.append(f"Age: {targeting_params['age_range']}")
+            if 'gender_targeting' in targeting_params:
+                characteristics.append(f"Gender: {targeting_params['gender_targeting']}")
+            if 'income_targeting' in targeting_params:
+                characteristics.append(f"Income: {targeting_params['income_targeting']}")
+            if 'education_targeting' in targeting_params:
+                characteristics.append(f"Education: {targeting_params['education_targeting']}")
+        
+        # Add interests
+        interests = segment.get('interest_categories', [])
+        if interests:
+            characteristics.append(f"Interests: {', '.join(interests)}")
+        
+        characteristics_str = '; '.join(characteristics) if characteristics else 'General audience characteristics'
+        
+        # Build motivations from segment data
+        motivations = []
+        if 'bidding_strategy' in segment:
+            bidding = segment['bidding_strategy']
+            if 'strategy_type' in bidding:
+                motivations.append(f"{bidding['strategy_type']} focused")
+        
+        # Add platform preferences
+        if 'platform_targeting' in segment:
+            platforms = [p.get('platform', '') for p in segment['platform_targeting'] if 'platform' in p]
+            if platforms:
+                motivations.append(f"Active on {', '.join(platforms)}")
+        
+        motivations_str = ', '.join(motivations) if motivations else 'General consumer motivations'
+        
+        # Generate dynamic prompt
+        return f"""You are representing {audience_profile['name']}: {audience_profile.get('description', 'a target audience segment')}.
+        Characteristics: {characteristics_str}
+        {rfp_context}
+        {trend_context}
+        Marketing Scenario: "{user_scenario}"
+        
+        Respond as this audience would to this marketing scenario, considering their {motivations_str}.
+        Focus on how this scenario aligns with their interests, demographics, and platform preferences.
+        Provide a realistic marketing response (150-200 words) that reflects their engagement level, concerns, and likelihood to convert based on their profile."""
+    
+    # Fallback to hardcoded prompts if no segment data
+    prompts = {
+        'rfp-core-audience': f"""You are representing the RFP Core Audience: the primary target audience identified in the RFP analysis.
+        {f"Characteristics: {analysis_data.get('keyAudience', 'Professional decision makers')} in {analysis_data.get('industry', 'the industry')}, focused on {analysis_data.get('summary', 'business results and strategic outcomes')}." if analysis_data else 'Characteristics: Strategic decision makers, performance-focused professionals, results-oriented buyers with quality-conscious mindset.'}
+        {rfp_context}
+        {trend_context}
+        Marketing Scenario: "{user_scenario}"
+        
+        Respond as this RFP Core Audience would to this marketing scenario, considering their primary motivations around business results, strategic decision-making, and performance optimization.
+        Focus on how this scenario addresses their core business needs, decision criteria, and expected outcomes.
+        Provide a realistic marketing response (150-200 words) that reflects their engagement level, business considerations, and likelihood to convert based on their strategic focus and professional priorities.""",
+        
+        'growth-audience-1': f"""You are representing Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis. 
+        Characteristics: Innovation-driven, environmental consciousness, digital natives, urban lifestyle preferences.
+        {rfp_context}
+        {trend_context}
+        Marketing Scenario: "{user_scenario}"
+        
+        Respond as this Growth Audience 1 (Urban Explorers) would to this marketing scenario, considering their motivations around technology adoption, sustainability values, and innovative solutions. Factor in current market trends around eco-tech and urban sustainability.
+        Focus on how this scenario aligns with their interest in cutting-edge technology, environmental responsibility, and urban innovation.
+        Provide a realistic marketing response (150-200 words) that reflects their engagement level, potential concerns, and likelihood to convert based on their tech-forward and sustainability-focused nature.""",
+        
+        'growth-audience-2': f"""You are representing Growth Audience 2 - Global Nomads: a luxury-lifestyle driven, health-conscious marketing audience from the RFP analysis.
+        Characteristics: Premium experiences, wellness-focused, location independence, quality over quantity mindset.
+        {rfp_context}
+        {trend_context}
+        Marketing Scenario: "{user_scenario}"
+        
+        Respond as this Growth Audience 2 (Global Nomads) would to this marketing scenario, considering their motivations around luxury consumption, wellness priorities, and lifestyle flexibility. Consider emerging trends in wellness tourism and premium lifestyle services.
+        Focus on how this scenario appeals to their desire for premium, health-conscious products/services and high-quality experiences.
+        Provide a realistic marketing response (150-200 words) that reflects their interest level, wellness considerations, and luxury expectations based on their nomadic lifestyle and health-conscious values.""",
+        
+        'emerging-audience': f"""You are representing Emerging Audience 3 - Cultural Enthusiasts: a budget-conscious, experience-seeking marketing audience from the RFP analysis.
+        Characteristics: Cultural immersion, value-oriented, authentic experiences, social connection priorities.
+        {rfp_context}
+        {trend_context}
+        Marketing Scenario: "{user_scenario}"
+        
+        Respond as this Emerging Audience 3 (Cultural Enthusiasts) would to this marketing scenario, considering their motivations around cultural authenticity, value consciousness, and meaningful experiences. Factor in growing trends around authentic brand storytelling and community-driven experiences.
+        Focus on how this scenario offers cultural relevance, affordability, and authentic connection opportunities.
+        Provide a realistic marketing response (150-200 words) that reflects their enthusiasm, budget considerations, and cultural values based on their experience-seeking nature."""
+    }
+    
+    return prompts.get(audience_profile['id'], prompts['rfp-core-audience'])
+
+def simulate_audience_response(audience_profile: Dict, user_scenario: str, analysis_data: Optional[Dict] = None) -> Dict:
+    """
+    Simulate an audience response to a marketing scenario.
+    
+    Args:
+        audience_profile: Dictionary containing audience profile information
+        user_scenario: The marketing scenario to test
+        analysis_data: Optional RFP analysis data
+    
+    Returns:
+        Dict: Audience response with metrics and insights
+    """
+    
+    # Check if OpenAI API is available
+    if not os.environ.get("OPENAI_API_KEY"):
+        # Generate a default response without AI
+        return generate_default_response(audience_profile, user_scenario)
+    
+    try:
+        prompt = generate_audience_prompt(audience_profile, user_scenario, analysis_data)
+        
+        # Call OpenAI API
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are an expert in audience behavior analysis and marketing psychology."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=300
+        )
+        
+        response_text = response.choices[0].message.content.strip()
+        
+        # Analyze sentiment and generate metrics
+        sentiment = analyze_sentiment(response_text)
+        metrics = generate_response_metrics(sentiment, audience_profile)
+        
+        # Extract key insights
+        key_insights = extract_key_insights(response_text, sentiment, metrics)
+        
+        # Extract a quote (first sentence or meaningful phrase)
+        sentences = response_text.split('.')
+        quote = sentences[0].strip() + '.' if sentences else "This scenario aligns with our interests."
+        
+        return {
+            'audienceType': audience_profile['name'],
+            'response': response_text,
+            'quote': quote,
+            'sentiment': sentiment,
+            'resonanceScore': metrics['resonanceScore'],
+            'engagementLevel': metrics['engagementLevel'],
+            'conversionPotential': metrics['conversionPotential'],
+            'keyInsights': key_insights
+        }
+        
+    except Exception as e:
+        # Fallback to default response on error
+        return generate_default_response(audience_profile, user_scenario)
+
+def analyze_sentiment(response_text: str) -> str:
+    """
+    Analyze the sentiment of the response text.
+    
+    Args:
+        response_text: The AI-generated response
+    
+    Returns:
+        str: 'positive', 'neutral', or 'negative'
+    """
+    positive_words = ['excited', 'love', 'great', 'amazing', 'excellent', 'fantastic', 'interested', 'valuable', 'impressive']
+    negative_words = ['concerned', 'worried', 'skeptical', 'disappointed', 'confused', 'uncertain', 'expensive', 'difficult']
+    
+    response_lower = response_text.lower()
+    
+    positive_count = sum(1 for word in positive_words if word in response_lower)
+    negative_count = sum(1 for word in negative_words if word in response_lower)
+    
+    if positive_count > negative_count:
+        return 'positive'
+    elif negative_count > positive_count:
+        return 'negative'
+    else:
+        return 'neutral'
+
+def generate_response_metrics(sentiment: str, audience_profile: Dict) -> Dict:
+    """
+    Generate realistic metrics based on sentiment and audience profile.
+    
+    Args:
+        sentiment: The sentiment analysis result
+        audience_profile: The audience profile dictionary
+    
+    Returns:
+        Dict: Metrics including resonance score, engagement level, and conversion potential
+    """
+    # Base metrics by sentiment
+    base_metrics = {
+        'positive': {'resonance': (8, 10), 'engagement': (7, 10), 'conversion': (6, 9)},
+        'neutral': {'resonance': (5, 7), 'engagement': (5, 7), 'conversion': (4, 6)},
+        'negative': {'resonance': (2, 4), 'engagement': (3, 5), 'conversion': (2, 4)}
+    }
+    
+    metrics = base_metrics.get(sentiment, base_metrics['neutral'])
+    
+    # Adjust based on audience profile
+    if 'tech-forward' in ' '.join(audience_profile.get('traits', [])).lower():
+        # Tech-forward audiences may have higher engagement
+        adjustment = 1
+    elif 'budget-conscious' in ' '.join(audience_profile.get('traits', [])).lower():
+        # Budget-conscious audiences may have lower conversion
+        adjustment = -1
+    else:
+        adjustment = 0
+    
+    return {
+        'resonanceScore': random.randint(*metrics['resonance']) + adjustment,
+        'engagementLevel': random.randint(*metrics['engagement']) + adjustment,
+        'conversionPotential': random.randint(*metrics['conversion']) + adjustment
+    }
+
+def extract_key_insights(response_text: str, sentiment: str, metrics: Dict) -> List[str]:
+    """
+    Extract key insights from the response.
+    
+    Args:
+        response_text: The AI-generated response
+        sentiment: The sentiment analysis result
+        metrics: The generated metrics
+    
+    Returns:
+        List[str]: List of key insights
+    """
+    interest_level = 'High' if sentiment == 'positive' else 'Low' if sentiment == 'negative' else 'Moderate'
+    
+    insights = [
+        f"{interest_level} initial interest",
+        f"{metrics['conversionPotential']}/10 conversion potential"
+    ]
+    
+    # Add specific insight based on response content
+    if 'sustainable' in response_text.lower() or 'eco' in response_text.lower():
+        insights.append("Sustainability focus resonates")
+    elif 'premium' in response_text.lower() or 'luxury' in response_text.lower():
+        insights.append("Premium positioning aligns")
+    elif 'value' in response_text.lower() or 'affordable' in response_text.lower():
+        insights.append("Value proposition important")
+    else:
+        insights.append("Brand alignment potential")
+    
+    return insights
+
+def generate_default_response(audience_profile: Dict, user_scenario: str) -> Dict:
+    """
+    Generate a default response when AI is not available.
+    
+    Args:
+        audience_profile: Dictionary containing audience profile information
+        user_scenario: The marketing scenario to test
+    
+    Returns:
+        Dict: Default audience response
+    """
+    # Generate dynamic response based on audience profile
+    traits = audience_profile.get('traits', [])
+    name = audience_profile.get('name', 'Target Audience')
+    description = audience_profile.get('description', '')
+    
+    # Determine sentiment based on traits
+    positive_indicators = ['premium', 'innovative', 'tech', 'quality', 'enthusiast']
+    negative_indicators = ['budget', 'value', 'cost-conscious']
+    
+    sentiment = 'neutral'
+    traits_lower = ' '.join(traits).lower()
+    if any(indicator in traits_lower for indicator in positive_indicators):
+        sentiment = 'positive'
+    elif any(indicator in traits_lower for indicator in negative_indicators) and 'premium' in user_scenario.lower():
+        sentiment = 'negative'
+    
+    # Generate response based on profile
+    if 'segment_data' in audience_profile:
+        # Use segment data to craft response
+        segment = audience_profile['segment_data']
+        interests = segment.get('interest_categories', [])
+        
+        response = f"As {name}, we evaluate this scenario based on our interests in {', '.join(interests[:2]) if interests else 'our core values'}. "
+        response += f"The approach outlined in '{user_scenario}' would need to align with our {traits[0] if traits else 'preferences'}. "
+        response += f"We appreciate solutions that understand our {description.lower() if description else 'needs'}."
+    else:
+        # Fallback response
+        response = f"As {name}, we evaluate this scenario based on our {traits[0] if traits else 'values'}. "
+        response += f"The approach outlined in '{user_scenario}' would need to demonstrate clear value. "
+        response += f"We look for brands that align with our {traits[1] if len(traits) > 1 else 'lifestyle'}."
+    
+    # Set metrics based on sentiment
+    metrics_map = {
+        'positive': {'resonance': 7, 'engagement': 8, 'conversion': 6},
+        'neutral': {'resonance': 6, 'engagement': 5, 'conversion': 5},
+        'negative': {'resonance': 3, 'engagement': 4, 'conversion': 2}
+    }
+    
+    metrics = metrics_map.get(sentiment, metrics_map['neutral'])
+    
+    return {
+        'audienceType': name,
+        'response': response,
+        'quote': response.split('.')[0] + '.',
+        'sentiment': sentiment,
+        'resonanceScore': metrics['resonance'],
+        'engagementLevel': metrics['engagement'],
+        'conversionPotential': metrics['conversion'],
+        'keyInsights': [
+            f"{sentiment.capitalize()} initial response",
+            f"{traits[0] if traits else 'General'} alignment",
+            f"{metrics['conversion']}/10 conversion potential"
+        ]
+    }
+
+def get_audience_profiles(analysis_data: Optional[Dict] = None) -> List[Dict]:
+    """
+    Get the audience profiles for simulation from session state.
+    
+    Args:
+        analysis_data: Optional RFP analysis data
+    
+    Returns:
+        List[Dict]: List of audience profiles
+    """
+    import streamlit as st
+    
+    profiles = []
+    
+    # First, add the core audience if available
+    if 'audience_summary' in st.session_state and st.session_state.audience_summary:
+        core_audience = st.session_state.audience_summary.get('core_audience', '')
+        primary_audience = st.session_state.audience_summary.get('primary_audience', '')
+        
+        if core_audience:
+            # Extract key characteristics from the core audience description
+            traits = []
+            
+            # Try to extract some traits from the description
+            if 'professional' in core_audience.lower():
+                traits.append('Professional focus')
+            if 'decision' in core_audience.lower():
+                traits.append('Decision makers')
+            if 'strategic' in core_audience.lower():
+                traits.append('Strategic mindset')
+            if 'quality' in core_audience.lower():
+                traits.append('Quality conscious')
+            
+            # Add industry/brand context if available
+            if 'brand_name' in st.session_state:
+                traits.append(f"{st.session_state.brand_name} aligned")
+            
+            # Ensure we have at least 4 traits
+            default_core_traits = ['Results oriented', 'Performance driven', 'ROI focused', 'Value seeking']
+            while len(traits) < 4 and default_core_traits:
+                traits.append(default_core_traits.pop(0))
+            
+            # Create core audience profile with correct ID
+            core_profile = {
+                'id': 'rfp-core-audience',
+                'name': 'RFP Core Audience',
+                'description': core_audience[:100] if len(core_audience) > 100 else core_audience,
+                'traits': traits[:4],
+                'icon': '🎯',
+                'color': 'red',
+                'is_core': True
+            }
+            profiles.append(core_profile)
+    
+    # Check if we have audience segments in session state
+    if 'audience_segments' in st.session_state and st.session_state.audience_segments:
+        segments_data = st.session_state.audience_segments
+        
+        if 'segments' in segments_data and isinstance(segments_data['segments'], list):
+            segment_list = segments_data['segments']
+            
+            # Define icons for each audience type (skip first one since core uses it)
+            icons = ['📱', '✈️', '☕', '🌟', '🎨', '🏆']
+            colors = ['green', 'purple', 'orange', 'blue', 'yellow', 'gray']
+            
+            # Process each segment (limit based on how many slots we have left)
+            max_segments = 4 - len(profiles)  # Account for core audience if added
+            for idx, segment in enumerate(segment_list[:max_segments]):
+                # Extract traits from targeting parameters and interests
+                traits = []
+                
+                # Add interests as traits
+                if 'interest_categories' in segment:
+                    # Take up to 2 interests
+                    interests = segment['interest_categories'][:2]
+                    traits.extend(interests)
+                
+                # Add demographic traits
+                targeting_params = segment.get('targeting_params', {})
+                if 'age_range' in targeting_params:
+                    traits.append(f"Age {targeting_params['age_range']}")
+                if 'income_targeting' in targeting_params:
+                    income = targeting_params['income_targeting']
+                    # Shorten income description if too long
+                    if len(income) > 20:
+                        income = income.split(',')[0]  # Take first part
+                    traits.append(income)
+                if 'education_targeting' in targeting_params and len(traits) < 4:
+                    traits.append(targeting_params['education_targeting'])
+                
+                # Add platform preferences if we still need traits
+                if len(traits) < 4 and 'platform_targeting' in segment:
+                    platforms = segment['platform_targeting']
+                    if platforms and isinstance(platforms, list):
+                        for platform in platforms[:2]:  # Take up to 2 platforms
+                            if 'platform' in platform and len(traits) < 4:
+                                traits.append(f"{platform['platform']} user")
+                
+                # Ensure we have at least 4 traits
+                default_traits = ['Strategic focus', 'Quality conscious', 'Results oriented', 'Value driven']
+                while len(traits) < 4:
+                    if default_traits:
+                        traits.append(default_traits.pop(0))
+                
+                # Create profile with proper description
+                description = segment.get('description', '')
+                if not description and 'targeting_params' in segment:
+                    # Build description from targeting params
+                    params = segment['targeting_params']
+                    desc_parts = []
+                    if 'age_range' in params:
+                        desc_parts.append(params['age_range'])
+                    if 'gender_targeting' in params and params['gender_targeting'] != 'All':
+                        desc_parts.append(params['gender_targeting'])
+                    description = ', '.join(desc_parts) if desc_parts else 'Target audience segment'
+                
+                # Map index to correct IDs
+                id_mapping = {
+                    0: 'growth-audience-1',
+                    1: 'growth-audience-2',
+                    2: 'emerging-audience'
+                }
+                
+                # Create profile
+                profile = {
+                    'id': id_mapping.get(idx, f'audience-{idx}'),
+                    'name': segment.get('name', f'Audience Segment {idx + 1}'),
+                    'description': description[:100],  # Limit description length
+                    'traits': traits[:4],  # Limit to 4 traits
+                    'icon': icons[idx % len(icons)],
+                    'color': colors[idx % len(colors)],
+                    'segment_data': segment  # Store original segment data for reference
+                }
+                profiles.append(profile)
+            
+            # If we have profiles from session state, return them
+            if profiles:
+                return profiles
+    
+    # Fallback to default profiles if no segments in session state
+    return [
+        {
+            'id': 'rfp-core-audience',
+            'name': 'RFP Core Audience',
+            'description': f"{analysis_data.get('keyAudience', 'Primary Target')} - {analysis_data.get('industry', 'Professional')}" if analysis_data else 'Primary RFP Target Audience',
+            'traits': [
+                f"{analysis_data.get('industry', 'Industry')} focused" if analysis_data else 'Strategic decision makers',
+                'Decision makers',
+                'Strategic buyers',
+                'Performance driven'
+            ],
+            'icon': '🎯',
+            'color': 'gray'
+        },
+        {
+            'id': 'growth-audience-1',
+            'name': 'Growth Audience 1 – Urban Explorers',
+            'description': 'Tech-Forward, Values Sustainability',
+            'traits': ['Innovation-driven', 'Environmental consciousness', 'Digital natives', 'Urban lifestyle'],
+            'icon': '📱',
+            'color': 'green'
+        },
+        {
+            'id': 'growth-audience-2',
+            'name': 'Growth Audience 2 – Global Nomads',
+            'description': 'Luxury-Lifestyle Driven, Health-Conscious',
+            'traits': ['Premium experiences', 'Wellness-focused', 'Location independence', 'Quality over quantity'],
+            'icon': '✈️',
+            'color': 'purple'
+        },
+        {
+            'id': 'emerging-audience',
+            'name': 'Emerging Audience 3 – Cultural Enthusiasts',
+            'description': 'Budget-Conscious, Experience Seekers',
+            'traits': ['Cultural immersion', 'Value-oriented', 'Authentic experiences', 'Social connection'],
+            'icon': '☕',
+            'color': 'orange'
+        }
+    ]
