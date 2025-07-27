@@ -201,10 +201,15 @@ class AudienceSegmentComponent:
                     else:
                         ctr = "0.18%"
 
+        ctr_to_use = metrics.get('ctr', ctr)
+        if 'video' in platform_lower:
+            ctr_to_use = '70-90%'
+        elif 'ott/ctv' in platform_lower or 'ctv/ott' in platform_lower:
+            ctr_to_use = '90-100%'
         return f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment.segment_type} Audience {audience_segment_tip}</span>
-                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">{metric_name}: {metrics.get('ctr', ctr)}</span>
+                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">{metric_name}: {ctr_to_use}</span>
             </div>
             <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment.name}</h4>
             <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment.description}</p>

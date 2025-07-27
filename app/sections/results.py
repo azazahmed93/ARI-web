@@ -160,13 +160,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
         "Detailed Metrics", 
         "Audience Insights", 
         "Media Affinities", 
         "Trend Analysis",
         "Transaction Data",
         "DMA Insights",
+        "Audience Simulation",
         "Next Steps"
     ])
     
@@ -703,6 +704,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         except Exception as e:
             st.error(f"An error occurred: {e}")
     with tab7:
+        # Import and display audience simulation
+        from .audience_simulation import display_audience_simulation
+        display_audience_simulation()
+    
+    with tab8:
         next_steps()
 
 
