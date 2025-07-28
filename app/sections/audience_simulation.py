@@ -25,15 +25,8 @@ def display_audience_simulation():
     """, unsafe_allow_html=True)
     
     # Header section
-    st.markdown("""
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: #a855f7; margin-bottom: 10px; font-size: 2.5rem;">Audience Simulation</h1>
-        <p style="color: #6b7280; font-size: 1rem; max-width: 600px; margin: 0 auto;">
-            Validate marketing strategies with real audience psychology using AI-powered<br>
-            behavioral modeling and emerging market intelligence
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### Audience Simulation")
+    st.markdown("Validate marketing strategies with real audience psychology using AI-powered behavioral modeling and emerging market intelligence")
     
     # RFP Connection Status
     analysis_data = None
@@ -76,7 +69,7 @@ def display_audience_simulation():
     
     # Simulation results
     if simulate_button and scenario.strip():
-        with st.spinner("🔄 Simulating audience responses..."):
+        with st.spinner("Simulating audience responses..."):
             simulation_results = []
             
             # Progress bar
