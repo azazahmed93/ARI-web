@@ -182,7 +182,9 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         # Add metrics data with alternating row colors
         for i, (metric, score) in enumerate(scores.items()):
             level = "high" if score >= 7 else "medium" if score >= 4 else "low"
-            metric_details = st.session_state.ai_insights.get('metric_details', {})
+            metric_details = {}
+            if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+                metric_details = st.session_state.ai_insights.get('metric_details', {})
             if metric in metric_details:
                 description = metric_details[metric]
             else:
@@ -626,7 +628,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         
         # Get trend applications from AI insights if available in session state
         trend_applications = []
-        if hasattr(st, 'session_state') and 'ai_insights' in st.session_state:
+        if hasattr(st, 'session_state') and 'ai_insights' in st.session_state and st.session_state.ai_insights:
             trend_applications = st.session_state.ai_insights.get('trends', [])
         
         # If AI insights not available, use default applications
