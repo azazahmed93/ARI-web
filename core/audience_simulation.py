@@ -55,8 +55,9 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Marketing Scenario: "{user_scenario}"
         
         Respond as this core audience would to this marketing scenario, considering their primary business objectives, decision-making criteria, and expected outcomes.
-        Focus on how this scenario addresses their fundamental needs, aligns with their values, and meets their expectations.
-        Provide a realistic marketing response (150-200 words) that reflects their engagement level, key considerations, and likelihood to convert based on their core characteristics."""
+        
+        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
+        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment."""
     
     # Check if we have segment data in the profile
     elif 'segment_data' in audience_profile:
@@ -106,8 +107,9 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Marketing Scenario: "{user_scenario}"
         
         Respond as this audience would to this marketing scenario, considering their {motivations_str}.
-        Focus on how this scenario aligns with their interests, demographics, and platform preferences.
-        Provide a realistic marketing response (150-200 words) that reflects their engagement level, concerns, and likelihood to convert based on their profile."""
+        
+        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
+        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment."""
     
     # Fallback to hardcoded prompts if no segment data
     prompts = {
@@ -118,8 +120,9 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Marketing Scenario: "{user_scenario}"
         
         Respond as this RFP Core Audience would to this marketing scenario, considering their primary motivations around business results, strategic decision-making, and performance optimization.
-        Focus on how this scenario addresses their core business needs, decision criteria, and expected outcomes.
-        Provide a realistic marketing response (150-200 words) that reflects their engagement level, business considerations, and likelihood to convert based on their strategic focus and professional priorities.""",
+        
+        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
+        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment.""",
         
         'growth-audience-1': f"""You are representing Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis. 
         Characteristics: Innovation-driven, environmental consciousness, digital natives, urban lifestyle preferences.
@@ -127,9 +130,10 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this Growth Audience 1 (Urban Explorers) would to this marketing scenario, considering their motivations around technology adoption, sustainability values, and innovative solutions. Factor in current market trends around eco-tech and urban sustainability.
-        Focus on how this scenario aligns with their interest in cutting-edge technology, environmental responsibility, and urban innovation.
-        Provide a realistic marketing response (150-200 words) that reflects their engagement level, potential concerns, and likelihood to convert based on their tech-forward and sustainability-focused nature.""",
+        Respond as this Growth Audience 1 (Urban Explorers) would to this marketing scenario, considering their motivations around technology adoption, sustainability values, and innovative solutions.
+        
+        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
+        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment.""",
         
         'growth-audience-2': f"""You are representing Growth Audience 2 - Global Nomads: a luxury-lifestyle driven, health-conscious marketing audience from the RFP analysis.
         Characteristics: Premium experiences, wellness-focused, location independence, quality over quantity mindset.
@@ -137,9 +141,10 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this Growth Audience 2 (Global Nomads) would to this marketing scenario, considering their motivations around luxury consumption, wellness priorities, and lifestyle flexibility. Consider emerging trends in wellness tourism and premium lifestyle services.
-        Focus on how this scenario appeals to their desire for premium, health-conscious products/services and high-quality experiences.
-        Provide a realistic marketing response (150-200 words) that reflects their interest level, wellness considerations, and luxury expectations based on their nomadic lifestyle and health-conscious values.""",
+        Respond as this Growth Audience 2 (Global Nomads) would to this marketing scenario, considering their motivations around luxury consumption, wellness priorities, and lifestyle flexibility.
+        
+        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
+        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment.""",
         
         'emerging-audience': f"""You are representing Emerging Audience 3 - Cultural Enthusiasts: a budget-conscious, experience-seeking marketing audience from the RFP analysis.
         Characteristics: Cultural immersion, value-oriented, authentic experiences, social connection priorities.
@@ -147,9 +152,10 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this Emerging Audience 3 (Cultural Enthusiasts) would to this marketing scenario, considering their motivations around cultural authenticity, value consciousness, and meaningful experiences. Factor in growing trends around authentic brand storytelling and community-driven experiences.
-        Focus on how this scenario offers cultural relevance, affordability, and authentic connection opportunities.
-        Provide a realistic marketing response (150-200 words) that reflects their enthusiasm, budget considerations, and cultural values based on their experience-seeking nature."""
+        Respond as this Emerging Audience 3 (Cultural Enthusiasts) would to this marketing scenario, considering their motivations around cultural authenticity, value consciousness, and meaningful experiences.
+        
+        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
+        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment."""
     }
     
     return prompts.get(audience_profile['id'], prompts['rfp-core-audience'])
@@ -195,9 +201,8 @@ def simulate_audience_response(audience_profile: Dict, user_scenario: str, analy
         # Extract key insights
         key_insights = extract_key_insights(response_text, sentiment, metrics)
         
-        # Extract a quote (first sentence or meaningful phrase)
-        sentences = response_text.split('.')
-        quote = sentences[0].strip() + '.' if sentences else "This scenario aligns with our interests."
+        # Use the full response as the quote since it's now short and focused
+        quote = response_text
         
         return {
             'audienceType': audience_profile['name'],
@@ -339,14 +344,21 @@ def generate_default_response(audience_profile: Dict, user_scenario: str) -> Dic
         segment = audience_profile['segment_data']
         interests = segment.get('interest_categories', [])
         
-        response = f"As {name}, we evaluate this scenario based on our interests in {', '.join(interests[:2]) if interests else 'our core values'}. "
-        response += f"The approach outlined in '{user_scenario}' would need to align with our {traits[0] if traits else 'preferences'}. "
-        response += f"We appreciate solutions that understand our {description.lower() if description else 'needs'}."
+        # Generate a short, sentiment-aligned response
+        if sentiment == 'positive':
+            response = f"This really resonates with our {interests[0] if interests else 'values'} - we're excited about how this aligns with our {traits[0].lower() if traits else 'interests'}!"
+        elif sentiment == 'negative':
+            response = f"We're concerned this doesn't align with our {interests[0] if interests else 'values'} and might not meet our {traits[0].lower() if traits else 'needs'}."
+        else:
+            response = f"This could work for our {name}, but we'd need to see how it specifically addresses our {interests[0] if interests else 'priorities'}."
     else:
         # Fallback response
-        response = f"As {name}, we evaluate this scenario based on our {traits[0] if traits else 'values'}. "
-        response += f"The approach outlined in '{user_scenario}' would need to demonstrate clear value. "
-        response += f"We look for brands that align with our {traits[1] if len(traits) > 1 else 'lifestyle'}."
+        if sentiment == 'positive':
+            response = f"We're impressed by this approach - it clearly understands our {traits[0].lower() if traits else 'values'} and shows real potential!"
+        elif sentiment == 'negative':
+            response = f"This doesn't seem to align with our {traits[0].lower() if traits else 'priorities'}, and we're skeptical about the value proposition."
+        else:
+            response = f"As {name}, we see some potential here but would need more specifics on how this addresses our {traits[0].lower() if traits else 'needs'}."
     
     # Set metrics based on sentiment
     metrics_map = {
@@ -360,7 +372,7 @@ def generate_default_response(audience_profile: Dict, user_scenario: str) -> Dic
     return {
         'audienceType': name,
         'response': response,
-        'quote': response.split('.')[0] + '.',
+        'quote': response,  # Use full response as quote since it's now short
         'sentiment': sentiment,
         'resonanceScore': metrics['resonance'],
         'engagementLevel': metrics['engagement'],
