@@ -46,7 +46,7 @@ def display_audience_simulation():
     
     # Marketing Scenario section with proper Streamlit components
     with st.container():
-        st.markdown("### ✨ Marketing Scenario")
+        st.markdown("### Marketing Scenario")
         st.markdown("Test marketing messages, positioning strategies, or communication approaches with RFP-based audience segments")
         
         # Create the scenario input area
@@ -63,7 +63,7 @@ def display_audience_simulation():
         with col1:
             st.caption(f"{len(scenario)}/500 characters")
         with col2:
-            simulate_button = st.button("🚀 Simulate Audience Response", type="primary", use_container_width=True)
+            simulate_button = st.button("Simulate Audience Response", type="primary", use_container_width=True)
     
     # Get audience profiles
     audience_profiles = get_audience_profiles(analysis_data)
