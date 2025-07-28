@@ -47,17 +47,17 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         # Generate prompt for core audience
         characteristics = ', '.join(audience_profile.get('traits', []))
         
-        return f"""You are representing the Core Target Audience from the RFP analysis.
+        return f"""Analyze the Core Target Audience from the RFP analysis and predict their behavioral response.
         Description: {audience_profile.get('description', 'Primary target audience')}
         Key Characteristics: {characteristics}
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this core audience would to this marketing scenario, considering their primary business objectives, decision-making criteria, and expected outcomes.
+        Based on this core audience's primary business objectives, decision-making criteria, and expected outcomes, analyze how they would likely respond to this marketing scenario.
         
-        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
-        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment."""
+        Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response."""
     
     # Check if we have segment data in the profile
     elif 'segment_data' in audience_profile:
@@ -100,62 +100,62 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         motivations_str = ', '.join(motivations) if motivations else 'General consumer motivations'
         
         # Generate dynamic prompt
-        return f"""You are representing {audience_profile['name']}: {audience_profile.get('description', 'a target audience segment')}.
+        return f"""Analyze {audience_profile['name']}: {audience_profile.get('description', 'a target audience segment')} and predict their behavioral response.
         Characteristics: {characteristics_str}
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this audience would to this marketing scenario, considering their {motivations_str}.
+        Based on this audience segment's characteristics and their {motivations_str}, analyze how they would likely respond to this marketing scenario.
         
-        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
-        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment."""
+        Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response."""
     
     # Fallback to hardcoded prompts if no segment data
     prompts = {
-        'rfp-core-audience': f"""You are representing the RFP Core Audience: the primary target audience identified in the RFP analysis.
+        'rfp-core-audience': f"""Analyze the RFP Core Audience: the primary target audience identified in the RFP analysis.
         {f"Characteristics: {analysis_data.get('keyAudience', 'Professional decision makers')} in {analysis_data.get('industry', 'the industry')}, focused on {analysis_data.get('summary', 'business results and strategic outcomes')}." if analysis_data else 'Characteristics: Strategic decision makers, performance-focused professionals, results-oriented buyers with quality-conscious mindset.'}
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this RFP Core Audience would to this marketing scenario, considering their primary motivations around business results, strategic decision-making, and performance optimization.
+        Based on this RFP Core Audience's primary motivations around business results, strategic decision-making, and performance optimization, analyze how they would likely respond to this marketing scenario.
         
-        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
-        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment.""",
+        Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.""",
         
-        'growth-audience-1': f"""You are representing Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis. 
+        'growth-audience-1': f"""Analyze Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis. 
         Characteristics: Innovation-driven, environmental consciousness, digital natives, urban lifestyle preferences.
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this Growth Audience 1 (Urban Explorers) would to this marketing scenario, considering their motivations around technology adoption, sustainability values, and innovative solutions.
+        Based on Growth Audience 1 (Urban Explorers) motivations around technology adoption, sustainability values, and innovative solutions, analyze how they would likely respond to this marketing scenario.
         
-        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
-        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment.""",
+        Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.""",
         
-        'growth-audience-2': f"""You are representing Growth Audience 2 - Global Nomads: a luxury-lifestyle driven, health-conscious marketing audience from the RFP analysis.
+        'growth-audience-2': f"""Analyze Growth Audience 2 - Global Nomads: a luxury-lifestyle driven, health-conscious marketing audience from the RFP analysis.
         Characteristics: Premium experiences, wellness-focused, location independence, quality over quantity mindset.
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this Growth Audience 2 (Global Nomads) would to this marketing scenario, considering their motivations around luxury consumption, wellness priorities, and lifestyle flexibility.
+        Based on Growth Audience 2 (Global Nomads) motivations around luxury consumption, wellness priorities, and lifestyle flexibility, analyze how they would likely respond to this marketing scenario.
         
-        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
-        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment.""",
+        Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.""",
         
-        'emerging-audience': f"""You are representing Emerging Audience 3 - Cultural Enthusiasts: a budget-conscious, experience-seeking marketing audience from the RFP analysis.
+        'emerging-audience': f"""Analyze Emerging Audience 3 - Cultural Enthusiasts: a budget-conscious, experience-seeking marketing audience from the RFP analysis.
         Characteristics: Cultural immersion, value-oriented, authentic experiences, social connection priorities.
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
         
-        Respond as this Emerging Audience 3 (Cultural Enthusiasts) would to this marketing scenario, considering their motivations around cultural authenticity, value consciousness, and meaningful experiences.
+        Based on Emerging Audience 3 (Cultural Enthusiasts) motivations around cultural authenticity, value consciousness, and meaningful experiences, analyze how they would likely respond to this marketing scenario.
         
-        Provide a direct 1-2 sentence response that clearly expresses their sentiment (positive, neutral, or negative) about this scenario.
-        Your response should immediately convey whether they would be excited, interested, skeptical, or concerned, matching their overall feeling with specific words that reflect that sentiment."""
+        Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response."""
     }
     
     return prompts.get(audience_profile['id'], prompts['rfp-core-audience'])
@@ -185,7 +185,7 @@ def simulate_audience_response(audience_profile: Dict, user_scenario: str, analy
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are an expert in audience behavior analysis and marketing psychology."},
+                {"role": "system", "content": "You are an expert audience behavior prediction system that analyzes how different audience segments would likely respond to marketing scenarios. Always describe audience reactions from a third-person analytical perspective, not as if you are the audience."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
@@ -344,21 +344,21 @@ def generate_default_response(audience_profile: Dict, user_scenario: str) -> Dic
         segment = audience_profile['segment_data']
         interests = segment.get('interest_categories', [])
         
-        # Generate a short, sentiment-aligned response
+        # Generate a short, sentiment-aligned response from system perspective
         if sentiment == 'positive':
-            response = f"This really resonates with our {interests[0] if interests else 'values'} - we're excited about how this aligns with our {traits[0].lower() if traits else 'interests'}!"
+            response = f"This audience would likely show strong interest due to alignment with their {interests[0] if interests else 'values'} - they would be excited about how this matches their {traits[0].lower() if traits else 'interests'}."
         elif sentiment == 'negative':
-            response = f"We're concerned this doesn't align with our {interests[0] if interests else 'values'} and might not meet our {traits[0].lower() if traits else 'needs'}."
+            response = f"This audience would likely be skeptical as the scenario doesn't align with their {interests[0] if interests else 'values'} and might not meet their {traits[0].lower() if traits else 'needs'}."
         else:
-            response = f"This could work for our {name}, but we'd need to see how it specifically addresses our {interests[0] if interests else 'priorities'}."
+            response = f"This audience would show moderate interest but would need to see how it specifically addresses their {interests[0] if interests else 'priorities'} before fully engaging."
     else:
-        # Fallback response
+        # Fallback response from system perspective
         if sentiment == 'positive':
-            response = f"We're impressed by this approach - it clearly understands our {traits[0].lower() if traits else 'values'} and shows real potential!"
+            response = f"This audience would be impressed by this approach - it clearly addresses their {traits[0].lower() if traits else 'values'} and they would see real potential for engagement."
         elif sentiment == 'negative':
-            response = f"This doesn't seem to align with our {traits[0].lower() if traits else 'priorities'}, and we're skeptical about the value proposition."
+            response = f"This audience would likely reject this approach as it doesn't align with their {traits[0].lower() if traits else 'priorities'}, making them skeptical about the value proposition."
         else:
-            response = f"As {name}, we see some potential here but would need more specifics on how this addresses our {traits[0].lower() if traits else 'needs'}."
+            response = f"The {name} would see some potential here but would require more specifics on how this addresses their {traits[0].lower() if traits else 'needs'} before committing."
     
     # Set metrics based on sentiment
     metrics_map = {
