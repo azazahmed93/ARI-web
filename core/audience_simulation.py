@@ -57,7 +57,8 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Based on this core audience's primary business objectives, decision-making criteria, and expected outcomes, analyze how they would likely respond to this marketing scenario.
         
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
-        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response."""
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
+        Maximum response: 200 characters."""
     
     # Check if we have segment data in the profile
     elif 'segment_data' in audience_profile:
@@ -109,7 +110,8 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Based on this audience segment's characteristics and their {motivations_str}, analyze how they would likely respond to this marketing scenario.
         
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
-        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response."""
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
+        Maximum response: 200 characters."""
     
     # Fallback to hardcoded prompts if no segment data
     prompts = {
@@ -122,7 +124,8 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Based on this RFP Core Audience's primary motivations around business results, strategic decision-making, and performance optimization, analyze how they would likely respond to this marketing scenario.
         
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
-        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.""",
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
+        Maximum response: 200 characters.""",
         
         'growth-audience-1': f"""Analyze Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis. 
         Characteristics: Innovation-driven, environmental consciousness, digital natives, urban lifestyle preferences.
@@ -133,7 +136,8 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Based on Growth Audience 1 (Urban Explorers) motivations around technology adoption, sustainability values, and innovative solutions, analyze how they would likely respond to this marketing scenario.
         
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
-        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.""",
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
+        Maximum response: 200 characters.""",
         
         'growth-audience-2': f"""Analyze Growth Audience 2 - Global Nomads: a luxury-lifestyle driven, health-conscious marketing audience from the RFP analysis.
         Characteristics: Premium experiences, wellness-focused, location independence, quality over quantity mindset.
@@ -144,7 +148,8 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Based on Growth Audience 2 (Global Nomads) motivations around luxury consumption, wellness priorities, and lifestyle flexibility, analyze how they would likely respond to this marketing scenario.
         
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
-        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.""",
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
+        Maximum response: 200 characters.""",
         
         'emerging-audience': f"""Analyze Emerging Audience 3 - Cultural Enthusiasts: a budget-conscious, experience-seeking marketing audience from the RFP analysis.
         Characteristics: Cultural immersion, value-oriented, authentic experiences, social connection priorities.
@@ -155,7 +160,8 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         Based on Emerging Audience 3 (Cultural Enthusiasts) motivations around cultural authenticity, value consciousness, and meaningful experiences, analyze how they would likely respond to this marketing scenario.
         
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
-        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response."""
+        Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
+        Maximum response: 200 characters."""
     }
     
     return prompts.get(audience_profile['id'], prompts['rfp-core-audience'])
@@ -189,7 +195,7 @@ def simulate_audience_response(audience_profile: Dict, user_scenario: str, analy
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=300
+            max_tokens=100
         )
         
         response_text = response.choices[0].message.content.strip()
