@@ -160,13 +160,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab7, tab8 = st.tabs([
         "Detailed Metrics", 
         "Audience Insights", 
         "Media Affinities", 
         "Trend Analysis",
         "Transaction Data",
-        "DMA Insights",
+        # "DMA Insights",
         "Audience Simulation",
         "Next Steps"
     ])
