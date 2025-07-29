@@ -394,315 +394,316 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
-    with tab6:
-        # Create CompleteBriefAnalysis mapping
-        def create_complete_brief_analysis():
-            """
-            Maps all AI-generated data to the CompleteBriefAnalysis shape for external system integration.
-            """
-            # Extract key audiences from segments
-            key_audiences = []
-            if 'audience_segments' in st.session_state and 'segments' in st.session_state.audience_segments:
-                for segment in st.session_state.audience_segments['segments'][:3]:  # Top 3 segments
-                    key_audiences.append(segment.get('name', ''))
+    # with tab6:
+    #     # Create CompleteBriefAnalysis mapping
+    #     def create_complete_brief_analysis():
+    #         """
+    #         Maps all AI-generated data to the CompleteBriefAnalysis shape for external system integration.
+    #         """
+    #         # Extract key audiences from segments
+    #         key_audiences = []
+    #         if 'audience_segments' in st.session_state and 'segments' in st.session_state.audience_segments:
+    #             for segment in st.session_state.audience_segments['segments'][:3]:  # Top 3 segments
+    #                 key_audiences.append(segment.get('name', ''))
             
-            # Extract competitive insights
-            competitive_insights = {
-                "competitorCount": 
-                # len(st.session_state.get('competitor_analysis', {}).get('competitors', [])) 
-                # if 'competitor_analysis' in st.session_state else 
-                3,
-                "marketShare": 27,  # Default as we don't calculate total market share
-                "strengthAreas": []
-            }
+    #         # Extract competitive insights
+    #         competitive_insights = {
+    #             "competitorCount": 
+    #             # len(st.session_state.get('competitor_analysis', {}).get('competitors', [])) 
+    #             # if 'competitor_analysis' in st.session_state else 
+    #             3,
+    #             "marketShare": 27,  # Default as we don't calculate total market share
+    #             "strengthAreas": []
+    #         }
             
-            if 'ai_insights' in st.session_state and st.session_state.ai_insights:
-                strengths = st.session_state.ai_insights.get('strengths', [])
-                competitive_insights["strengthAreas"] = [s.get('area', '') for s in strengths[:3]]
+    #         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+    #             strengths = st.session_state.ai_insights.get('strengths', [])
+    #             competitive_insights["strengthAreas"] = [s.get('area', '') for s in strengths[:3]]
             
-            # Extract growth opportunities from AI insights
-            growth_opportunities = []
-            if 'ai_insights' in st.session_state and st.session_state.ai_insights:
-                improvements = st.session_state.ai_insights.get('improvements', [])
-                # Calculate potential scores based on ARI scores and improvement priorities
-                base_potential = 90
-                for idx, improvement in enumerate(improvements[:3]):
-                    # Calculate potential based on the gap between current score and perfect score
-                    area_name = improvement.get('area', '')
-                    current_score = scores.get(area_name, 5) if 'scores' in locals() else 5
-                    improvement_potential = int(base_potential - (current_score * 2) - (idx * 5))
+    #         # Extract growth opportunities from AI insights
+    #         growth_opportunities = []
+    #         if 'ai_insights' in st.session_state and st.session_state.ai_insights:
+    #             improvements = st.session_state.ai_insights.get('improvements', [])
+    #             # Calculate potential scores based on ARI scores and improvement priorities
+    #             base_potential = 90
+    #             for idx, improvement in enumerate(improvements[:3]):
+    #                 # Calculate potential based on the gap between current score and perfect score
+    #                 area_name = improvement.get('area', '')
+    #                 current_score = scores.get(area_name, 5) if 'scores' in locals() else 5
+    #                 improvement_potential = int(base_potential - (current_score * 2) - (idx * 5))
                     
-                    growth_opportunities.append({
-                        "id": idx + 1,
-                        "title": improvement.get('area', ''),
-                        "description": improvement.get('recommendation', ''),
-                        "potential": max(60, min(95, improvement_potential))  # Keep between 60-95
-                    })
+    #                 growth_opportunities.append({
+    #                     "id": idx + 1,
+    #                     "title": improvement.get('area', ''),
+    #                     "description": improvement.get('recommendation', ''),
+    #                     "potential": max(60, min(95, improvement_potential))  # Keep between 60-95
+    #                 })
             
-            # Map geoData from DMA information with actual audience reach data
-            geo_data = {"topMarkets": []}
-            if 'recommended_dmas' in st.session_state and 'audience_reach' in st.session_state:
-                dma_mapping = {
-                    501: {"name": "New York", "state": "NY", "population": 7452000},
-                    803: {"name": "Los Angeles", "state": "CA", "population": 5735000},
-                    602: {"name": "Chicago", "state": "IL", "population": 3462000},
-                    807: {"name": "San Francisco-Oakland-San Jose", "state": "CA", "population": 2452000},
-                    623: {"name": "Dallas-Fort Worth", "state": "TX", "population": 2963000},
-                    506: {"name": "Boston", "state": "MA", "population": 2395000},
-                    524: {"name": "Atlanta", "state": "GA", "population": 2329000},
-                    618: {"name": "Houston", "state": "TX", "population": 2484000},
-                    753: {"name": "Phoenix", "state": "AZ", "population": 1995000},
-                    819: {"name": "Seattle-Tacoma", "state": "WA", "population": 1915000},
-                    528: {"name": "Miami-Fort Lauderdale", "state": "FL", "population": 1744000},
-                    751: {"name": "Denver", "state": "CO", "population": 1760000},
-                    505: {"name": "Detroit", "state": "MI", "population": 1985000},
-                    539: {"name": "Tampa-St. Petersburg", "state": "FL", "population": 1867000},
-                    613: {"name": "Minneapolis-St. Paul", "state": "MN", "population": 1752000},
-                    534: {"name": "Orlando-Daytona Beach", "state": "FL", "population": 1509000},
-                    862: {"name": "Sacramento-Stockton", "state": "CA", "population": 1340000},
-                    517: {"name": "Charlotte", "state": "NC", "population": 1265000},
-                    504: {"name": "Philadelphia", "state": "PA", "population": 2953000},
-                    511: {"name": "Washington DC", "state": "DC", "population": 2536000}
-                }
+    #         # Map geoData from DMA information with actual audience reach data
+    #         geo_data = {"topMarkets": []}
+    #         if 'recommended_dmas' in st.session_state and 'audience_reach' in st.session_state:
+    #             dma_mapping = {
+    #                 501: {"name": "New York", "state": "NY", "population": 7452000},
+    #                 803: {"name": "Los Angeles", "state": "CA", "population": 5735000},
+    #                 602: {"name": "Chicago", "state": "IL", "population": 3462000},
+    #                 807: {"name": "San Francisco-Oakland-San Jose", "state": "CA", "population": 2452000},
+    #                 623: {"name": "Dallas-Fort Worth", "state": "TX", "population": 2963000},
+    #                 506: {"name": "Boston", "state": "MA", "population": 2395000},
+    #                 524: {"name": "Atlanta", "state": "GA", "population": 2329000},
+    #                 618: {"name": "Houston", "state": "TX", "population": 2484000},
+    #                 753: {"name": "Phoenix", "state": "AZ", "population": 1995000},
+    #                 819: {"name": "Seattle-Tacoma", "state": "WA", "population": 1915000},
+    #                 528: {"name": "Miami-Fort Lauderdale", "state": "FL", "population": 1744000},
+    #                 751: {"name": "Denver", "state": "CO", "population": 1760000},
+    #                 505: {"name": "Detroit", "state": "MI", "population": 1985000},
+    #                 539: {"name": "Tampa-St. Petersburg", "state": "FL", "population": 1867000},
+    #                 613: {"name": "Minneapolis-St. Paul", "state": "MN", "population": 1752000},
+    #                 534: {"name": "Orlando-Daytona Beach", "state": "FL", "population": 1509000},
+    #                 862: {"name": "Sacramento-Stockton", "state": "CA", "population": 1340000},
+    #                 517: {"name": "Charlotte", "state": "NC", "population": 1265000},
+    #                 504: {"name": "Philadelphia", "state": "PA", "population": 2953000},
+    #                 511: {"name": "Washington DC", "state": "DC", "population": 2536000}
+    #             }
                 
-                # # Get audience reach data to calculate index scores
-                # audience_reach_by_dma = {}
-                # for reach_data in st.session_state.audience_reach:
-                #     if reach_data.get('name') != 'National Campaign':
-                #         # Extract DMA name without state
-                #         dma_name = reach_data['name'].split(',')[0].strip()
-                #         audience_reach_by_dma[dma_name] = reach_data.get('audienceReach', 0)
+    #             # # Get audience reach data to calculate index scores
+    #             # audience_reach_by_dma = {}
+    #             # for reach_data in st.session_state.audience_reach:
+    #             #     if reach_data.get('name') != 'National Campaign':
+    #             #         # Extract DMA name without state
+    #             #         dma_name = reach_data['name'].split(',')[0].strip()
+    #             #         audience_reach_by_dma[dma_name] = reach_data.get('audienceReach', 0)
                 
-                # # Calculate index scores based on audience reach relative to population
-                # for idx, dma_id in enumerate(st.session_state.recommended_dmas[:4]):  # Top 4 markets
-                #     if dma_id in dma_mapping:
-                #         dma_info = dma_mapping[dma_id]
-                #         dma_name_short = dma_info["name"].split('-')[0].strip()  # Handle multi-city names
+    #             # # Calculate index scores based on audience reach relative to population
+    #             # for idx, dma_id in enumerate(st.session_state.recommended_dmas[:4]):  # Top 4 markets
+    #             #     if dma_id in dma_mapping:
+    #             #         dma_info = dma_mapping[dma_id]
+    #             #         dma_name_short = dma_info["name"].split('-')[0].strip()  # Handle multi-city names
                         
-                #         # Get audience reach for this DMA
-                #         audience_reach = audience_reach_by_dma.get(dma_name_short, 0)
-                #         if audience_reach == 0:
-                #             # Try full name match
-                #             for reach_name, reach_val in audience_reach_by_dma.items():
-                #                 if dma_name_short in reach_name:
-                #                     audience_reach = reach_val
-                #                     break
+    #             #         # Get audience reach for this DMA
+    #             #         audience_reach = audience_reach_by_dma.get(dma_name_short, 0)
+    #             #         if audience_reach == 0:
+    #             #             # Try full name match
+    #             #             for reach_name, reach_val in audience_reach_by_dma.items():
+    #             #                 if dma_name_short in reach_name:
+    #             #                     audience_reach = reach_val
+    #             #                     break
                         
-                #         # Calculate index score based on audience reach vs population
-                #         population_millions = dma_info["population"] / 1000000
-                #         if population_millions > 0:
-                #             reach_percentage = (audience_reach / population_millions) * 100
-                #             # Index where 100 = average, higher is better
-                #             index_score = int(100 + (reach_percentage - 35) * 2)  # Assuming 35% is average
-                #         else:
-                #             index_score = 100
+    #             #         # Calculate index score based on audience reach vs population
+    #             #         population_millions = dma_info["population"] / 1000000
+    #             #         if population_millions > 0:
+    #             #             reach_percentage = (audience_reach / population_millions) * 100
+    #             #             # Index where 100 = average, higher is better
+    #             #             index_score = int(100 + (reach_percentage - 35) * 2)  # Assuming 35% is average
+    #             #         else:
+    #             #             index_score = 100
                         
-                #         geo_data["topMarkets"].append({
-                #             "dmaId": dma_id,
-                #             "name": dma_info["name"],
-                #             "state": dma_info["state"],
-                #             "population": dma_info["population"],
-                #             "indexScore": max(80, min(180, index_score))  # Keep between 80-180
-                #         })
+    #             #         geo_data["topMarkets"].append({
+    #             #             "dmaId": dma_id,
+    #             #             "name": dma_info["name"],
+    #             #             "state": dma_info["state"],
+    #             #             "population": dma_info["population"],
+    #             #             "indexScore": max(80, min(180, index_score))  # Keep between 80-180
+    #             #         })
             
-            # Extract competitor analysis with actual threat levels
-            competitors_list = []
-            if 'competitor_analysis' in st.session_state and st.session_state.competitor_analysis:
-                competitors = st.session_state.competitor_analysis.get('competitors', [])
-                for comp in competitors[:3]:
-                    # Extract strengths from digital tactics
-                    digital_tactics = comp.get('digital_tactics', '')
-                    strengths = []
+    #         # Extract competitor analysis with actual threat levels
+    #         competitors_list = []
+    #         if 'competitor_analysis' in st.session_state and st.session_state.competitor_analysis:
+    #             competitors = st.session_state.competitor_analysis.get('competitors', [])
+    #             for comp in competitors[:3]:
+    #                 # Extract strengths from digital tactics
+    #                 digital_tactics = comp.get('digital_tactics', '')
+    #                 strengths = []
                     
-                    # Parse key strength areas from digital tactics description
-                    if 'programmatic' in digital_tactics.lower():
-                        strengths.append("Programmatic excellence")
-                    if 'video' in digital_tactics.lower() or 'content' in digital_tactics.lower():
-                        strengths.append("Content strategy")
-                    if 'mobile' in digital_tactics.lower() or 'app' in digital_tactics.lower():
-                        strengths.append("Mobile dominance")
-                    if 'search' in digital_tactics.lower() or 'seo' in digital_tactics.lower():
-                        strengths.append("Search optimization")
-                    if 'social' in digital_tactics.lower() or 'influencer' in digital_tactics.lower():
-                        strengths.append("Social engagement")
+    #                 # Parse key strength areas from digital tactics description
+    #                 if 'programmatic' in digital_tactics.lower():
+    #                     strengths.append("Programmatic excellence")
+    #                 if 'video' in digital_tactics.lower() or 'content' in digital_tactics.lower():
+    #                     strengths.append("Content strategy")
+    #                 if 'mobile' in digital_tactics.lower() or 'app' in digital_tactics.lower():
+    #                     strengths.append("Mobile dominance")
+    #                 if 'search' in digital_tactics.lower() or 'seo' in digital_tactics.lower():
+    #                     strengths.append("Search optimization")
+    #                 if 'social' in digital_tactics.lower() or 'influencer' in digital_tactics.lower():
+    #                     strengths.append("Social engagement")
                     
-                    # If no specific strengths found, use generic based on threat level
-                    if not strengths:
-                        threat_level = comp.get('threat_level', 'medium')
-                        if threat_level == 'high':
-                            strengths = ["Market leadership", "Brand recognition", "Resource advantage"]
-                        elif threat_level == 'medium':
-                            strengths = ["Growing presence", "Innovation", "Agility"]
-                        else:
-                            strengths = ["Niche expertise", "Cost efficiency", "Targeted approach"]
+    #                 # If no specific strengths found, use generic based on threat level
+    #                 if not strengths:
+    #                     threat_level = comp.get('threat_level', 'medium')
+    #                     if threat_level == 'high':
+    #                         strengths = ["Market leadership", "Brand recognition", "Resource advantage"]
+    #                     elif threat_level == 'medium':
+    #                         strengths = ["Growing presence", "Innovation", "Agility"]
+    #                     else:
+    #                         strengths = ["Niche expertise", "Cost efficiency", "Targeted approach"]
                     
-                    # Estimate market share based on threat level
-                    threat_to_share = {'high': 20 + idx * 2, 'medium': 10 + idx * 2, 'low': 5 + idx}
-                    market_share = threat_to_share.get(comp.get('threat_level', 'medium'), 10)
+    #                 # Estimate market share based on threat level
+    #                 threat_to_share = {'high': 20 + idx * 2, 'medium': 10 + idx * 2, 'low': 5 + idx}
+    #                 market_share = threat_to_share.get(comp.get('threat_level', 'medium'), 10)
                     
-                    competitors_list.append({
-                        "name": comp.get('name', ''),
-                        "marketShare": market_share,
-                        "strengths": strengths[:3],  # Limit to 3 strengths
-                        "weaknesses": []  # We don't generate weaknesses in current implementation
-                    })
+    #                 competitors_list.append({
+    #                     "name": comp.get('name', ''),
+    #                     "marketShare": market_share,
+    #                     "strengths": strengths[:3],  # Limit to 3 strengths
+    #                     "weaknesses": []  # We don't generate weaknesses in current implementation
+    #                 })
             
-            # Create media recommendations based on audience segments and platforms
-            media_recommendations = {
-                "channels": [],
-                "tvNetworks": [],
-                "streaming": [],
-                "digital": [],
-                "social": []
-            }
+    #         # Create media recommendations based on audience segments and platforms
+    #         media_recommendations = {
+    #             "channels": [],
+    #             "tvNetworks": [],
+    #             "streaming": [],
+    #             "digital": [],
+    #             "social": []
+    #         }
             
-            # Extract channel recommendations from audience segments
-            channels_set = set()
-            if 'audience_segments' in st.session_state and 'segments' in st.session_state.audience_segments:
-                for segment in st.session_state.audience_segments['segments']:
-                    if 'platform_targeting' in segment:
-                        for platform in segment['platform_targeting']:
-                            platform_name = platform.get('platform', '')
-                            if 'video' in platform_name.lower() or 'ctv' in platform_name.lower() or 'ott' in platform_name.lower():
-                                channels_set.add("Streaming")
-                            if 'display' in platform_name.lower() or 'programmatic' in platform_name.lower():
-                                channels_set.add("Digital")
-                            if 'mobile' in platform_name.lower():
-                                channels_set.add("Mobile")
-                            if 'audio' in platform_name.lower():
-                                channels_set.add("Audio")
-                            if 'dooh' in platform_name.lower():
-                                channels_set.add("Out-of-Home")
+    #         # Extract channel recommendations from audience segments
+    #         channels_set = set()
+    #         if 'audience_segments' in st.session_state and 'segments' in st.session_state.audience_segments:
+    #             for segment in st.session_state.audience_segments['segments']:
+    #                 if 'platform_targeting' in segment:
+    #                     for platform in segment['platform_targeting']:
+    #                         platform_name = platform.get('platform', '')
+    #                         if 'video' in platform_name.lower() or 'ctv' in platform_name.lower() or 'ott' in platform_name.lower():
+    #                             channels_set.add("Streaming")
+    #                         if 'display' in platform_name.lower() or 'programmatic' in platform_name.lower():
+    #                             channels_set.add("Digital")
+    #                         if 'mobile' in platform_name.lower():
+    #                             channels_set.add("Mobile")
+    #                         if 'audio' in platform_name.lower():
+    #                             channels_set.add("Audio")
+    #                         if 'dooh' in platform_name.lower():
+    #                             channels_set.add("Out-of-Home")
             
-            # Ensure we have key channels
-            channels_set.update(["Digital", "Streaming"])
-            media_recommendations["channels"] = list(channels_set)[:4]  # Limit to 4 channels
+    #         # Ensure we have key channels
+    #         channels_set.update(["Digital", "Streaming"])
+    #         media_recommendations["channels"] = list(channels_set)[:4]  # Limit to 4 channels
             
-            # Generate TV network recommendations based on industry and audience
-            if st.session_state.get('industry', '').lower() in ['sports', 'entertainment', 'media']:
-                media_recommendations["tvNetworks"] = [
-                    {"name": "ESPN", "reach": "94% sports audience", "targetAudience": "Sports enthusiasts 18-49"},
-                    {"name": "FOX Sports", "reach": "92% coverage", "targetAudience": "Live sports viewers"},
-                    {"name": "NBC Sports", "reach": "90% coverage", "targetAudience": "Premium sports content"}
-                ]
-            else:
-                media_recommendations["tvNetworks"] = [
-                    {"name": "NBC", "reach": "98% market coverage", "targetAudience": "Adults 25-54"},
-                    {"name": "CBS", "reach": "97% market coverage", "targetAudience": "Adults 35-64"},
-                    {"name": "ABC", "reach": "96% market coverage", "targetAudience": "Family households"}
-                ]
+    #         # Generate TV network recommendations based on industry and audience
+    #         if st.session_state.get('industry', '').lower() in ['sports', 'entertainment', 'media']:
+    #             media_recommendations["tvNetworks"] = [
+    #                 {"name": "ESPN", "reach": "94% sports audience", "targetAudience": "Sports enthusiasts 18-49"},
+    #                 {"name": "FOX Sports", "reach": "92% coverage", "targetAudience": "Live sports viewers"},
+    #                 {"name": "NBC Sports", "reach": "90% coverage", "targetAudience": "Premium sports content"}
+    #             ]
+    #         else:
+    #             media_recommendations["tvNetworks"] = [
+    #                 {"name": "NBC", "reach": "98% market coverage", "targetAudience": "Adults 25-54"},
+    #                 {"name": "CBS", "reach": "97% market coverage", "targetAudience": "Adults 35-64"},
+    #                 {"name": "ABC", "reach": "96% market coverage", "targetAudience": "Family households"}
+    #             ]
             
-            # Generate streaming recommendations based on audience segments
-            streaming_platforms = []
-            for segment in st.session_state.get('audience_segments', {}).get('segments', []):
-                age_range = segment.get('targeting_params', {}).get('age_range', '')
-                if '18-' in age_range or '25-' in age_range:
-                    streaming_platforms.append(
-                        {"name": "YouTube TV", "monthlyActiveUsers": "5M+", "engagement": "High - 95 min/day avg"}
-                    )
-                if '25-' in age_range or '30-' in age_range or '35-' in age_range:
-                    streaming_platforms.append(
-                        {"name": "Hulu", "monthlyActiveUsers": "48M", "engagement": "High - 87 min/day avg"}
-                    )
-                if 'premium' in str(segment).lower() or 'high' in segment.get('targeting_params', {}).get('income_targeting', '').lower():
-                    streaming_platforms.append(
-                        {"name": "Premium Streaming", "monthlyActiveUsers": "Combined 75M+", "engagement": "Premium content viewers"}
-                    )
+    #         # Generate streaming recommendations based on audience segments
+    #         streaming_platforms = []
+    #         for segment in st.session_state.get('audience_segments', {}).get('segments', []):
+    #             age_range = segment.get('targeting_params', {}).get('age_range', '')
+    #             if '18-' in age_range or '25-' in age_range:
+    #                 streaming_platforms.append(
+    #                     {"name": "YouTube TV", "monthlyActiveUsers": "5M+", "engagement": "High - 95 min/day avg"}
+    #                 )
+    #             if '25-' in age_range or '30-' in age_range or '35-' in age_range:
+    #                 streaming_platforms.append(
+    #                     {"name": "Hulu", "monthlyActiveUsers": "48M", "engagement": "High - 87 min/day avg"}
+    #                 )
+    #             if 'premium' in str(segment).lower() or 'high' in segment.get('targeting_params', {}).get('income_targeting', '').lower():
+    #                 streaming_platforms.append(
+    #                     {"name": "Premium Streaming", "monthlyActiveUsers": "Combined 75M+", "engagement": "Premium content viewers"}
+    #                 )
             
-            # Ensure we have at least some streaming platforms
-            if not streaming_platforms:
-                streaming_platforms = [
-                    {"name": "Hulu", "monthlyActiveUsers": "48M", "engagement": "High - 87 min/day avg"},
-                    {"name": "YouTube TV", "monthlyActiveUsers": "5M+", "engagement": "Growing - 65 min/day avg"},
-                    {"name": "Connected TV", "monthlyActiveUsers": "100M+ households", "engagement": "Premium viewing experience"}
-                ]
+    #         # Ensure we have at least some streaming platforms
+    #         if not streaming_platforms:
+    #             streaming_platforms = [
+    #                 {"name": "Hulu", "monthlyActiveUsers": "48M", "engagement": "High - 87 min/day avg"},
+    #                 {"name": "YouTube TV", "monthlyActiveUsers": "5M+", "engagement": "Growing - 65 min/day avg"},
+    #                 {"name": "Connected TV", "monthlyActiveUsers": "100M+ households", "engagement": "Premium viewing experience"}
+    #             ]
             
-            media_recommendations["streaming"] = streaming_platforms[:3]
+    #         media_recommendations["streaming"] = streaming_platforms[:3]
             
-            # Generate digital platform recommendations
-            media_recommendations["digital"] = [
-                {"name": "Programmatic Display", "impressions": "Billions available", "costEfficiency": "Optimized CPM with advanced targeting"},
-                {"name": "Video Advertising", "impressions": "High viewability", "costEfficiency": "Premium CPV with completion rates"},
-                {"name": "Native Advertising", "impressions": "Contextual placement", "costEfficiency": "Higher engagement rates"}
-            ]
+    #         # Generate digital platform recommendations
+    #         media_recommendations["digital"] = [
+    #             {"name": "Programmatic Display", "impressions": "Billions available", "costEfficiency": "Optimized CPM with advanced targeting"},
+    #             {"name": "Video Advertising", "impressions": "High viewability", "costEfficiency": "Premium CPV with completion rates"},
+    #             {"name": "Native Advertising", "impressions": "Contextual placement", "costEfficiency": "Higher engagement rates"}
+    #         ]
             
-            # Generate social recommendations based on audience age demographics
-            social_platforms = []
-            for segment in st.session_state.get('audience_segments', {}).get('segments', []):
-                age_range = segment.get('targeting_params', {}).get('age_range', '')
-                if '18-24' in age_range or '16-' in age_range:
-                    social_platforms.append(
-                        {"name": "TikTok", "demographics": "16-24 primary", "engagementRate": "5.96%"}
-                    )
-                if '25-' in age_range or '30-' in age_range:
-                    social_platforms.append(
-                        {"name": "Instagram", "demographics": "25-34 primary", "engagementRate": "3.22%"}
-                    )
-                if '35-' in age_range or '45-' in age_range or 'professional' in str(segment).lower():
-                    social_platforms.append(
-                        {"name": "LinkedIn", "demographics": "25-49 professionals", "engagementRate": "2.0%"}
-                    )
+    #         # Generate social recommendations based on audience age demographics
+    #         social_platforms = []
+    #         for segment in st.session_state.get('audience_segments', {}).get('segments', []):
+    #             age_range = segment.get('targeting_params', {}).get('age_range', '')
+    #             if '18-24' in age_range or '16-' in age_range:
+    #                 social_platforms.append(
+    #                     {"name": "TikTok", "demographics": "16-24 primary", "engagementRate": "5.96%"}
+    #                 )
+    #             if '25-' in age_range or '30-' in age_range:
+    #                 social_platforms.append(
+    #                     {"name": "Instagram", "demographics": "25-34 primary", "engagementRate": "3.22%"}
+    #                 )
+    #             if '35-' in age_range or '45-' in age_range or 'professional' in str(segment).lower():
+    #                 social_platforms.append(
+    #                     {"name": "LinkedIn", "demographics": "25-49 professionals", "engagementRate": "2.0%"}
+    #                 )
             
-            # Remove duplicates and limit
-            seen = set()
-            unique_social = []
-            for platform in social_platforms:
-                if platform['name'] not in seen:
-                    seen.add(platform['name'])
-                    unique_social.append(platform)
+    #         # Remove duplicates and limit
+    #         seen = set()
+    #         unique_social = []
+    #         for platform in social_platforms:
+    #             if platform['name'] not in seen:
+    #                 seen.add(platform['name'])
+    #                 unique_social.append(platform)
             
-            media_recommendations["social"] = unique_social[:3]
+    #         media_recommendations["social"] = unique_social[:3]
             
-            # Create the complete analysis object
-            complete_analysis = {
-                "briefAnalysis": {
-                    "industry": st.session_state.get('industry', 'General'),
-                    "keyAudiences": key_audiences,
-                    "recommendedDMAs": st.session_state.get('recommended_dmas', []),
-                    "competitiveInsights": competitive_insights,
-                    "growthOpportunities": growth_opportunities,
-                    "audienceReach": st.session_state.get('audience_reach', []),
-                    "marketInsights": st.session_state.get('market_insights', {})
-                },
-                "mediaRecommendations": media_recommendations,
-                "competitorAnalysis": {
-                    "competitors": competitors_list
-                },
-                "geoData": geo_data
-            }
+    #         # Create the complete analysis object
+    #         complete_analysis = {
+    #             "briefAnalysis": {
+    #                 "industry": st.session_state.get('industry', 'General'),
+    #                 "keyAudiences": key_audiences,
+    #                 "recommendedDMAs": st.session_state.get('recommended_dmas', []),
+    #                 "competitiveInsights": competitive_insights,
+    #                 "growthOpportunities": growth_opportunities,
+    #                 "audienceReach": st.session_state.get('audience_reach', []),
+    #                 "marketInsights": st.session_state.get('market_insights', {})
+    #             },
+    #             "mediaRecommendations": media_recommendations,
+    #             "competitorAnalysis": {
+    #                 "competitors": competitors_list
+    #             },
+    #             "geoData": geo_data
+    #         }
             
-            return complete_analysis
+    #         return complete_analysis
         
-        # Generate the complete brief analysis
-        complete_brief_analysis = create_complete_brief_analysis()
+    #     # Generate the complete brief analysis
+    #     complete_brief_analysis = create_complete_brief_analysis()
         
-        # Store in session state for access by other systems
-        st.session_state.complete_brief_analysis = complete_brief_analysis
-        # Original DMA visualization code
-        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-        PARENT_DIR = os.path.dirname(CURRENT_DIR)
-        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "DMA/index.html") 
+    #     # Store in session state for access by other systems
+    #     st.session_state.complete_brief_analysis = complete_brief_analysis
+    #     # Original DMA visualization code
+    #     CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    #     PARENT_DIR = os.path.dirname(CURRENT_DIR)
+    #     HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "DMA/index.html") 
         
-        try:
-            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                html_code = f.read()
+    #     try:
+    #         with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+    #             html_code = f.read()
 
-                # Replace placeholders with the complete brief analysis data
-                html_code = html_code.replace("{{KEY_AUDIENCES}}", json.dumps(complete_brief_analysis['briefAnalysis'].get('keyAudiences', [])))
-                html_code = html_code.replace("{{MEDIA_RECOMMENDATIONS}}", json.dumps(complete_brief_analysis['briefAnalysis'].get('mediaRecommendations', {})))
-                html_code = html_code.replace("{{RECOMMENDED_DMAS}}", json.dumps(st.session_state.dma_analysis.get('recommendedDMAs')))
-                html_code = html_code.replace("{{AUDIENCE_REACH}}", json.dumps(st.session_state.dma_analysis.get('audienceReach')))
-                html_code = html_code.replace("{{MARKET_INSIGHTS}}", json.dumps(st.session_state.dma_analysis.get('marketInsights')))
-                # Also pass the complete analysis for potential use
-                html_code = html_code.replace("{{COMPLETE_BRIEF_ANALYSIS}}", json.dumps(complete_brief_analysis))
+    #             # Replace placeholders with the complete brief analysis data
+    #             html_code = html_code.replace("{{KEY_AUDIENCES}}", json.dumps(complete_brief_analysis['briefAnalysis'].get('keyAudiences', [])))
+    #             html_code = html_code.replace("{{MEDIA_RECOMMENDATIONS}}", json.dumps(complete_brief_analysis['briefAnalysis'].get('mediaRecommendations', {})))
+    #             html_code = html_code.replace("{{RECOMMENDED_DMAS}}", json.dumps(st.session_state.dma_analysis.get('recommendedDMAs')))
+    #             html_code = html_code.replace("{{AUDIENCE_REACH}}", json.dumps(st.session_state.dma_analysis.get('audienceReach')))
+    #             html_code = html_code.replace("{{MARKET_INSIGHTS}}", json.dumps(st.session_state.dma_analysis.get('marketInsights')))
+    #             # Also pass the complete analysis for potential use
+    #             html_code = html_code.replace("{{COMPLETE_BRIEF_ANALYSIS}}", json.dumps(complete_brief_analysis))
                 
-                components.html(html_code, height=2000, scrolling=True)
+    #             components.html(html_code, height=2000, scrolling=True)
 
-        except FileNotFoundError:
-            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-            st.info("Please make sure 'index.html' is in the correct location.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+    #     except FileNotFoundError:
+    #         st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+    #         st.info("Please make sure 'index.html' is in the correct location.")
+    #     except Exception as e:
+    #         st.error(f"An error occurred: {e}")
+    
     with tab7:
         # Import and display audience simulation
         from .audience_simulation import display_audience_simulation
