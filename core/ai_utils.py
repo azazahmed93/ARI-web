@@ -43,7 +43,7 @@ def make_openai_request(
     
     # Calculate dynamic timeout based on max_tokens
     # Base timeout of 30 seconds + 15 seconds per 1000 tokens
-    dynamic_timeout = 30 + (max_tokens / 1000) * 15
+    dynamic_timeout = 45 + (max_tokens / 1000) * 15
     
     print(f"Using dynamic timeout of {dynamic_timeout:.1f} seconds for {max_tokens} max tokens")
     
