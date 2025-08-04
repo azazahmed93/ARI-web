@@ -376,12 +376,12 @@ def landing_layout(inner_content):
                                             st.session_state.audience_summary['secondary_audience'] = generate_secondary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
                                     
                                     # Generate DMA recommendations
-                                    recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
-                                    st.session_state.recommended_dmas = recommended_dmas
+                                    # recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
+                                    # st.session_state.recommended_dmas = recommended_dmas
                                     
                                     # Generate audience reach for recommended DMAs
-                                    audience_reach = generate_audience_reach(recommended_dmas, st.session_state.audience_segments, industry)
-                                    st.session_state.audience_reach = audience_reach
+                                    # audience_reach = generate_audience_reach(recommended_dmas, st.session_state.audience_segments, industry)
+                                    # st.session_state.audience_reach = audience_reach
                                     
                                     # Generate market insights
                                     # Get primary audience (first segment)
@@ -389,20 +389,20 @@ def landing_layout(inner_content):
                                     if 'segments' in st.session_state.audience_segments and len(st.session_state.audience_segments['segments']) > 0:
                                         primary_audience = st.session_state.audience_segments['segments'][0]
                                     
-                                    market_insights = generate_market_insights(
-                                        recommended_dmas,
-                                        primary_audience,
-                                        st.session_state.audience_segments,
-                                        audience_reach
-                                    )
-                                    st.session_state.market_insights = market_insights
+                                    # market_insights = generate_market_insights(
+                                    #     recommended_dmas,
+                                    #     primary_audience,
+                                    #     st.session_state.audience_segments,
+                                    #     audience_reach
+                                    # )
+                                    # st.session_state.market_insights = market_insights
                                     
                                     # Store the complete DMA analysis data
-                                    st.session_state.dma_analysis = {
-                                        "recommendedDMAs": recommended_dmas,
-                                        "audienceReach": audience_reach,
-                                        "marketInsights": market_insights
-                                    }
+                                    # st.session_state.dma_analysis = {
+                                    #     "recommendedDMAs": recommended_dmas,
+                                    #     "audienceReach": audience_reach,
+                                    #     "marketInsights": market_insights
+                                    # }
                                     
                                 except Exception as e:
                                     # Show more specific error messages
