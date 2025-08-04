@@ -344,13 +344,21 @@ def landing_layout(inner_content):
                             with st.spinner(get_random_spinner_message()):
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
+                                    import time
+                                    
                                     # Generate deep insights based on brief and ARI scores
                                     ai_insights = generate_deep_insights(brief_text, scores)
                                     st.session_state.ai_insights = ai_insights
                                     
+                                    # Add a small delay between API calls to avoid rate limits
+                                    time.sleep(0.5)
+                                    
                                     # Generate competitor analysis
                                     competitor_analysis = generate_competitor_analysis(brief_text, industry)
                                     st.session_state.competitor_analysis = competitor_analysis
+                                    
+                                    # Add another small delay
+                                    time.sleep(0.5)
                                     
                                     # Generate AI-powered audience segments to replace default ones
                                     ai_audience_segments = generate_audience_segments(brief_text, scores)
@@ -397,8 +405,19 @@ def landing_layout(inner_content):
                                     }
                                     
                                 except Exception as e:
-                                    # Show warning but keep using default audience segments already set
-                                    st.warning(f"Enhanced AI analysis encountered an issue: {str(e)}")
+                                    # Show more specific error messages
+                                    error_msg = str(e).lower()
+                                    if "rate limit" in error_msg:
+                                        print("⏱️ OpenAI API rate limit reached. Please wait a moment and try again.")
+                                    elif "timeout" in error_msg:
+                                        print("⌛ Request timed out. The AI service might be experiencing high load. Please try again.")
+                                    elif "api key" in error_msg or "authentication" in error_msg:
+                                        print("🔑 API key issue detected. Please check your OpenAI API key configuration.")
+                                    elif "failed to get response" in error_msg:
+                                        print("🔄 Unable to connect to AI service after multiple attempts. Using fallback analysis.")
+                                    else:
+                                        print(f"Enhanced AI analysis encountered an issue: {str(e)}")
+                                    
                                     st.session_state.ai_insights = None
                                     st.session_state.competitor_analysis = None
                         

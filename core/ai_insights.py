@@ -12,6 +12,7 @@ import base64
 import json
 from assets.content import PSYCHOGRAPHIC_HIGHLIGHTS
 from core.utils import get_first_file_name
+from core.ai_utils import make_openai_request
 
 PATHS = {
     "JSON": "research/json",
@@ -386,25 +387,32 @@ Additional audience data for SiteOne Hispanic campaign:
         descriptions that don't reference actual content from the brief.
         """
         
-        response = client.chat.completions.create(
-            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        # Use the improved API call with retry logic
+        result = make_openai_request(
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
             ],
+            model="gpt-4o",
             response_format={"type": "json_object"},
             temperature=0.7,
-            max_tokens=2000
+            max_tokens=2000,
+            max_retries=3
         )
         
-        # Debug the raw response
+        # Check if the request failed
+        if result is None:
+            print("Failed to get response from OpenAI after all retries")
+            return {"error": "Unable to generate insights after multiple attempts"}
+        
+        # Debug the response
         print("================================")
         print("===== OPENAI API RESPONSE =====")
-        print(response.choices[0].message.content)
+        print(json.dumps(result, indent=2))
         print("================================")
         
-        # Parse the JSON response
-        insights = json.loads(response.choices[0].message.content)
+        # The result is already parsed JSON
+        insights = result
         
         # Clean up grammar and duplicate words in the insights
         if 'strengths' in insights:
@@ -523,19 +531,24 @@ Additional audience data for SiteOne Hispanic campaign:
         - differentiation: array of objects with 'platform' (use generic platform types, not brand names) and 'tactical_approach' (specific media buying/targeting approach for that platform)
         """
         
-        # Call the OpenAI API
-        response = client.chat.completions.create(
-            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        # Use the improved API call with retry logic
+        result = make_openai_request(
             messages=[
                 {"role": "system", "content": "You are a digital media competitive intelligence expert specialized in advertising platform strategies, audience targeting, and media buying optimization."},
                 {"role": "user", "content": prompt}
             ],
+            model="gpt-4o",
             response_format={"type": "json_object"},
-            max_tokens=1200
+            max_tokens=1200,
+            max_retries=3
         )
         
-        # Parse the JSON response
-        analysis = json.loads(response.choices[0].message.content)
+        # Check if the request failed
+        if result is None:
+            raise Exception("Failed to get response from OpenAI after all retries")
+        
+        # The result is already parsed JSON
+        analysis = result
         
         # Clean up grammar and duplicate words in the analysis
         if 'competitors' in analysis:
@@ -844,19 +857,24 @@ Additional audience data for SiteOne Hispanic campaign:
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
         """
         
-        # Call the OpenAI API
-        response = client.chat.completions.create(
-            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        # Use the improved API call with retry logic
+        result = make_openai_request(
             messages=[
                 {"role": "system", "content": "You are a digital advertising audience specialist with expertise in platform-specific targeting parameters, lookalike modeling, and programmatic audience segmentation."},
                 {"role": "user", "content": prompt}
             ],
+            model="gpt-4o",
             response_format={"type": "json_object"},
-            max_tokens=1500
+            max_tokens=1500,
+            max_retries=3
         )
         
-        # Parse the JSON response
-        segments = json.loads(response.choices[0].message.content)
+        # Check if the request failed
+        if result is None:
+            raise Exception("Failed to get response from OpenAI after all retries")
+        
+        # The result is already parsed JSON
+        segments = result
         
         # Clean up grammar and duplicate words in the segments
         if 'segments' in segments:
