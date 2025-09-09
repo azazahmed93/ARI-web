@@ -10,6 +10,15 @@ from app.components.restricted_access import is_logged_in
 from app.sections.admin_uploads import admin_uploads
 from core.ai_insights import generate_audience_insights, generate_media_consumption,generate_media_affinity, generate_pychographic_highlights
 
+# Import and run warmup on app load
+try:
+    from core.ai_warmup import warmup_openai_connection
+    # Run warmup in background - non-blocking
+    import threading
+    threading.Thread(target=warmup_openai_connection, daemon=True).start()
+except Exception as e:
+    print(f"Warmup initialization skipped: {e}")
+
 # Define main function
 def main():
 
