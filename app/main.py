@@ -83,8 +83,8 @@ def main():
         inner_content = display_results
 
     if st.query_params.get('mode') != 'admin':
-        if(is_logged_in()):
-            landing_layout(inner_content)
+        # if(is_logged_in()):
+        landing_layout(inner_content)
     else:
         admin_uploads()
 
@@ -92,22 +92,36 @@ def main():
 if __name__ == "__main__":
     main()
 
+# Note: Psychographic data (audience_insights) is now handled by user input
+# The following are still generated automatically if admin files exist:
 
-audience_insights = generate_audience_insights()
-st.session_state.audience_insights = audience_insights
+# Generate media consumption if admin file exists
+try:
+    media_consumption = generate_media_consumption()
+    if media_consumption:
+        st.session_state.audience_media_consumption = media_consumption
+except:
+    pass
 
-media_consumption = generate_media_consumption()
-st.session_state.audience_media_consumption = media_consumption
+# Generate media affinity if admin file exists
+try:
+    media_affinity = generate_media_affinity()
+    if media_affinity:
+        st.session_state.media_affinity = media_affinity
+except:
+    pass
 
-media_affinity = generate_media_affinity()
-st.session_state.media_affinity = media_affinity
+# Generate psychographic highlights only if audience_insights exists (from user input)
+if 'audience_insights' in st.session_state and st.session_state.audience_insights:
+    try:
+        pychographic_highlights = generate_pychographic_highlights(st.session_state.audience_insights)
+        st.session_state.pychographic_highlights = pychographic_highlights
+    except:
+        pass
 
-pychographic_highlights = generate_pychographic_highlights(audience_insights)
-st.session_state.pychographic_highlights = pychographic_highlights
-
-
-if isinstance(st.session_state.audience_insights, str):
+# Ensure data is in correct format
+if 'audience_insights' in st.session_state and isinstance(st.session_state.audience_insights, str):
     st.session_state.audience_insights = json.loads(st.session_state.audience_insights)
-if isinstance(st.session_state.audience_media_consumption, str):
+if 'audience_media_consumption' in st.session_state and isinstance(st.session_state.audience_media_consumption, str):
     st.session_state.audience_media_consumption = json.loads(st.session_state.audience_media_consumption)
 

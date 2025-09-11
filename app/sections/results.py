@@ -20,6 +20,7 @@ from .next_steps import next_steps
 from .summary import summary
 from .premium_cta import premium_cta
 from core.analysis import industry_keywords
+from app.components.psychographic_input import psychographic_input_section
 import os
 import streamlit.components.v1 as components
 

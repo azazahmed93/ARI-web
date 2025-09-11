@@ -3,7 +3,6 @@ from app.components.admin import is_admin
 from core.utils import upload_file, get_first_file_name
 
 PATHS = {
-    "PSYCHOGRAPHY": "research/psychography-uploads",
     "MEDIA_CONSUMPTION": "research/media-consumption-uploads",
     "SITES_AFFINITY": "research/sites-affinity-uploads",
     "JSON": "research/json",
@@ -12,18 +11,13 @@ PATHS = {
 def admin_uploads():
     if st.query_params.get('mode') == 'admin' and is_admin():
         
-        # PYSCHOGRAPHY
-        uploaded_file_psychography = st.file_uploader(
-                "Upload Psychographic Research",
-                key="Upload Psychographic Research",
-                type=["png"],
-                help="Supported formats: PNG"
-            )
-        upload_psychography_button_handler = st.button("Replace psychographic research file", type="secondary", use_container_width=True)
-        if upload_psychography_button_handler and uploaded_file_psychography:
-            save_path = PATHS.get("PSYCHOGRAPHY")
-            upload_file(uploaded_file_psychography, save_path)
-
+        st.title("Admin Upload Section")
+        st.markdown("---")
+        
+        # Note about psychographic data
+        st.info("ℹ️ Psychographic research uploads have been moved to the user interface. Users can now upload their own research or generate it with AI.")
+        st.markdown("---")
+        
         # MEDIA CONSUMPTION
         uploaded_file_media_consumption = st.file_uploader(
                 "Upload Media Consumption Research",
@@ -50,11 +44,6 @@ def admin_uploads():
 
         # Display the uploaded files
         st.subheader("Uploaded Files")
-        psychography_file = get_first_file_name(PATHS.get("PSYCHOGRAPHY"))
-        if psychography_file:
-            st.write(f"Psychographic Research File: {psychography_file}")
-        else:
-            st.write("Psychographic Research File: No file uploaded yet.")
         media_consumption_file = get_first_file_name(PATHS.get("MEDIA_CONSUMPTION"))
         if media_consumption_file:
             st.write(f"Media Consumption Research File: {media_consumption_file}")

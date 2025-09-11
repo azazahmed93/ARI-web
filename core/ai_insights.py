@@ -769,7 +769,7 @@ def get_default_audience_segments(brief_text, ari_scores):
     
     return segments
 
-def generate_audience_segments(brief_text, ari_scores):
+def generate_audience_segments(brief_text, ari_scores, demographics_info=None):
     """
     Generate audience segment recommendations based on the brief text and ARI scores.
     Including new potential audience segments with high growth potential that might not be 
@@ -778,6 +778,7 @@ def generate_audience_segments(brief_text, ari_scores):
     Args:
         brief_text (str): The marketing brief or RFP text
         ari_scores (dict): The Audience Resonance Index scores
+        demographics_info (str, optional): Demographic configuration from psychographic input
         
     Returns:
         dict: A dictionary containing audience segments with descriptions and affinities
@@ -823,6 +824,8 @@ Additional audience data for SiteOne Hispanic campaign:
         
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
+        
+        {f"Target Demographics: {demographics_info}" if demographics_info else ""}
         
         ARI Scores:
         {scores_str}
@@ -1171,62 +1174,123 @@ def encode_image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
-# Function to send image to GPT-4 Vision and extract structured JSON
-def generate_audience_insights():
-    image_file_name = get_first_file_name(PATHS.get('PSYCHOGRAPHY'))
-    base_file_name = os.path.splitext(image_file_name)[0]
-    json_file_name =  f"{PATHS.get('JSON')}/{base_file_name}.json"
-    image_path = f"{PATHS.get('PSYCHOGRAPHY')}/{image_file_name}"
-
-    if os.path.exists(json_file_name):
-        with open(json_file_name, "r") as f:
-            return json.load(f)
-
+# Function to send image to GPT-4 Vision and extract structured JSON or generate with AI
+def generate_audience_insights(source_type='legacy', uploaded_file=None, brief_text=None, demographics_info=None):
+    """
+    Generate psychographic insights from either uploaded image or AI generation.
     
-    base64_image = encode_image_to_base64(image_path)
-
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a helpful assistant that extracts marketing insights from visuals."
-            },
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": (
-                            "Please extract the psychographic and demographic data from this image "
-                            "and format it into the following JSON structure:\n\n"
-                            "{\n"
-                        "    \"demographics\": [\"string\", \"string\", ...],\n"
-                        "    \"values\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
-                        "    \"psychological_drivers\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
-                        "    \"activities\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
-                        "    \"daily_routines\": [{\"trait\": \"string\", \"qvi\": integer}, ...]\n"
-                            "}"
-                        )
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/png;base64,{base64_image}"
+    Args:
+        source_type: 'upload' for user upload, 'generate' for AI generation, 'legacy' for old admin flow
+        uploaded_file: Streamlit uploaded file object (for upload)
+        brief_text: Brief text for AI generation (for generate)
+        demographics_info: Optional demographic context for AI generation
+    
+    Returns:
+        dict: Psychographic data in standard JSON format
+    """
+    
+    # Legacy mode - for backward compatibility with admin uploads
+    if source_type == 'legacy':
+        image_file_name = get_first_file_name(PATHS.get('PSYCHOGRAPHY'))
+        if not image_file_name:
+            return {}
+        base_file_name = os.path.splitext(image_file_name)[0]
+        json_file_name = f"{PATHS.get('JSON')}/{base_file_name}.json"
+        image_path = f"{PATHS.get('PSYCHOGRAPHY')}/{image_file_name}"
+        
+        if os.path.exists(json_file_name):
+            with open(json_file_name, "r") as f:
+                return json.load(f)
+        
+        base64_image = encode_image_to_base64(image_path)
+        
+    # User upload mode - process uploaded file directly
+    elif source_type == 'upload' and uploaded_file:
+        # Convert uploaded file to base64
+        uploaded_file.seek(0)  # Reset file pointer
+        base64_image = base64.b64encode(uploaded_file.read()).decode("utf-8")
+        
+    # AI generation mode - generate from brief
+    elif source_type == 'generate' and brief_text:
+        # Load and prepare the prompt template
+        with open("docs/prompt.txt", "r") as f:
+            prompt_template = f.read()
+        
+        # Prepare the context
+        industry = demographics_info if demographics_info else "General Consumer Market"
+        
+        # Replace placeholders in prompt
+        prompt = prompt_template.replace("Savannah's Urban Lifestyle Enthusiasts", industry)
+        prompt = prompt.replace("{brief_text[:1000]}", brief_text[:1000])
+        
+        # If demographics info provided, update the demographics line
+        if demographics_info:
+            prompt = prompt.replace("Age: 25-40 | Gender: All | Income: Middle to Upper Middle Income", demographics_info)
+        
+        # Generate with GPT-4
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a consumer psychologist and market research expert specializing in psychographic profiling and behavioral analysis."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=1500
+        )
+        
+        return json.loads(response.choices[0].message.content)
+    
+    else:
+        raise ValueError("Invalid source_type or missing required parameters")
+    
+    # Process image with GPT-4 Vision (for both legacy and upload modes)
+    if source_type in ['legacy', 'upload']:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that extracts marketing insights from visuals."
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": (
+                                "Please extract the psychographic and demographic data from this image "
+                                "and format it into the following JSON structure:\n\n"
+                                "{\n"
+                                "    \"demographics\": [\"string\", \"string\", ...],\n"
+                                "    \"values\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
+                                "    \"psychological_drivers\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
+                                "    \"activities\": [{\"trait\": \"string\", \"qvi\": integer}, ...],\n"
+                                "    \"daily_routines\": [{\"trait\": \"string\", \"qvi\": integer}, ...]\n"
+                                "}"
+                            )
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{base64_image}"
+                            }
                         }
-                    }
-                ]
-            }
-        ],
-        response_format={"type": "json_object"},
-        max_tokens=1000
-    )
-
-    os.makedirs(os.path.dirname(json_file_name), exist_ok=True)
-    with open(json_file_name, "w") as f:
-        json.dump(response.choices[0].message.content, f, indent=4)
-
-    return json.loads(response.choices[0].message.content)
+                    ]
+                }
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=1000
+        )
+        
+        result = json.loads(response.choices[0].message.content)
+        
+        # Only save to file in legacy mode
+        if source_type == 'legacy':
+            os.makedirs(os.path.dirname(json_file_name), exist_ok=True)
+            with open(json_file_name, "w") as f:
+                json.dump(response.choices[0].message.content, f, indent=4)
+        
+        return result
 
 def generate_media_consumption():
     image_file_name = get_first_file_name(PATHS.get('MEDIA_CONSUMPTION'))
@@ -1335,14 +1399,55 @@ Generate a paragraph called a "psychographic highlight" in the following tone an
 "{PSYCHOGRAPHIC_HIGHLIGHTS}"
 
 Use the top 3 highest-indexed items in each category from the payload. Format the text with HTML <strong> tags around the traits and indexes. Match the tone, length, and structure shown in the sample.
+
+IMPORTANT: Return ONLY the psychographic highlight paragraph. Do not include any introductory phrases like "Certainly!", "Here is", "Based on", etc. Start directly with "This audience..." 
 """
     
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are a data analyst. Return only the requested content without any conversational elements or acknowledgments."},
+            {"role": "user", "content": prompt}
+        ]
     )
 
-    return response.choices[0].message.content
+    content = response.choices[0].message.content.strip()
+    
+    # Clean up any potential AI acknowledgments at the beginning
+    # Remove common AI response patterns
+    unwanted_starts = [
+        "Certainly!", "Certainly,", "Certainly.", 
+        "Sure!", "Sure,", "Sure.",
+        "Here is", "Here's", "Based on",
+        "Of course!", "Of course,", "Of course.",
+        "I'll generate", "Let me generate",
+        "Here is a psychographic highlight:",
+        "Here's the psychographic highlight:",
+        "The psychographic highlight is:",
+        "Psychographic highlight:",
+    ]
+    
+    for start in unwanted_starts:
+        if content.lower().startswith(start.lower()):
+            # Find where the actual content starts (usually after a colon, newline, or quote)
+            for delimiter in [':', '\n', '"', 'This audience']:
+                if delimiter in content:
+                    parts = content.split(delimiter, 1)
+                    if len(parts) > 1 and parts[1].strip():
+                        content = (delimiter + parts[1]) if delimiter != 'This audience' else ('This audience' + parts[1])
+                        break
+    
+    # Ensure content starts with "This audience" if it doesn't already
+    if not content.strip().startswith("This audience"):
+        # Try to find "This audience" anywhere in the text
+        if "This audience" in content:
+            # Extract from "This audience" onwards
+            content = content[content.find("This audience"):]
+    
+    # Final cleanup - remove any quotes around the entire content
+    content = content.strip().strip('"').strip("'").strip()
+    
+    return content
 
 def generate_core_audience_summary(audience_insights, media_consumption, brief_text):
     prompt = f"""

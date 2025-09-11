@@ -11,6 +11,7 @@ from assets.styles import header_section, render_footer
 from core.database import BLOCKED_KEYWORDS
 
 from app.sections.results import display_results
+from app.components.psychographic_input import psychographic_input_section, process_psychographic_config
 import streamlit as st
 
 # Import the grammar fix function from ai_insights module
@@ -222,11 +223,11 @@ def landing_layout(inner_content):
                 }
                 
                 # Show the file details in a cleaner way
-                st.markdown("<div style='background: #f8fafc; padding: 12px; border-radius: 8px; margin-top: 12px;'>", unsafe_allow_html=True)
-                st.markdown(f"<div style='font-weight: 500;'>File Details:</div>", unsafe_allow_html=True)
-                for key, value in file_details.items():
-                    st.markdown(f"<div style='font-size: 0.9rem; margin-top: 5px;'><span style='color: #64748b;'>{key}:</span> {value}</div>", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+                # st.markdown("<div style='background: #f8fafc; padding: 12px; border-radius: 8px; margin-top: 12px;'>", unsafe_allow_html=True)
+                # st.markdown(f"<div style='font-weight: 500;'>File Details:</div>", unsafe_allow_html=True)
+                # for key, value in file_details.items():
+                #     st.markdown(f"<div style='font-size: 0.9rem; margin-top: 5px;'><span style='color: #64748b;'>{key}:</span> {value}</div>", unsafe_allow_html=True)
+                # st.markdown("</div>", unsafe_allow_html=True)
                 
                 # Extract text from the file
                 file_text = extract_text_from_file(uploaded_file)
@@ -248,7 +249,11 @@ def landing_layout(inner_content):
                 for keyword in BLOCKED_KEYWORDS:
                     input_brief_text = input_brief_text.replace(keyword, "[FILTERED]")
                 brief_text = input_brief_text
-                
+        
+        # Add psychographic input section before analysis button
+        if brief_text:
+            st.markdown("---")
+            psychographic_input_section(brief_text)
         
         # Analysis and Restart buttons in columns
         col1, col2 = st.columns([3, 1])
@@ -273,8 +278,27 @@ def landing_layout(inner_content):
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
                 with st.spinner(get_random_spinner_message()):
-                    # Simulate analysis time
-                    # time.sleep(1.5)
+                    # Process psychographic configuration if exists
+                    demographics_info = None
+                    if 'psychographic_config' in st.session_state:
+                        # Extract demographics info for use in audience segments
+                        config = st.session_state.psychographic_config
+                        if config.get('method') == 'generate':
+                            demo = config.get('demographics', {})
+                            demo_parts = []
+                            if demo.get('age'):
+                                demo_parts.append(f"Age: {demo['age']}")
+                            if demo.get('gender'):
+                                demo_parts.append(f"Gender: {demo['gender']}")
+                            if demo.get('income'):
+                                demo_parts.append(f"Income: {demo['income']}")
+                            if demo.get('location'):
+                                demo_parts.append(f"Location: {demo['location']}")
+                            demographics_info = " | ".join(demo_parts) if demo_parts else None
+                        
+                        psychographic_insights = process_psychographic_config(brief_text)
+                        if psychographic_insights:
+                            st.session_state.audience_insights = psychographic_insights
                     
                     # Analyze the content
                     result = analyze_campaign_brief(brief_text)
@@ -361,7 +385,7 @@ def landing_layout(inner_content):
                                     time.sleep(0.5)
                                     
                                     # Generate AI-powered audience segments to replace default ones
-                                    ai_audience_segments = generate_audience_segments(brief_text, scores)
+                                    ai_audience_segments = generate_audience_segments(brief_text, scores, demographics_info)
                                     # Only replace if the AI generation was successful
                                     if ai_audience_segments and 'segments' in ai_audience_segments:
                                         st.session_state.audience_segments = ai_audience_segments
