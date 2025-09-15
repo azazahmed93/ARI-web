@@ -93,8 +93,17 @@ def psychographic_input_section(brief_text=None):
                     
                     income = st.selectbox(
                         "Income Level",
-                        options=["Auto-detect", "Low", "Lower Middle", "Middle", "Upper Middle", "High", "Ultra High"],
+                        options=[
+                            "Auto-detect",
+                            "Low (Under $30K/year)",
+                            "Lower Middle ($30K-$50K/year)",
+                            "Middle ($50K-$100K/year)",
+                            "Upper Middle ($100K-$200K/year)",
+                            "High ($200K-$500K/year)",
+                            "Ultra High (Over $500K/year)"
+                        ],
                         index=0,
+                        help="Select the income bracket that best represents your target audience's purchasing power and lifestyle.",
                         key="config_income"
                     )
                 
@@ -103,6 +112,7 @@ def psychographic_input_section(brief_text=None):
                         "Gender Focus",
                         options=["Auto-detect", "All Genders", "Male", "Female", "Non-binary"],
                         index=0,
+                        help="Choose the gender demographic to target. 'All Genders' includes everyone, while specific options focus on particular demographics.",
                         key="config_gender"
                     )
                     
@@ -110,13 +120,20 @@ def psychographic_input_section(brief_text=None):
                         "Geographic Focus",
                         options=["Auto-detect", "Urban", "Suburban", "Rural", "Mixed"],
                         index=0,
+                        help="Define the geographic setting of your target audience. Urban (cities), Suburban (outskirts), Rural (countryside), or Mixed (combination).",
                         key="config_location"
                     )
                 
                 # Store the configuration (only store valid age range)
+                # Extract the income level without the range in parentheses
+                income_value = None
+                if income != "Auto-detect":
+                    # Extract just the level name (e.g., "Low" from "Low (Under $30K/year)")
+                    income_value = income.split(" (")[0]
+
                 st.session_state.psychographic_config['demographics'] = {
                     'age': age_range if age_range and not age_error else None,
-                    'income': income if income != "Auto-detect" else None,
+                    'income': income_value,
                     'gender': gender if gender not in ["Auto-detect", "All Genders"] else None,
                     'location': location if location != "Auto-detect" else None
                 }
