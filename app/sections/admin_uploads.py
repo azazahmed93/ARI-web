@@ -14,10 +14,6 @@ def admin_uploads():
         st.title("Admin Upload Section")
         st.markdown("---")
         
-        # Note about psychographic data
-        st.info("ℹ️ Psychographic research uploads have been moved to the user interface. Users can now upload their own research or generate it with AI.")
-        st.markdown("---")
-        
         # MEDIA CONSUMPTION
         uploaded_file_media_consumption = st.file_uploader(
                 "Upload Media Consumption Research",
