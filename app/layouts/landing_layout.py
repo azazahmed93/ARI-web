@@ -277,62 +277,83 @@ def landing_layout(inner_content):
             if not brief_text or brief_text.strip() == "":
                 st.error("Please provide a Marketing Brief or RFP to proceed with analysis.")
             else:
-                with st.spinner(get_random_spinner_message()):
-                    # Process psychographic configuration if exists
-                    demographics_info = None
-                    if 'psychographic_config' in st.session_state:
-                        # Extract demographics info for use in audience segments
-                        config = st.session_state.psychographic_config
-                        if config.get('method') == 'generate':
-                            demo = config.get('demographics', {})
-                            demo_parts = []
-                            if demo.get('age'):
-                                demo_parts.append(f"Age: {demo['age']}")
-                            if demo.get('gender'):
-                                demo_parts.append(f"Gender: {demo['gender']}")
-                            if demo.get('income'):
-                                demo_parts.append(f"Income: {demo['income']}")
-                            if demo.get('location'):
-                                demo_parts.append(f"Location: {demo['location']}")
-                            demographics_info = " | ".join(demo_parts) if demo_parts else None
+                # Check for validation errors in psychographic config
+                has_validation_error = False
+                if 'psychographic_config' in st.session_state:
+                    config = st.session_state.psychographic_config
+                    if config.get('method') == 'generate':
+                        # Check if age range has validation error
+                        age_input = st.session_state.get('config_age', '')
+                        if age_input and age_input.strip():
+                            import re
+                            age_pattern = r'^(\d{1,3})\s*[-–]\s*(\d{1,3})$'
+                            match = re.match(age_pattern, age_input.strip())
+                            if not match:
+                                st.error("❌ Please fix the age range format before running analysis")
+                                has_validation_error = True
+                            elif match:
+                                min_age, max_age = int(match.group(1)), int(match.group(2))
+                                if min_age < 0 or max_age > 120 or min_age >= max_age:
+                                    st.error("❌ Please fix the age range values before running analysis")
+                                    has_validation_error = True
+                
+                if not has_validation_error:
+                    with st.spinner(get_random_spinner_message()):
+                        # Process psychographic configuration if exists
+                        demographics_info = None
+                        if 'psychographic_config' in st.session_state:
+                            # Extract demographics info for use in audience segments
+                            config = st.session_state.psychographic_config
+                            if config.get('method') == 'generate':
+                                demo = config.get('demographics', {})
+                                demo_parts = []
+                                if demo.get('age'):
+                                    demo_parts.append(f"Age: {demo['age']}")
+                                if demo.get('gender'):
+                                    demo_parts.append(f"Gender: {demo['gender']}")
+                                if demo.get('income'):
+                                    demo_parts.append(f"Income: {demo['income']}")
+                                if demo.get('location'):
+                                    demo_parts.append(f"Location: {demo['location']}")
+                                demographics_info = " | ".join(demo_parts) if demo_parts else None
+                            
+                            psychographic_insights = process_psychographic_config(brief_text)
+                            if psychographic_insights:
+                                st.session_state.audience_insights = psychographic_insights
                         
-                        psychographic_insights = process_psychographic_config(brief_text)
-                        if psychographic_insights:
-                            st.session_state.audience_insights = psychographic_insights
-                    
-                    # Analyze the content
-                    result = analyze_campaign_brief(brief_text)
-                    
-                    print("result")
-                    print(result)
-                    if not result:
-                        st.error("Insufficient data complexity for comprehensive analysis. Please provide a more detailed brief or RFP.")
-                    else:
-                        scores, brand_name, industry, product_type = result
+                        # Analyze the content
+                        result = analyze_campaign_brief(brief_text)
                         
-                        # Calculate benchmark percentile and improvement areas
-                        percentile = calculate_benchmark_percentile(scores)
-                        # Get brand and industry info for enhanced improvement areas analysis
-                        brand_name, industry, product_type = extract_brand_info(brief_text)
-                        
-                        # Get dynamic improvement areas using all contextual data
-                        improvement_areas = get_improvement_areas(
-                            scores, 
-                            brief_text=brief_text,
-                            brand_name=brand_name,
-                            industry=industry
-                        )
-                        
-                        # Store results in session state
-                        st.session_state.has_analyzed = True
-                        st.session_state.scores = scores
-                        st.session_state.percentile = percentile
-                        st.session_state.brand_info = (brand_name, industry, product_type)
-                        st.session_state.improvement_areas = improvement_areas
-                        st.session_state.brand_name = brand_name
-                        st.session_state.industry = industry
-                        st.session_state.product_type = product_type
-                        st.session_state.brief_text = brief_text
+                        print("result")
+                        print(result)
+                        if not result:
+                            st.error("Insufficient data complexity for comprehensive analysis. Please provide a more detailed brief or RFP.")
+                        else:
+                            scores, brand_name, industry, product_type = result
+                            
+                            # Calculate benchmark percentile and improvement areas
+                            percentile = calculate_benchmark_percentile(scores)
+                            # Get brand and industry info for enhanced improvement areas analysis
+                            brand_name, industry, product_type = extract_brand_info(brief_text)
+                            
+                            # Get dynamic improvement areas using all contextual data
+                            improvement_areas = get_improvement_areas(
+                                scores, 
+                                brief_text=brief_text,
+                                brand_name=brand_name,
+                                industry=industry
+                            )
+                            
+                            # Store results in session state
+                            st.session_state.has_analyzed = True
+                            st.session_state.scores = scores
+                            st.session_state.percentile = percentile
+                            st.session_state.brand_info = (brand_name, industry, product_type)
+                            st.session_state.improvement_areas = improvement_areas
+                            st.session_state.brand_name = brand_name
+                            st.session_state.industry = industry
+                            st.session_state.product_type = product_type
+                            st.session_state.brief_text = brief_text
                         
                         # Generate audience segments regardless of OpenAI availability
                         # This ensures we always have audience segments to display
