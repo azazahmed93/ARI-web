@@ -83,8 +83,8 @@ def main():
         inner_content = display_results
 
     if st.query_params.get('mode') != 'admin':
-        # if(is_logged_in()):
-        landing_layout(inner_content)
+        if(is_logged_in()):
+            landing_layout(inner_content)
     else:
         admin_uploads()
 
