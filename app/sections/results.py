@@ -169,7 +169,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Transaction Data",
         # "DMA Insights",
         "Audience Simulation",
-        "Journey Environments"
+        "Journey Environments",
         "Next Steps"
     ])
     
