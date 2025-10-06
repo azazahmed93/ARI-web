@@ -77,6 +77,18 @@ def main():
     if "user_authenticated" not in st.session_state:
         st.session_state.user_authenticated = False
 
+    # Journey Environments resonance scores
+    if 'journey_ad_format_scores' not in st.session_state:
+        st.session_state.journey_ad_format_scores = None
+    if 'journey_programming_show_scores' not in st.session_state:
+        st.session_state.journey_programming_show_scores = None
+    if 'journey_retargeting_channels' not in st.session_state:
+        st.session_state.journey_retargeting_channels = None
+    if 'journey_audience_profile' not in st.session_state:
+        st.session_state.journey_audience_profile = None
+    if 'journey_campaign_objectives' not in st.session_state:
+        st.session_state.journey_campaign_objectives = None
+
     inner_content = None
     # Display results if analysis has been performed
     if st.session_state.has_analyzed:

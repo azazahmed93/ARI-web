@@ -725,6 +725,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             # For a full-page-like experience, you might need a large height.
             # `scrolling=True` allows the component to have its own scrollbar if content overflows.
             # st.components.v1.html(html_code, height=800)
+
+
+            html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
+            html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
+            html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
+            html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
+            html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
             components.html(html_code, height=1000, scrolling=True)
 
         except FileNotFoundError:

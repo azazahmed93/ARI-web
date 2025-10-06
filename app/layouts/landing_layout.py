@@ -29,6 +29,7 @@ from core.ai_insights import (
 from components.spinner import get_random_spinner_message
 from assets.styles import apply_styles
 from core.ai_insights import generate_core_audience_summary, generate_primary_audience_signal, generate_secondary_audience_signal
+from core.journey_environments import generate_resonance_scores
 
 
 def landing_layout(inner_content):
@@ -465,7 +466,108 @@ def landing_layout(inner_content):
                                     
                                     st.session_state.ai_insights = None
                                     st.session_state.competitor_analysis = None
-                        
+
+                            # Generate Journey Environments resonance scores
+                            # Only generate if not already present and OpenAI is available
+                            if (st.session_state.journey_ad_format_scores is None or
+                                st.session_state.journey_programming_show_scores is None or
+                                st.session_state.journey_retargeting_channels is None):
+
+                                try:
+                                    # Build audience profile from existing data
+                                    audience_profile = None
+                                    if st.session_state.get('audience_insights'):
+                                        # Extract richer demographics from audience_segments if available
+                                        primary_segment = None
+                                        if st.session_state.get('audience_segments'):
+                                            segments = st.session_state.audience_segments.get('segments', [])
+                                            if segments and len(segments) > 0:
+                                                primary_segment = segments[0]
+
+                                        # Determine demographics from multiple sources
+                                        age_range = st.session_state.audience_insights.get("age_range", "35-54")
+                                        income_level = st.session_state.audience_insights.get("income_level", "HHI $150K+")
+
+                                        # Extract from primary segment if available
+                                        if primary_segment:
+                                            targeting_params = primary_segment.get('targeting_params', {})
+                                            age_range = targeting_params.get('age_range', age_range)
+                                            income_level = targeting_params.get('income_targeting', income_level)
+
+                                        # Infer profession from segment name or brief
+                                        profession = "professionals"
+                                        if primary_segment:
+                                            segment_name = primary_segment.get('name', '').lower()
+                                            if 'tech' in segment_name or 'digital' in segment_name:
+                                                profession = "tech professionals"
+                                            elif 'stream' in segment_name or 'entertainment' in segment_name:
+                                                profession = "entertainment enthusiasts"
+                                            elif 'lifestyle' in segment_name or 'culture' in segment_name:
+                                                profession = "lifestyle professionals"
+                                            elif 'sport' in segment_name or 'athletic' in segment_name:
+                                                profession = "sports enthusiasts"
+
+                                        # Determine affluence from income level
+                                        affluence = "affluent"
+                                        income_lower = income_level.lower()
+                                        if any(term in income_lower for term in ['high', '100k+', '150k+', 'premium', 'luxury']):
+                                            affluence = "affluent"
+                                        elif any(term in income_lower for term in ['mid', 'middle', '50k-100k']):
+                                            affluence = "middle class"
+                                        elif any(term in income_lower for term in ['low', 'budget', '25k-50k']):
+                                            affluence = "budget-conscious"
+
+                                        audience_profile = {
+                                            "demographics": {
+                                                "ageRange": age_range,
+                                                "profession": profession,
+                                                "incomeLevel": income_level,
+                                                "affluence": affluence
+                                            },
+                                            "psychographics": st.session_state.audience_insights
+                                        }
+
+                                    # Build campaign objectives from brief
+                                    campaign_objectives = ["brand awareness", "audience engagement"]
+                                    if st.session_state.brief_text:
+                                        # Extract objectives from brief
+                                        brief_lower = st.session_state.brief_text.lower()
+                                        if "conversion" in brief_lower or "sales" in brief_lower:
+                                            campaign_objectives.append("conversions")
+                                        if "awareness" in brief_lower:
+                                            campaign_objectives.append("brand awareness")
+                                        if "engagement" in brief_lower:
+                                            campaign_objectives.append("engagement")
+
+                                    # Store in session state for component
+                                    st.session_state.journey_audience_profile = audience_profile
+                                    st.session_state.journey_campaign_objectives = campaign_objectives
+
+                                    # Generate resonance scores and retargeting recommendations
+                                    print("Generating journey environments resonance scores...")
+                                    journey_scores = generate_resonance_scores(
+                                        audience_profile=audience_profile,
+                                        campaign_objectives=campaign_objectives
+                                    )
+
+                                    print("Journey Scores")
+                                    print(journey_scores)
+
+                                    # Store results in session state
+                                    if journey_scores:
+                                        st.session_state.journey_ad_format_scores = journey_scores.get("ad_format_scores")
+                                        st.session_state.journey_programming_show_scores = journey_scores.get("programming_show_scores")
+                                        st.session_state.journey_retargeting_channels = journey_scores.get("retargeting_channels")
+
+                                        ad_count = len(st.session_state.journey_ad_format_scores or {})
+                                        show_count = len(st.session_state.journey_programming_show_scores or {})
+                                        retarget_count = len(st.session_state.journey_retargeting_channels or [])
+
+                                        print(f"Generated scores for {ad_count} ad formats, {show_count} shows, and {retarget_count} retargeting channels")
+
+                                except Exception as e:
+                                    print(f"Error generating journey environments resonance scores: {e}")
+
                         # Show success message
                         success_msg = "✨ Campaign analysis complete! Breakthrough insights ready for review."
                         if st.session_state.use_openai and st.session_state.ai_insights:
