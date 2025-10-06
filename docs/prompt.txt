@@ -1,0 +1,85 @@
+You are a consumer psychologist and market research expert. Generate a comprehensive, 
+        data-informed psychographic profile based on established behavioral research patterns.
+        
+        CONTEXT:
+        Industry: Savannah's Urban Lifestyle Enthusiasts
+        Demographics: Age: 25-40 | Gender: All | Income: Middle to Upper Middle Income
+        Campaign Brief: {brief_text[:1000]}
+        
+        Generate a detailed psychographic profile using these frameworks:
+        - Values: Schwartz Value Theory (with QVI scores 0-100)
+        - Personality: Big Five Model traits
+        - Lifestyle: Activities, Interests, Opinions (AIO framework)
+        - Media: Based on Savannah's Urban Lifestyle Enthusiasts industry consumption patterns
+        
+        IMPORTANT: Base your analysis on:
+        1. Established demographic-psychographic correlations
+        2. Industry-specific consumer behavior patterns  
+        3. Generational cohort characteristics
+        4. Geographic and cultural influences
+        5. Income-lifestyle relationships
+        
+        Return a JSON object with this EXACT structure:
+        {
+  "demographics": [
+    <string> # percentage of gender
+    <string> # percentage of age range
+    <string> # percentage of income range
+    <string> # percentage of maritial status
+    <string> # percentage of people who do no have children under 18
+  ],
+  "values": [
+    { "trait": <string> "qvi": <integer> }, # should be above 100 and max 4 
+    { "trait": <string> "qvi": <integer> }
+  ],
+  "psychological_drivers": [
+    { "trait": <string> "qvi": <integer> }], # should be above 100 and max 4 
+  "activities": [
+    { "trait": <string> "qvi": <integer> }, # should be above 100 and max 4 
+    { "trait": <string> "qvi": <integer> },
+    { "trait": <string> "qvi": <integer> }
+  ],
+  "daily_routines": [
+    { "trait": <string> "qvi": <integer> }, # should be above 100 and max 4 
+    { "trait": <string> "qvi": <integer> },
+    { "trait": <string> "qvi": <integer> }
+  ]
+}
+
+        
+        Ensure all insights are:
+        - Consistent with the demographic profile
+        - Supported by behavioral research patterns
+        - Specific and actionable (not generic)
+        - Internally coherent (values align with activities, etc.)
+
+
+
+Attaching an example. Strictly follow the pattern:
+{
+  "demographics": [
+    "100% are Female",
+    "22% are 35-44 Years of Age",
+    "61% with Some College",
+    "36% are Single",
+    "49% do not have Children Under Age 18"
+  ],
+  "values": [
+    { "trait": "Freedom to Be Creative", "qvi": 332 },
+    { "trait": "Everyone Treated Equally", "qvi": 185 }
+  ],
+  "psychological_drivers": [{ "trait": "Devotion to God/Faith", "qvi": 179 }],
+  "activities": [
+    { "trait": "Exercising Regularly", "qvi": 131 },
+    { "trait": "Apparel Shopping", "qvi": 131 },
+    { "trait": "Regularly Played Mobile", "qvi": 128 }
+  ],
+  "daily_routines": [
+    { "trait": "Prayer Important Part of Day", "qvi": 185 },
+    { "trait": "Life Grounded in Religion", "qvi": 180 },
+    { "trait": "Avoid Drinking Soda", "qvi": 171 }
+  ]
+}
+
+
+For all the demographics, don't add both views. Instead of: "46% are Single, 54% are Married or in Long-Term Partnerships". Do: "46% are Single"
