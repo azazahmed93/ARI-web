@@ -26,6 +26,18 @@ import streamlit.components.v1 as components
 
 def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product", brief_text=""):
     """Display the ARI analysis results."""
+    # Check if audience summary data exists - if not, show error message
+    audience_summary = st.session_state.get('audience_summary', {})
+    core_audience = audience_summary.get('core_audience', '').strip()
+    primary_audience = audience_summary.get('primary_audience', '').strip()
+    secondary_audience = audience_summary.get('secondary_audience', '').strip()
+
+    # If all three are empty, AI generation failed - show error message
+    if not core_audience and not primary_audience and not secondary_audience:
+        st.markdown("---")
+        st.info("Oh snap—our live data pull powered down for a micro-recharge. Happens to the best of us. Click **Run Predictive Analysis** to wake it up")
+        return
+
     # Import the marketing trend heatmap functionality
     from app.components.marketing_trends import display_trend_heatmap
     st.markdown("---")
