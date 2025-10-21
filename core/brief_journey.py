@@ -63,7 +63,10 @@ class BriefJourneyData(TypedDict):
 def generate_journey_from_brief(
     brief_content: str,
     industry: Optional[str] = None,
-    target_audience: Optional[str] = None
+    audience_primary: Optional[str] = None,
+    audience_growth1: Optional[str] = None,
+    audience_growth2: Optional[str] = None,
+    audience_emerging: Optional[str] = None
 ) -> BriefJourneyData:
     """
     Generate consumer journey maps for 4 different audience segments from a marketing brief.
@@ -71,7 +74,10 @@ def generate_journey_from_brief(
     Args:
         brief_content: The full text content of the marketing brief
         industry: Optional industry context (will be detected from brief if not provided)
-        target_audience: Optional primary target audience (will be extracted from brief if not provided)
+        audience_primary: Primary target audience name
+        audience_growth1: Growth segment 1 audience name
+        audience_growth2: Growth segment 2 audience name
+        audience_emerging: Emerging audience name
 
     Returns:
         BriefJourneyData: Complete journey maps for 4 audiences (primary, growth1, growth2, emerging),
@@ -87,25 +93,32 @@ def generate_journey_from_brief(
         else brief_content
     )
 
-    prompt = f"""You are a marketing strategist analyzing a client brief to create detailed consumer journey maps for FOUR different audience segments.
+    # Build audience names string for prompt
+    audience_names = {
+        'primary': audience_primary or 'Primary Target Audience',
+        'growth1': audience_growth1 or 'Growth Segment 1',
+        'growth2': audience_growth2 or 'Growth Segment 2',
+        'emerging': audience_emerging or 'Emerging Audience'
+    }
+
+    prompt = f"""You are a marketing strategist analyzing a client brief to create detailed consumer journey maps for FOUR specific audience segments.
 
 BRIEF CONTENT:
 {truncated_brief}
 
 DETECTED INDUSTRY: {industry or 'General'}
-PRIMARY AUDIENCE HINT: {target_audience or 'Not specified'}
 
-TASK: Generate 4 distinct audience segments with complete 5-stage consumer journeys for each.
+TASK: Generate complete 5-stage consumer journeys for the following 4 SPECIFIC audience segments:
 
-AUDIENCE SEGMENTS TO CREATE:
-1. **Primary**: The main target audience from the brief (e.g., "Urban Professionals", "Working Parents")
-2. **Growth1**: An expansion audience with complementary characteristics (e.g., "Tech Enthusiasts", "Digital Natives")
-3. **Growth2**: A secondary growth segment with different motivations (e.g., "Business Decision Makers", "Budget-Conscious Families")
-4. **Emerging**: A future-focused audience segment (e.g., "Gen Z Consumers", "Early Adopters")
+AUDIENCE SEGMENTS (USE THESE EXACT NAMES):
+1. **Primary**: "{audience_names['primary']}"
+2. **Growth1**: "{audience_names['growth1']}"
+3. **Growth2**: "{audience_names['growth2']}"
+4. **Emerging**: "{audience_names['emerging']}"
 
 For EACH audience segment, provide:
-- **name**: Descriptive audience name (2-4 words)
-- **description**: Brief description of this segment (1 sentence)
+- **name**: Use the EXACT audience name provided above
+- **description**: Brief description of this specific segment (1 sentence)
 - **stages**: All 5 journey stages with unique content tailored to this audience
 
 For EACH of the 5 stages in EACH audience, provide:
@@ -129,12 +142,12 @@ IMPORTANT GUIDELINES:
 - Make it tactical and actionable, not generic
 - Ensure content for each audience is unique and tailored to their specific characteristics
 
-Return a JSON object with this EXACT structure:
+Return a JSON object with this EXACT structure (use the EXACT audience names specified above):
 {{
   "industry": "detected industry from brief",
   "audiences": {{
     "primary": {{
-      "name": "Main Target Audience Name",
+      "name": "{audience_names['primary']}",
       "description": "Brief description of this segment",
       "stages": {{
         "AWARENESS": {{
@@ -166,17 +179,17 @@ Return a JSON object with this EXACT structure:
       }}
     }},
     "growth1": {{
-      "name": "Growth Segment 1 Name",
+      "name": "{audience_names['growth1']}",
       "description": "Brief description",
       "stages": {{ ... all 5 stages with unique content ... }}
     }},
     "growth2": {{
-      "name": "Growth Segment 2 Name",
+      "name": "{audience_names['growth2']}",
       "description": "Brief description",
       "stages": {{ ... all 5 stages with unique content ... }}
     }},
     "emerging": {{
-      "name": "Emerging Audience Name",
+      "name": "{audience_names['emerging']}",
       "description": "Brief description",
       "stages": {{ ... all 5 stages with unique content ... }}
     }}
