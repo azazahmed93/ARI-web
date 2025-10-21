@@ -119,7 +119,7 @@ For EACH of the 5 stages in EACH audience, provide:
    - **headline**: News headline (realistic and timely)
    - **impact**: How this news affects marketing strategy for this audience at this stage (1-2 sentences)
    - **source**: News source (e.g., "TechCrunch", "Marketing Week", "AdAge")
-   - **date**: Recent date (format: "Month Year", e.g., "October 2023")
+   - **date**: Recent date (format: "Month Year", e.g., "October 2025")
 
 IMPORTANT GUIDELINES:
 - Make each audience segment DISTINCT with different behaviors, motivations, and channels
