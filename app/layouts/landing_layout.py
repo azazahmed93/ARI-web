@@ -436,18 +436,16 @@ def landing_layout(inner_content):
                                         if 'segments' in st.session_state.audience_segments:
                                             segments = st.session_state.audience_segments['segments']
                                             if len(segments) >= 1:
-                                                audience_primary = segments[0].get('name', '')
+                                                audience_growth1 = segments[0].get('name', '')
                                             if len(segments) >= 2:
-                                                audience_growth1 = segments[1].get('name', '')
+                                                audience_growth2 = segments[1].get('name', '')
                                             if len(segments) >= 3:
-                                                audience_growth2 = segments[2].get('name', '')
-                                            if len(segments) >= 4:
-                                                audience_emerging = segments[3].get('name', '')
+                                                audience_emerging = segments[2].get('name', '')
 
                                         brief_journey_data = generate_journey_from_brief(
                                             brief_content=brief_text,
                                             industry=industry,
-                                            audience_primary=audience_primary,
+                                            audience_primary="Core Audience",
                                             audience_growth1=audience_growth1,
                                             audience_growth2=audience_growth2,
                                             audience_emerging=audience_emerging

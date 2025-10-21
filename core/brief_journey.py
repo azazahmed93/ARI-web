@@ -54,10 +54,19 @@ class AudiencesData(TypedDict):
     emerging: AudienceJourneyData
 
 
+class AudienceOverlapItem(TypedDict):
+    """Overlap analysis between two audience segments"""
+    audiences: str
+    audienceIds: List[str]
+    overlap: int
+    insight: str
+
+
 class BriefJourneyData(TypedDict):
     """Complete brief journey analysis structure with multiple audiences"""
     industry: str
     audiences: AudiencesData
+    audienceOverlaps: List[AudienceOverlapItem]
 
 
 def generate_journey_from_brief(
@@ -134,6 +143,21 @@ For EACH of the 5 stages in EACH audience, provide:
    - **source**: News source (e.g., "TechCrunch", "Marketing Week", "AdAge")
    - **date**: Recent date (format: "Month Year", e.g., "October 2025")
 
+ADDITIONALLY, provide cross-audience overlap analysis:
+For ALL 6 audience pair combinations, analyze behavioral and strategic overlaps:
+- **Primary × Growth1**: Overlap percentage (15-35%) and consolidation opportunity
+- **Primary × Growth2**: Overlap percentage and strategic insight
+- **Primary × Emerging**: Overlap percentage and opportunity
+- **Growth1 × Growth2**: Overlap percentage and efficiency potential
+- **Growth1 × Emerging**: Overlap percentage and unified strategy
+- **Growth2 × Emerging**: Overlap percentage and messaging consolidation
+
+For EACH overlap, provide:
+- **audiences**: Display name (e.g., "Urban Professionals × Tech Enthusiasts")
+- **audienceIds**: Array of audience keys (e.g., ["primary", "growth1"])
+- **overlap**: Integer percentage (15-35 range)
+- **insight**: Tactical recommendation based on overlap (1-2 sentences)
+
 IMPORTANT GUIDELINES:
 - Make each audience segment DISTINCT with different behaviors, motivations, and channels
 - Base audiences on the brief content and industry context
@@ -193,7 +217,45 @@ Return a JSON object with this EXACT structure (use the EXACT audience names spe
       "description": "Brief description",
       "stages": {{ ... all 5 stages with unique content ... }}
     }}
-  }}
+  }},
+  "audienceOverlaps": [
+    {{
+      "audiences": "{audience_names['primary']} × {audience_names['growth1']}",
+      "audienceIds": ["primary", "growth1"],
+      "overlap": 28,
+      "insight": "Specific tactical recommendation based on overlap analysis"
+    }},
+    {{
+      "audiences": "{audience_names['primary']} × {audience_names['growth2']}",
+      "audienceIds": ["primary", "growth2"],
+      "overlap": 19,
+      "insight": "Specific tactical recommendation"
+    }},
+    {{
+      "audiences": "{audience_names['primary']} × {audience_names['emerging']}",
+      "audienceIds": ["primary", "emerging"],
+      "overlap": 22,
+      "insight": "Specific tactical recommendation"
+    }},
+    {{
+      "audiences": "{audience_names['growth1']} × {audience_names['growth2']}",
+      "audienceIds": ["growth1", "growth2"],
+      "overlap": 35,
+      "insight": "Specific tactical recommendation"
+    }},
+    {{
+      "audiences": "{audience_names['growth1']} × {audience_names['emerging']}",
+      "audienceIds": ["growth1", "emerging"],
+      "overlap": 31,
+      "insight": "Specific tactical recommendation"
+    }},
+    {{
+      "audiences": "{audience_names['growth2']} × {audience_names['emerging']}",
+      "audienceIds": ["growth2", "emerging"],
+      "overlap": 27,
+      "insight": "Specific tactical recommendation"
+    }}
+  ]
 }}"""
 
     try:
