@@ -173,7 +173,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10 = st.tabs([
         "Detailed Metrics", 
         "Audience Insights", 
         "Media Affinities", 
@@ -182,6 +182,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # "DMA Insights",
         "Audience Simulation",
         "Journey Environments",
+        "Consumer Journey",
         "Next Steps"
     ])
     
@@ -751,8 +752,37 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.info("Please make sure 'index.html' is in the correct location.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
+    
     with tab9:
+        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "consumer-journey/index.html") 
+
+        try:
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+
+            # Embed the HTML content
+            # You can adjust height and scrolling as needed.
+            # For a full-page-like experience, you might need a large height.
+            # `scrolling=True` allows the component to have its own scrollbar if content overflows.
+            # st.components.v1.html(html_code, height=800)
+
+
+            # html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
+            # html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
+            # html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
+            # html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
+            # html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
+            components.html(html_code, height=1000, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+    with tab10:
         next_steps()
 
 
