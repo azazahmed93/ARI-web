@@ -25,6 +25,7 @@ from core.ai_insights import (
     generate_audience_reach,
     generate_market_insights,
 )
+from core.brief_journey import generate_journey_from_brief
 
 from components.spinner import get_random_spinner_message
 from assets.styles import apply_styles
@@ -420,7 +421,29 @@ def landing_layout(inner_content):
                                             st.session_state.audience_summary['core_audience'] = generate_core_audience_summary(st.session_state.audience_insights, st.session_state.audience_media_consumption, brief_text)
                                             st.session_state.audience_summary['primary_audience'] = generate_primary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[0].get('name'), brief_text)
                                             st.session_state.audience_summary['secondary_audience'] = generate_secondary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
-                                    
+
+                                    # Add delay before brief journey generation
+                                    time.sleep(0.5)
+
+                                    # Generate Brief Journey Map
+                                    try:
+                                        # Extract primary audience name for journey generation
+                                        primary_audience_name = None
+                                        if 'segments' in st.session_state.audience_segments and len(st.session_state.audience_segments['segments']) > 0:
+                                            primary_audience_name = st.session_state.audience_segments['segments'][0].get('name', '')
+
+                                        brief_journey_data = generate_journey_from_brief(
+                                            brief_content=brief_text,
+                                            industry=industry,
+                                            target_audience=primary_audience_name
+                                        )
+                                        st.session_state.brief_journey_data = brief_journey_data
+                                        print("Brief journey data:")
+                                        print(brief_journey_data)
+                                    except Exception as journey_error:
+                                        print(f"Brief journey generation failed: {journey_error}")
+                                        st.session_state.brief_journey_data = None
+
                                     # Generate DMA recommendations
                                     # recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
                                     # st.session_state.recommended_dmas = recommended_dmas
@@ -466,6 +489,7 @@ def landing_layout(inner_content):
                                     
                                     st.session_state.ai_insights = None
                                     st.session_state.competitor_analysis = None
+                                    st.session_state.brief_journey_data = None
 
                             # Generate Journey Environments resonance scores
                             # Only generate if not already present and OpenAI is available

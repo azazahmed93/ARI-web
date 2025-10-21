@@ -173,7 +173,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
     
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11 = st.tabs([
         "Detailed Metrics", 
         "Audience Insights", 
         "Media Affinities", 
@@ -183,6 +183,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Audience Simulation",
         "Journey Environments",
         "Consumer Journey",
+        "Resonance Pathway",
         "Next Steps"
     ])
     
@@ -783,6 +784,25 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.error(f"An error occurred: {e}")
 
     with tab10:
+        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "resonance-pathway/index.html") 
+
+        try:
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+
+            html_code = html_code.replace("{{JOURNEY_DATA}}", json.dumps(st.session_state.brief_journey_data))
+            components.html(html_code, height=1000, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+
+    with tab11:
         next_steps()
 
 
