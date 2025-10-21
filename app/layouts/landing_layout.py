@@ -427,15 +427,30 @@ def landing_layout(inner_content):
 
                                     # Generate Brief Journey Map
                                     try:
-                                        # Extract primary audience name for journey generation
-                                        primary_audience_name = None
-                                        if 'segments' in st.session_state.audience_segments and len(st.session_state.audience_segments['segments']) > 0:
-                                            primary_audience_name = st.session_state.audience_segments['segments'][0].get('name', '')
+                                        # Extract all 4 audience names from generated segments
+                                        audience_primary = None
+                                        audience_growth1 = None
+                                        audience_growth2 = None
+                                        audience_emerging = None
+
+                                        if 'segments' in st.session_state.audience_segments:
+                                            segments = st.session_state.audience_segments['segments']
+                                            if len(segments) >= 1:
+                                                audience_primary = segments[0].get('name', '')
+                                            if len(segments) >= 2:
+                                                audience_growth1 = segments[1].get('name', '')
+                                            if len(segments) >= 3:
+                                                audience_growth2 = segments[2].get('name', '')
+                                            if len(segments) >= 4:
+                                                audience_emerging = segments[3].get('name', '')
 
                                         brief_journey_data = generate_journey_from_brief(
                                             brief_content=brief_text,
                                             industry=industry,
-                                            target_audience=primary_audience_name
+                                            audience_primary=audience_primary,
+                                            audience_growth1=audience_growth1,
+                                            audience_growth2=audience_growth2,
+                                            audience_emerging=audience_emerging
                                         )
                                         st.session_state.brief_journey_data = brief_journey_data
                                         print("Brief journey data:")
