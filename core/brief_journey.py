@@ -144,19 +144,25 @@ For EACH of the 5 stages in EACH audience, provide:
    - **date**: Recent date (format: "Month Year", e.g., "October 2025")
 
 ADDITIONALLY, provide cross-audience overlap analysis:
-For ALL 6 audience pair combinations, analyze behavioral and strategic overlaps:
-- **Primary × Growth1**: Overlap percentage (15-35%) and consolidation opportunity
-- **Primary × Growth2**: Overlap percentage and strategic insight
-- **Primary × Emerging**: Overlap percentage and opportunity
-- **Growth1 × Growth2**: Overlap percentage and efficiency potential
-- **Growth1 × Emerging**: Overlap percentage and unified strategy
-- **Growth2 × Emerging**: Overlap percentage and messaging consolidation
+For ALL 6 audience pair combinations, analyze behavioral and strategic overlaps based on:
+- Shared targeting strategies and channel preferences
+- Similar creative concepts and messaging themes
+- Overlapping media consumption patterns
+- Common behavioral characteristics and motivations
+
+Calculate UNIQUE overlap percentages (15-40% range) for each pair based on actual audience similarities:
+- **Primary × Growth1**: Analyze overlap and provide consolidation opportunity
+- **Primary × Growth2**: Analyze overlap and provide strategic insight
+- **Primary × Emerging**: Analyze overlap and provide opportunity
+- **Growth1 × Growth2**: Analyze overlap and provide efficiency potential
+- **Growth1 × Emerging**: Analyze overlap and provide unified strategy
+- **Growth2 × Emerging**: Analyze overlap and provide messaging consolidation
 
 For EACH overlap, provide:
 - **audiences**: Display name (e.g., "Urban Professionals × Tech Enthusiasts")
 - **audienceIds**: Array of audience keys (e.g., ["primary", "growth1"])
-- **overlap**: Integer percentage (15-35 range)
-- **insight**: Tactical recommendation based on overlap (1-2 sentences)
+- **overlap**: DYNAMICALLY CALCULATED integer percentage based on actual audience analysis (15-40 range, DO NOT use example values)
+- **insight**: Specific tactical recommendation based on the calculated overlap percentage (1-2 sentences)
 
 IMPORTANT GUIDELINES:
 - Make each audience segment DISTINCT with different behaviors, motivations, and channels
@@ -222,38 +228,38 @@ Return a JSON object with this EXACT structure (use the EXACT audience names spe
     {{
       "audiences": "{audience_names['primary']} × {audience_names['growth1']}",
       "audienceIds": ["primary", "growth1"],
-      "overlap": 28,
+      "overlap": <calculate based on targeting/creative/channel similarities>,
       "insight": "Specific tactical recommendation based on overlap analysis"
     }},
     {{
       "audiences": "{audience_names['primary']} × {audience_names['growth2']}",
       "audienceIds": ["primary", "growth2"],
-      "overlap": 19,
-      "insight": "Specific tactical recommendation"
+      "overlap": <calculate based on audience analysis>,
+      "insight": "Specific tactical recommendation based on overlap analysis"
     }},
     {{
       "audiences": "{audience_names['primary']} × {audience_names['emerging']}",
       "audienceIds": ["primary", "emerging"],
-      "overlap": 22,
-      "insight": "Specific tactical recommendation"
+      "overlap": <calculate unique percentage>,
+      "insight": "Specific tactical recommendation based on overlap analysis"
     }},
     {{
       "audiences": "{audience_names['growth1']} × {audience_names['growth2']}",
       "audienceIds": ["growth1", "growth2"],
-      "overlap": 35,
-      "insight": "Specific tactical recommendation"
+      "overlap": <analyze and calculate>,
+      "insight": "Specific tactical recommendation based on overlap analysis"
     }},
     {{
       "audiences": "{audience_names['growth1']} × {audience_names['emerging']}",
       "audienceIds": ["growth1", "emerging"],
-      "overlap": 31,
-      "insight": "Specific tactical recommendation"
+      "overlap": <calculate from audience characteristics>,
+      "insight": "Specific tactical recommendation based on overlap analysis"
     }},
     {{
       "audiences": "{audience_names['growth2']} × {audience_names['emerging']}",
       "audienceIds": ["growth2", "emerging"],
-      "overlap": 27,
-      "insight": "Specific tactical recommendation"
+      "overlap": <dynamically calculate percentage>,
+      "insight": "Specific tactical recommendation based on overlap analysis"
     }}
   ]
 }}"""
