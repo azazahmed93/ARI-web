@@ -67,6 +67,7 @@ class BriefJourneyData(TypedDict):
     industry: str
     audiences: AudiencesData
     audienceOverlaps: List[AudienceOverlapItem]
+    strategicRecommendation: str
 
 
 def generate_journey_from_brief(
@@ -163,6 +164,14 @@ For EACH overlap, provide:
 - **audienceIds**: Array of audience keys (e.g., ["primary", "growth1"])
 - **overlap**: DYNAMICALLY CALCULATED integer percentage based on actual audience analysis (15-40 range, DO NOT use example values)
 - **insight**: Specific tactical recommendation based on the calculated overlap percentage (1-2 sentences)
+
+ADDITIONALLY, provide an OVERALL STRATEGIC RECOMMENDATION:
+Analyze all 6 audience overlaps and synthesize an executive-level strategic recommendation that:
+- Identifies how many audience pairs show significant overlap (30%+ threshold)
+- Proposes specific budget consolidation opportunities (e.g., shared creative assets with audience-specific CTAs)
+- Quantifies estimated media efficiency gains with realistic percentage ranges (e.g., "18-24% efficiency gain")
+- Provides tactical implementation guidance (e.g., "Create single creative master template then deploy 4 CTA variants")
+- Keeps recommendation concise (2-4 sentences) but highly actionable and specific to the analyzed audiences
 
 IMPORTANT GUIDELINES:
 - Make each audience segment DISTINCT with different behaviors, motivations, and channels
@@ -261,7 +270,8 @@ Return a JSON object with this EXACT structure (use the EXACT audience names spe
       "overlap": <dynamically calculate percentage>,
       "insight": "Specific tactical recommendation based on overlap analysis"
     }}
-  ]
+  ],
+  "strategicRecommendation": "Executive summary analyzing overlap patterns and recommending budget consolidation opportunities with specific tactics and estimated efficiency gains (2-4 sentences)"
 }}"""
 
     try:
