@@ -89,6 +89,12 @@ def main():
     if 'journey_campaign_objectives' not in st.session_state:
         st.session_state.journey_campaign_objectives = None
 
+    if 'brief_journey_data' not in st.session_state:
+        st.session_state.brief_journey_data = None
+    
+    if 'consumer_journey_data' not in st.session_state:
+        st.session_state.consumer_journey_data = None
+
     inner_content = None
     # Display results if analysis has been performed
     if st.session_state.has_analyzed:
