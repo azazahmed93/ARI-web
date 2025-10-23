@@ -76,6 +76,8 @@ def main():
         st.session_state.admin_authenticated = False
     if "user_authenticated" not in st.session_state:
         st.session_state.user_authenticated = False
+    if "is_gm_user" not in st.session_state:
+        st.session_state.is_gm_user = False
 
     # Journey Environments resonance scores
     if 'journey_ad_format_scores' not in st.session_state:

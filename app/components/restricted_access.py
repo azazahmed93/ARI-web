@@ -13,6 +13,10 @@ def general_login():
         if password == os.environ.get("USER_PASSWORD"):
             st.session_state.user_authenticated = True
             st.rerun()
+        elif password == os.environ.get("GM_USER_PASSWORD"):
+            st.session_state.user_authenticated = True
+            st.session_state.is_gm_user = True
+            st.rerun()
         elif password:
             st.error("Incorrect password")
     return False

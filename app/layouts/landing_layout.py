@@ -31,6 +31,7 @@ from components.spinner import get_random_spinner_message
 from assets.styles import apply_styles
 from core.ai_insights import generate_core_audience_summary, generate_primary_audience_signal, generate_secondary_audience_signal
 from core.journey_environments import generate_resonance_scores
+from core.consumer_journey import generate_consumer_journey_from_brief
 
 
 def landing_layout(inner_content):
@@ -456,6 +457,25 @@ def landing_layout(inner_content):
                                     except Exception as journey_error:
                                         print(f"Brief journey generation failed: {journey_error}")
                                         st.session_state.brief_journey_data = None
+
+
+                                    # Generate Consumer Journey Map data  
+                                    try:
+                                        print("Generating consumer journey map data...")
+                                        consumer_journey_data = generate_consumer_journey_from_brief(
+                                            brief_content=brief_text,
+                                            industry=industry,
+                                            audience_core="Core Audience",
+                                            audience_growth1=audience_growth1,
+                                            audience_growth2=audience_growth2,
+                                            audience_emerging=audience_emerging,
+                                        )
+                                        st.session_state.consumer_journey_data = consumer_journey_data
+                                        print("Consumer journey data generated successfully!")
+                                        print(consumer_journey_data)
+                                    except Exception as cj_error:
+                                        print(f"Consumer journey generation failed: {cj_error}")
+                                        st.session_state.consumer_journey_data = None
 
                                     # Generate DMA recommendations
                                     # recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
