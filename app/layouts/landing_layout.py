@@ -1,6 +1,6 @@
 from core.analysis import (
-    analyze_campaign_brief, 
-    calculate_benchmark_percentile, 
+    analyze_campaign_brief,
+    calculate_benchmark_percentile,
     get_improvement_areas,
     extract_brand_info
 )
@@ -13,6 +13,7 @@ from core.database import BLOCKED_KEYWORDS
 from app.sections.results import display_results
 from app.components.psychographic_input import psychographic_input_section, process_psychographic_config
 import streamlit as st
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
@@ -32,6 +33,34 @@ from assets.styles import apply_styles
 from core.ai_insights import generate_core_audience_summary, generate_primary_audience_signal, generate_secondary_audience_signal
 from core.journey_environments import generate_resonance_scores
 from core.consumer_journey import generate_consumer_journey_from_brief
+
+
+def run_parallel_tasks(tasks):
+    """
+    Execute multiple tasks in parallel using ThreadPoolExecutor.
+
+    Args:
+        tasks: List of dicts with 'name', 'func', and 'args' keys
+
+    Returns:
+        dict: Results keyed by task name
+    """
+    results = {}
+    with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
+        future_to_name = {
+            executor.submit(task['func'], *task['args']): task['name']
+            for task in tasks
+        }
+
+        for future in as_completed(future_to_name):
+            name = future_to_name[future]
+            try:
+                results[name] = future.result()
+            except Exception as e:
+                print(f"Error in {name}: {str(e)}")
+                results[name] = None
+
+    return results
 
 
 def landing_layout(inner_content):
@@ -61,9 +90,8 @@ def landing_layout(inner_content):
     
     with col1:
         # Create an animated data visualization that looks more sophisticated
-        import time
         from datetime import datetime
-        
+
         # Modern color scheme - we'll keep this for styling the tech container
         colors = ['#4F46E5', '#7C3AED', '#EC4899', '#F97316', '#3B82F6', '#10B981']
         
@@ -389,72 +417,82 @@ def landing_layout(inner_content):
                         
                         # If OpenAI API key is available, try to generate enhanced insights
                         if st.session_state.use_openai:
+                            import time
+                            start_time = time.time()
+
                             with st.spinner(get_random_spinner_message()):
+                                print("=" * 60)
+                                print("Starting parallel API call execution...")
+                                print("=" * 60)
+
                                 # Generate AI-powered insights for enhanced analysis
                                 try:
-                                    import time
-                                    
-                                    # Generate deep insights based on brief and ARI scores
-                                    ai_insights = generate_deep_insights(brief_text, scores)
-                                    st.session_state.ai_insights = ai_insights
-                                    
-                                    # Add a small delay between API calls to avoid rate limits
-                                    time.sleep(0.5)
-                                    
-                                    # Generate competitor analysis
-                                    competitor_analysis = generate_competitor_analysis(brief_text, industry)
-                                    st.session_state.competitor_analysis = competitor_analysis
-                                    
-                                    # Add another small delay
-                                    time.sleep(0.5)
-                                    
-                                    # Generate AI-powered audience segments to replace default ones
-                                    ai_audience_segments = generate_audience_segments(brief_text, scores, demographics_info)
-                                    # Only replace if the AI generation was successful
+
+                                    # Phase 1: Run independent API calls in parallel
+                                    phase1_tasks = [
+                                        {
+                                            'name': 'ai_insights',
+                                            'func': generate_deep_insights,
+                                            'args': (brief_text, scores)
+                                        },
+                                        {
+                                            'name': 'competitor_analysis',
+                                            'func': generate_competitor_analysis,
+                                            'args': (brief_text, industry)
+                                        },
+                                        {
+                                            'name': 'audience_segments',
+                                            'func': generate_audience_segments,
+                                            'args': (brief_text, scores, demographics_info)
+                                        }
+                                    ]
+
+                                    phase1_start = time.time()
+                                    phase1_results = run_parallel_tasks(phase1_tasks)
+                                    phase1_time = time.time() - phase1_start
+                                    print(f"\n✓ Phase 1 completed in {phase1_time:.2f} seconds")
+                                    print(f"  - Generated: AI insights, Competitor analysis, Audience segments")
+
+                                    # Store Phase 1 results in session state
+                                    if phase1_results.get('ai_insights'):
+                                        st.session_state.ai_insights = phase1_results['ai_insights']
+
+                                    if phase1_results.get('competitor_analysis'):
+                                        st.session_state.competitor_analysis = phase1_results['competitor_analysis']
+
+                                    # Only replace audience segments if AI generation was successful
+                                    ai_audience_segments = phase1_results.get('audience_segments')
                                     if ai_audience_segments and 'segments' in ai_audience_segments:
                                         st.session_state.audience_segments = ai_audience_segments
                                         segments = st.session_state.audience_segments.get('segments', [])
                                         
-                                        # Generate audience summaries if we have the required data
+                                        # Phase 2: Generate audience summaries and journey data in parallel
+                                        # These depend on Phase 1 results (audience_segments)
                                         if 'audience_insights' in st.session_state and 'audience_media_consumption' in st.session_state:
-                                            if 'audience_summary' not in st.session_state:
-                                                st.session_state.audience_summary = {}
-                                            st.session_state.audience_summary['core_audience'] = generate_core_audience_summary(st.session_state.audience_insights, st.session_state.audience_media_consumption, brief_text)
-                                            st.session_state.audience_summary['primary_audience'] = generate_primary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[0].get('name'), brief_text)
-                                            st.session_state.audience_summary['secondary_audience'] = generate_secondary_audience_signal(st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
+                                            phase2_tasks = [
+                                                {
+                                                    'name': 'core_audience',
+                                                    'func': generate_core_audience_summary,
+                                                    'args': (st.session_state.audience_insights, st.session_state.audience_media_consumption, brief_text)
+                                                },
+                                                {
+                                                    'name': 'primary_audience',
+                                                    'func': generate_primary_audience_signal,
+                                                    'args': (st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[0].get('name'), brief_text)
+                                                },
+                                                {
+                                                    'name': 'secondary_audience',
+                                                    'func': generate_secondary_audience_signal,
+                                                    'args': (st.session_state.audience_insights, st.session_state.audience_media_consumption, segments[1].get('name'), brief_text)
+                                                }
+                                            ]
 
-                                    # Add delay before brief journey generation
-                                    time.sleep(0.5)
-
-                                    if st.session_state.is_gm_user:
-                                        # Generate Consumer Journey Map data  
-                                        try:
-                                            print("Generating consumer journey map data...")
-                                            consumer_journey_data = generate_consumer_journey_from_brief(
-                                                brief_content=brief_text,
-                                                industry=industry,
-                                                audience_core="Core Audience",
-                                                audience_growth1=audience_growth1,
-                                                audience_growth2=audience_growth2,
-                                                audience_emerging=audience_emerging,
-                                            )
-                                            st.session_state.consumer_journey_data = consumer_journey_data
-                                            print("Consumer journey data generated successfully!")
-                                            print(consumer_journey_data)
-                                        except Exception as cj_error:
-                                            print(f"Consumer journey generation failed: {cj_error}")
-                                            st.session_state.consumer_journey_data = None
-                                    else:
-                                        # Generate Brief Journey Map
-                                        try:
-                                            # Extract all 4 audience names from generated segments
-                                            audience_primary = None
-                                            audience_growth1 = None
-                                            audience_growth2 = None
-                                            audience_emerging = None
-
-                                            if 'segments' in st.session_state.audience_segments:
-                                                segments = st.session_state.audience_segments['segments']
+                                            # Add journey generation task based on user type
+                                            if st.session_state.is_gm_user:
+                                                # Extract audience names for consumer journey
+                                                audience_growth1 = None
+                                                audience_growth2 = None
+                                                audience_emerging = None
                                                 if len(segments) >= 1:
                                                     audience_growth1 = segments[0].get('name', '')
                                                 if len(segments) >= 2:
@@ -462,20 +500,64 @@ def landing_layout(inner_content):
                                                 if len(segments) >= 3:
                                                     audience_emerging = segments[2].get('name', '')
 
-                                            brief_journey_data = generate_journey_from_brief(
-                                                brief_content=brief_text,
-                                                industry=industry,
-                                                audience_primary="Core Audience",
-                                                audience_growth1=audience_growth1,
-                                                audience_growth2=audience_growth2,
-                                                audience_emerging=audience_emerging
-                                            )
-                                            st.session_state.brief_journey_data = brief_journey_data
-                                            print("Brief journey data:")
-                                            print(brief_journey_data)
-                                        except Exception as journey_error:
-                                            print(f"Brief journey generation failed: {journey_error}")
-                                            st.session_state.brief_journey_data = None
+                                                phase2_tasks.append({
+                                                    'name': 'consumer_journey',
+                                                    'func': generate_consumer_journey_from_brief,
+                                                    'args': (brief_text, industry, "Core Audience", audience_growth1, audience_growth2, audience_emerging)
+                                                })
+                                            else:
+                                                # Extract audience names for brief journey
+                                                audience_growth1 = None
+                                                audience_growth2 = None
+                                                audience_emerging = None
+                                                if len(segments) >= 1:
+                                                    audience_growth1 = segments[0].get('name', '')
+                                                if len(segments) >= 2:
+                                                    audience_growth2 = segments[1].get('name', '')
+                                                if len(segments) >= 3:
+                                                    audience_emerging = segments[2].get('name', '')
+
+                                                phase2_tasks.append({
+                                                    'name': 'brief_journey',
+                                                    'func': generate_journey_from_brief,
+                                                    'args': (brief_text, industry, "Core Audience", audience_growth1, audience_growth2, audience_emerging)
+                                                })
+
+                                            # Execute Phase 2 tasks in parallel
+                                            phase2_start = time.time()
+                                            phase2_results = run_parallel_tasks(phase2_tasks)
+                                            phase2_time = time.time() - phase2_start
+                                            print(f"\n✓ Phase 2 completed in {phase2_time:.2f} seconds")
+                                            print(f"  - Generated: Audience summaries, Journey data")
+
+                                            # Store Phase 2 results in session state
+                                            if 'audience_summary' not in st.session_state:
+                                                st.session_state.audience_summary = {}
+
+                                            if phase2_results.get('core_audience'):
+                                                st.session_state.audience_summary['core_audience'] = phase2_results['core_audience']
+                                            if phase2_results.get('primary_audience'):
+                                                st.session_state.audience_summary['primary_audience'] = phase2_results['primary_audience']
+                                            if phase2_results.get('secondary_audience'):
+                                                st.session_state.audience_summary['secondary_audience'] = phase2_results['secondary_audience']
+
+                                            # Store journey data based on user type
+                                            if st.session_state.is_gm_user:
+                                                if phase2_results.get('consumer_journey'):
+                                                    st.session_state.consumer_journey_data = phase2_results['consumer_journey']
+                                                    print("Consumer journey data generated successfully!")
+                                                    print(phase2_results['consumer_journey'])
+                                                else:
+                                                    st.session_state.consumer_journey_data = None
+                                                    print("Consumer journey generation failed")
+                                            else:
+                                                if phase2_results.get('brief_journey'):
+                                                    st.session_state.brief_journey_data = phase2_results['brief_journey']
+                                                    print("Brief journey data generated successfully!")
+                                                    print(phase2_results['brief_journey'])
+                                                else:
+                                                    st.session_state.brief_journey_data = None
+                                                    print("Brief journey generation failed")
 
                                     # Generate DMA recommendations
                                     # recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
@@ -600,14 +682,18 @@ def landing_layout(inner_content):
                                     st.session_state.journey_audience_profile = audience_profile
                                     st.session_state.journey_campaign_objectives = campaign_objectives
 
-                                    # Generate resonance scores and retargeting recommendations
-                                    print("Generating journey environments resonance scores...")
+                                    # Phase 3: Generate resonance scores and retargeting recommendations
+                                    phase3_start = time.time()
+                                    print("\nGenerating journey environments resonance scores...")
                                     journey_scores = generate_resonance_scores(
                                         audience_profile=audience_profile,
                                         campaign_objectives=campaign_objectives
                                     )
+                                    phase3_time = time.time() - phase3_start
+                                    print(f"\n✓ Phase 3 completed in {phase3_time:.2f} seconds")
+                                    print(f"  - Generated: Resonance scores, Programming shows, Retargeting channels")
 
-                                    print("Journey Scores")
+                                    print("\nJourney Scores:")
                                     print(journey_scores)
 
                                     # Store results in session state
@@ -624,6 +710,13 @@ def landing_layout(inner_content):
 
                                 except Exception as e:
                                     print(f"Error generating journey environments resonance scores: {e}")
+
+                            # Log total execution time
+                            total_time = time.time() - start_time
+                            print("\n" + "=" * 60)
+                            print(f"🎉 All API calls completed!")
+                            print(f"⏱️  Total execution time: {total_time:.2f} seconds")
+                            print("=" * 60)
 
                         # Show success message
                         success_msg = "✨ Campaign analysis complete! Breakthrough insights ready for review."
