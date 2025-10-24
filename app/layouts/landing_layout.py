@@ -426,56 +426,56 @@ def landing_layout(inner_content):
                                     # Add delay before brief journey generation
                                     time.sleep(0.5)
 
-                                    # Generate Brief Journey Map
-                                    try:
-                                        # Extract all 4 audience names from generated segments
-                                        audience_primary = None
-                                        audience_growth1 = None
-                                        audience_growth2 = None
-                                        audience_emerging = None
+                                    if st.session_state.is_gm_user:
+                                        # Generate Consumer Journey Map data  
+                                        try:
+                                            print("Generating consumer journey map data...")
+                                            consumer_journey_data = generate_consumer_journey_from_brief(
+                                                brief_content=brief_text,
+                                                industry=industry,
+                                                audience_core="Core Audience",
+                                                audience_growth1=audience_growth1,
+                                                audience_growth2=audience_growth2,
+                                                audience_emerging=audience_emerging,
+                                            )
+                                            st.session_state.consumer_journey_data = consumer_journey_data
+                                            print("Consumer journey data generated successfully!")
+                                            print(consumer_journey_data)
+                                        except Exception as cj_error:
+                                            print(f"Consumer journey generation failed: {cj_error}")
+                                            st.session_state.consumer_journey_data = None
+                                    else:
+                                        # Generate Brief Journey Map
+                                        try:
+                                            # Extract all 4 audience names from generated segments
+                                            audience_primary = None
+                                            audience_growth1 = None
+                                            audience_growth2 = None
+                                            audience_emerging = None
 
-                                        if 'segments' in st.session_state.audience_segments:
-                                            segments = st.session_state.audience_segments['segments']
-                                            if len(segments) >= 1:
-                                                audience_growth1 = segments[0].get('name', '')
-                                            if len(segments) >= 2:
-                                                audience_growth2 = segments[1].get('name', '')
-                                            if len(segments) >= 3:
-                                                audience_emerging = segments[2].get('name', '')
+                                            if 'segments' in st.session_state.audience_segments:
+                                                segments = st.session_state.audience_segments['segments']
+                                                if len(segments) >= 1:
+                                                    audience_growth1 = segments[0].get('name', '')
+                                                if len(segments) >= 2:
+                                                    audience_growth2 = segments[1].get('name', '')
+                                                if len(segments) >= 3:
+                                                    audience_emerging = segments[2].get('name', '')
 
-                                        brief_journey_data = generate_journey_from_brief(
-                                            brief_content=brief_text,
-                                            industry=industry,
-                                            audience_primary="Core Audience",
-                                            audience_growth1=audience_growth1,
-                                            audience_growth2=audience_growth2,
-                                            audience_emerging=audience_emerging
-                                        )
-                                        st.session_state.brief_journey_data = brief_journey_data
-                                        print("Brief journey data:")
-                                        print(brief_journey_data)
-                                    except Exception as journey_error:
-                                        print(f"Brief journey generation failed: {journey_error}")
-                                        st.session_state.brief_journey_data = None
-
-
-                                    # Generate Consumer Journey Map data  
-                                    try:
-                                        print("Generating consumer journey map data...")
-                                        consumer_journey_data = generate_consumer_journey_from_brief(
-                                            brief_content=brief_text,
-                                            industry=industry,
-                                            audience_core="Core Audience",
-                                            audience_growth1=audience_growth1,
-                                            audience_growth2=audience_growth2,
-                                            audience_emerging=audience_emerging,
-                                        )
-                                        st.session_state.consumer_journey_data = consumer_journey_data
-                                        print("Consumer journey data generated successfully!")
-                                        print(consumer_journey_data)
-                                    except Exception as cj_error:
-                                        print(f"Consumer journey generation failed: {cj_error}")
-                                        st.session_state.consumer_journey_data = None
+                                            brief_journey_data = generate_journey_from_brief(
+                                                brief_content=brief_text,
+                                                industry=industry,
+                                                audience_primary="Core Audience",
+                                                audience_growth1=audience_growth1,
+                                                audience_growth2=audience_growth2,
+                                                audience_emerging=audience_emerging
+                                            )
+                                            st.session_state.brief_journey_data = brief_journey_data
+                                            print("Brief journey data:")
+                                            print(brief_journey_data)
+                                        except Exception as journey_error:
+                                            print(f"Brief journey generation failed: {journey_error}")
+                                            st.session_state.brief_journey_data = None
 
                                     # Generate DMA recommendations
                                     # recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
