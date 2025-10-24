@@ -847,7 +847,7 @@ Additional audience data for SiteOne Hispanic campaign:
             - If the platform is Video, set CTR to 70-90%.
             - If the platform is CTV/OTT, set CTR to 90-100%.
         
-        Format the response as a valid JSON array with objects containing:
+        Format the response as a valid JSON array in key 'segments' with objects containing:
         - name: string (descriptive segment name)
         - targeting_params: object with age_range, gender_targeting, income_targeting, education_targeting, and location_targeting
         - interest_categories: array of strings (specific interests to target in ad platforms)
