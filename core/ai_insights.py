@@ -1227,18 +1227,20 @@ def generate_audience_insights(source_type='legacy', uploaded_file=None, brief_t
         if demographics_info:
             prompt = prompt.replace("Age: 25-40 | Gender: All | Income: Middle to Upper Middle Income", demographics_info)
         
-        # Generate with GPT-4
-        response = client.chat.completions.create(
-            model="gpt-4o",
+        # Generate with GPT-4 using retry logic
+        result = make_openai_request(
             messages=[
                 {"role": "system", "content": "You are a consumer psychologist and market research expert specializing in psychographic profiling and behavioral analysis."},
                 {"role": "user", "content": prompt}
             ],
+            model="gpt-4o",
             response_format={"type": "json_object"},
-            max_tokens=1500
+            max_tokens=1500,
+            max_retries=3
         )
-        
-        return json.loads(response.choices[0].message.content)
+
+        # make_openai_request returns parsed JSON or None
+        return result if result else {}
     
     else:
         raise ValueError("Invalid source_type or missing required parameters")
