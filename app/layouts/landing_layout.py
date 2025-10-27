@@ -31,7 +31,7 @@ from core.brief_journey import generate_journey_from_brief
 from components.spinner import get_random_spinner_message
 from assets.styles import apply_styles
 from core.ai_insights import generate_core_audience_summary, generate_primary_audience_signal, generate_secondary_audience_signal
-from core.journey_environments import generate_resonance_scores
+from core.journey_environments import generate_resonance_scores, generate_retargeting_channels
 from core.consumer_journey import generate_consumer_journey_from_brief
 
 
@@ -682,21 +682,41 @@ def landing_layout(inner_content):
                                     st.session_state.journey_audience_profile = audience_profile
                                     st.session_state.journey_campaign_objectives = campaign_objectives
 
-                                    # Phase 3: Generate resonance scores and retargeting recommendations
+                                    # Extract audience summaries for Phase 3
+                                    core_audience_summary = None
+                                    primary_audience_summary = None
+                                    secondary_audience_summary = None
+
+                                    if 'audience_summary' in st.session_state:
+                                        core_audience_summary = st.session_state.audience_summary.get('core_audience')
+                                        primary_audience_summary = st.session_state.audience_summary.get('primary_audience')
+                                        secondary_audience_summary = st.session_state.audience_summary.get('secondary_audience')
+
+                                    # Phase 3: Generate resonance scores and retargeting recommendations in parallel
+                                    phase3_tasks = [
+                                        {
+                                            'name': 'resonance_scores',
+                                            'func': generate_resonance_scores,
+                                            'args': (audience_profile, campaign_objectives, core_audience_summary, primary_audience_summary, secondary_audience_summary)
+                                        },
+                                        {
+                                            'name': 'retargeting_channels',
+                                            'func': generate_retargeting_channels,
+                                            'args': (audience_profile, campaign_objectives, core_audience_summary, primary_audience_summary, secondary_audience_summary)
+                                        }
+                                    ]
+
                                     phase3_start = time.time()
-                                    print("\nGenerating journey environments resonance scores...")
-                                    journey_scores = generate_resonance_scores(
-                                        audience_profile=audience_profile,
-                                        campaign_objectives=campaign_objectives
-                                    )
+                                    print("\nGenerating journey environments resonance scores and retargeting channels...")
+                                    phase3_results = run_parallel_tasks(phase3_tasks)
                                     phase3_time = time.time() - phase3_start
                                     print(f"\n✓ Phase 3 completed in {phase3_time:.2f} seconds")
                                     print(f"  - Generated: Resonance scores, Programming shows, Retargeting channels")
 
-                                    print("\nJourney Scores:")
-                                    print(journey_scores)
-
                                     # Store results in session state
+                                    journey_scores = phase3_results.get('resonance_scores')
+                                    retargeting_channels = phase3_results.get('retargeting_channels')
+
                                     if journey_scores:
                                         st.session_state.journey_ad_format_scores = journey_scores.get("ad_format_scores")
                                         st.session_state.journey_programming_show_scores = journey_scores.get("programming_show_scores")
@@ -704,9 +724,13 @@ def landing_layout(inner_content):
 
                                         ad_count = len(st.session_state.journey_ad_format_scores or {})
                                         show_count = len(st.session_state.journey_programming_show_scores or {})
-                                        retarget_count = len(st.session_state.journey_retargeting_channels or [])
 
-                                        print(f"Generated scores for {ad_count} ad formats, {show_count} shows, and {retarget_count} retargeting channels")
+                                        print(f"Generated scores for {ad_count} ad formats and {show_count} shows")
+
+                                    if retargeting_channels:
+                                        st.session_state.journey_retargeting_channels = retargeting_channels
+                                        retarget_count = len(retargeting_channels)
+                                        print(f"Generated {retarget_count} retargeting channel recommendations")
 
                                 except Exception as e:
                                     print(f"Error generating journey environments resonance scores: {e}")

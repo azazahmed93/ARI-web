@@ -10,7 +10,10 @@ from core.ai_utils import make_openai_request
 
 def generate_retargeting_channels(
     audience_profile: Optional[Dict[str, Any]] = None,
-    campaign_objectives: Optional[List[str]] = None
+    campaign_objectives: Optional[List[str]] = None,
+    core_audience: Optional[str] = None,
+    primary_audience: Optional[str] = None,
+    secondary_audience: Optional[str] = None
 ) -> Optional[List[Dict[str, Any]]]:
     """
     Generate AI-powered retargeting channel recommendations with reasons.
@@ -18,6 +21,9 @@ def generate_retargeting_channels(
     Args:
         audience_profile: Demographics and psychographics from RFP
         campaign_objectives: Campaign goals and requirements
+        core_audience: Core audience summary narrative
+        primary_audience: Primary audience signal narrative
+        secondary_audience: Secondary audience signal narrative
 
     Returns:
         List of retargeting channel objects with scores and reasons
@@ -36,6 +42,14 @@ Audience Profile:
 - Income Level: {demographics.get('incomeLevel', 'N/A')}
 - Affluence: {demographics.get('affluence', 'N/A')}
 """
+
+    # Add audience summary narratives
+    if core_audience:
+        context += f"\n\nCore Audience Summary:\n{core_audience}"
+    if primary_audience:
+        context += f"\n\nPrimary Audience Signal:\n{primary_audience}"
+    if secondary_audience:
+        context += f"\n\nSecondary Audience Signal:\n{secondary_audience}"
 
     if campaign_objectives:
         context += f"\n\nCampaign Objectives: {', '.join(campaign_objectives)}"
@@ -144,7 +158,10 @@ Return ONLY valid JSON object with 'channels' key containing an array with this 
 
 def generate_resonance_scores(
     audience_profile: Optional[Dict[str, Any]] = None,
-    campaign_objectives: Optional[List[str]] = None
+    campaign_objectives: Optional[List[str]] = None,
+    core_audience: Optional[str] = None,
+    primary_audience: Optional[str] = None,
+    secondary_audience: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """
     Generate resonance scores for existing ad formats and programming shows.
@@ -152,9 +169,12 @@ def generate_resonance_scores(
     Args:
         audience_profile: Demographics and psychographics from RFP
         campaign_objectives: Campaign goals and requirements
+        core_audience: Core audience summary narrative
+        primary_audience: Primary audience signal narrative
+        secondary_audience: Secondary audience signal narrative
 
     Returns:
-        Dictionary with ad_format_scores, programming_show_scores, and retargeting_channels
+        Dictionary with ad_format_scores and programming_show_scores
     """
     if not os.environ.get("OPENAI_API_KEY"):
         return None
@@ -172,6 +192,14 @@ Audience Profile:
 """
         if audience_profile.get('psychographics'):
             context += f"\nPsychographics: {str(audience_profile.get('psychographics'))[:200]}"
+
+    # Add audience summary narratives
+    if core_audience:
+        context += f"\n\nCore Audience Summary:\n{core_audience}"
+    if primary_audience:
+        context += f"\n\nPrimary Audience Signal:\n{primary_audience}"
+    if secondary_audience:
+        context += f"\n\nSecondary Audience Signal:\n{secondary_audience}"
 
     if campaign_objectives:
         context += f"\n\nCampaign Objectives: {', '.join(campaign_objectives)}"
@@ -273,26 +301,13 @@ Return ONLY valid JSON object with this exact structure (use these EXACT keys):
             max_tokens=1500
         )
 
-        result = {}
-
         if response and 'ad_format_scores' in response and 'programming_show_scores' in response:
-            result['ad_format_scores'] = response['ad_format_scores']
-            result['programming_show_scores'] = response['programming_show_scores']
+            return {
+                'ad_format_scores': response['ad_format_scores'],
+                'programming_show_scores': response['programming_show_scores']
+            }
         else:
             return None
-
-        # Generate retargeting channels
-        print("Generating retargeting channel recommendations...")
-        retargeting_channels = generate_retargeting_channels(
-            audience_profile=audience_profile,
-            campaign_objectives=campaign_objectives
-        )
-
-        if retargeting_channels:
-            result['retargeting_channels'] = retargeting_channels
-            print(f"Generated {len(retargeting_channels)} retargeting channel recommendations")
-
-        return result
 
     except Exception as e:
         print(f"Error generating resonance scores: {e}")
