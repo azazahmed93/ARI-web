@@ -137,24 +137,19 @@ class AudienceSegmentComponent:
         print(color)
         print(bg_color)
 
-        print("segment")
-        print(segment)
+
         platform_rec = ""
         if segment.platform_targeting and len(segment.platform_targeting) > 0:
             platform_rec = segment.platform_targeting[0].get('platform', '')
         
-        print("segment")
-        print(segment)
+
         # platform_targeting = segment.get('platform_targeting', [])
         # if platform_targeting and len(platform_targeting) > 0:
         #     platform_rec = platform_targeting[0].get('platform', '')
 
         metric_name = "Expected CTR"
         # Get performance metrics
-        print("# Get performance metrics")
         performance = segment.expected_performance
-        print("# Get performance metrics")
-        print(performance)
         ctr = performance.get('CTR', 'N/A')
 
 

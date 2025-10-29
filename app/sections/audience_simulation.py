@@ -60,8 +60,6 @@ def display_audience_simulation():
     
     # Get audience profiles
     audience_profiles = get_audience_profiles(analysis_data)
-    print("audience_profiles:")
-    print(audience_profiles)
     
     # Initialize session state for simulation results if not exists
     if 'simulation_results' not in st.session_state:
