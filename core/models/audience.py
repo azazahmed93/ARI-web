@@ -18,3 +18,4 @@ class AudienceSegment:
     targeting_params: Optional[Dict] = None
     platform_targeting: Optional[List[Dict]] = None
     expected_performance: Optional[Dict] = None
+    demographics: Optional[Dict] = None

@@ -835,23 +835,29 @@ Additional audience data for SiteOne Hispanic campaign:
         For each segment, provide detailed targeting specifications for digital advertising platforms:
         1. A descriptive segment name for use in ad platforms
         2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
-        3. Digital platform interest categories and behavior targeting options
-        4. Platform-specific targeting recommendations (use generic platform types, not brand names)
-        5. Key performance indicators and benchmark rates to expect for omnichannel campaigns
+        3. GEOGRAPHIC TARGETING: Specify ONE primary US state where this audience is most concentrated based on:
+           - Demographic concentration (age, income, education patterns)
+           - Psychographic fit (values, lifestyle, behaviors)
+           - Industry and market relevance
+           - Use full state name (e.g., "California", "Texas", "New York")
+        4. Digital platform interest categories and behavior targeting options
+        5. Platform-specific targeting recommendations (use generic platform types, not brand names)
+        6. Key performance indicators and benchmark rates to expect for omnichannel campaigns
            - For display formats: Use CTR of 0.05-0.7%
            - For video formats: Use VCR (Video Completion Rate) of 70-90% instead of CTR
            - For CTV/OTT formats: Use VCR (Video Completion Rate) of 90-100% instead of CTR
            - For audio formats: Use LTR (Listen-Through Rate) of 80-90% instead of CTR
-        6. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
-        7. For the following platform_targeting.platform set CTR accordingly:
+        7. Specific media buying tactics for this segment (bid adjustments, dayparting, etc.)
+        8. For the following platform_targeting.platform set CTR accordingly:
             - If the platform is Video, set CTR to 70-90%.
             - If the platform is CTV/OTT, set CTR to 90-100%.
-        
+
         Format the response as a valid JSON array in key 'segments' with objects containing:
         - name: string (descriptive segment name)
-        - targeting_params: object with age_range, gender_targeting, income_targeting, education_targeting, and location_targeting
+        - targeting_params: object with age_range, gender_targeting, income_targeting, education_targeting, and location_targeting (descriptive text)
+        - primary_state: string - ONE US state name where this audience is most concentrated
         - interest_categories: array of strings (specific interests to target in ad platforms)
-        - platform_targeting: array of objects with 'platform' and 'targeting_approach' 
+        - platform_targeting: array of objects with 'platform' and 'targeting_approach'
         - expected_performance: object with CTR (click-through rate or video completion rate for video content), CPA (cost per acquisition), and engagement_rate
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
         - rationale: string with a brief rationale for why it recommends the specific emerging audience, only populate it for emerging audience, max 400 letters. Don't mention that it's not being explicitly targeted.
@@ -914,9 +920,10 @@ Additional audience data for SiteOne Hispanic campaign:
                             "education_targeting": "High school degree (42%)",
                             "location_targeting": "High-density Hispanic neighborhoods with suburban landscape markets"
                         },
+                        "primary_state": "California",
                         "interest_categories": [
-                            "Soccer enthusiasts", 
-                            "Sports betting", 
+                            "Soccer enthusiasts",
+                            "Sports betting",
                             "Basketball fans",
                             "Family-oriented activities"
                         ],
@@ -951,9 +958,10 @@ Additional audience data for SiteOne Hispanic campaign:
                             "education_targeting": "High school or some college",
                             "location_targeting": "Urban centers and college towns"
                         },
+                        "primary_state": "California",
                     "interest_categories": [
-                        "Basketball Enthusiasts", 
-                        "Sports Apparel", 
+                        "Basketball Enthusiasts",
+                        "Sports Apparel",
                         "Sneakerheads",
                         "Live Sports Events"
                     ],
