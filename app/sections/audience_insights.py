@@ -120,7 +120,7 @@ def audience_insights(is_siteone_hispanic):
                             else:
                                 secondary_segment = segment_list[1]
                             display_audience_segment(secondary_segment, 'Secondary Growth', '#6366f1', '#f5f7ff')
-                
+
                 # Try to find the emerging audience in the audience_data if available
                 emerging_audience = None
                 if 'audience_data' in st.session_state and st.session_state.audience_data is not None:
@@ -298,11 +298,56 @@ def audience_insights(is_siteone_hispanic):
 {performance_str}
 </p>"""
                     if rationale:
-                        html_content += f"""<p style="margin-bottom: 0;">
+                        html_content += f"""<p style="margin-bottom: 8px;">
 <span style="font-weight:600; margin-right:5px; display:inline-block;">Rationale:</span>
 {rationale}
 </p>"""
-                    
+
+                    # Add Census demographics if available
+                    demographics = growth_segment.get('demographics', {})
+                    if demographics:
+                        html_content += '<div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.6); border-radius: 6px; border: 1px solid rgba(0,0,0,0.08);">'
+                        html_content += '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">'
+                        html_content += '<span style="font-size: 0.8rem; font-weight: 600; color: #374151; letter-spacing: 0.3px;">DEMOGRAPHIC INSIGHTS</span>'
+                        html_content += '</div>'
+                        html_content += '<div style="margin-bottom: 10px; padding: 8px; background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; border-radius: 3px;">'
+                        html_content += '<p style="margin: 0; font-size: 0.7rem; line-height: 1.4; color: #1e40af;">'
+                        html_content += '<strong style="font-weight: 600;">Research-Backed Data:</strong> Demographics based on US Census data correlated with behavioral research using AI analysis. Each adjustment is backed by cited sources from Pew Research, Nielsen, McKinsey, and academic studies.'
+                        html_content += '</p>'
+                        html_content += '</div>'
+
+                        for demo_name, values in demographics.items():
+                            direction_arrow = "↗" if values['direction'] == 'up' else "↘" if values['direction'] == 'down' else "→"
+
+                            # Gradient colors based on direction
+                            if values['direction'] == 'up':
+                                bar_gradient = "linear-gradient(90deg, #10b981 0%, #059669 100%)"
+                                badge_bg = "rgba(16, 185, 129, 0.1)"
+                                badge_color = "#059669"
+                            elif values['direction'] == 'down':
+                                bar_gradient = "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)"
+                                badge_bg = "rgba(239, 68, 68, 0.1)"
+                                badge_color = "#dc2626"
+                            else:
+                                bar_gradient = "linear-gradient(90deg, #9ca3af 0%, #6b7280 100%)"
+                                badge_bg = "rgba(107, 114, 128, 0.1)"
+                                badge_color = "#6b7280"
+
+                            html_content += '<div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">'
+                            html_content += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">'
+                            html_content += f'<span style="font-size: 0.8rem; font-weight: 500; color: #1f2937;">{demo_name}</span>'
+                            html_content += '<div style="display: flex; align-items: center; gap: 8px;">'
+                            html_content += f'<span style="font-size: 0.75rem; color: {badge_color}; font-weight: 600;">({direction_arrow}{values["yoy_change"]:+.1f})</span>'
+                            html_content += f'<span style="font-size: 0.95rem; font-weight: 700; color: #111827;">{values["final"]}%</span>'
+                            html_content += '</div>'
+                            html_content += '</div>'
+                            html_content += f'<div style="position: relative; width: 100%; background-color: #f3f4f6; height: 8px; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">'
+                            html_content += f'<div style="width: {min(values["final"], 100)}%; background: {bar_gradient}; height: 100%; border-radius: 4px; transition: width 0.3s ease;"></div>'
+                            html_content += '</div>'
+                            html_content += '</div>'
+
+                        html_content += '</div>'
+
                     # Close the div
                     html_content += """</div>"""
                     
