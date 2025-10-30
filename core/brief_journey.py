@@ -140,7 +140,20 @@ For EACH of the 5 stages in EACH audience, provide:
 6. **marketSignals**: 3 relevant market trends for this audience
 7. **industryNews**: 2-3 recent industry news items relevant to this audience at this stage, each with:
    - **headline**: News headline (realistic and timely)
-   - **impact**: How this news affects marketing strategy for THIS SPECIFIC AUDIENCE at this stage (1-2 sentences). CRITICAL: Each audience must have UNIQUE impact descriptions that reflect their distinct characteristics, behaviors, and motivations. Never reuse the same impact text across different audiences, even at the same stage.
+   - **impact**: How this news affects marketing strategy for THIS SPECIFIC AUDIENCE at this stage (1-2 sentences).
+
+   **CRITICAL UNIQUENESS REQUIREMENT**: Each audience MUST have COMPLETELY DIFFERENT impact descriptions based on their unique characteristics. DO NOT simply change the audience name at the end of similar text.
+
+   ❌ BAD EXAMPLE (DO NOT DO THIS):
+   - Audience 1: "This trend creates opportunities for premium positioning... among luxury buyers"
+   - Audience 2: "This trend creates opportunities for premium positioning... among tech enthusiasts"
+
+   ✅ GOOD EXAMPLE (DO THIS):
+   - Audience 1 (Luxury Buyers): "This trend enables aspirational messaging focused on exclusivity and status, requiring premium creative assets and high-income targeting parameters"
+   - Audience 2 (Tech Enthusiasts): "This trend demands technical specification highlights and innovation-focused messaging, leveraging tech publication placements and developer community targeting"
+
+   Write SUBSTANTIVELY DIFFERENT impacts that reflect each audience's distinct decision-making process, media habits, motivations, and purchase behaviors. Change the ENTIRE strategic recommendation, not just the final words.
+
    - **source**: News source (e.g., "TechCrunch", "Marketing Week", "AdAge")
    - **date**: Recent date (format: "Month Year", e.g., "October 2025")
 
@@ -180,7 +193,22 @@ IMPORTANT GUIDELINES:
 - Cite realistic sources like industry reports, research firms, trade publications
 - Make it tactical and actionable, not generic
 - Ensure content for each audience is unique and tailored to their specific characteristics
-- CRITICAL: Each audience must have COMPLETELY UNIQUE content across ALL fields, especially industryNews impacts. Even if audiences are at the same stage, the strategic implications must differ based on each audience's unique characteristics, behaviors, and motivations. Never copy-paste impact descriptions between audiences.
+
+**MANDATORY UNIQUENESS VALIDATION**:
+Before finalizing your response, review ALL industryNews impact descriptions across all 4 audiences at each stage. If you find ANY impacts that:
+- Use the same sentence structure with just the audience name swapped
+- Share more than 3-4 consecutive words with another audience's impact
+- Have identical strategic recommendations with superficial changes
+- End with "...among [audience name]" pattern variations
+
+Then REWRITE those impacts to be SUBSTANTIVELY DIFFERENT. Each impact must reflect the audience's unique:
+- Decision-making criteria (price vs. features vs. status vs. innovation)
+- Media consumption patterns (where they get information)
+- Purchase motivations (why they buy)
+- Risk tolerance and adoption behavior (early adopter vs. cautious buyer)
+- Communication preferences (technical vs. emotional vs. aspirational)
+
+**SELF-CHECK**: After writing all impacts, ask yourself: "If I removed the audience names, could someone identify which audience each impact is for based solely on the content?" If NO, rewrite until the answer is YES.
 
 Return a JSON object with this EXACT structure (use the EXACT audience names specified above):
 {{
