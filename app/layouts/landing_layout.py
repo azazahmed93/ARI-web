@@ -14,6 +14,11 @@ from app.sections.results import display_results
 from app.components.psychographic_input import psychographic_input_section, process_psychographic_config
 import streamlit as st
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+
+# Global storage for background thread results (thread-safe)
+_journey_results = {}
+_journey_lock = threading.Lock()
 
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
@@ -33,7 +38,9 @@ from assets.styles import apply_styles
 from core.ai_insights import generate_core_audience_summary, generate_primary_audience_signal, generate_secondary_audience_signal
 from core.journey_environments import generate_resonance_scores, generate_retargeting_channels
 from core.consumer_journey import generate_consumer_journey_from_brief
-
+import requests
+import jwt
+import os
 
 def run_parallel_tasks(tasks):
     """
@@ -63,6 +70,83 @@ def run_parallel_tasks(tasks):
     return results
 
 
+def call_lambda_journey_sync_in_background(lambda_url, token, payload, journey_type, request_id):
+    """
+    Call the Lambda sync endpoint in a background thread.
+    Stores the result in global _journey_results dict (thread-safe).
+
+    Args:
+        request_id: Unique ID for this request (to avoid conflicts)
+    """
+    def _make_request():
+        import time
+        start_time = time.time()
+
+        try:
+            print(f"🔄 Background thread: Starting journey generation (type={journey_type}, request_id={request_id})...")
+            response = requests.post(
+                f"{lambda_url}/journey/generate-sync",
+                headers={
+                    'Authorization': f'Bearer {token}',
+                    'Content-Type': 'application/json'
+                },
+                json=payload,
+                timeout=900  # 15 minutes
+            )
+
+            if response.status_code in [200, 202]:
+                end_time = time.time()
+                duration_sec = end_time - start_time
+                result = response.json()
+                print(f"✅ Background thread: Journey generation completed in {duration_sec:.2f} seconds ({duration_sec/60:.2f} minutes)")
+
+                # Get task_id from Lambda response
+                task_id = result.get("task_id")
+
+                # Store result in GLOBAL dict (thread-safe)
+                with _journey_lock:
+                    if "result" in result:
+                        _journey_results[request_id] = {
+                            'status': 'completed',
+                            'task_id': task_id,
+                            'journey_type': journey_type,
+                            'result': result["result"]
+                        }
+                        print(f"✅ Stored result in global dict: request_id={request_id}, task_id={task_id}")
+                    else:
+                        _journey_results[request_id] = {
+                            'status': 'completed',
+                            'task_id': task_id,
+                            'journey_type': journey_type,
+                            'result': None
+                        }
+            else:
+                end_time = time.time()
+                duration_sec = end_time - start_time
+                print(f"❌ Background thread: Failed after {duration_sec:.2f} seconds - HTTP {response.status_code}")
+                with _journey_lock:
+                    _journey_results[request_id] = {
+                        'status': 'failed',
+                        'error': f"HTTP {response.status_code}: {response.text}"
+                    }
+        except Exception as e:
+            end_time = time.time()
+            duration_sec = end_time - start_time
+            print(f"❌ Background thread: Exception after {duration_sec:.2f} seconds - {e}")
+            with _journey_lock:
+                _journey_results[request_id] = {
+                    'status': 'failed',
+                    'error': str(e)
+                }
+
+    # Start background thread
+    thread = threading.Thread(target=_make_request, daemon=True)
+    thread.start()
+
+    print(f"✅ Background thread started for journey generation (request_id={request_id})")
+    return thread
+
+
 def landing_layout(inner_content):
 
         # Apply custom styles
@@ -90,7 +174,7 @@ def landing_layout(inner_content):
     
     with col1:
         # Create an animated data visualization that looks more sophisticated
-        from datetime import datetime
+        from datetime import datetime, timedelta
 
         # Modern color scheme - we'll keep this for styling the tech container
         colors = ['#4F46E5', '#7C3AED', '#EC4899', '#F97316', '#3B82F6', '#10B981']
@@ -329,6 +413,19 @@ def landing_layout(inner_content):
                                     has_validation_error = True
                 
                 if not has_validation_error:
+                    # Reset journey-related session state for new analysis
+                    st.session_state.journey_request_id = None
+                    st.session_state.journey_task_id = None
+                    st.session_state.journey_status = None
+                    st.session_state.journey_start_time = None
+                    st.session_state.brief_journey_data = None
+                    st.session_state.consumer_journey_data = None
+                    st.session_state.journey_ad_format_scores = None
+                    st.session_state.journey_programming_show_scores = None
+                    st.session_state.journey_retargeting_channels = None
+                    st.session_state.journey_audience_profile = None
+                    st.session_state.journey_campaign_objectives = None
+
                     with st.spinner(get_random_spinner_message()):
                         # Process psychographic configuration if exists
                         demographics_info = None
@@ -487,48 +584,15 @@ def landing_layout(inner_content):
                                                 }
                                             ]
 
-                                            # Add journey generation task based on user type
-                                            if st.session_state.is_gm_user:
-                                                # Extract audience names for consumer journey
-                                                audience_growth1 = None
-                                                audience_growth2 = None
-                                                audience_emerging = None
-                                                if len(segments) >= 1:
-                                                    audience_growth1 = segments[0].get('name', '')
-                                                if len(segments) >= 2:
-                                                    audience_growth2 = segments[1].get('name', '')
-                                                if len(segments) >= 3:
-                                                    audience_emerging = segments[2].get('name', '')
+                                            # NOTE: Journey generation removed from Phase 2
+                                            # It will be generated asynchronously via Lambda API
 
-                                                phase2_tasks.append({
-                                                    'name': 'consumer_journey',
-                                                    'func': generate_consumer_journey_from_brief,
-                                                    'args': (brief_text, industry, "Core Audience", audience_growth1, audience_growth2, audience_emerging)
-                                                })
-                                            else:
-                                                # Extract audience names for brief journey
-                                                audience_growth1 = None
-                                                audience_growth2 = None
-                                                audience_emerging = None
-                                                if len(segments) >= 1:
-                                                    audience_growth1 = segments[0].get('name', '')
-                                                if len(segments) >= 2:
-                                                    audience_growth2 = segments[1].get('name', '')
-                                                if len(segments) >= 3:
-                                                    audience_emerging = segments[2].get('name', '')
-
-                                                phase2_tasks.append({
-                                                    'name': 'brief_journey',
-                                                    'func': generate_journey_from_brief,
-                                                    'args': (brief_text, industry, "Core Audience", audience_growth1, audience_growth2, audience_emerging)
-                                                })
-
-                                            # Execute Phase 2 tasks in parallel
+                                            # Execute Phase 2 tasks in parallel (summaries only)
                                             phase2_start = time.time()
                                             phase2_results = run_parallel_tasks(phase2_tasks)
                                             phase2_time = time.time() - phase2_start
                                             print(f"\n✓ Phase 2 completed in {phase2_time:.2f} seconds")
-                                            print(f"  - Generated: Audience summaries, Journey data")
+                                            print(f"  - Generated: Audience summaries")
 
                                             # Store Phase 2 results in session state
                                             if 'audience_summary' not in st.session_state:
@@ -541,23 +605,73 @@ def landing_layout(inner_content):
                                             if phase2_results.get('secondary_audience'):
                                                 st.session_state.audience_summary['secondary_audience'] = phase2_results['secondary_audience']
 
-                                            # Store journey data based on user type
-                                            if st.session_state.is_gm_user:
-                                                if phase2_results.get('consumer_journey'):
-                                                    st.session_state.consumer_journey_data = phase2_results['consumer_journey']
-                                                    print("Consumer journey data generated successfully!")
-                                                    print(phase2_results['consumer_journey'])
-                                                else:
-                                                    st.session_state.consumer_journey_data = None
-                                                    print("Consumer journey generation failed")
-                                            else:
-                                                if phase2_results.get('brief_journey'):
-                                                    st.session_state.brief_journey_data = phase2_results['brief_journey']
-                                                    print("Brief journey data generated successfully!")
-                                                    print(phase2_results['brief_journey'])
-                                                else:
-                                                    st.session_state.brief_journey_data = None
-                                                    print("Brief journey generation failed")
+                                            # Initiate async journey generation via Lambda API
+                                            if not st.session_state.get('journey_task_id'):
+                                                try:
+                                                    lambda_url = os.environ.get('LAMBDA_URL')
+                                                    jwt_secret = os.environ.get('LAMBDA_JWT_SECRET')
+
+                                                    if lambda_url and jwt_secret:
+                                                        # Generate JWT token
+                                                        payload = {
+                                                            'exp': datetime.utcnow() + timedelta(hours=1),
+                                                            'iat': datetime.utcnow()
+                                                        }
+                                                        token = jwt.encode(payload, jwt_secret, algorithm='HS256')
+                                                        print("token")
+                                                        print(token)
+
+                                                        # Extract audience names from segments
+                                                        audience_growth1 = segments[0].get('name', '') if len(segments) > 0 else None
+                                                        audience_growth2 = segments[1].get('name', '') if len(segments) > 1 else None
+                                                        audience_emerging = segments[2].get('name', '') if len(segments) > 2 else None
+
+                                                        # Determine journey type based on user role
+                                                        journey_type = "consumer" if st.session_state.get('is_gm_user') else "brief"
+
+                                                        # Prepare payload based on journey type
+                                                        payload = {
+                                                            "journey_type": journey_type,
+                                                            "brief_content": brief_text,
+                                                            "industry": industry,
+                                                            "audience_growth1": audience_growth1,
+                                                            "audience_growth2": audience_growth2,
+                                                            "audience_emerging": audience_emerging
+                                                        }
+
+                                                        # Add journey-type-specific audience field
+                                                        if journey_type == "consumer":
+                                                            payload["audience_core"] = "Core Audience"
+                                                        else:
+                                                            payload["audience_primary"] = "Primary Target Audience"
+
+                                                        # Call Lambda sync endpoint in background thread
+                                                        print(f"\n🚀 Initiating Lambda journey generation in background (type={journey_type})...")
+
+                                                        # Generate unique request_id for this journey generation
+                                                        import uuid
+                                                        request_id = str(uuid.uuid4())
+
+                                                        # Set initial status
+                                                        st.session_state.journey_request_id = request_id
+                                                        st.session_state.journey_status = "processing"
+                                                        st.session_state.journey_start_time = datetime.now().timestamp()
+                                                        print(f"✅ Journey generation initiated with request_id={request_id}")
+
+                                                        # Start background thread (non-blocking)
+                                                        call_lambda_journey_sync_in_background(
+                                                            lambda_url=lambda_url,
+                                                            token=token,
+                                                            payload=payload,
+                                                            journey_type=journey_type,
+                                                            request_id=request_id
+                                                        )
+                                                    else:
+                                                        print("⚠️  Lambda API not configured (LAMBDA_URL or LAMBDA_JWT_SECRET missing)")
+
+                                                except Exception as e:
+                                                    print(f"❌ Error calling Lambda: {e}")
+                                                    st.session_state.journey_task_id = None
 
                                     # Generate DMA recommendations
                                     # recommended_dmas = generate_recommended_dmas(brief_text, st.session_state.audience_segments)
@@ -720,7 +834,6 @@ def landing_layout(inner_content):
                                     if journey_scores:
                                         st.session_state.journey_ad_format_scores = journey_scores.get("ad_format_scores")
                                         st.session_state.journey_programming_show_scores = journey_scores.get("programming_show_scores")
-                                        st.session_state.journey_retargeting_channels = journey_scores.get("retargeting_channels")
 
                                         ad_count = len(st.session_state.journey_ad_format_scores or {})
                                         show_count = len(st.session_state.journey_programming_show_scores or {})
