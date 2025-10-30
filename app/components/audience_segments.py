@@ -161,6 +161,7 @@ class AudienceSegmentComponent:
             # ONLY show Expected LTR for Audio platforms
             if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
                 metric_name = "Expected LTR"
+                ctr = "90-100%"
                 # Create a dynamic range based on segment name
                 if 'young' in segment.name.lower() or 'gen z' in segment.name.lower():
                     # Younger audiences tend to have lower LTR ranges
