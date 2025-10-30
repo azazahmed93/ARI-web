@@ -196,9 +196,14 @@ class AudienceSegmentComponent:
                         ctr = "0.19%"
                     else:
                         ctr = "0.18%"
+            elif 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
+                metric_name = "Expected Outcome"
+                ctr = "N/A"
 
         ctr_to_use = metrics.get('ctr', ctr)
-        if 'video' in platform_lower:
+        if 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
+            ctr_to_use = 'N/A'
+        elif 'video' in platform_lower:
             ctr_to_use = '70-90%'
         elif 'ott/ctv' in platform_lower or 'ctv/ott' in platform_lower:
             ctr_to_use = '90-100%'
