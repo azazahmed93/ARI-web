@@ -140,7 +140,7 @@ For EACH of the 5 stages in EACH audience, provide:
 6. **marketSignals**: 3 relevant market trends for this audience
 7. **industryNews**: 2-3 recent industry news items relevant to this audience at this stage, each with:
    - **headline**: News headline (realistic and timely)
-   - **impact**: How this news affects marketing strategy for this audience at this stage (1-2 sentences)
+   - **impact**: How this news affects marketing strategy for THIS SPECIFIC AUDIENCE at this stage (1-2 sentences). CRITICAL: Each audience must have UNIQUE impact descriptions that reflect their distinct characteristics, behaviors, and motivations. Never reuse the same impact text across different audiences, even at the same stage.
    - **source**: News source (e.g., "TechCrunch", "Marketing Week", "AdAge")
    - **date**: Recent date (format: "Month Year", e.g., "October 2025")
 
@@ -180,6 +180,7 @@ IMPORTANT GUIDELINES:
 - Cite realistic sources like industry reports, research firms, trade publications
 - Make it tactical and actionable, not generic
 - Ensure content for each audience is unique and tailored to their specific characteristics
+- CRITICAL: Each audience must have COMPLETELY UNIQUE content across ALL fields, especially industryNews impacts. Even if audiences are at the same stage, the strategic implications must differ based on each audience's unique characteristics, behaviors, and motivations. Never copy-paste impact descriptions between audiences.
 
 Return a JSON object with this EXACT structure (use the EXACT audience names specified above):
 {{
