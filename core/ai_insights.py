@@ -834,7 +834,7 @@ Additional audience data for SiteOne Hispanic campaign:
         
         For each segment, provide detailed targeting specifications for digital advertising platforms:
         1. A descriptive segment name for use in ad platforms
-        2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
+        2. Precise demographic targeting parameters (age ranges, gender, income brackets (numeric value range with dollar sign), etc.)
         3. GEOGRAPHIC TARGETING: Specify ONE primary US state where this audience is most concentrated based on:
            - Demographic concentration (age, income, education patterns)
            - Psychographic fit (values, lifestyle, behaviors)
