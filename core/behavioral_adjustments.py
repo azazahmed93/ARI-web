@@ -11,9 +11,15 @@ Methodology:
 """
 
 import logging
+import os
+import json
 from typing import Dict, List, Optional
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
+
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Behavioral adjustment matrix
 # Format: characteristic → {demographic: adjustment_value}
@@ -312,6 +318,121 @@ def apply_adjustments_to_census(census_data: Dict, adjustments: Dict[str, float]
     return adjusted_demographics
 
 
+def generate_demographic_correlations_and_sources(
+    audience_segment: Dict,
+    demographics: Dict[str, Dict],
+    characteristics: List[str]
+) -> Dict[str, Dict]:
+    """
+    Generate AI-powered correlations and sources for demographic adjustments.
+
+    Uses OpenAI to generate research-backed explanations for why each demographic
+    adjustment was made based on the audience profile and characteristics.
+
+    Args:
+        audience_segment: Full audience segment with name, description, interests, etc.
+        demographics: Demographics dict with base, adjustment, final values
+        characteristics: Detected behavioral characteristics
+
+    Returns:
+        Updated demographics dict with 'correlation' and 'sources' fields added
+    """
+    try:
+        # Build context for AI
+        audience_name = audience_segment.get('name', 'Unknown Audience')
+        audience_description = audience_segment.get('description', '')
+        interests = ', '.join(audience_segment.get('interest_categories', audience_segment.get('affinities', [])))
+
+        # Filter to only demographics with non-zero adjustments
+        demographics_to_explain = {
+            demo: data for demo, data in demographics.items()
+            if data.get('adjustment', 0) != 0
+        }
+
+        if not demographics_to_explain:
+            return demographics
+
+        # Create prompt for OpenAI
+        prompt = f"""You are a market research analyst specializing in demographic correlations and behavioral research.
+
+Audience Profile:
+- Name: {audience_name}
+- Description: {audience_description}
+- Key Interests: {interests}
+- Detected Characteristics: {', '.join(characteristics)}
+
+Demographic Adjustments:
+{json.dumps(demographics_to_explain, indent=2)}
+
+For each demographic category that has an adjustment, provide:
+1. A research-backed correlation explanation (2-3 sentences) explaining WHY this demographic adjustment makes sense for this specific audience
+2. 2-3 realistic source citations in the format "Organization (Year): Study Title"
+
+Use real research patterns from organizations like:
+- Pew Research Center
+- Nielsen
+- McKinsey & Company
+- US Census Bureau
+- Brookings Institution
+- Stanford/Harvard research studies
+
+Focus on:
+- Technology adoption and digital connectivity trends
+- Urban/suburban demographic patterns
+- Professional and socioeconomic factors
+- Cultural diversity and multicultural trends
+- Industry-specific demographic patterns
+
+Return ONLY valid JSON in this exact format:
+{{
+  "White": {{
+    "correlation": "explanation text here",
+    "sources": ["Source 1", "Source 2"]
+  }},
+  "Hispanic or Latino": {{
+    "correlation": "explanation text here",
+    "sources": ["Source 1", "Source 2"]
+  }}
+}}
+
+Generate correlations only for demographics with adjustments."""
+
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a market research analyst. Return only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2000
+        )
+
+        # Parse response
+        correlations_json = response.choices[0].message.content.strip()
+
+        # Remove markdown code blocks if present
+        if correlations_json.startswith('```'):
+            correlations_json = correlations_json.split('```')[1]
+            if correlations_json.startswith('json'):
+                correlations_json = correlations_json[4:]
+
+        correlations_data = json.loads(correlations_json)
+
+        # Merge correlations back into demographics
+        for demo, correlation_info in correlations_data.items():
+            if demo in demographics:
+                demographics[demo]['correlation'] = correlation_info.get('correlation', '')
+                demographics[demo]['sources'] = correlation_info.get('sources', [])
+
+        logger.info(f"Generated correlations and sources for {len(correlations_data)} demographics")
+        return demographics
+
+    except Exception as e:
+        logger.error(f"Error generating correlations and sources: {e}")
+        # Return demographics unchanged if generation fails
+        return demographics
+
+
 def enrich_audience_with_demographics(
     audience_segment: Dict,
     census_data: Dict,
@@ -328,7 +449,9 @@ def enrich_audience_with_demographics(
                 "yoy_change": -2.4,
                 "adjustment": -5.2,
                 "final": 50.6,
-                "direction": "down"
+                "direction": "down",
+                "correlation": "Research indicates...",
+                "sources": ["Pew Research (2023): Study Title", ...]
             },
             ...
         }
@@ -381,6 +504,13 @@ def enrich_audience_with_demographics(
             'final': round(final_value, 1),
             'direction': direction
         }
+
+    # Generate AI-powered correlations and sources for each demographic
+    demographics = generate_demographic_correlations_and_sources(
+        audience_segment,
+        demographics,
+        characteristics
+    )
 
     # Add simple demographics structure to segment
     audience_segment['demographics'] = demographics

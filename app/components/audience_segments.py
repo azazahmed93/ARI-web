@@ -5,6 +5,10 @@ from core.services.audience import AudienceService
 from app.components.learning_tips import display_tip_bubble
 from typing import Dict, Optional
 
+import streamlit.components.v1 as components
+import os
+import json
+
 class AudienceSegmentComponent:
     def __init__(self):
         self.audience_service = AudienceService()
@@ -60,6 +64,31 @@ class AudienceSegmentComponent:
             segment, segment_type, metrics, color, bg_color,
             audience_segment_tip, demographics_tip, interests_tip, platform_tip
         ), unsafe_allow_html=True)
+        
+        import json
+        from dataclasses import asdict
+        segment_dict = asdict(segment)
+        segment_json = json.dumps(segment_dict, indent=2)
+
+        try:
+            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+            PARENT_DIR = os.path.dirname(CURRENT_DIR)
+            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html") 
+
+            print(CURRENT_DIR)
+            print(PARENT_DIR)
+            print(HTML_FILE_PATH)
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+
+            html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", segment_json)
+            components.html(html_code, height=500, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
     
     def _generate_metrics_html(self, metrics: Dict[str, str]) -> str:
         """Generate HTML for metrics display."""
@@ -161,6 +190,7 @@ class AudienceSegmentComponent:
             # ONLY show Expected LTR for Audio platforms
             if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
                 metric_name = "Expected LTR"
+                ctr = "90-100%"
                 # Create a dynamic range based on segment name
                 if 'young' in segment.name.lower() or 'gen z' in segment.name.lower():
                     # Younger audiences tend to have lower LTR ranges
@@ -195,57 +225,19 @@ class AudienceSegmentComponent:
                         ctr = "0.19%"
                     else:
                         ctr = "0.18%"
+            elif 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
+                metric_name = "Expected Outcome"
+                ctr = "N/A"
 
         ctr_to_use = metrics.get('ctr', ctr)
-        if 'video' in platform_lower:
+        if 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
+            ctr_to_use = 'N/A'
+        elif 'video' in platform_lower:
             ctr_to_use = '70-90%'
         elif 'ott/ctv' in platform_lower or 'ctv/ott' in platform_lower:
             ctr_to_use = '90-100%'
 
-        # Generate Census demographics HTML if available
-        demographics_html = ""
-        if hasattr(segment, 'demographics') and segment.demographics:
-            demographics_html = '<div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.5); border-radius: 6px; border: 1px solid rgba(0,0,0,0.08);">'
-            demographics_html += '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">'
-            demographics_html += '<span style="font-size: 0.8rem; font-weight: 600; color: #374151; letter-spacing: 0.3px;">DEMOGRAPHIC INSIGHTS</span>'
-            demographics_html += '</div>'
-            demographics_html += '<div style="margin-bottom: 10px; padding: 8px; background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; border-radius: 3px;">'
-            demographics_html += '<p style="margin: 0; font-size: 0.7rem; line-height: 1.4; color: #1e40af;">'
-            demographics_html += '<strong style="font-weight: 600;">Research-Backed Data:</strong> Demographics based on US Census data correlated with behavioral research using AI analysis. Each adjustment is backed by cited sources from Pew Research, Nielsen, McKinsey, and academic studies.'
-            demographics_html += '</p>'
-            demographics_html += '</div>'
 
-            for demo_name, values in segment.demographics.items():
-                direction_arrow = "↗" if values['direction'] == 'up' else "↘" if values['direction'] == 'down' else "→"
-
-                # Gradient colors based on direction
-                if values['direction'] == 'up':
-                    bar_gradient = "linear-gradient(90deg, #10b981 0%, #059669 100%)"
-                    badge_bg = "rgba(16, 185, 129, 0.1)"
-                    badge_color = "#059669"
-                elif values['direction'] == 'down':
-                    bar_gradient = "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)"
-                    badge_bg = "rgba(239, 68, 68, 0.1)"
-                    badge_color = "#dc2626"
-                else:
-                    bar_gradient = "linear-gradient(90deg, #9ca3af 0%, #6b7280 100%)"
-                    badge_bg = "rgba(107, 114, 128, 0.1)"
-                    badge_color = "#6b7280"
-
-                demographics_html += '<div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">'
-                demographics_html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">'
-                demographics_html += f'<span style="font-size: 0.8rem; font-weight: 500; color: #1f2937;">{demo_name}</span>'
-                demographics_html += '<div style="display: flex; align-items: center; gap: 8px;">'
-                demographics_html += f'<span style="font-size: 0.75rem; color: {badge_color}; font-weight: 600;">({direction_arrow}{values["yoy_change"]:+.1f})</span>'
-                demographics_html += f'<span style="font-size: 0.95rem; font-weight: 700; color: #111827;">{values["final"]}%</span>'
-                demographics_html += '</div>'
-                demographics_html += '</div>'
-                demographics_html += f'<div style="position: relative; width: 100%; background-color: #f3f4f6; height: 8px; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">'
-                demographics_html += f'<div style="width: {min(values["final"], 100)}%; background: {bar_gradient}; height: 100%; border-radius: 4px; transition: width 0.3s ease;"></div>'
-                demographics_html += '</div>'
-                demographics_html += '</div>'
-
-            demographics_html += '</div>'
 
         return f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -263,5 +255,4 @@ class AudienceSegmentComponent:
             <p style="margin: 0 0 0 0; font-size: 0.85rem; color: #555;">
                 <span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_tip}</span>{platform_rec}
             </p>
-            {demographics_html}
         </div>"""
