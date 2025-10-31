@@ -1,5 +1,7 @@
 import streamlit as st
-
+import os
+import json
+import streamlit.components.v1 as components
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
 from core.ai_insights import (
@@ -105,6 +107,7 @@ def audience_insights(is_siteone_hispanic):
                     with col1:
                         if len(segment_list) > 0:
                             primary_segment = segment_list[0]
+                            print(primary_segment)
                             display_audience_segment(primary_segment, 'Primary', '#10b981', '#f0fdf4')
                     
                     with col2:
@@ -302,57 +305,26 @@ def audience_insights(is_siteone_hispanic):
 <span style="font-weight:600; margin-right:5px; display:inline-block;">Rationale:</span>
 {rationale}
 </p>"""
-
-                    # Add Census demographics if available
-                    demographics = growth_segment.get('demographics', {})
-                    if demographics:
-                        html_content += '<div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.6); border-radius: 6px; border: 1px solid rgba(0,0,0,0.08);">'
-                        html_content += '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">'
-                        html_content += '<span style="font-size: 0.8rem; font-weight: 600; color: #374151; letter-spacing: 0.3px;">DEMOGRAPHIC INSIGHTS</span>'
-                        html_content += '</div>'
-                        html_content += '<div style="margin-bottom: 10px; padding: 8px; background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; border-radius: 3px;">'
-                        html_content += '<p style="margin: 0; font-size: 0.7rem; line-height: 1.4; color: #1e40af;">'
-                        html_content += '<strong style="font-weight: 600;">Research-Backed Data:</strong> Demographics based on US Census data correlated with behavioral research using AI analysis. Each adjustment is backed by cited sources from Pew Research, Nielsen, McKinsey, and academic studies.'
-                        html_content += '</p>'
-                        html_content += '</div>'
-
-                        for demo_name, values in demographics.items():
-                            direction_arrow = "↗" if values['direction'] == 'up' else "↘" if values['direction'] == 'down' else "→"
-
-                            # Gradient colors based on direction
-                            if values['direction'] == 'up':
-                                bar_gradient = "linear-gradient(90deg, #10b981 0%, #059669 100%)"
-                                badge_bg = "rgba(16, 185, 129, 0.1)"
-                                badge_color = "#059669"
-                            elif values['direction'] == 'down':
-                                bar_gradient = "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)"
-                                badge_bg = "rgba(239, 68, 68, 0.1)"
-                                badge_color = "#dc2626"
-                            else:
-                                bar_gradient = "linear-gradient(90deg, #9ca3af 0%, #6b7280 100%)"
-                                badge_bg = "rgba(107, 114, 128, 0.1)"
-                                badge_color = "#6b7280"
-
-                            html_content += '<div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">'
-                            html_content += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">'
-                            html_content += f'<span style="font-size: 0.8rem; font-weight: 500; color: #1f2937;">{demo_name}</span>'
-                            html_content += '<div style="display: flex; align-items: center; gap: 8px;">'
-                            html_content += f'<span style="font-size: 0.75rem; color: {badge_color}; font-weight: 600;">({direction_arrow}{values["yoy_change"]:+.1f})</span>'
-                            html_content += f'<span style="font-size: 0.95rem; font-weight: 700; color: #111827;">{values["final"]}%</span>'
-                            html_content += '</div>'
-                            html_content += '</div>'
-                            html_content += f'<div style="position: relative; width: 100%; background-color: #f3f4f6; height: 8px; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">'
-                            html_content += f'<div style="width: {min(values["final"], 100)}%; background: {bar_gradient}; height: 100%; border-radius: 4px; transition: width 0.3s ease;"></div>'
-                            html_content += '</div>'
-                            html_content += '</div>'
-
-                        html_content += '</div>'
-
-                    # Close the div
-                    html_content += """</div>"""
                     
                     # Display the HTML content
                     st.markdown(html_content, unsafe_allow_html=True)
+                    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+                    PARENT_DIR = os.path.dirname(CURRENT_DIR)
+                    HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html") 
+
+                    try:
+                        with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                            html_code = f.read()
+
+                        html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
+                        components.html(html_code, height=500, scrolling=True)
+
+                    except FileNotFoundError:
+                        st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                        st.info("Please make sure 'index.html' is in the correct location.")
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
+
         except Exception as e:
             # Silent fail - don't show error if there's an issue with the growth audience
             pass
