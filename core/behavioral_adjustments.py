@@ -324,10 +324,13 @@ def generate_demographic_correlations_and_sources(
     characteristics: List[str]
 ) -> Dict[str, Dict]:
     """
-    Generate AI-powered correlations and sources for demographic adjustments.
+    Generate AI-powered correlations and sources for all demographics.
 
-    Uses OpenAI to generate research-backed explanations for why each demographic
-    adjustment was made based on the audience profile and characteristics.
+    Uses OpenAI to generate research-backed explanations for each demographic
+    category based on the audience profile and characteristics. Explains both:
+    - Adjusted demographics: Why the adjustment makes sense based on research
+    - 0 adjustments: That limited research exists correlating the demographic
+      with detected characteristics, resulting in no adjustment
 
     Args:
         audience_segment: Full audience segment with name, description, interests, etc.
@@ -335,7 +338,7 @@ def generate_demographic_correlations_and_sources(
         characteristics: Detected behavioral characteristics
 
     Returns:
-        Updated demographics dict with 'correlation' and 'sources' fields added
+        Updated demographics dict with 'correlation' and 'sources' fields added for all categories
     """
     try:
         # Build context for AI
@@ -343,11 +346,9 @@ def generate_demographic_correlations_and_sources(
         audience_description = audience_segment.get('description', '')
         interests = ', '.join(audience_segment.get('interest_categories', audience_segment.get('affinities', [])))
 
-        # Filter to only demographics with non-zero adjustments
-        demographics_to_explain = {
-            demo: data for demo, data in demographics.items()
-            if data.get('adjustment', 0) != 0
-        }
+        # Explain all demographics (including those with 0 adjustment)
+        # 0 adjustment means: limited research correlating demographic with detected characteristics
+        demographics_to_explain = demographics
 
         if not demographics_to_explain:
             return demographics
@@ -361,11 +362,13 @@ Audience Profile:
 - Key Interests: {interests}
 - Detected Characteristics: {', '.join(characteristics)}
 
-Demographic Adjustments:
+Demographics Data:
 {json.dumps(demographics_to_explain, indent=2)}
 
-For each demographic category that has an adjustment, provide:
-1. A research-backed correlation explanation (2-3 sentences) explaining WHY this demographic adjustment makes sense for this specific audience
+For each demographic category (including those with 0 adjustment), provide:
+1. A research-backed correlation explanation (2-3 sentences):
+   - If adjustment is non-zero: Explain WHY this demographic adjustment makes sense for this specific audience based on the detected characteristics
+   - If adjustment is 0: Explain that there is limited specific research correlating this demographic with the detected audience characteristics ({', '.join(characteristics)}), resulting in no adjustment from the Census Bureau baseline
 2. 2-3 realistic source citations in the format "Organization (Year): Study Title"
 
 Use real research patterns from organizations like:
@@ -383,6 +386,11 @@ Focus on:
 - Cultural diversity and multicultural trends
 - Industry-specific demographic patterns
 
+Important guidelines for 0 adjustments:
+- Be methodologically transparent - explain that no research-backed correlation was found
+- Maintain professional tone and avoid implying the Census baseline is "confirmed" or "validated"
+- Example: "There is limited specific research on the correlation between [demographic] and [characteristics], resulting in no adjustment from the Census Bureau baseline."
+
 Return ONLY valid JSON in this exact format:
 {{
   "White": {{
@@ -395,7 +403,7 @@ Return ONLY valid JSON in this exact format:
   }}
 }}
 
-Generate correlations only for demographics with adjustments."""
+Generate correlations for ALL demographics, regardless of adjustment value."""
 
         response = client.chat.completions.create(
             model="gpt-4o",
