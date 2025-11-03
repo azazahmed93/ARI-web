@@ -160,6 +160,8 @@ For EACH of the 9 stages in EACH audience, provide:
 5. **contextInsight**: 1 data-driven insight with realistic source citation (format: "Insight (Source - Month Year)")
 6. **marketSignals**: 3 relevant market trends for this audience at this stage
 7. **industryNews**: 2-3 recent industry news items relevant to this audience at this stage, each with:
+
+   ⚠️ CRITICAL: Maintain EQUAL QUALITY and UNIQUENESS across ALL 9 stages (DREAM through COAST). Later stages (NARROW, PURCHASE, ONBOARD, REVEL, COAST) must have the SAME level of audience-specific differentiation as early stages (DREAM, FAMILIARIZE, CONSIDER). Do NOT get lazy or repetitive in later stages.
    - **headline**: News headline (realistic and timely)
    - **impact**: How this news affects marketing strategy for THIS SPECIFIC AUDIENCE at this stage (1-2 sentences).
 
@@ -218,11 +220,14 @@ IMPORTANT GUIDELINES:
 - DREAM stage focuses on aspiration, COAST stage focuses on loyalty and retention
 
 **MANDATORY UNIQUENESS VALIDATION**:
-Before finalizing your response, review ALL industryNews impact descriptions across all 4 audiences at each stage. If you find ANY impacts that:
+Before finalizing your response, review ALL industryNews impact descriptions across all 4 audiences at EVERY SINGLE stage (all 9 stages). Pay SPECIAL ATTENTION to later stages (NARROW, PURCHASE, ONBOARD, REVEL, COAST) as these are most prone to repetition.
+
+If you find ANY impacts that:
 - Use the same sentence structure with just the audience name swapped
 - Share more than 3-4 consecutive words with another audience's impact
 - Have identical strategic recommendations with superficial changes
 - End with "...among [audience name]" pattern variations
+- Show declining quality/uniqueness in later stages compared to early stages
 
 Then REWRITE those impacts to be SUBSTANTIVELY DIFFERENT. Each impact must reflect the audience's unique:
 - Decision-making criteria (price vs. features vs. status vs. innovation)
@@ -231,7 +236,15 @@ Then REWRITE those impacts to be SUBSTANTIVELY DIFFERENT. Each impact must refle
 - Risk tolerance and adoption behavior (early adopter vs. cautious buyer)
 - Communication preferences (technical vs. emotional vs. aspirational)
 
+**STAGE-SPECIFIC VALIDATION**:
+- DREAM, FAMILIARIZE, CONSIDER: Check for uniqueness ✓
+- EXPLORE, NARROW: Review especially carefully - quality often drops here
+- PURCHASE, ONBOARD: CRITICAL CHECK POINT - these stages often have repetitive impacts
+- REVEL, COAST: FINAL CHECK - maintain high quality through the end
+
 **SELF-CHECK**: After writing all impacts, ask yourself: "If I removed the audience names, could someone identify which audience each impact is for based solely on the content?" If NO, rewrite until the answer is YES.
+
+**QUALITY CHECK**: Are the impacts for COAST stage as unique and detailed as the impacts for DREAM stage? If NO, improve the later stages.
 
 Return a JSON object with this EXACT structure (use the EXACT audience names specified above):
 {{
@@ -344,7 +357,7 @@ Return a JSON object with this EXACT structure (use the EXACT audience names spe
                 }
             ],
             response_format={'type': 'json_object'},
-            temperature=0.4,
+            temperature=0.6,
             max_tokens=16384,  # Increased for 4 audiences × 9 stages each
         )
 

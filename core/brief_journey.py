@@ -139,6 +139,8 @@ For EACH of the 5 stages in EACH audience, provide:
 5. **contextInsight**: 1 data-driven insight with realistic source citation (format: "Insight (Source - Month Year)")
 6. **marketSignals**: 3 relevant market trends for this audience
 7. **industryNews**: 2-3 recent industry news items relevant to this audience at this stage, each with:
+
+   ⚠️ CRITICAL: Maintain EQUAL QUALITY and UNIQUENESS across ALL 5 stages (AWARENESS through LOYALTY). Later stages (INTENT, CONVERSION, LOYALTY) must have the SAME level of audience-specific differentiation as early stages (AWARENESS, CONSIDERATION). Do NOT get lazy or repetitive in later stages.
    - **headline**: News headline (realistic and timely)
    - **impact**: How this news affects marketing strategy for THIS SPECIFIC AUDIENCE at this stage (1-2 sentences).
 
@@ -195,11 +197,14 @@ IMPORTANT GUIDELINES:
 - Ensure content for each audience is unique and tailored to their specific characteristics
 
 **MANDATORY UNIQUENESS VALIDATION**:
-Before finalizing your response, review ALL industryNews impact descriptions across all 4 audiences at each stage. If you find ANY impacts that:
+Before finalizing your response, review ALL industryNews impact descriptions across all 4 audiences at EVERY SINGLE stage (all 5 stages). Pay SPECIAL ATTENTION to later stages (INTENT, CONVERSION, LOYALTY) as these are most prone to repetition.
+
+If you find ANY impacts that:
 - Use the same sentence structure with just the audience name swapped
 - Share more than 3-4 consecutive words with another audience's impact
 - Have identical strategic recommendations with superficial changes
 - End with "...among [audience name]" pattern variations
+- Show declining quality/uniqueness in later stages compared to early stages
 
 Then REWRITE those impacts to be SUBSTANTIVELY DIFFERENT. Each impact must reflect the audience's unique:
 - Decision-making criteria (price vs. features vs. status vs. innovation)
@@ -208,7 +213,14 @@ Then REWRITE those impacts to be SUBSTANTIVELY DIFFERENT. Each impact must refle
 - Risk tolerance and adoption behavior (early adopter vs. cautious buyer)
 - Communication preferences (technical vs. emotional vs. aspirational)
 
+**STAGE-SPECIFIC VALIDATION**:
+- AWARENESS, CONSIDERATION: Check for uniqueness ✓
+- INTENT: Review especially carefully - quality often drops here
+- CONVERSION, LOYALTY: CRITICAL CHECK POINT - these stages often have repetitive impacts
+
 **SELF-CHECK**: After writing all impacts, ask yourself: "If I removed the audience names, could someone identify which audience each impact is for based solely on the content?" If NO, rewrite until the answer is YES.
+
+**QUALITY CHECK**: Are the impacts for LOYALTY stage as unique and detailed as the impacts for AWARENESS stage? If NO, improve the later stages.
 
 Return a JSON object with this EXACT structure (use the EXACT audience names specified above):
 {{
@@ -317,7 +329,7 @@ Return a JSON object with this EXACT structure (use the EXACT audience names spe
                 }
             ],
             response_format={'type': 'json_object'},
-            temperature=0.4,
+            temperature=0.6,
             max_tokens=16000,  # Increased for 4 audiences × 5 stages each
         )
 
