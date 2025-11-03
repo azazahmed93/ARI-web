@@ -563,7 +563,7 @@ def landing_layout(inner_content):
                                         st.session_state.audience_segments = ai_audience_segments
                                         segments = st.session_state.audience_segments.get('segments', [])
 
-                                        # Phase 1b: Enrich segments with Census Bureau demographics
+                                        # Phase 1b: Enrich segments with Census Bureau demographics in parallel
                                         print("\n" + "=" * 60)
                                         print("Starting Census API integration (Phase 1b)...")
                                         print("=" * 60)
@@ -572,25 +572,21 @@ def landing_layout(inner_content):
                                             from core.census_api import fetch_census_demographics, fetch_census_trends, map_state_to_fips
                                             from core.behavioral_adjustments import enrich_audience_with_demographics
 
-                                            phase1b_start = time.time()
-                                            enriched_segments = []
-
-                                            for segment in segments:
+                                            def enrich_single_segment(segment):
+                                                """Helper function to enrich a single segment with Census data"""
                                                 # Get primary state from AI-generated segment
                                                 primary_state = segment.get('primary_state')
 
                                                 if not primary_state:
                                                     print(f"⚠ No primary state found for '{segment.get('name')}', skipping Census enrichment")
-                                                    enriched_segments.append(segment)
-                                                    continue
+                                                    return segment
 
                                                 # Map state name to FIPS code
                                                 state_fips = map_state_to_fips(primary_state)
 
                                                 if not state_fips:
                                                     print(f"⚠ Could not map '{primary_state}' to FIPS code, skipping Census enrichment")
-                                                    enriched_segments.append(segment)
-                                                    continue
+                                                    return segment
 
                                                 print(f"  Fetching Census data for '{segment.get('name')}' in {primary_state}...")
 
@@ -599,8 +595,7 @@ def landing_layout(inner_content):
 
                                                 if not census_data:
                                                     print(f"⚠ Could not fetch Census data for {primary_state}, skipping enrichment")
-                                                    enriched_segments.append(segment)
-                                                    continue
+                                                    return segment
 
                                                 # Fetch trends (optional, don't fail if not available)
                                                 trends_data = None
@@ -616,8 +611,29 @@ def landing_layout(inner_content):
                                                     trends_data
                                                 )
 
-                                                enriched_segments.append(enriched_segment)
                                                 print(f"  ✓ Enriched '{segment.get('name')}' with Census demographics")
+                                                return enriched_segment
+
+                                            # Create parallel tasks for each segment
+                                            phase1b_tasks = [
+                                                {
+                                                    'name': f'enrich_segment_{i}',
+                                                    'func': enrich_single_segment,
+                                                    'args': (segment,)
+                                                }
+                                                for i, segment in enumerate(segments)
+                                            ]
+
+                                            # Execute enrichment tasks in parallel
+                                            phase1b_start = time.time()
+                                            phase1b_results = run_parallel_tasks(phase1b_tasks)
+                                            phase1b_time = time.time() - phase1b_start
+
+                                            # Collect enriched segments (maintain order)
+                                            enriched_segments = [
+                                                phase1b_results.get(f'enrich_segment_{i}', segment)
+                                                for i, segment in enumerate(segments)
+                                            ]
 
                                             # Update session state with enriched segments
                                             print("enriched_segments")
@@ -625,7 +641,6 @@ def landing_layout(inner_content):
                                             st.session_state.audience_segments['segments'] = enriched_segments
                                             segments = enriched_segments
 
-                                            phase1b_time = time.time() - phase1b_start
                                             print(f"\n✓ Phase 1b completed in {phase1b_time:.2f} seconds")
                                             print(f"  - Enriched {len(enriched_segments)} segments with Census data")
 
