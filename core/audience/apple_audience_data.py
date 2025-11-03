@@ -110,7 +110,7 @@ def get_apple_audience_data():
         "targeting_params": {
             "age_range": "25-45",
             "gender_targeting": "All",
-            "income_targeting": "Middle to High"
+            "income_targeting": "$50K-$100K"
         },
         "interest_categories": ["Original drama series", "Technology news", "International cinema", "Industry documentaries"],
         "platform_targeting": [

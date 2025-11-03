@@ -705,12 +705,12 @@ def get_default_audience_segments(brief_text, ari_scores):
             # Primary audience segment
             {
                 "name": "Tech-Savvy Streamers",
-                "description": "Age: 25-45 | Gender: All | Income: Mid to High",
+                "description": "Age: 25-45 | Gender: All | Income: $50K-$100K",
                 "interest_categories": ["Technology Enthusiasts", "Early Adopters", "Streaming Services", "Digital Entertainment"],
                 "targeting_params": {
                     "age_range": "25-45",
                     "gender_targeting": "All",
-                    "income_targeting": "Mid to High"
+                    "income_targeting": "$50K-$100K"
                 },
                 "platform_targeting": [
                     {
@@ -730,12 +730,12 @@ def get_default_audience_segments(brief_text, ari_scores):
             # Secondary audience segment - Lifestyle & Culture Enthusiasts
             {
                 "name": "Lifestyle & Culture Enthusiasts",
-                "description": "Age: 30-50 | Gender: All | Income: Mid to High",
+                "description": "Age: 30-50 | Gender: All | Income: $50K-$100K",
                 "interest_categories": ["Culture & Arts", "Lifestyle", "TV Shows & Movies", "Digital Subscriptions"],
                 "targeting_params": {
                     "age_range": "30-50",
                     "gender_targeting": "All",
-                    "income_targeting": "Mid to High"
+                    "income_targeting": "$50K-$100K"
                 },
                 "platform_targeting": [
                     {
@@ -834,7 +834,7 @@ Additional audience data for SiteOne Hispanic campaign:
         
         For each segment, provide detailed targeting specifications for digital advertising platforms:
         1. A descriptive segment name for use in ad platforms
-        2. Precise demographic targeting parameters (age ranges, gender, income brackets, etc.)
+        2. Precise demographic targeting parameters (age ranges, gender, income ranges in dollar format like "$50K-$100K", etc.)
         3. GEOGRAPHIC TARGETING: Specify ONE primary US state where this audience is most concentrated based on:
            - Demographic concentration (age, income, education patterns)
            - Psychographic fit (values, lifestyle, behaviors)
@@ -854,7 +854,12 @@ Additional audience data for SiteOne Hispanic campaign:
 
         Format the response as a valid JSON array in key 'segments' with objects containing:
         - name: string (descriptive segment name)
-        - targeting_params: object with age_range, gender_targeting, income_targeting, education_targeting, and location_targeting (descriptive text)
+        - targeting_params: object with:
+            * age_range: string (e.g., "25-44", "35-54")
+            * gender_targeting: string (e.g., "All genders", "Female 60%", "Male dominant")
+            * income_targeting: string in dollar range format (e.g., "$50K-$100K", "$75K-$150K", "$100K+")
+            * education_targeting: string (e.g., "College degree", "High school or above")
+            * location_targeting: descriptive text about geographic preferences
         - primary_state: string - ONE US state name where this audience is most concentrated
         - interest_categories: array of strings (specific interests to target in ad platforms)
         - platform_targeting: array of objects with 'platform' and 'targeting_approach'
@@ -916,7 +921,7 @@ Additional audience data for SiteOne Hispanic campaign:
                         "targeting_params": {
                             "age_range": "25-34",
                             "gender_targeting": "Male dominant (93%)",
-                            "income_targeting": "$25K-50K annually",
+                            "income_targeting": "$25K-$50K",
                             "education_targeting": "High school degree (42%)",
                             "location_targeting": "High-density Hispanic neighborhoods with suburban landscape markets"
                         },
@@ -954,7 +959,7 @@ Additional audience data for SiteOne Hispanic campaign:
                         "targeting_params": {
                             "age_range": "18-24",
                             "gender_targeting": "All",
-                            "income_targeting": "Below $50k",
+                            "income_targeting": "$0-$50K",
                             "education_targeting": "High school or some college",
                             "location_targeting": "Urban centers and college towns"
                         },
