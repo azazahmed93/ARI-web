@@ -15,7 +15,11 @@ try:
     from core.ai_warmup import warmup_openai_connection
     # Run warmup in background - non-blocking
     import threading
-    threading.Thread(target=warmup_openai_connection, daemon=True).start()
+    if 'warmup_done' not in st.session_state:
+        st.session_state.warmup_done = False
+    if st.session_state.warmup_done is not True:
+        st.session_state.warmup_done = True
+        threading.Thread(target=warmup_openai_connection, daemon=True).start()
 except Exception as e:
     print(f"Warmup initialization skipped: {e}")
 
