@@ -7,6 +7,7 @@ import streamlit.components.v1 as components
 from core.ai_insights import (
     get_default_audience_segments,
 )
+from core.benchmark_config import get_platform_benchmark
 
 from assets.content import (
     PSYCHOGRAPHIC_HIGHLIGHTS,
@@ -189,54 +190,38 @@ def audience_insights(is_siteone_hispanic):
                     # Get expected performance if available
                     performance = growth_segment.get('expected_performance', {})
                     performance_str = ""
-                    # Check platform type to show appropriate metric name and value
-                    video_platform = False
-                    audio_platform = False
-                    
+
+                    # Get benchmark metrics from configuration
                     if platform_strategy:
-                        platform_lower = platform_strategy.lower()
-                        if any(x in platform_lower for x in ['video', 'ott', 'ctv', 'streaming']):
-                            video_platform = True
-                        elif any(x in platform_lower for x in ['audio', 'podcast', 'music']):
-                            audio_platform = True
-                    
-                    if performance:
+                        benchmark = get_platform_benchmark(platform_strategy)
                         metrics = []
-                        if video_platform and 'CTR' in performance:
-                            # VCR should be 90-100% for all CTV/OTT recommendations
-                            vcr_range = "90-100%"
-                            metrics.append(f"Expected VCR: {vcr_range}")
-                        elif audio_platform and 'CTR' in performance:
-                            # Show LTR instead of CTR for audio content with dynamic ranges based on audience
-                            audience_name = growth_segment.get('name', '').lower()
-                            interests = interests_str.lower()
-                            # Determine appropriate LTR range based on audience characteristics
-                            if 'young' in audience_name or 'gen z' in audience_name:
-                                # Younger audiences tend to have lower LTR ranges
-                                ltr_range = "80-90%"
-                            elif 'fitness' in audience_name or 'health' in interests:
-                                # Fitness audience has medium-high LTR
-                                ltr_range = "80-90%"
-                            elif 'professional' in audience_name or 'business' in interests:
-                                # Professional audiences tend to have high LTR
-                                ltr_range = "80-90%"
-                            else:
-                                # Check demographic targeting when available
-                                age_range = targeting_params.get('age_range', '') if targeting_params else ''
-                                if '18-34' in age_range:
-                                    ltr_range = "80-90%"
-                                elif '35-54' in age_range:
-                                    ltr_range = "80-90%"
-                                else:
-                                    # Default if we can't determine specifics
-                                    ltr_range = "80-90%"
-                            metrics.append(f"Expected LTR: {ltr_range}")
-                        elif 'CTR' in performance:
+
+                        # Add primary completion/click metric from benchmark
+                        metric_display = f"{benchmark['metric_name']}: {benchmark['metric_value']}"
+                        metrics.append(metric_display)
+
+                        # Add engagement rate from benchmark if available
+                        if 'engagement_rate' in benchmark:
+                            metrics.append(f"Engagement Rate: {benchmark['engagement_rate']}")
+
+                        # Add conversion rate from benchmark if available
+                        if 'conversion_rate' in benchmark:
+                            metrics.append(f"Conversion Rate: {benchmark['conversion_rate']}")
+
+                        # Add CPA from performance data if available
+                        if performance and 'CPA' in performance:
+                            metrics.append(f"CPA: {performance['CPA']}")
+
+                        performance_str = " | ".join(metrics)
+                    elif performance:
+                        # Fallback if no platform strategy - use performance data
+                        metrics = []
+                        if 'CTR' in performance:
                             metrics.append(f"Expected CTR: {performance['CTR']}")
                         if 'CPA' in performance:
                             metrics.append(f"CPA: {performance['CPA']}")
-                        if 'engagement_rate' in performance:
-                            metrics.append(f"Engagement: {performance['engagement_rate']}")
+                        # Note: Engagement/Conversion rates should come from benchmark config
+                        # Only shown here if no platform_strategy was provided
                         performance_str = " | ".join(metrics)
                         
                     # Create tooltips for emerging audience section

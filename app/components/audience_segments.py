@@ -3,6 +3,7 @@ import streamlit as st
 from core.models.audience import AudienceSegment
 from core.services.audience import AudienceService
 from app.components.learning_tips import display_tip_bubble
+from core.benchmark_config import get_platform_benchmark
 from typing import Dict, Optional
 
 import streamlit.components.v1 as components
@@ -167,82 +168,25 @@ class AudienceSegmentComponent:
         print(bg_color)
 
 
+        # Get platform recommendation
         platform_rec = ""
         if segment.platform_targeting and len(segment.platform_targeting) > 0:
             platform_rec = segment.platform_targeting[0].get('platform', '')
-        
 
-        # platform_targeting = segment.get('platform_targeting', [])
-        # if platform_targeting and len(platform_targeting) > 0:
-        #     platform_rec = platform_targeting[0].get('platform', '')
+        # Get benchmark metrics from configuration
+        benchmark = get_platform_benchmark(platform_rec)
+        metric_name = benchmark['metric_name']
+        metric_value = benchmark['metric_value']
 
-        metric_name = "Expected CTR"
-        # Get performance metrics
-        performance = segment.expected_performance
-        ctr = performance.get('CTR', 'N/A')
-
-
-        if platform_rec:
-            platform_lower = platform_rec.lower()
-            print("platform_lower")
-            print(platform_lower)
-            
-            # ONLY show Expected LTR for Audio platforms
-            if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
-                metric_name = "Expected LTR"
-                ctr = "90-100%"
-                # Create a dynamic range based on segment name
-                if 'young' in segment.name.lower() or 'gen z' in segment.name.lower():
-                    # Younger audiences tend to have lower LTR ranges
-                    ctr = "80-90%"
-                elif 'fitness' in segment.name.lower():
-                    # Fitness audience has medium-high LTR
-                    ctr = "80-90%"
-                elif 'professional' in segment.name.lower():
-                    # Professional audiences tend to have high LTR
-                    ctr = "80-90%"
-                else:
-                    # Default if we can't determine specifics
-                    ctr = "80-90%"
-            
-            # ONLY show Expected VCR for Video platforms
-            elif 'video' in platform_lower or 'ott' in platform_lower or 'ctv' in platform_lower or ('streaming' in platform_lower and 'audio' not in platform_lower):
-                metric_name = "Expected VCR"
-                # VCR should be 90-100% for all CTV/OTT recommendations
-                ctr = "90-100%"
-            
-            # ONLY show Expected CTR for Display platforms
-            elif 'display' in platform_lower or 'banner' in platform_lower or 'rich' in platform_lower or 'interactive' in platform_lower or 'high-impact' in platform_lower:
-                metric_name = "Expected CTR"
-                # Keep the provided CTR or use a default
-                if performance and 'CTR' in performance:
-                    ctr = performance.get('CTR')
-                else:
-                    # Default based on segment type
-                    if 'primary' in segment_type.lower():
-                        ctr = "0.22%"
-                    elif 'secondary' in segment_type.lower():
-                        ctr = "0.19%"
-                    else:
-                        ctr = "0.18%"
-            elif 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
-                metric_name = "Expected Outcome"
-                ctr = "N/A"
-
-        ctr_to_use = metrics.get('ctr', ctr)
-        if 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
-            ctr_to_use = 'N/A'
-        elif 'video' in platform_lower:
-            ctr_to_use = '70-90%'
-        elif 'ott/ctv' in platform_lower or 'ctv/ott' in platform_lower:
-            ctr_to_use = '90-100%'
+        print(f"Platform: {platform_rec}")
+        print(f"Benchmark: {benchmark}")
 
 
 
         return f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment.segment_type} Audience {audience_segment_tip}</span>
-                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">{metric_name}: {ctr_to_use}</span>
+                <span style="background-color: {color}; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px;">{metric_name}: {metric_value}</span>
             </div>
             <h4 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #333;">{segment.name}</h4>
             <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #555; font-style: italic;">{segment.description}</p>
