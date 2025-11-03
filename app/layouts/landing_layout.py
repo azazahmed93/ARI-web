@@ -562,6 +562,78 @@ def landing_layout(inner_content):
                                     if ai_audience_segments and 'segments' in ai_audience_segments:
                                         st.session_state.audience_segments = ai_audience_segments
                                         segments = st.session_state.audience_segments.get('segments', [])
+
+                                        # Phase 1b: Enrich segments with Census Bureau demographics
+                                        print("\n" + "=" * 60)
+                                        print("Starting Census API integration (Phase 1b)...")
+                                        print("=" * 60)
+
+                                        try:
+                                            from core.census_api import fetch_census_demographics, fetch_census_trends, map_state_to_fips
+                                            from core.behavioral_adjustments import enrich_audience_with_demographics
+
+                                            phase1b_start = time.time()
+                                            enriched_segments = []
+
+                                            for segment in segments:
+                                                # Get primary state from AI-generated segment
+                                                primary_state = segment.get('primary_state')
+
+                                                if not primary_state:
+                                                    print(f"⚠ No primary state found for '{segment.get('name')}', skipping Census enrichment")
+                                                    enriched_segments.append(segment)
+                                                    continue
+
+                                                # Map state name to FIPS code
+                                                state_fips = map_state_to_fips(primary_state)
+
+                                                if not state_fips:
+                                                    print(f"⚠ Could not map '{primary_state}' to FIPS code, skipping Census enrichment")
+                                                    enriched_segments.append(segment)
+                                                    continue
+
+                                                print(f"  Fetching Census data for '{segment.get('name')}' in {primary_state}...")
+
+                                                # Fetch Census data
+                                                census_data = fetch_census_demographics(state_fips, year=2024)
+
+                                                if not census_data:
+                                                    print(f"⚠ Could not fetch Census data for {primary_state}, skipping enrichment")
+                                                    enriched_segments.append(segment)
+                                                    continue
+
+                                                # Fetch trends (optional, don't fail if not available)
+                                                trends_data = None
+                                                try:
+                                                    trends_data = fetch_census_trends(state_fips, years=[2023, 2024])
+                                                except Exception as e:
+                                                    print(f"  Could not fetch trends for {primary_state}: {e}")
+
+                                                # Enrich segment with Census data and behavioral adjustments
+                                                enriched_segment = enrich_audience_with_demographics(
+                                                    segment,
+                                                    census_data,
+                                                    trends_data
+                                                )
+
+                                                enriched_segments.append(enriched_segment)
+                                                print(f"  ✓ Enriched '{segment.get('name')}' with Census demographics")
+
+                                            # Update session state with enriched segments
+                                            print("enriched_segments")
+                                            print(enriched_segments)
+                                            st.session_state.audience_segments['segments'] = enriched_segments
+                                            segments = enriched_segments
+
+                                            phase1b_time = time.time() - phase1b_start
+                                            print(f"\n✓ Phase 1b completed in {phase1b_time:.2f} seconds")
+                                            print(f"  - Enriched {len(enriched_segments)} segments with Census data")
+
+                                        except ImportError as e:
+                                            print(f"⚠ Census API integration not available: {e}")
+                                        except Exception as e:
+                                            print(f"⚠ Error during Census enrichment: {e}")
+                                            # Continue without Census data if there's an error
                                         
                                         # Phase 2: Generate audience summaries and journey data in parallel
                                         # These depend on Phase 1 results (audience_segments)

@@ -1,5 +1,7 @@
 import streamlit as st
-
+import os
+import json
+import streamlit.components.v1 as components
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
 from core.ai_insights import (
@@ -105,6 +107,7 @@ def audience_insights(is_siteone_hispanic):
                     with col1:
                         if len(segment_list) > 0:
                             primary_segment = segment_list[0]
+                            print(primary_segment)
                             display_audience_segment(primary_segment, 'Primary', '#10b981', '#f0fdf4')
                     
                     with col2:
@@ -120,7 +123,7 @@ def audience_insights(is_siteone_hispanic):
                             else:
                                 secondary_segment = segment_list[1]
                             display_audience_segment(secondary_segment, 'Secondary Growth', '#6366f1', '#f5f7ff')
-                
+
                 # Try to find the emerging audience in the audience_data if available
                 emerging_audience = None
                 if 'audience_data' in st.session_state and st.session_state.audience_data is not None:
@@ -298,16 +301,30 @@ def audience_insights(is_siteone_hispanic):
 {performance_str}
 </p>"""
                     if rationale:
-                        html_content += f"""<p style="margin-bottom: 0;">
+                        html_content += f"""<p style="margin-bottom: 8px;">
 <span style="font-weight:600; margin-right:5px; display:inline-block;">Rationale:</span>
 {rationale}
 </p>"""
                     
-                    # Close the div
-                    html_content += """</div>"""
-                    
                     # Display the HTML content
                     st.markdown(html_content, unsafe_allow_html=True)
+                    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+                    PARENT_DIR = os.path.dirname(CURRENT_DIR)
+                    HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html") 
+
+                    try:
+                        with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                            html_code = f.read()
+
+                        html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
+                        components.html(html_code, height=500, scrolling=True)
+
+                    except FileNotFoundError:
+                        st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                        st.info("Please make sure 'index.html' is in the correct location.")
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
+
         except Exception as e:
             # Silent fail - don't show error if there's an issue with the growth audience
             pass

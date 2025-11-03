@@ -5,6 +5,10 @@ from core.services.audience import AudienceService
 from app.components.learning_tips import display_tip_bubble
 from typing import Dict, Optional
 
+import streamlit.components.v1 as components
+import os
+import json
+
 class AudienceSegmentComponent:
     def __init__(self):
         self.audience_service = AudienceService()
@@ -60,6 +64,31 @@ class AudienceSegmentComponent:
             segment, segment_type, metrics, color, bg_color,
             audience_segment_tip, demographics_tip, interests_tip, platform_tip
         ), unsafe_allow_html=True)
+        
+        import json
+        from dataclasses import asdict
+        segment_dict = asdict(segment)
+        segment_json = json.dumps(segment_dict, indent=2)
+
+        try:
+            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+            PARENT_DIR = os.path.dirname(CURRENT_DIR)
+            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html") 
+
+            print(CURRENT_DIR)
+            print(PARENT_DIR)
+            print(HTML_FILE_PATH)
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+
+            html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", segment_json)
+            components.html(html_code, height=500, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
     
     def _generate_metrics_html(self, metrics: Dict[str, str]) -> str:
         """Generate HTML for metrics display."""
@@ -161,6 +190,7 @@ class AudienceSegmentComponent:
             # ONLY show Expected LTR for Audio platforms
             if 'audio' in platform_lower or 'podcast' in platform_lower or 'music' in platform_lower:
                 metric_name = "Expected LTR"
+                ctr = "90-100%"
                 # Create a dynamic range based on segment name
                 if 'young' in segment.name.lower() or 'gen z' in segment.name.lower():
                     # Younger audiences tend to have lower LTR ranges
@@ -195,12 +225,20 @@ class AudienceSegmentComponent:
                         ctr = "0.19%"
                     else:
                         ctr = "0.18%"
+            elif 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
+                metric_name = "Expected Outcome"
+                ctr = "N/A"
 
         ctr_to_use = metrics.get('ctr', ctr)
-        if 'video' in platform_lower:
+        if 'DOOH' in platform_lower or 'digital out of home' in platform_lower or 'out-of-home' in platform_lower:
+            ctr_to_use = 'N/A'
+        elif 'video' in platform_lower:
             ctr_to_use = '70-90%'
         elif 'ott/ctv' in platform_lower or 'ctv/ott' in platform_lower:
             ctr_to_use = '90-100%'
+
+
+
         return f"""<div style="padding: 15px; border-radius: 8px; background-color: {bg_color}; height: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="color: {color}; font-weight: 600; font-size: 0.8rem;">{segment.segment_type} Audience {audience_segment_tip}</span>

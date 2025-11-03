@@ -35,7 +35,8 @@ class AudienceService:
         targeting_params = segment_data.get('targeting_params', {})
         platform_targeting = segment_data.get('platform_targeting', [])
         performance = segment_data.get('expected_performance', {})
-        
+        demographics = segment_data.get('demographics', {})
+
         return AudienceSegment(
             name=segment_data.get('name', 'Audience Segment'),
             description=segment_data.get('description', ''),
@@ -46,7 +47,8 @@ class AudienceService:
             devices=[],
             targeting_params=targeting_params,
             platform_targeting=platform_targeting,
-            expected_performance=performance
+            expected_performance=performance,
+            demographics=demographics
         )
     
     def get_metrics(self, segment: AudienceSegment) -> Dict[str, str]:
