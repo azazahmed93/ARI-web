@@ -23,6 +23,7 @@ from core.analysis import industry_keywords
 from app.components.psychographic_input import psychographic_input_section
 import os
 import streamlit.components.v1 as components
+import jwt
 
 def display_results(scores, percentile, improvement_areas, brand_name="Unknown", industry="General", product_type="Product", brief_text=""):
     """Display the ARI analysis results."""
@@ -755,40 +756,136 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.error(f"An error occurred: {e}")
     
     with tab9:
-        if st.session_state.is_gm_user:
-            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-            PARENT_DIR = os.path.dirname(CURRENT_DIR)
-            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "consumer-journey/index.html") 
+        # Journey tab with Lambda polling logic
+        # Check if journey generation is in progress or completed
+        if st.session_state.get('journey_request_id') or st.session_state.get('journey_task_id'):
+            task_id = st.session_state.get('journey_task_id')
+            request_id = st.session_state.get('journey_request_id')
 
-            try:
-                with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                    html_code = f.read()
+            # Check if already completed
+            if st.session_state.get('journey_status') == 'completed':
+                # Display the journey visualization
+                if st.session_state.is_gm_user:
+                    if st.session_state.get('consumer_journey_data'):
+                        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+                        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+                        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "consumer-journey/index.html")
 
-                html_code = html_code.replace("{{CONSUMER_JOURNEY_DATA}}", json.dumps(st.session_state.consumer_journey_data))
-                components.html(html_code, height=1000, scrolling=True)
+                        try:
+                            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                                html_code = f.read()
+                            html_code = html_code.replace("{{CONSUMER_JOURNEY_DATA}}", json.dumps(st.session_state.consumer_journey_data))
+                            components.html(html_code, height=1000, scrolling=True)
+                        except FileNotFoundError:
+                            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                        except Exception as e:
+                            st.error(f"An error occurred: {e}")
+                    else:
+                        st.error("Journey data not found in session")
+                else:
+                    if st.session_state.get('brief_journey_data'):
+                        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+                        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+                        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "resonance-pathway/index.html")
 
-            except FileNotFoundError:
-                st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-                st.info("Please make sure 'index.html' is in the correct location.")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+                        try:
+                            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                                html_code = f.read()
+                            html_code = html_code.replace("{{RESONANCE_PATHWAY_DATA}}", json.dumps(st.session_state.brief_journey_data))
+                            components.html(html_code, height=1000, scrolling=True)
+                        except FileNotFoundError:
+                            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                        except Exception as e:
+                            st.error(f"An error occurred: {e}")
+                    else:
+                        st.error("Journey data not found in session")
+
+            elif st.session_state.get('journey_status') == 'failed':
+                st.error("❌ Journey generation failed. Please try running the analysis again.")
+                if st.button("🔄 Retry Analysis", type="primary"):
+                    for key in ['journey_task_id', 'journey_status', 'journey_start_time']:
+                        if key in st.session_state:
+                            del st.session_state[key]
+                    st.rerun()
+
+            else:
+                # Still processing - check global results dict
+                import time
+                from app.layouts.landing_layout import _journey_results, _journey_lock
+
+                request_id = st.session_state.get('journey_request_id')
+                print(f"🔍 Polling: request_id={request_id}")
+
+                # Check if result is ready in global dict
+                result_ready = False
+                with _journey_lock:
+                    if request_id and request_id in _journey_results:
+                        result_data = _journey_results[request_id]
+                        result_ready = True
+                        print(f"✅ Found result in global dict: status={result_data.get('status')}")
+
+                        # Copy to session state
+                        if result_data['status'] == 'completed':
+                            st.session_state.journey_status = 'completed'
+                            st.session_state.journey_task_id = result_data.get('task_id')
+
+                            if result_data.get('result'):
+                                if result_data['journey_type'] == 'consumer':
+                                    st.session_state.consumer_journey_data = result_data['result']
+                                    print(f"✅ Copied consumer_journey_data to session state")
+                                else:
+                                    st.session_state.brief_journey_data = result_data['result']
+                                    print(f"✅ Copied brief_journey_data to session state")
+
+                            # Remove from global dict to free memory
+                            del _journey_results[request_id]
+
+                        elif result_data['status'] == 'failed':
+                            st.session_state.journey_status = 'failed'
+                            st.session_state.journey_error = result_data.get('error', 'Unknown error')
+                            del _journey_results[request_id]
+
+                current_status = st.session_state.get('journey_status', 'processing')
+                print(f"🔍 Current status: {current_status}")
+
+                if current_status == "completed":
+                    # Journey data already in session state from background thread
+                    st.success("✅ Journey map generated successfully!")
+                    time.sleep(1)
+                    st.rerun()
+
+                elif current_status == "failed":
+                    error_msg = st.session_state.get('journey_error', 'Unknown error')
+                    st.error(f"❌ Journey generation failed: {error_msg}")
+
+                else:
+                    # Still processing - show countdown
+                    start_time = st.session_state.get('journey_start_time', 0)
+                    elapsed = time.time() - start_time
+
+                    if elapsed < 110:
+                        # Show countdown during expected generation time
+                        remaining = int(110 - elapsed)
+                        st.info(f"""
+                        🎯 **Consumer Journey Map - Generating...**
+
+                        Creating comprehensive consumer journey strategies across 4 audience segments
+                        with behavioral overlap analysis and strategic recommendations.
+
+                        ⏱️ **Estimated time remaining: ~{remaining} seconds**
+                        """)
+                    else:
+                        # Beyond expected time - show different message
+                        st.info("""
+                        🎯 **Consumer Journey Map - Almost There!**
+
+                        Finalizing journey strategies and overlap analysis...
+                        """)
+
+                    time.sleep(5)
+                    st.rerun()
         else:
-            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-            PARENT_DIR = os.path.dirname(CURRENT_DIR)
-            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "resonance-pathway/index.html") 
-
-            try:
-                with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                    html_code = f.read()
-
-                html_code = html_code.replace("{{RESONANCE_PATHWAY_DATA}}", json.dumps(st.session_state.brief_journey_data))
-                components.html(html_code, height=1000, scrolling=True)
-
-            except FileNotFoundError:
-                st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-                st.info("Please make sure 'index.html' is in the correct location.")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+            st.info("💡 Journey generation not initiated. Please run a new analysis.")
                 
     with tab10:
         next_steps()
