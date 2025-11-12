@@ -425,6 +425,7 @@ def landing_layout(inner_content):
                     st.session_state.journey_retargeting_channels = None
                     st.session_state.journey_audience_profile = None
                     st.session_state.journey_campaign_objectives = None
+                    st.session_state.simulation_results = None
 
                     with st.spinner(get_random_spinner_message()):
                         # Process psychographic configuration if exists

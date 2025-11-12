@@ -101,6 +101,9 @@ def main():
     if 'consumer_journey_data' not in st.session_state:
         st.session_state.consumer_journey_data = None
 
+    if 'simulation_results' not in st.session_state:
+        st.session_state.simulation_results = None
+
     inner_content = None
     # Display results if analysis has been performed
     if st.session_state.has_analyzed:
