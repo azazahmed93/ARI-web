@@ -8,66 +8,224 @@ from typing import Dict, List, Optional
 from openai import OpenAI
 import random
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Initialize OpenAI client (with graceful handling of missing API key)
+def _get_openai_client():
+    """Get OpenAI client, initializing if needed."""
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    return OpenAI(api_key=api_key)
 
-def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysis_data: Optional[Dict] = None) -> str:
+def classify_input_intent(user_input: str) -> Dict:
     """
-    Generate a prompt for the AI to simulate audience response.
-    
+    Classify user input as 'message_testing' or 'analytical_inquiry' using AI.
+
     Args:
-        audience_profile: Dictionary containing audience profile information
-        user_scenario: The marketing scenario to test
-        analysis_data: Optional RFP analysis data from the main analysis
-    
+        user_input: The user's scenario/question text
+
     Returns:
-        str: Formatted prompt for AI response generation
+        Dict with:
+            - intent: 'message_testing' | 'analytical_inquiry'
+            - confidence: float (0.0-1.0)
+            - reasoning: str (why this classification was chosen)
     """
-    
-    # Get RFP context if available
-    rfp_context = ""
-    if analysis_data:
-        rfp_context = f"""
-        Based on RFP Analysis:
-        - Industry: {analysis_data.get('industry', 'General')}
-        - Key Audience: {analysis_data.get('keyAudience', 'Professional')}
-        - Campaign Focus: {analysis_data.get('summary', 'Marketing campaign')}
-        """
-    
-    # Include emerging market trends context
-    trend_context = """
-    Market Intelligence Context:
-    - Current trending topics in consumer behavior and digital marketing
-    - Emerging opportunities in sustainable business practices and wellness
-    - Rising interest in authentic brand experiences and premium lifestyle
+
+    # Handle empty or very short input
+    if len(user_input.strip()) < 10:
+        return {
+            'intent': 'message_testing',
+            'confidence': 0.5,
+            'reasoning': 'Input too short to classify reliably'
+        }
+
+    classification_prompt = f"""Classify the following user input into one of two categories:
+
+1. MESSAGE_TESTING: User wants to test how audiences react to a specific marketing message, positioning, or campaign.
+   Examples:
+   - "Try this premium car message with luxury features"
+   - "How would you respond to eco-friendly packaging?"
+   - "Test this tagline: 'Innovation meets tradition'"
+
+2. ANALYTICAL_INQUIRY: User wants analytical insights about audience psychology, behavior, or motivations.
+   Examples:
+   - "What motivates brand loyalists vs occasional buyers?"
+   - "Why do audiences prefer premium over budget options?"
+   - "What psychological factors drive conversion?"
+
+User Input: "{user_input}"
+
+Respond with ONLY a JSON object in this exact format:
+{{
+    "intent": "message_testing" or "analytical_inquiry",
+    "confidence": 0.95,
+    "reasoning": "Brief explanation of classification"
+}}"""
+
+    try:
+        client = _get_openai_client()
+        if not client:
+            # No API key available, use fallback
+            raise Exception("OpenAI API key not available")
+
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are an expert classifier that determines user intent. Always respond with valid JSON only."},
+                {"role": "user", "content": classification_prompt}
+            ],
+            temperature=0.3,  # Low temperature for consistent classification
+            max_tokens=150
+        )
+
+        result_text = response.choices[0].message.content.strip()
+        # Remove markdown code blocks if present
+        if result_text.startswith("```"):
+            result_text = result_text.split("```")[1]
+            if result_text.startswith("json"):
+                result_text = result_text[4:]
+
+        result = json.loads(result_text)
+        return result
+
+    except Exception as e:
+        # Fallback to heuristic classification
+        analytical_keywords = [
+            'what', 'why', 'how', 'motivate', 'factor', 'drive',
+            'psychology', 'behavior', 'insight', 'understand',
+            'explain', 'reason', 'cause', 'influence', 'compare',
+            'separate', 'difference', 'versus', 'vs', 'between'
+        ]
+
+        user_input_lower = user_input.lower()
+        analytical_count = sum(1 for keyword in analytical_keywords if keyword in user_input_lower)
+
+        # Check for message testing indicators
+        message_indicators = ['what if we', 'how would you respond', 'try this', 'test this']
+        has_message_indicator = any(indicator in user_input_lower for indicator in message_indicators)
+
+        if has_message_indicator:
+            return {
+                'intent': 'message_testing',
+                'confidence': 0.7,
+                'reasoning': 'Heuristic classification: message testing indicator detected'
+            }
+        elif analytical_count >= 2:
+            return {
+                'intent': 'analytical_inquiry',
+                'confidence': 0.7,
+                'reasoning': 'Heuristic classification: multiple analytical keywords detected'
+            }
+        else:
+            return {
+                'intent': 'message_testing',
+                'confidence': 0.6,
+                'reasoning': 'Default classification (AI classification unavailable)'
+            }
+
+def generate_analytical_prompt(
+    audience_profile: Dict,
+    user_scenario: str,
+    rfp_context: str,
+    trend_context: str
+) -> str:
     """
-    
+    Generate prompt for analytical inquiry mode.
+    Answers user questions FROM the perspective of each audience segment.
+
+    Args:
+        audience_profile: Audience segment information
+        user_scenario: The analytical question to answer
+        rfp_context: RFP analysis context
+        trend_context: Market trends context
+
+    Returns:
+        str: Formatted analytical prompt
+    """
+
+    # Extract audience characteristics
+    if audience_profile.get('is_core', False):
+        characteristics = ', '.join(audience_profile.get('traits', []))
+        audience_desc = f"{audience_profile.get('description', 'Primary target audience')} with characteristics: {characteristics}"
+    elif 'segment_data' in audience_profile:
+        segment = audience_profile['segment_data']
+        targeting_params = segment.get('targeting_params', {})
+
+        char_parts = []
+        if 'age_range' in targeting_params:
+            char_parts.append(f"Age: {targeting_params['age_range']}")
+        if 'income_targeting' in targeting_params:
+            char_parts.append(f"Income: {targeting_params['income_targeting']}")
+        interests = segment.get('interest_categories', [])
+        if interests:
+            char_parts.append(f"Interests: {', '.join(interests[:3])}")
+
+        audience_desc = f"{audience_profile['name']} - {'; '.join(char_parts)}" if char_parts else audience_profile['name']
+    else:
+        audience_desc = f"{audience_profile['name']}: {audience_profile.get('description', 'Target audience')}"
+
+    return f"""Answer the following analytical question about the {audience_profile['name']} audience segment.
+
+Audience Profile: {audience_desc}
+{rfp_context}
+{trend_context}
+
+Analytical Question: "{user_scenario}"
+
+Provide a concise, insight-driven answer from a third-person analytical perspective. Focus on:
+1. Key psychological drivers and motivations specific to this audience segment
+2. Behavioral patterns and decision-making factors that distinguish this group
+3. Actionable insights relevant to marketing strategy for this specific segment
+
+Your response should explain how THIS PARTICULAR AUDIENCE SEGMENT relates to the question, highlighting what makes them unique.
+Maximum response: 200 characters."""
+
+def generate_message_testing_prompt(
+    audience_profile: Dict,
+    user_scenario: str,
+    rfp_context: str,
+    trend_context: str,
+    analysis_data: Optional[Dict] = None
+) -> str:
+    """
+    Generate prompt for message testing mode (existing behavior).
+    Predicts how audiences will react to marketing messages.
+
+    Args:
+        audience_profile: Audience segment information
+        user_scenario: The marketing message/scenario to test
+        rfp_context: RFP analysis context
+        trend_context: Market trends context
+        analysis_data: Optional RFP analysis data
+
+    Returns:
+        str: Formatted message testing prompt
+    """
+
     # Check if this is the core audience
     if audience_profile.get('is_core', False):
-        # Generate prompt for core audience
         characteristics = ', '.join(audience_profile.get('traits', []))
-        
+
         return f"""Analyze the Core Target Audience from the RFP analysis and predict their behavioral response.
         Description: {audience_profile.get('description', 'Primary target audience')}
         Key Characteristics: {characteristics}
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
-        
+
         Based on this core audience's primary business objectives, decision-making criteria, and expected outcomes, analyze how they would likely respond to this marketing scenario.
-        
+
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
         Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
         Maximum response: 200 characters."""
-    
+
     # Check if we have segment data in the profile
     elif 'segment_data' in audience_profile:
         segment = audience_profile['segment_data']
-        
+
         # Build characteristics from segment data
         characteristics = []
         targeting_params = segment.get('targeting_params', {})
-        
+
         if targeting_params:
             if 'age_range' in targeting_params:
                 characteristics.append(f"Age: {targeting_params['age_range']}")
@@ -77,42 +235,42 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
                 characteristics.append(f"Income: {targeting_params['income_targeting']}")
             if 'education_targeting' in targeting_params:
                 characteristics.append(f"Education: {targeting_params['education_targeting']}")
-        
+
         # Add interests
         interests = segment.get('interest_categories', [])
         if interests:
             characteristics.append(f"Interests: {', '.join(interests)}")
-        
+
         characteristics_str = '; '.join(characteristics) if characteristics else 'General audience characteristics'
-        
+
         # Build motivations from segment data
         motivations = []
         if 'bidding_strategy' in segment:
             bidding = segment['bidding_strategy']
             if 'strategy_type' in bidding:
                 motivations.append(f"{bidding['strategy_type']} focused")
-        
+
         # Add platform preferences
         if 'platform_targeting' in segment:
             platforms = [p.get('platform', '') for p in segment['platform_targeting'] if 'platform' in p]
             if platforms:
                 motivations.append(f"Active on {', '.join(platforms)}")
-        
+
         motivations_str = ', '.join(motivations) if motivations else 'General consumer motivations'
-        
+
         # Generate dynamic prompt
         return f"""Analyze {audience_profile['name']}: {audience_profile.get('description', 'a target audience segment')} and predict their behavioral response.
         Characteristics: {characteristics_str}
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
-        
+
         Based on this audience segment's characteristics and their {motivations_str}, analyze how they would likely respond to this marketing scenario.
-        
+
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
         Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
         Maximum response: 200 characters."""
-    
+
     # Fallback to hardcoded prompts if no segment data
     prompts = {
         'rfp-core-audience': f"""Analyze the RFP Core Audience: the primary target audience identified in the RFP analysis.
@@ -120,74 +278,149 @@ def generate_audience_prompt(audience_profile: Dict, user_scenario: str, analysi
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
-        
+
         Based on this RFP Core Audience's primary motivations around business results, strategic decision-making, and performance optimization, analyze how they would likely respond to this marketing scenario.
-        
+
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
         Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
         Maximum response: 200 characters.""",
-        
-        'growth-audience-1': f"""Analyze Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis. 
+
+        'growth-audience-1': f"""Analyze Growth Audience 1 - Urban Explorers: a tech-forward, sustainability-focused marketing audience from the RFP analysis.
         Characteristics: Innovation-driven, environmental consciousness, digital natives, urban lifestyle preferences.
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
-        
+
         Based on Growth Audience 1 (Urban Explorers) motivations around technology adoption, sustainability values, and innovative solutions, analyze how they would likely respond to this marketing scenario.
-        
+
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
         Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
         Maximum response: 200 characters.""",
-        
+
         'growth-audience-2': f"""Analyze Growth Audience 2 - Global Nomads: a luxury-lifestyle driven, health-conscious marketing audience from the RFP analysis.
         Characteristics: Premium experiences, wellness-focused, location independence, quality over quantity mindset.
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
-        
+
         Based on Growth Audience 2 (Global Nomads) motivations around luxury consumption, wellness priorities, and lifestyle flexibility, analyze how they would likely respond to this marketing scenario.
-        
+
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
         Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
         Maximum response: 200 characters.""",
-        
+
         'emerging-audience': f"""Analyze Emerging Audience 3 - Cultural Enthusiasts: a budget-conscious, experience-seeking marketing audience from the RFP analysis.
         Characteristics: Cultural immersion, value-oriented, authentic experiences, social connection priorities.
         {rfp_context}
         {trend_context}
         Marketing Scenario: "{user_scenario}"
-        
+
         Based on Emerging Audience 3 (Cultural Enthusiasts) motivations around cultural authenticity, value consciousness, and meaningful experiences, analyze how they would likely respond to this marketing scenario.
-        
+
         Provide a 1-2 sentence behavioral prediction that describes their expected reaction (positive, neutral, or negative).
         Your analysis should predict whether this audience would likely be excited, interested, skeptical, or concerned, using third-person perspective to describe their probable response.
         Maximum response: 200 characters."""
     }
-    
+
     return prompts.get(audience_profile['id'], prompts['rfp-core-audience'])
+
+def generate_audience_prompt(
+    audience_profile: Dict,
+    user_scenario: str,
+    analysis_data: Optional[Dict] = None,
+    intent_classification: Optional[Dict] = None
+) -> str:
+    """
+    Generate a prompt for the AI to simulate audience response or answer analytical questions.
+    Now supports both message testing and analytical inquiry modes.
+
+    Args:
+        audience_profile: Dictionary containing audience profile information
+        user_scenario: The marketing scenario to test OR analytical question
+        analysis_data: Optional RFP analysis data from the main analysis
+        intent_classification: Classification result from classify_input_intent()
+
+    Returns:
+        str: Formatted prompt for AI response generation
+    """
+
+    # Determine mode
+    mode = 'message_testing'  # Default
+    if intent_classification:
+        mode = intent_classification.get('intent', 'message_testing')
+
+    # Get RFP context if available
+    rfp_context = ""
+    if analysis_data:
+        rfp_context = f"""
+        Based on RFP Analysis:
+        - Industry: {analysis_data.get('industry', 'General')}
+        - Key Audience: {analysis_data.get('keyAudience', 'Professional')}
+        - Campaign Focus: {analysis_data.get('summary', 'Marketing campaign')}
+        """
+
+    # Include emerging market trends context
+    trend_context = """
+    Market Intelligence Context:
+    - Current trending topics in consumer behavior and digital marketing
+    - Emerging opportunities in sustainable business practices and wellness
+    - Rising interest in authentic brand experiences and premium lifestyle
+    """
+
+    # Route to appropriate prompt generator based on intent
+    if mode == 'analytical_inquiry':
+        return generate_analytical_prompt(
+            audience_profile,
+            user_scenario,
+            rfp_context,
+            trend_context
+        )
+    else:
+        return generate_message_testing_prompt(
+            audience_profile,
+            user_scenario,
+            rfp_context,
+            trend_context,
+            analysis_data
+        )
 
 def simulate_audience_response(audience_profile: Dict, user_scenario: str, analysis_data: Optional[Dict] = None) -> Dict:
     """
-    Simulate an audience response to a marketing scenario.
-    
+    Simulate an audience response to a marketing scenario OR answer analytical questions.
+    Now intelligently detects input intent and routes to appropriate AI prompt.
+
     Args:
         audience_profile: Dictionary containing audience profile information
-        user_scenario: The marketing scenario to test
+        user_scenario: The marketing scenario to test OR analytical question to answer
         analysis_data: Optional RFP analysis data
-    
+
     Returns:
         Dict: Audience response with metrics and insights
     """
-    
+
     # Check if OpenAI API is available
     if not os.environ.get("OPENAI_API_KEY"):
         # Generate a default response without AI
         return generate_default_response(audience_profile, user_scenario)
-    
+
     try:
-        prompt = generate_audience_prompt(audience_profile, user_scenario, analysis_data)
+        # NEW: Classify input intent to determine mode (message testing vs analytical)
+        intent_classification = classify_input_intent(user_scenario)
+
+        # Generate appropriate prompt based on intent classification
+        prompt = generate_audience_prompt(
+            audience_profile,
+            user_scenario,
+            analysis_data,
+            intent_classification  # NEW: Pass classification to prompt generator
+        )
         
         # Call OpenAI API
+        client = _get_openai_client()
+        if not client:
+            # No API key available, use fallback
+            raise Exception("OpenAI API key not available")
+
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
