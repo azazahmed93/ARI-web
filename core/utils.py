@@ -137,16 +137,11 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
     
     # Add title with brand name if available
     if brand_name != "Unknown":
-        content.append(Paragraph(f"{brand_name} Audience Resonance Index Scorecard", title_style))
+        content.append(Paragraph(f"Audience Resonance Index Scorecard", title_style))
     else:
         content.append(Paragraph("Audience Resonance Index Scorecard", title_style))
     content.append(Spacer(1, 12))
     
-    # Remove industry info as requested
-    if brand_name != "Unknown":
-        content.append(Paragraph(f"Brand: {brand_name}", 
-                               ParagraphStyle('BrandInfo', parent=normal_style, alignment=TA_CENTER)))
-        content.append(Spacer(1, 12))
     
     # Metric Breakdown
     if include_sections.get('metrics', True):
