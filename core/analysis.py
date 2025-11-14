@@ -27,7 +27,7 @@ industry_keywords = {
     "Fashion": ["fashion", "clothing", "apparel", "wear", "style", "outfit", "collection", "designer"],
     "Food & Beverage": ["food", "drink", "beverage", "restaurant", "taste", "flavor", "menu", "cuisine"],
     "Beauty": ["beauty", "cosmetic", "skincare", "makeup", "fragrance", "personal care", "grooming"],
-    "Automotive": ["car", "vehicle", "automotive", "drive", "driving", "model", "engine", "motor"],
+    "Automotive": ["car", "vehicle", "automotive", "driving", "model", "engine", "motor"],
     "Finance": ["bank", "finance", "credit", "loan", "payment", "wallet", "money", "financial"],
     "Healthcare": ["health", "medical", "wellness", "treatment", "patient", "clinic", "care", "therapeutic"],
     "Entertainment": ["entertainment", "movie", "music", "streaming", "game", "gaming", "artist", "show"]
