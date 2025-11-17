@@ -863,9 +863,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     start_time = st.session_state.get('journey_start_time', 0)
                     elapsed = time.time() - start_time
 
-                    if elapsed < 110:
+                    if elapsed < 140:
                         # Show countdown during expected generation time
-                        remaining = int(110 - elapsed)
+                        remaining = int(140 - elapsed)
                         st.info(f"""
                         🎯 **Consumer Journey Map - Generating...**
 
