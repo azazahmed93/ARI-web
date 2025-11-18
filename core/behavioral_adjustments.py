@@ -441,6 +441,82 @@ Generate correlations for ALL demographics, regardless of adjustment value."""
         return demographics
 
 
+def detect_target_race(audience_segment: Dict) -> Optional[str]:
+    """
+    Detect if the audience segment targets a specific race/ethnicity.
+
+    Analyzes the segment name, description, and targeting parameters to identify
+    if the campaign is race-specific (e.g., "Asian Professionals").
+
+    Args:
+        audience_segment: Audience segment with name, description, targeting_params
+
+    Returns:
+        Race name matching DEMOGRAPHIC_CATEGORIES or None if multi-racial
+    """
+    # Extract text to analyze
+    name = audience_segment.get('name', '').lower()
+    description = audience_segment.get('description', '').lower()
+    targeting_params = audience_segment.get('targeting_params', {})
+
+    # Combine all text for analysis
+    profile_text = f"{name} {description}".lower()
+
+    # Race keywords mapping to Census categories
+    race_keywords = {
+        'Asian': ['asian', 'asian american', 'aapi', 'pacific islander'],
+        'Hispanic or Latino': ['hispanic', 'latino', 'latina', 'latinx', 'latin american'],
+        'Black or African American': ['black', 'african american', 'afro-american'],
+        'White': ['white', 'caucasian', 'european american'],
+        'Native Hawaiian/Pacific Islander': ['hawaiian', 'pacific islander', 'polynesian'],
+        'Two or More Races': ['mixed', 'multiracial', 'biracial']
+    }
+
+    detected_races = []
+
+    # Check for race-specific keywords
+    for race, keywords in race_keywords.items():
+        if any(keyword in profile_text for keyword in keywords):
+            detected_races.append(race)
+
+    # If exactly one race detected, this is a race-specific segment
+    if len(detected_races) == 1:
+        logger.info(f"Detected race-specific segment: {detected_races[0]} for '{audience_segment.get('name')}'")
+        return detected_races[0]
+
+    # Multiple or no races detected = multi-racial segment
+    logger.debug(f"Multi-racial or general segment detected for '{audience_segment.get('name')}'")
+    return None
+
+
+def filter_demographics_by_race(demographics: Dict, target_race: str) -> Dict:
+    """
+    Filter Census demographics to show only the target race.
+
+    When a segment targets a specific race (e.g., "Asian Professionals"),
+    showing demographics for all races is misleading. This filters to show
+    only the relevant race data.
+
+    Args:
+        demographics: Full demographics dict with all races
+        target_race: Race to filter for (must match DEMOGRAPHIC_CATEGORIES)
+
+    Returns:
+        Filtered demographics dict containing only the target race
+    """
+    if not target_race or target_race not in DEMOGRAPHIC_CATEGORIES:
+        logger.warning(f"Invalid target race: {target_race}")
+        return demographics
+
+    # Create filtered dict with only the target race
+    filtered = {
+        target_race: demographics.get(target_race, {})
+    }
+
+    logger.info(f"Filtered demographics to show only: {target_race}")
+    return filtered
+
+
 def enrich_audience_with_demographics(
     audience_segment: Dict,
     census_data: Dict,
@@ -512,6 +588,14 @@ def enrich_audience_with_demographics(
             'final': round(final_value, 1),
             'direction': direction
         }
+
+    # NEW: Detect if this is a race-specific segment and filter accordingly
+    target_race = detect_target_race(audience_segment)
+    if target_race:
+        # This is a race-specific segment (e.g., "Asian Professionals")
+        # Filter demographics to show only the target race
+        demographics = filter_demographics_by_race(demographics, target_race)
+        logger.info(f"Applied race filtering for '{audience_segment.get('name')}': showing only {target_race}")
 
     # Generate AI-powered correlations and sources for each demographic
     demographics = generate_demographic_correlations_and_sources(
