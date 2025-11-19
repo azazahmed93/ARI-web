@@ -10,7 +10,6 @@ from core.ai_insights import (
 from core.utils import (
     create_pdf_download_link,
     create_infographic_download_link,
-    create_pptx_download_link,
 )
 from core.utils import is_siteone_hispanic_campaign
 from .detailed_metrics import detailed_metrics
