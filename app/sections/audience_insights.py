@@ -308,7 +308,7 @@ def audience_insights(is_siteone_hispanic):
 
                         # Dynamic height calculation
                         # Base: 200px, Per demographic: 60px
-                        dynamic_height = 620 + (demographics_count * 60)
+                        dynamic_height = 500 + (demographics_count * 80)
 
                         html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
                         components.html(html_code, height=dynamic_height, scrolling=True)
