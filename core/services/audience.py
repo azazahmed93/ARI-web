@@ -27,7 +27,8 @@ class AudienceService:
             devices=segment_data.get('devices', []),
             expected_ctr=segment_data.get('expected_ctr'),
             expected_vcr=segment_data.get('expected_vcr'),
-            ai_insight=segment_data.get('ai_insight')
+            ai_insight=segment_data.get('ai_insight'),
+            languageRecommendations=segment_data.get('languageRecommendations', None)
         )
     
     def _process_standard_segment(self, segment_data: Dict, segment_type: str) -> AudienceSegment:
@@ -36,6 +37,7 @@ class AudienceService:
         platform_targeting = segment_data.get('platform_targeting', [])
         performance = segment_data.get('expected_performance', {})
         demographics = segment_data.get('demographics', {})
+        language_recommendations = segment_data.get('languageRecommendations', None)
 
         return AudienceSegment(
             name=segment_data.get('name', 'Audience Segment'),
@@ -48,7 +50,8 @@ class AudienceService:
             targeting_params=targeting_params,
             platform_targeting=platform_targeting,
             expected_performance=performance,
-            demographics=demographics
+            demographics=demographics,
+            languageRecommendations=language_recommendations
         )
     
     def get_metrics(self, segment: AudienceSegment) -> Dict[str, str]:

@@ -74,7 +74,7 @@ class AudienceSegmentComponent:
         try:
             CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
             PARENT_DIR = os.path.dirname(CURRENT_DIR)
-            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html") 
+            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html")
 
             print(CURRENT_DIR)
             print(PARENT_DIR)
@@ -82,8 +82,17 @@ class AudienceSegmentComponent:
             with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
                 html_code = f.read()
 
+            # Calculate dynamic height based on demographics count
+            demographics_count = 6  # Default: all races
+            if hasattr(segment, 'demographics') and segment.demographics:
+                demographics_count = len(segment.demographics)
+
+            # Dynamic height calculation
+            # Base: 200px, Per demographic: 60px
+            dynamic_height = 620 + (demographics_count * 60)
+
             html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", segment_json)
-            components.html(html_code, height=500, scrolling=True)
+            components.html(html_code, height=dynamic_height, scrolling=True)
 
         except FileNotFoundError:
             st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")

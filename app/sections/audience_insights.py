@@ -301,8 +301,17 @@ def audience_insights(is_siteone_hispanic):
                         with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
                             html_code = f.read()
 
+                        # Calculate dynamic height based on demographics count
+                        demographics_count = 6  # Default: all races
+                        if 'demographics' in growth_segment:
+                            demographics_count = len(growth_segment['demographics'])
+
+                        # Dynamic height calculation
+                        # Base: 200px, Per demographic: 60px
+                        dynamic_height = 620 + (demographics_count * 60)
+
                         html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
-                        components.html(html_code, height=500, scrolling=True)
+                        components.html(html_code, height=dynamic_height, scrolling=True)
 
                     except FileNotFoundError:
                         st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")

@@ -572,9 +572,10 @@ def landing_layout(inner_content):
                                         try:
                                             from core.census_api import fetch_census_demographics, fetch_census_trends, map_state_to_fips
                                             from core.behavioral_adjustments import enrich_audience_with_demographics
+                                            from core.language_recommendations import enrich_segment_with_language_recommendations
 
                                             def enrich_single_segment(segment):
-                                                """Helper function to enrich a single segment with Census data"""
+                                                """Helper function to enrich a single segment with Census data and language recommendations"""
                                                 # Get primary state from AI-generated segment
                                                 primary_state = segment.get('primary_state')
 
@@ -613,6 +614,10 @@ def landing_layout(inner_content):
                                                 )
 
                                                 print(f"  ✓ Enriched '{segment.get('name')}' with Census demographics")
+
+                                                # Enrich with language recommendations based on demographics
+                                                enriched_segment = enrich_segment_with_language_recommendations(enriched_segment)
+
                                                 return enriched_segment
 
                                             # Create parallel tasks for each segment
