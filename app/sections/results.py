@@ -765,7 +765,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 html_code = f.read()
 
             html_code = html_code.replace("{{BRIEF_CONTENT}}", json.dumps(st.session_state.brief_text))
-            html_code = html_code.replace("{{AUDIENCE_SEGMENTS}}", json.dumps(st.session_state.audience_segments.get('segments', [])))
+
+            segments_data = st.session_state.audience_segments.get('segments', [])
+            core_audience = st.session_state.audience_summary['core_audience']
+
+            segments_with_insights =  [{'name': "Core Audience", 'audience_insights': core_audience}] + segments_data
+
+            html_code = html_code.replace("{{AUDIENCE_SEGMENTS}}", json.dumps(segments_with_insights))
             components.html(html_code, height=1200, scrolling=True)
 
         except FileNotFoundError:
