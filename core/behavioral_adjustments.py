@@ -491,29 +491,41 @@ def detect_target_race(audience_segment: Dict) -> Optional[str]:
 
 def filter_demographics_by_race(demographics: Dict, target_race: str) -> Dict:
     """
-    Filter Census demographics to show only the target race.
+    Filter Census demographics to show only the target race with 100% composition.
 
     When a segment targets a specific race (e.g., "Asian Professionals"),
     showing demographics for all races is misleading. This filters to show
-    only the relevant race data.
+    only the relevant race data and sets the percentage to 100% since
+    100% of the target audience belongs to that race by definition.
 
     Args:
         demographics: Full demographics dict with all races
         target_race: Race to filter for (must match DEMOGRAPHIC_CATEGORIES)
 
     Returns:
-        Filtered demographics dict containing only the target race
+        Filtered demographics dict containing only the target race at 100%
     """
     if not target_race or target_race not in DEMOGRAPHIC_CATEGORIES:
         logger.warning(f"Invalid target race: {target_race}")
         return demographics
 
-    # Create filtered dict with only the target race
+    # Get the original data for the target race
+    original_data = demographics.get(target_race, {})
+
+    # Create a copy with 100% for the target race
+    # Since this is a race-specific segment, 100% of the audience IS that race
+    filtered_data = original_data.copy() if isinstance(original_data, dict) else {}
+    filtered_data['final'] = 100.0
+    filtered_data['base'] = 100.0
+    filtered_data['adjustment'] = 0.0
+    filtered_data['yoy_change'] = 0.0
+    filtered_data['direction'] = 'stable'
+
     filtered = {
-        target_race: demographics.get(target_race, {})
+        target_race: filtered_data
     }
 
-    logger.info(f"Filtered demographics to show only: {target_race}")
+    logger.info(f"Filtered demographics to show only: {target_race} at 100%")
     return filtered
 
 
