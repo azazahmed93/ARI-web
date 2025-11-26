@@ -58,32 +58,35 @@ Audience Profile:
 Demographics Composition (% of audience):
 {json.dumps(significant_demographics, indent=2)}
 
-Based on US Census Bureau language data and research patterns, generate language recommendations for advertising to this audience.
+Analyze the audience name and description above to infer contextual factors, then generate DYNAMIC language recommendations. Language usage varies significantly based on:
 
-For EACH demographic group that represents >5% of the audience, provide:
-1. The demographic name (exactly as shown above)
+**Key Variation Factors:**
+1. **Generation/Age**: Younger generations (Gen Z, Millennials) trend more English-dominant; older generations maintain heritage languages more strongly
+2. **Geographic Region**: Border states (TX, CA, AZ, NM, FL) have higher heritage language retention; Midwest/Northeast varies by metro area
+3. **Urbanicity**: Major metros have higher multilingual populations; rural areas vary by region
+4. **Income/Education**: Higher education correlates with bilingualism; varies by community
+5. **Acculturation Level**: Recent immigrants vs. 2nd/3rd generation Americans show different patterns
+
+**US Census Reference Ranges (adjust based on context above):**
+- Hispanic/Latino: Spanish 45-78% (higher in border states, older demos; lower in Midwest, younger demos)
+- Asian: Heritage languages 55-85% (varies greatly by specific ethnicity and generation)
+- Two or More Races: Multilingual 35-65% (depends on specific heritage mix)
+- Black/African American: English 88-97%, heritage languages 3-12% (higher in immigrant communities)
+- White: English 90-98%, heritage languages 2-10% (varies by European origin, region)
+
+For EACH demographic group >5% of audience, provide:
+1. The demographic name (exactly as shown in composition)
 2. Their percentage of the total audience
-3. Language breakdown with:
-   - Language name
-   - Percentage of that demographic speaking this language
-   - Research-backed description citing US Census data
-   - A hex color code for visualization
+3. Language breakdown with contextually-adjusted percentages based on the audience signals above
+4. Brief description explaining WHY this percentage applies to THIS specific audience
 
-Use these research patterns:
-- Hispanic or Latino: ~68% Spanish-speaking households, ~32% English-only (US Census Bureau)
-- Asian: ~75% heritage languages (Chinese, Tagalog, Vietnamese, Korean, Hindi, etc.), ~25% English-only
-- Two or More Races: ~55% bilingual/multilingual households, ~45% English-only
-- Black or African American: ~95% English, ~5% African/Caribbean heritage languages
-- White: ~95% English, ~5% European heritage languages
-
-Important guidelines:
-- Only include demographics that are present in the audience composition
-- Percentages within each demographic's languages should sum to 100%
-- Use realistic US Census-based data
-- Provide clear, actionable descriptions for marketers
+Important:
+- DO NOT use generic/default percentages - adjust based on audience context
+- Percentages within each demographic's languages must sum to 100%
+- Provide actionable insights specific to this audience
 - Use distinct, accessible colors for visualization
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON:
 [
   {{
     "demographic": "Hispanic or Latino",
@@ -91,21 +94,21 @@ Return ONLY valid JSON in this exact format:
     "languages": [
       {{
         "language": "Spanish",
-        "percentage": 68,
-        "description": "US Census data shows ~68% of Hispanic/Latino households speak Spanish at home",
+        "percentage": 58,
+        "description": "This younger, urban audience in the Midwest shows moderate Spanish retention typical of 2nd-generation households",
         "color": "#10b981"
       }},
       {{
         "language": "English",
-        "percentage": 32,
-        "description": "Remaining ~32% are English-only or bilingual households",
+        "percentage": 42,
+        "description": "Higher English-only rate reflects millennial/Gen-Z acculturation patterns in non-border states",
         "color": "#3b82f6"
       }}
     ]
   }}
 ]
 
-Generate language recommendations for ALL demographics present in the composition."""
+Generate contextually-appropriate language recommendations for ALL demographics present."""
 
         # Use make_openai_request utility function
         response = make_openai_request(
