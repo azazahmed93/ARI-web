@@ -175,7 +175,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     journey_tab_name = "Consumer Journey" if st.session_state.is_gm_user else "Resonance Pathway"
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11, tab12 = st.tabs([
         "Detailed Metrics", 
         "Audience Insights", 
         "Media Affinities", 
@@ -185,6 +185,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Audience Simulation",
         "Journey Environments",
         "Cultural Moments",
+        "Catalyst Partners",
         journey_tab_name,
         "Next Steps"
     ])
@@ -780,6 +781,23 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         except Exception as e:
             st.error(f"An error occurred: {e}")
     with tab10:
+        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "catalyst-partners/index.html") 
+
+        try:
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+
+            html_code = html_code.replace("{{RFP_BRIEF}}", st.session_state.brief_text)
+            components.html(html_code, height=1000, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+    with tab11:
         # Journey tab with Lambda polling logic
         # Check if journey generation is in progress or completed
         if st.session_state.get('journey_request_id') or st.session_state.get('journey_task_id'):
@@ -911,7 +929,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         else:
             st.info("💡 Journey generation not initiated. Please run a new analysis.")
                 
-    with tab11:
+    with tab12:
         next_steps()
 
 
