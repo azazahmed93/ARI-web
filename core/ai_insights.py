@@ -200,16 +200,16 @@ def fix_grammar_and_duplicates(text):
 def ensure_valid_url_in_sites(site_data):
     """
     Ensures all site data has valid URLs or replaces missing URLs with empty strings.
-    
+
     Args:
         site_data (list): List of site data dictionaries
-        
+
     Returns:
         list: List of site data with validated URLs
     """
     if not site_data:
         return []
-        
+
     result = []
     for site in site_data:
         site_copy = site.copy()
@@ -217,6 +217,349 @@ def ensure_valid_url_in_sites(site_data):
             site_copy['url'] = ""
         result.append(site_copy)
     return result
+
+
+# Industry Classification Constants
+INDUSTRY_LIST = [
+    "Sports & Athletics",
+    "Technology & Software",
+    "Fashion & Apparel",
+    "Food & Beverage",
+    "Beauty & Personal Care",
+    "Automotive & Vehicles",
+    "Finance & Banking",
+    "Healthcare & Medical",
+    "Entertainment & Media",
+    "Home & Living",
+    "Wellness & Fitness",
+    "Luxury & Premium",
+    "Travel & Hospitality",
+    "Retail & E-commerce",
+    "Education & Learning"
+]
+
+# Mapping from new industry names to legacy names for backward compatibility
+INDUSTRY_LEGACY_MAP = {
+    "Sports & Athletics": "Sports",
+    "Technology & Software": "Technology",
+    "Fashion & Apparel": "Fashion",
+    "Food & Beverage": "Food & Beverage",
+    "Beauty & Personal Care": "Beauty",
+    "Automotive & Vehicles": "Automotive",
+    "Finance & Banking": "Finance",
+    "Healthcare & Medical": "Healthcare",
+    "Entertainment & Media": "Entertainment",
+    "Home & Living": "Home & Living",
+    "Wellness & Fitness": "Wellness",
+    "Luxury & Premium": "Luxury",
+    "Travel & Hospitality": "Travel",
+    "Retail & E-commerce": "Retail",
+    "Education & Learning": "Education"
+}
+
+INDUSTRY_CLASSIFICATION_PROMPT = """You are an expert marketing industry classifier. Your task is to classify a campaign brief into ONE of these 15 industries.
+
+INDUSTRIES:
+1. Sports & Athletics - Professional/amateur sports, athletic competitions, sports teams, athletic gear for competition
+2. Technology & Software - Software, hardware, SaaS, apps, IT services, electronics, gadgets
+3. Fashion & Apparel - Clothing, accessories, footwear, designer brands, fashion retail
+4. Food & Beverage - Restaurants, packaged food, drinks, alcohol, grocery, meal delivery
+5. Beauty & Personal Care - Cosmetics, skincare, haircare, fragrances, grooming products
+6. Automotive & Vehicles - Cars, motorcycles, trucks, dealerships, auto parts, vehicle services
+7. Finance & Banking - Banks, investments, insurance, fintech, credit cards, loans
+8. Healthcare & Medical - Hospitals, pharmaceuticals, medical devices, health insurance, clinical services
+9. Entertainment & Media - Movies, TV, music, gaming, streaming, publishing, news
+10. Home & Living - Furniture, home decor, appliances, home improvement, real estate
+11. Wellness & Fitness - Gyms, personal training, yoga, meditation, nutrition supplements, mental health apps, holistic health, self-care, wellness rituals
+12. Luxury & Premium - High-end brands across categories emphasizing exclusivity, heritage, craftsmanship
+13. Travel & Hospitality - Airlines, hotels, tourism, vacation rentals, travel agencies
+14. Retail & E-commerce - General retail, marketplaces, department stores, shopping platforms
+15. Education & Learning - Schools, universities, online courses, EdTech, professional training
+
+CRITICAL DISAMBIGUATION RULES - READ CAREFULLY:
+- "driving awareness/engagement/sales/adoption" = marketing term, NOT Automotive
+- "performance metrics/optimization/marketing" = marketing term, NOT Sports
+- "model results/business model/data model" = general term, NOT Automotive
+- "game-changing/game plan/game theory" = idiom, NOT Entertainment
+- "customer care/take care/self-care" = general term, NOT Healthcare (unless explicitly medical)
+- "training employees/sales training/training materials" = corporate term, NOT Sports
+- "running costs/running a campaign/running ads" = operational term, NOT Sports
+- "premium quality/premium brand" without explicit luxury positioning = use actual industry, NOT Luxury
+
+KEY DISTINCTIONS:
+- Wellness & Fitness (holistic health, self-care, mindfulness, wellness rituals, personal wellbeing) is DIFFERENT from Healthcare & Medical (hospitals, doctors, pharmaceuticals, medical treatment)
+- Wellness & Fitness (personal fitness, gym, training) is DIFFERENT from Sports & Athletics (athletic competition, sports teams, professional sports)
+- Home & Living (furniture, decor, real estate) is DIFFERENT from Retail & E-commerce (general marketplace)
+
+Analyze the campaign brief below and return a JSON object with:
+- "industry": The best matching industry name (exactly as listed above)
+- "confidence": A number from 0.0 to 1.0 indicating confidence
+- "reasoning": A brief 1-2 sentence explanation of your classification
+
+Return ONLY valid JSON, no other text."""
+
+
+def classify_industry(brief_text: str, use_fallback_only: bool = False) -> dict:
+    """
+    Classify campaign industry using GPT-4o with confidence scoring.
+    Falls back to keyword matching if AI is unavailable.
+
+    Args:
+        brief_text: The marketing brief or RFP text to classify
+        use_fallback_only: If True, skip AI and use keyword fallback only
+
+    Returns:
+        dict: {
+            "industry": str (the classified industry),
+            "industry_legacy": str (legacy name for backward compatibility),
+            "confidence": float (0.0-1.0),
+            "reasoning": str (explanation for the classification),
+            "source": str ("ai" or "fallback")
+        }
+    """
+    if not brief_text or len(brief_text.strip()) < 50:
+        return {
+            "industry": "General",
+            "industry_legacy": "General",
+            "confidence": 0.0,
+            "reasoning": "Brief text too short to classify",
+            "source": "fallback"
+        }
+
+    # Try AI classification first unless fallback-only mode
+    if not use_fallback_only:
+        try:
+            result = make_openai_request(
+                messages=[
+                    {"role": "system", "content": INDUSTRY_CLASSIFICATION_PROMPT},
+                    {"role": "user", "content": f"Classify this campaign brief:\n\n{brief_text[:3000]}"}
+                ],
+                model="gpt-4o",
+                response_format={"type": "json_object"},
+                temperature=0.3,  # Lower temperature for more consistent classification
+                max_tokens=200,
+                max_retries=2,
+                initial_delay=0.5
+            )
+
+            if result and "industry" in result:
+                industry = result.get("industry", "General")
+                confidence = float(result.get("confidence", 0.7))
+                reasoning = result.get("reasoning", "")
+
+                # Validate industry is in our list
+                if industry in INDUSTRY_LIST:
+                    legacy_name = INDUSTRY_LEGACY_MAP.get(industry, industry)
+                    print(f"✅ AI Industry Classification: {industry} (confidence: {confidence:.2f})")
+                    return {
+                        "industry": industry,
+                        "industry_legacy": legacy_name,
+                        "confidence": confidence,
+                        "reasoning": reasoning,
+                        "source": "ai"
+                    }
+                else:
+                    # Try to match partial industry name
+                    for ind in INDUSTRY_LIST:
+                        if industry.lower() in ind.lower() or ind.lower() in industry.lower():
+                            legacy_name = INDUSTRY_LEGACY_MAP.get(ind, ind)
+                            print(f"✅ AI Industry Classification (matched): {ind} (confidence: {confidence:.2f})")
+                            return {
+                                "industry": ind,
+                                "industry_legacy": legacy_name,
+                                "confidence": confidence * 0.9,  # Slightly lower confidence for partial match
+                                "reasoning": reasoning,
+                                "source": "ai"
+                            }
+
+                    print(f"⚠️ AI returned unknown industry: {industry}, using fallback")
+
+        except Exception as e:
+            print(f"⚠️ AI classification failed: {e}, using fallback")
+
+    # Fallback to keyword-based classification
+    return classify_industry_fallback(brief_text)
+
+
+def classify_industry_fallback(brief_text: str) -> dict:
+    """
+    Fallback keyword-based industry classification with improved accuracy.
+    Uses word boundary matching and compound phrases to reduce false positives.
+
+    Args:
+        brief_text: The marketing brief text to classify
+
+    Returns:
+        dict: Classification result with industry, confidence, and source
+    """
+    text_lower = brief_text.lower()
+
+    # Industry keywords with word boundary matching
+    # Each industry has: primary keywords (high weight), secondary keywords (medium weight), compound phrases (highest weight)
+    industry_patterns = {
+        "Sports & Athletics": {
+            "primary": ["athlete", "athletic", "sports team", "championship", "tournament", "league", "stadium"],
+            "secondary": ["sports", "competition", "coach", "player", "match", "game day"],
+            "compounds": ["professional athlete", "sports league", "athletic competition", "sports marketing", "team sports"],
+            "negative": ["esports", "gaming"]  # These should go to Entertainment
+        },
+        "Technology & Software": {
+            "primary": ["software", "saas", "api", "cloud computing", "artificial intelligence", "machine learning", "cybersecurity"],
+            "secondary": ["tech", "digital platform", "app development", "hardware", "electronics", "gadget"],
+            "compounds": ["software development", "tech startup", "digital transformation", "it services"],
+            "negative": []
+        },
+        "Fashion & Apparel": {
+            "primary": ["fashion", "clothing", "apparel", "footwear", "runway", "couture", "designer brand"],
+            "secondary": ["outfit", "wardrobe", "garment", "accessory", "style", "collection"],
+            "compounds": ["fashion brand", "clothing line", "fashion week", "apparel company"],
+            "negative": []
+        },
+        "Food & Beverage": {
+            "primary": ["restaurant", "cuisine", "chef", "recipe", "food product", "beverage brand"],
+            "secondary": ["food", "drink", "menu", "dining", "snack", "grocery"],
+            "compounds": ["food brand", "beverage company", "meal delivery", "food service"],
+            "negative": []
+        },
+        "Beauty & Personal Care": {
+            "primary": ["cosmetics", "skincare", "makeup", "fragrance", "haircare", "beauty brand"],
+            "secondary": ["beauty", "grooming", "personal care", "complexion"],
+            "compounds": ["beauty product", "skincare routine", "cosmetic brand", "beauty industry"],
+            "negative": []
+        },
+        "Automotive & Vehicles": {
+            "primary": ["car", "vehicle", "automobile", "dealership", "automotive", "engine", "suv", "sedan", "truck"],
+            "secondary": ["motor", "auto", "driving experience", "road trip"],
+            "compounds": ["car brand", "automotive industry", "vehicle manufacturer", "auto dealer"],
+            "negative": ["driving awareness", "driving engagement", "driving sales", "driving adoption", "driving growth"]
+        },
+        "Finance & Banking": {
+            "primary": ["bank", "investment", "insurance", "credit card", "loan", "mortgage", "fintech"],
+            "secondary": ["finance", "financial", "banking", "wealth", "savings"],
+            "compounds": ["financial services", "banking industry", "investment firm", "credit union"],
+            "negative": []
+        },
+        "Healthcare & Medical": {
+            "primary": ["hospital", "pharmaceutical", "medical device", "clinical", "doctor", "patient care", "therapy"],
+            "secondary": ["healthcare", "medical", "treatment", "diagnosis", "prescription"],
+            "compounds": ["healthcare provider", "medical treatment", "pharmaceutical company", "health insurance"],
+            "negative": ["wellness", "self-care", "holistic", "mindfulness", "meditation"]
+        },
+        "Entertainment & Media": {
+            "primary": ["movie", "film", "television", "tv show", "streaming", "music", "gaming", "esports", "podcast"],
+            "secondary": ["entertainment", "media", "content", "artist", "studio", "production"],
+            "compounds": ["entertainment industry", "streaming service", "music label", "video game", "media company"],
+            "negative": []
+        },
+        "Home & Living": {
+            "primary": ["furniture", "home decor", "interior design", "real estate", "home appliance", "kitchen", "bedroom"],
+            "secondary": ["home", "living space", "household", "renovation", "property"],
+            "compounds": ["home improvement", "interior design", "home furnishing", "real estate company"],
+            "negative": []
+        },
+        "Wellness & Fitness": {
+            "primary": ["wellness", "fitness", "gym", "yoga", "meditation", "mindfulness", "holistic", "self-care"],
+            "secondary": ["workout", "exercise", "nutrition", "mental health", "wellbeing", "balance", "harmony"],
+            "compounds": ["wellness brand", "fitness center", "wellness routine", "holistic health", "wellness ritual", "personal wellness", "wellness philosophy"],
+            "negative": ["hospital", "pharmaceutical", "prescription", "diagnosis"]
+        },
+        "Luxury & Premium": {
+            "primary": ["luxury", "high-end", "exclusive", "prestige", "heritage", "craftsmanship", "bespoke"],
+            "secondary": ["premium", "elite", "affluent", "sophisticated"],
+            "compounds": ["luxury brand", "high-end product", "luxury lifestyle", "premium experience"],
+            "negative": []
+        },
+        "Travel & Hospitality": {
+            "primary": ["travel", "hotel", "airline", "resort", "vacation", "tourism", "destination"],
+            "secondary": ["hospitality", "booking", "journey", "adventure", "accommodation"],
+            "compounds": ["travel brand", "hotel chain", "travel agency", "hospitality industry"],
+            "negative": []
+        },
+        "Retail & E-commerce": {
+            "primary": ["retail", "ecommerce", "e-commerce", "marketplace", "shopping", "store", "checkout"],
+            "secondary": ["shop", "purchase", "consumer", "cart", "inventory"],
+            "compounds": ["retail brand", "online store", "retail chain", "shopping platform", "e-commerce platform"],
+            "negative": []
+        },
+        "Education & Learning": {
+            "primary": ["education", "university", "school", "course", "curriculum", "student", "learning platform"],
+            "secondary": ["learning", "edtech", "certification", "academic", "classroom"],
+            "compounds": ["online course", "education technology", "learning management", "educational institution"],
+            "negative": ["corporate training", "sales training", "employee training"]
+        }
+    }
+
+    scores = {}
+
+    for industry, patterns in industry_patterns.items():
+        score = 0
+
+        # Check for negative keywords first - if found, skip scoring positive keywords
+        negative_found = False
+        for neg in patterns.get("negative", []):
+            if neg in text_lower:
+                negative_found = True
+                break
+
+        if negative_found:
+            # Industry has negative signals, give minimal score
+            scores[industry] = 0.1
+            continue
+
+        # Check compound phrases (highest weight = 5)
+        for compound in patterns.get("compounds", []):
+            if compound in text_lower:
+                score += 5 * text_lower.count(compound)
+
+        # Check primary keywords with word boundaries (weight = 3)
+        for keyword in patterns.get("primary", []):
+            # Use simple word boundary check
+            import re
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            matches = re.findall(pattern, text_lower)
+            score += 3 * len(matches)
+
+        # Check secondary keywords (weight = 1)
+        for keyword in patterns.get("secondary", []):
+            import re
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            matches = re.findall(pattern, text_lower)
+            score += 1 * len(matches)
+
+        scores[industry] = score
+
+    # Find the industry with highest score
+    if not scores or max(scores.values()) == 0:
+        return {
+            "industry": "General",
+            "industry_legacy": "General",
+            "confidence": 0.3,
+            "reasoning": "No strong industry signals detected in brief",
+            "source": "fallback"
+        }
+
+    best_industry = max(scores, key=scores.get)
+    best_score = scores[best_industry]
+
+    # Calculate confidence based on score magnitude and margin over second place
+    sorted_scores = sorted(scores.values(), reverse=True)
+    margin = (sorted_scores[0] - sorted_scores[1]) / max(sorted_scores[0], 1) if len(sorted_scores) > 1 else 1.0
+
+    # Confidence calculation: base on score magnitude and margin
+    confidence = min(0.9, 0.3 + (best_score / 50) + (margin * 0.3))
+
+    legacy_name = INDUSTRY_LEGACY_MAP.get(best_industry, best_industry)
+
+    print(f"📊 Fallback Industry Classification: {best_industry} (confidence: {confidence:.2f}, score: {best_score})")
+
+    return {
+        "industry": best_industry,
+        "industry_legacy": legacy_name,
+        "confidence": confidence,
+        "reasoning": f"Keyword matching found {best_score} signals for {best_industry}",
+        "source": "fallback"
+    }
+
 
 def generate_deep_insights(brief_text, ari_scores):
     """

@@ -93,7 +93,9 @@ REGION_TO_STATES = {
 }
 
 # Industry-specific default states (ordered by market size)
+# Updated to include all 15 industries
 INDUSTRY_DEFAULT_STATES = {
+    # Original 9 industries
     'technology': ['California', 'Washington', 'Texas', 'New York', 'Massachusetts'],
     'fashion': ['New York', 'California', 'Florida', 'Texas', 'Illinois'],
     'automotive': ['Michigan', 'Texas', 'California', 'Ohio', 'Indiana'],
@@ -101,8 +103,16 @@ INDUSTRY_DEFAULT_STATES = {
     'entertainment': ['California', 'New York', 'Tennessee', 'Florida', 'Georgia'],
     'healthcare': ['California', 'Texas', 'New York', 'Florida', 'Pennsylvania'],
     'food': ['California', 'Texas', 'Illinois', 'Florida', 'New York'],
+    'food & beverage': ['California', 'Texas', 'Illinois', 'Florida', 'New York'],
     'beauty': ['California', 'New York', 'Florida', 'Texas', 'Illinois'],
     'sports': ['California', 'Texas', 'Florida', 'New York', 'Pennsylvania'],
+    # New 6 industries
+    'home & living': ['California', 'Texas', 'Florida', 'New York', 'North Carolina'],
+    'wellness': ['California', 'Colorado', 'New York', 'Florida', 'Arizona'],
+    'luxury': ['New York', 'California', 'Florida', 'Texas', 'Nevada'],
+    'travel': ['Florida', 'California', 'Nevada', 'Hawaii', 'New York'],
+    'retail': ['California', 'Texas', 'New York', 'Florida', 'Illinois'],
+    'education': ['California', 'Texas', 'New York', 'Massachusetts', 'Pennsylvania'],
 }
 
 # Top 10 states by population (default for national campaigns)

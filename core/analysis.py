@@ -21,65 +21,75 @@ except LookupError:
     # Since punkt_tab might not be directly downloadable, we'll modify our code to use punkt instead
     pass
 
+# Import AI-based industry classifier
+try:
+    from core.ai_insights import classify_industry, INDUSTRY_LEGACY_MAP
+    AI_CLASSIFIER_AVAILABLE = True
+except ImportError:
+    AI_CLASSIFIER_AVAILABLE = False
+    print("⚠️ AI industry classifier not available, using keyword fallback only")
+
+# Legacy industry keywords - kept for backward compatibility and fallback
+# NOTE: These are simplified keywords. The AI classifier (classify_industry) handles disambiguation
 industry_keywords = {
-    "Sports": ["sports", "athletic", "fitness", "running", "training", "performance", "athleisure"],
-    "Technology": ["tech", "digital", "software", "hardware", "electronics", "device", "app", "technology"],
-    "Fashion": ["fashion", "clothing", "apparel", "wear", "style", "outfit", "collection", "designer"],
-    "Food & Beverage": ["food", "drink", "beverage", "restaurant", "taste", "flavor", "menu", "cuisine"],
-    "Beauty": ["beauty", "cosmetic", "skincare", "makeup", "fragrance", "personal care", "grooming"],
-    "Automotive": ["car", "vehicle", "automotive", "driving", "model", "engine", "motor"],
-    "Finance": ["bank", "finance", "credit", "loan", "payment", "wallet", "money", "financial"],
-    "Healthcare": ["health", "medical", "wellness", "treatment", "patient", "clinic", "care", "therapeutic"],
-    "Entertainment": ["entertainment", "movie", "music", "streaming", "game", "gaming", "artist", "show"]
+    "Sports": ["sports", "athletic", "athlete", "championship", "tournament", "league", "stadium"],
+    "Technology": ["software", "saas", "api", "cloud", "cybersecurity", "machine learning", "electronics"],
+    "Fashion": ["fashion", "clothing", "apparel", "footwear", "runway", "couture", "designer"],
+    "Food & Beverage": ["restaurant", "cuisine", "chef", "recipe", "food", "beverage", "dining"],
+    "Beauty": ["cosmetics", "skincare", "makeup", "fragrance", "haircare", "beauty", "grooming"],
+    "Automotive": ["car", "vehicle", "automobile", "dealership", "automotive", "suv", "sedan"],
+    "Finance": ["bank", "investment", "insurance", "credit card", "loan", "mortgage", "fintech"],
+    "Healthcare": ["hospital", "pharmaceutical", "medical device", "clinical", "doctor", "patient care"],
+    "Entertainment": ["movie", "film", "television", "streaming", "music", "gaming", "esports"],
+    "Home & Living": ["furniture", "home decor", "interior design", "real estate", "home appliance"],
+    "Wellness": ["wellness", "fitness", "gym", "yoga", "meditation", "mindfulness", "holistic"],
+    "Luxury": ["luxury", "high-end", "exclusive", "prestige", "heritage", "craftsmanship"],
+    "Travel": ["travel", "hotel", "airline", "resort", "vacation", "tourism", "destination"],
+    "Retail": ["retail", "ecommerce", "marketplace", "shopping", "store", "checkout"],
+    "Education": ["education", "university", "school", "course", "curriculum", "student", "learning"]
 }
 
 def extract_brand_info(brief_text):
     """
     Extract brand name and industry from the campaign brief.
-    
+    Uses AI-first classification for industry detection with keyword fallback.
+
     Args:
         brief_text (str): The campaign brief text to analyze
-        
+
     Returns:
         tuple: (brand_name, industry, product_type)
     """
     text = brief_text.lower()
-    
+
     # Common brand indicators in RFPs
     brand_indicators = [
-        r'brand:\s*([A-Za-z0-9\s]+)', 
+        r'brand:\s*([A-Za-z0-9\s]+)',
         r'client:\s*([A-Za-z0-9\s]+)',
         r'company:\s*([A-Za-z0-9\s]+)',
         r'([A-Za-z0-9\s]+)\s*campaign',
         r'([A-Za-z0-9\s]+)\s*brand',
     ]
-    
-    # Common industry indicators
-    industry_indicators = [
-        r'industry:\s*([A-Za-z0-9\s]+)',
-        r'sector:\s*([A-Za-z0-9\s]+)',
-        r'category:\s*([A-Za-z0-9\s]+)'
-    ]
-    
+
     # Common product type indicators
     product_indicators = [
         r'product:\s*([A-Za-z0-9\s]+)',
         r'product type:\s*([A-Za-z0-9\s]+)',
         r'offering:\s*([A-Za-z0-9\s]+)'
     ]
-    
+
     # Default values
     brand_name = "Unknown"
     industry = "General"
     product_type = "Product"
-    
+
     # Try to extract brand name
     for pattern in brand_indicators:
         matches = re.search(pattern, text)
         if matches:
             brand_name = matches.group(1).strip().title()
             break
-    
+
     # If brand name still unknown, look for capitalized names that appear frequently
     if brand_name == "Unknown":
         # Find all capitalized words (potential brand names)
@@ -88,45 +98,47 @@ def extract_brand_info(brief_text):
         for word in words:
             if len(word) > 1:  # Ignore single letters
                 word_count[word] = word_count.get(word, 0) + 1
-        
+
         # Get most frequent capitalized word
         if word_count:
             brand_name = max(word_count.items(), key=lambda x: x[1])[0]
-    
-    # Try to extract industry
-    for pattern in industry_indicators:
-        matches = re.search(pattern, text)
-        if matches:
-            industry = matches.group(1).strip().title()
-            break
-    
-    # If industry still unknown, try to infer from content
-    if industry == "General":
-        # Count industry keywords in text
-        industry_scores = {ind: 0 for ind in industry_keywords}
-        for ind, keywords in industry_keywords.items():
-            for keyword in keywords:
-                if keyword in text:
-                    industry_scores[ind] += text.count(keyword)
-        
-        # Get industry with highest score
-        if any(industry_scores.values()):
-            industry = max(industry_scores.items(), key=lambda x: x[1])[0]
-    
+
+    # Special case handling for Apple TV+ (before AI classification)
+    if ("apple" in text) and any(tv_term in text for tv_term in ["tv+", "tv plus", "apple tv", "streaming", "original series"]):
+        brand_name = "Apple"
+        industry = "Entertainment"
+        product_type = "Streaming"
+        return brand_name, industry, product_type
+
+    # =====================================================================
+    # AI-FIRST INDUSTRY CLASSIFICATION
+    # Uses GPT-4o for accurate industry detection, falls back to keywords
+    # =====================================================================
+    if AI_CLASSIFIER_AVAILABLE:
+        try:
+            classification = classify_industry(brief_text)
+            if classification and classification.get("confidence", 0) >= 0.5:
+                # Use the legacy name for backward compatibility with existing code
+                industry = classification.get("industry_legacy", classification.get("industry", "General"))
+                print(f"🎯 Industry classified by AI: {industry} (confidence: {classification.get('confidence', 0):.2f})")
+            else:
+                # Low confidence - fall back to keyword matching
+                print(f"⚠️ AI classification confidence too low ({classification.get('confidence', 0):.2f}), using keywords")
+                industry = _extract_industry_by_keywords(text)
+        except Exception as e:
+            print(f"⚠️ AI classification error: {e}, falling back to keywords")
+            industry = _extract_industry_by_keywords(text)
+    else:
+        # AI classifier not available, use keyword matching
+        industry = _extract_industry_by_keywords(text)
+
     # Try to extract product type
     for pattern in product_indicators:
         matches = re.search(pattern, text)
         if matches:
             product_type = matches.group(1).strip().title()
             break
-    
-    # Special case handling for Apple TV+
-    if ("apple" in text) and any(tv_term in text for tv_term in ["tv+", "tv plus", "apple tv", "streaming", "original series"]):
-        brand_name = "Apple"
-        industry = "Entertainment"
-        product_type = "Streaming"
-        return brand_name, industry, product_type
-        
+
     # If product type still unknown, try to infer from content
     if product_type == "Product":
         product_keywords = {
@@ -137,21 +149,61 @@ def extract_brand_info(brief_text):
             "Food": ["food", "snack", "meal", "nutrition", "diet", "edible"],
             "Beverage": ["drink", "beverage", "liquid", "refreshment", "hydration"],
             "Service": ["service", "assistance", "support", "help", "subscription"],
-            "Streaming": ["streaming", "content", "show", "episode", "series", "tv+", "tv plus", "original"]
+            "Streaming": ["streaming", "content", "show", "episode", "series", "tv+", "tv plus", "original"],
+            "Wellness": ["wellness", "self-care", "holistic", "mindfulness", "meditation", "yoga"]
         }
-        
+
         # Count product keywords in text
         product_scores = {prod: 0 for prod in product_keywords}
         for prod, keywords in product_keywords.items():
             for keyword in keywords:
                 if keyword in text:
                     product_scores[prod] += text.count(keyword)
-        
+
         # Get product with highest score
         if any(product_scores.values()):
             product_type = max(product_scores.items(), key=lambda x: x[1])[0]
-    
+
     return brand_name, industry, product_type
+
+
+def _extract_industry_by_keywords(text):
+    """
+    Fallback function to extract industry using keyword matching.
+    This is used when AI classification is unavailable or has low confidence.
+
+    Args:
+        text (str): Lowercase brief text
+
+    Returns:
+        str: The detected industry name
+    """
+    # Check for explicit industry indicators first
+    industry_indicators = [
+        r'industry:\s*([A-Za-z0-9\s&]+)',
+        r'sector:\s*([A-Za-z0-9\s&]+)',
+        r'category:\s*([A-Za-z0-9\s&]+)'
+    ]
+
+    for pattern in industry_indicators:
+        matches = re.search(pattern, text)
+        if matches:
+            return matches.group(1).strip().title()
+
+    # Count industry keywords in text
+    industry_scores = {ind: 0 for ind in industry_keywords}
+    for ind, keywords in industry_keywords.items():
+        for keyword in keywords:
+            # Use word boundary matching to avoid false positives
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            matches = re.findall(pattern, text)
+            industry_scores[ind] += len(matches)
+
+    # Get industry with highest score
+    if any(industry_scores.values()):
+        return max(industry_scores.items(), key=lambda x: x[1])[0]
+
+    return "General"
 
 def analyze_campaign_brief(brief_text):
     """
@@ -200,29 +252,43 @@ def analyze_campaign_brief(brief_text):
                        'representation', 'diversity', 'equity', 'inclusion', 'relevance',
                        'resonance', 'buzzworthy', 'viral', 'shareability', 'commerce']
     
-    # Industry-specific term customization
+    # Industry-specific term customization (updated for 15 industries)
     industry_terms = {
-        "Sports": ['athlete', 'performance', 'training', 'fitness', 'sport', 'athletic', 'competition', 
-                   'team', 'match', 'game', 'player', 'coach', 'victory', 'championship'],
-        "Technology": ['innovation', 'digital', 'user', 'tech', 'interface', 'device', 'app', 'software', 
-                       'hardware', 'solution', 'experience', 'network', 'connection', 'smart'],
-        "Fashion": ['style', 'trend', 'collection', 'runway', 'designer', 'sustainable', 'luxury', 
-                    'vintage', 'streetwear', 'outfit', 'wardrobe', 'accessory', 'season'],
-        "Food & Beverage": ['flavor', 'taste', 'ingredient', 'chef', 'recipe', 'menu', 'restaurant', 
-                            'quality', 'organic', 'sustainable', 'nutrition', 'delicious', 'craft'],
-        "Beauty": ['skincare', 'makeup', 'beauty', 'cosmetic', 'fragrance', 'formula', 'texture', 
-                   'ingredient', 'routine', 'natural', 'enhancing', 'complexion', 'regimen'],
-        "Automotive": ['driver', 'vehicle', 'model', 'performance', 'engine', 'design', 'safety', 
-                       'efficiency', 'technology', 'driving', 'road', 'journey', 'speed'],
-        "Finance": ['banking', 'investment', 'financial', 'security', 'wealth', 'budget', 'savings', 
-                    'credit', 'payment', 'transaction', 'digital', 'portfolio', 'account'],
-        "Healthcare": ['wellness', 'health', 'patient', 'care', 'treatment', 'medical', 'professional', 
-                       'therapy', 'diagnosis', 'prevention', 'solution', 'provider', 'clinic'],
-        "Entertainment": ['audience', 'viewer', 'fan', 'artist', 'streaming', 'content', 'platform', 
-                          'subscription', 'experience', 'show', 'episode', 'release', 'premiere', 
-                          'original', 'series', 'awards', 'tv+', 'tv plus', 'video', 'film', 'movie',
-                          'documentary', 'drama', 'comedy', 'talent', 'director', 'producer', 'binge'],
-        "General": ['customer', 'consumer', 'client', 'market', 'industry', 'sector', 'service', 
+        # Original 9 industries
+        "Sports": ['athlete', 'athletic', 'championship', 'tournament', 'league', 'stadium',
+                   'team', 'match', 'player', 'coach', 'victory', 'competition'],
+        "Technology": ['innovation', 'digital', 'user', 'tech', 'interface', 'device', 'app', 'software',
+                       'hardware', 'solution', 'experience', 'network', 'connection', 'smart', 'api', 'cloud'],
+        "Fashion": ['style', 'trend', 'collection', 'runway', 'designer', 'sustainable', 'couture',
+                    'vintage', 'streetwear', 'outfit', 'wardrobe', 'accessory', 'season', 'apparel'],
+        "Food & Beverage": ['flavor', 'taste', 'ingredient', 'chef', 'recipe', 'menu', 'restaurant',
+                            'quality', 'organic', 'sustainable', 'nutrition', 'delicious', 'craft', 'cuisine'],
+        "Beauty": ['skincare', 'makeup', 'beauty', 'cosmetic', 'fragrance', 'formula', 'texture',
+                   'ingredient', 'routine', 'natural', 'enhancing', 'complexion', 'regimen', 'haircare'],
+        "Automotive": ['driver', 'vehicle', 'automobile', 'engine', 'design', 'safety',
+                       'efficiency', 'car', 'suv', 'sedan', 'dealership', 'automotive'],
+        "Finance": ['banking', 'investment', 'financial', 'security', 'wealth', 'budget', 'savings',
+                    'credit', 'payment', 'transaction', 'digital', 'portfolio', 'account', 'fintech'],
+        "Healthcare": ['hospital', 'patient', 'care', 'treatment', 'medical', 'professional',
+                       'therapy', 'diagnosis', 'prevention', 'provider', 'clinic', 'pharmaceutical'],
+        "Entertainment": ['audience', 'viewer', 'fan', 'artist', 'streaming', 'content', 'platform',
+                          'subscription', 'experience', 'show', 'episode', 'release', 'premiere',
+                          'original', 'series', 'awards', 'video', 'film', 'movie', 'gaming', 'esports',
+                          'documentary', 'drama', 'comedy', 'talent', 'director', 'producer'],
+        # New 6 industries
+        "Home & Living": ['furniture', 'decor', 'interior', 'design', 'home', 'living', 'kitchen',
+                          'bedroom', 'renovation', 'property', 'real estate', 'household', 'appliance'],
+        "Wellness": ['wellness', 'fitness', 'yoga', 'meditation', 'mindfulness', 'holistic', 'self-care',
+                     'balance', 'harmony', 'wellbeing', 'nutrition', 'mental health', 'relaxation'],
+        "Luxury": ['luxury', 'premium', 'exclusive', 'prestige', 'heritage', 'craftsmanship', 'bespoke',
+                   'elite', 'affluent', 'sophisticated', 'high-end', 'artisan'],
+        "Travel": ['travel', 'hotel', 'airline', 'resort', 'vacation', 'tourism', 'destination',
+                   'hospitality', 'booking', 'journey', 'adventure', 'accommodation', 'experience'],
+        "Retail": ['retail', 'ecommerce', 'marketplace', 'shopping', 'store', 'checkout', 'consumer',
+                   'purchase', 'inventory', 'cart', 'online store', 'shop'],
+        "Education": ['education', 'university', 'school', 'course', 'curriculum', 'student', 'learning',
+                      'edtech', 'certification', 'academic', 'classroom', 'teacher', 'instruction'],
+        "General": ['customer', 'consumer', 'client', 'market', 'industry', 'sector', 'service',
                     'solution', 'innovation', 'strategy', 'initiative', 'program']
     }
     
@@ -290,7 +356,9 @@ def analyze_campaign_brief(brief_text):
     
     # Further adjust based on industry, but make it a smaller factor
     # compared to the actual brief content
+    # Updated to include all 15 industries
     industry_bonus = {
+        # Original 9 industries
         "Sports": {"buzz": 0.2, "cultural": 0.15, "representation": 0.1},
         "Technology": {"platform": 0.2, "commerce": 0.15, "authority": 0.1},
         "Fashion": {"cultural": 0.2, "representation": 0.15, "vernacular": 0.1},
@@ -300,6 +368,13 @@ def analyze_campaign_brief(brief_text):
         "Finance": {"authority": 0.2, "commerce": 0.15, "equity": 0.1},
         "Healthcare": {"authority": 0.2, "equity": 0.15, "representation": 0.1},
         "Entertainment": {"buzz": 0.2, "cultural": 0.2, "platform": 0.15},
+        # New 6 industries
+        "Home & Living": {"geo": 0.2, "commerce": 0.15, "cultural": 0.1},
+        "Wellness": {"representation": 0.15, "cultural": 0.2, "authority": 0.1},
+        "Luxury": {"authority": 0.2, "cultural": 0.15, "vernacular": 0.1},
+        "Travel": {"geo": 0.2, "cultural": 0.15, "buzz": 0.1},
+        "Retail": {"commerce": 0.2, "platform": 0.15, "geo": 0.1},
+        "Education": {"authority": 0.2, "representation": 0.15, "equity": 0.1},
         "General": {}
     }
     
