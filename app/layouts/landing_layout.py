@@ -1,8 +1,7 @@
 from core.analysis import (
     analyze_campaign_brief,
     calculate_benchmark_percentile,
-    get_improvement_areas,
-    extract_brand_info
+    get_improvement_areas
 )
 from core.utils import (
     extract_text_from_file,
@@ -462,9 +461,7 @@ def landing_layout(inner_content):
                             
                             # Calculate benchmark percentile and improvement areas
                             percentile = calculate_benchmark_percentile(scores)
-                            # Get brand and industry info for enhanced improvement areas analysis
-                            brand_name, industry, product_type = extract_brand_info(brief_text)
-                            
+
                             # Get dynamic improvement areas using all contextual data
                             improvement_areas = get_improvement_areas(
                                 scores, 
