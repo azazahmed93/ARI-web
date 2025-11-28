@@ -49,6 +49,101 @@ industry_keywords = {
     "Education": ["education", "university", "school", "course", "curriculum", "student", "learning"]
 }
 
+# Expected terms per metric for critical scrutiny scoring
+# Terms a strong RFP SHOULD include - absence results in penalties
+EXPECTED_METRIC_TERMS = {
+    "Representation": {
+        "critical": ["diversity", "diverse", "inclusive", "representation"],  # -1.0 each if missing
+        "important": ["community", "authentic", "multicultural", "underrepresented", "identity"],  # -0.5 each (up to 3)
+        "bonus": ["intersectional", "belonging", "visibility", "equitable"]  # +0.3 if present (up to 4)
+    },
+    "Cultural Relevance": {
+        "critical": ["culture", "cultural", "relevant", "trend"],
+        "important": ["lifestyle", "music", "entertainment", "zeitgeist", "moment"],
+        "bonus": ["pop culture", "cultural moment", "fandom", "movement"]
+    },
+    "Platform Relevance": {
+        "critical": ["platform", "social", "digital", "channel"],
+        "important": ["tiktok", "instagram", "youtube", "streaming", "mobile", "video"],
+        "bonus": ["connected tv", "ctv", "ott", "programmatic", "podcast"]
+    },
+    "Cultural Vernacular": {
+        "critical": ["voice", "tone", "language", "messaging"],
+        "important": ["authentic", "relatable", "conversational", "natural"],
+        "bonus": ["in-culture", "colloquial", "community language", "culturally fluent"]
+    },
+    "Media Ownership Equity": {
+        "critical": ["media", "investment", "budget"],
+        "important": ["diverse", "equity", "partnership", "owned"],
+        "bonus": ["minority-owned", "bipoc", "community media", "diverse suppliers"]
+    },
+    "Cultural Authority": {
+        "critical": ["credible", "authentic", "trust"],
+        "important": ["expert", "leader", "influencer", "partnership", "endorsement"],
+        "bonus": ["thought leader", "grassroots", "community trust", "cultural insider"]
+    },
+    "Buzz & Conversation": {
+        "critical": ["engagement", "conversation", "social"],
+        "important": ["share", "viral", "trending", "buzz", "community"],
+        "bonus": ["ugc", "earned media", "social listening", "word of mouth"]
+    },
+    "Commerce Bridge": {
+        "critical": ["purchase", "conversion", "customer"],
+        "important": ["sales", "acquisition", "journey", "funnel", "action"],
+        "bonus": ["path to purchase", "attribution", "roi", "direct response"]
+    },
+    "Geo-Cultural Fit": {
+        "critical": ["market", "audience", "target"],
+        "important": ["local", "regional", "community", "geographic", "location"],
+        "bonus": ["hyper-local", "dma", "diaspora", "micromarket", "regional trends"]
+    }
+}
+
+def calculate_metric_score_with_scrutiny(brief_text, metric_name, base_score=7.5):
+    """
+    Calculate metric score with critical scrutiny.
+    Starts at neutral baseline, penalizes for missing expected terms.
+
+    Args:
+        brief_text: The RFP/brief content
+        metric_name: One of the 9 metrics
+        base_score: Starting point (default 7.5 = neutral)
+
+    Returns:
+        float: Final score (capped between 4.0 and 9.5)
+    """
+    text_lower = brief_text.lower()
+    terms = EXPECTED_METRIC_TERMS.get(metric_name, {})
+
+    score = base_score
+
+    # CRITICAL terms: -0.6 penalty for EACH missing (max -2.4 for 4 missing)
+    critical_terms = terms.get("critical", [])
+    critical_found = sum(1 for term in critical_terms if term in text_lower)
+    critical_missing = len(critical_terms) - critical_found
+    score -= critical_missing * 0.6
+
+    # IMPORTANT terms: -0.3 penalty for each missing (up to 3, max -0.9)
+    important_terms = terms.get("important", [])
+    important_found = sum(1 for term in important_terms if term in text_lower)
+    important_missing = min(3, len(important_terms) - important_found)
+    score -= important_missing * 0.3
+
+    # BONUS for critical terms found: +0.3 each (reward specificity)
+    score += critical_found * 0.3
+
+    # BONUS for important terms found: +0.2 each (up to 3)
+    important_found_capped = min(3, important_found)
+    score += important_found_capped * 0.2
+
+    # BONUS terms: +0.4 for each present (up to 3)
+    bonus_terms = terms.get("bonus", [])
+    bonus_found = min(3, sum(1 for term in bonus_terms if term in text_lower))
+    score += bonus_found * 0.4
+
+    # Cap score between 4.0 and 9.5
+    return max(4.0, min(9.5, score))
+
 def extract_brand_info(brief_text):
     """
     Extract brand name and industry from the campaign brief.
@@ -390,132 +485,96 @@ def analyze_campaign_brief(brief_text):
     import random
     random.seed(brief_hash)
     
-    # Helper function to create more variability in scores
-    def dynamic_score(terms, base_min, base_max, industry_boost_list=None, sentiment_factor=0.0):
+    # Helper function for scrutiny-based scoring with industry adjustments
+    def scrutiny_score(metric_name, base_min, base_max, industry_boost_list=None):
         """
-        Calculate a dynamic score based on term occurrences and industry context.
-        
+        Calculate a scrutiny-based score that penalizes missing expected terms.
+
         Args:
-            terms (list): List of terms to look for in the brief
-            base_min (float): Minimum base score for the metric
-            base_max (float): Maximum base score for the metric
-            industry_boost_list (list, optional): List of industries that get a boost
-            sentiment_factor (float, optional): Additional sentiment adjustment
-            
+            metric_name (str): Name of the metric (must match EXPECTED_METRIC_TERMS keys)
+            base_min (float): Minimum allowed score for the metric
+            base_max (float): Maximum allowed score for the metric
+            industry_boost_list (list, optional): List of industries that get a small boost
+
         Returns:
-            float: The calculated score
+            float: The calculated score with scrutiny penalties applied
         """
-        # Base score with randomization from brief hash
-        industry_bonus = 0.4 if industry in (industry_boost_list or []) else 0
-        base = base_min + (random.random() * (base_max - base_min)) + industry_bonus
-        
-        # Calculate term score with higher sensitivity to brief content
-        term_score = sum(term_counts.get(term, 0) * (1.5 + random.random()) for term in terms)
-        
-        # Add sentiment factor if applicable (convert to float to be safe)
-        sentiment_factor = float(sentiment_factor)
-        if sentiment_factor:
-            term_score += sentiment_factor
-        
-        # More dramatic impact of content on score
-        score = base + (term_score/8) * (0.8 + random.random() * 0.4)
-        
-        # Return score with brief-specific variation
-        return score + ((brief_hash % 200) / 200 - 0.5) * 0.6
-    
-    # Representation score
-    representation_terms = ['representation', 'diverse', 'diversity', 'inclusive', 'inclusion', 
-                           'identity', 'perspective', 'voice', 'authentic']
-    scores["Representation"] = min(9.8, max(5.8, dynamic_score(
-        representation_terms, 
-        6.3, 7.0, 
-        ["Fashion", "Beauty", "Entertainment", "Sports"],
-        sentiment['compound'] * 2
-    )))
-    
-    # Cultural Relevance score
-    cultural_terms = ['culture', 'relevant', 'resonance', 'trend', 'trending', 'zeitgeist',
-                      'music', 'sports', 'fashion', 'lifestyle']
-    scores["Cultural Relevance"] = min(9.6, max(6.0, dynamic_score(
-        cultural_terms, 
-        6.4, 7.3, 
-        ["Fashion", "Entertainment", "Sports"],
-        sentiment['pos'] * 3
-    )))
-    
-    # Platform Relevance score
-    platform_terms = ['platform', 'social media', 'channel', 'tiktok', 'instagram', 'youtube',
-                      'twitter', 'facebook', 'discord', 'twitch', 'digital']
-    scores["Platform Relevance"] = min(9.5, max(5.5, dynamic_score(
-        platform_terms, 
-        6.0, 7.0, 
-        ["Technology", "Entertainment"],
-        0
-    )))
-    
-    # Cultural Vernacular score
-    vernacular_terms = ['slang', 'language', 'tone', 'voice', 'messaging', 'speak', 'talk',
-                         'conversation', 'dialogue', 'authentic', 'natural']
-    # Add language complexity as a sentiment factor
-    lang_complexity = unique_words / (word_count + 1) * 5
-    scores["Cultural Vernacular"] = min(9.5, max(6.0, dynamic_score(
-        vernacular_terms, 
-        6.2, 7.4, 
-        ["Entertainment", "Fashion"],
-        lang_complexity
-    )))
-    
-    # Media Ownership Equity score
-    equity_terms = ['equity', 'ownership', 'representative', 'diverse', 'inclusive', 
-                    'minority', 'owned', 'investment', 'budget', 'allocation']
-    scores["Media Ownership Equity"] = min(8.8, max(5.0, dynamic_score(
-        equity_terms, 
-        5.3, 6.5, 
-        ["Healthcare", "Finance"],
-        0
-    )))
-    
-    # Cultural Authority score
-    authority_terms = ['credible', 'authentic', 'authority', 'expert', 'leader', 'influence',
-                      'trustworthy', 'reliable', 'respected', 'insider']
-    scores["Cultural Authority"] = min(9.6, max(6.2, dynamic_score(
-        authority_terms, 
-        6.4, 7.8, 
-        ["Healthcare", "Finance", "Automotive"],
-        sentiment['pos'] * 2
-    )))
-    
-    # Buzz & Conversation score
-    buzz_terms = ['viral', 'buzz', 'conversation', 'talk', 'discuss', 'share', 'trending',
-                 'engaging', 'engagement', 'interaction', 'response', 'reaction', 'meme']
-    scores["Buzz & Conversation"] = min(9.5, max(6.0, dynamic_score(
-        buzz_terms, 
-        6.5, 7.8, 
-        ["Entertainment", "Fashion", "Sports"],
-        sentiment['compound'] * 2
-    )))
-    
-    # Commerce Bridge score - Make this especially variable based on brief content
-    commerce_terms = ['commerce', 'purchase', 'buy', 'shop', 'shopping', 'transaction',
-                     'conversion', 'customer', 'consumer', 'acquisition', 'funnel', 'sale']
-    # Use a wider range of base scores and increased term sensitivity for commerce
-    # This ensures Commerce Bridge isn't always highest
-    scores["Commerce Bridge"] = min(9.6, max(5.5, dynamic_score(
-        commerce_terms, 
-        5.8, 7.8,  # Much wider range than before
-        ["Automotive", "Finance", "Technology", "Retail"],
-        0
-    ) * (0.8 + (random.random() * 0.4))))
-    
-    # Geo-Cultural Fit score
-    geo_terms = ['location', 'region', 'area', 'local', 'community', 'city', 'urban',
-                'rural', 'neighborhood', 'territory', 'market', 'geographical']
-    scores["Geo-Cultural Fit"] = min(9.2, max(5.5, dynamic_score(
-        geo_terms, 
-        6.0, 7.5, 
-        ["Food & Beverage", "Healthcare", "Automotive"],
-        0
-    )))
+        # Start with scrutiny-based score (penalizes missing terms)
+        scrutiny_base = calculate_metric_score_with_scrutiny(brief_text, metric_name)
+
+        # Apply small industry bonus (reduced from old system: max +0.3)
+        ind_bonus = 0.3 if industry in (industry_boost_list or []) else 0
+
+        # Add small variation for natural feel (+/- 0.3)
+        variation = ((brief_hash % 100) / 100 - 0.5) * 0.6
+
+        final_score = scrutiny_base + ind_bonus + variation
+
+        # Ensure within bounds
+        return max(base_min, min(base_max, final_score))
+
+    # Representation score - Critical scrutiny for diversity/inclusion terms
+    scores["Representation"] = round(scrutiny_score(
+        "Representation",
+        4.0, 9.5,
+        ["Fashion", "Beauty", "Entertainment", "Sports"]
+    ), 1)
+
+    # Cultural Relevance score - Critical scrutiny for culture/trend terms
+    scores["Cultural Relevance"] = round(scrutiny_score(
+        "Cultural Relevance",
+        4.0, 9.5,
+        ["Fashion", "Entertainment", "Sports"]
+    ), 1)
+
+    # Platform Relevance score - Critical scrutiny for platform/digital terms
+    scores["Platform Relevance"] = round(scrutiny_score(
+        "Platform Relevance",
+        4.0, 9.5,
+        ["Technology", "Entertainment"]
+    ), 1)
+
+    # Cultural Vernacular score - Critical scrutiny for voice/language terms
+    scores["Cultural Vernacular"] = round(scrutiny_score(
+        "Cultural Vernacular",
+        4.0, 9.5,
+        ["Entertainment", "Fashion"]
+    ), 1)
+
+    # Media Ownership Equity score - Critical scrutiny for media/investment terms
+    scores["Media Ownership Equity"] = round(scrutiny_score(
+        "Media Ownership Equity",
+        4.0, 9.0,
+        ["Healthcare", "Finance"]
+    ), 1)
+
+    # Cultural Authority score - Critical scrutiny for credibility/trust terms
+    scores["Cultural Authority"] = round(scrutiny_score(
+        "Cultural Authority",
+        4.0, 9.5,
+        ["Healthcare", "Finance", "Automotive"]
+    ), 1)
+
+    # Buzz & Conversation score - Critical scrutiny for engagement/social terms
+    scores["Buzz & Conversation"] = round(scrutiny_score(
+        "Buzz & Conversation",
+        4.0, 9.5,
+        ["Entertainment", "Fashion", "Sports"]
+    ), 1)
+
+    # Commerce Bridge score - Critical scrutiny for purchase/conversion terms
+    scores["Commerce Bridge"] = round(scrutiny_score(
+        "Commerce Bridge",
+        4.0, 9.5,
+        ["Automotive", "Finance", "Technology", "Retail"]
+    ), 1)
+
+    # Geo-Cultural Fit score - Critical scrutiny for market/location terms
+    scores["Geo-Cultural Fit"] = round(scrutiny_score(
+        "Geo-Cultural Fit",
+        4.0, 9.2,
+        ["Food & Beverage", "Healthcare", "Automotive", "Travel"]
+    ), 1)
     
     # Round all scores to 1 decimal place
     for key in scores:

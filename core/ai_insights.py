@@ -692,13 +692,32 @@ Additional audience data for SiteOne Hispanic campaign:
         5. One prediction about campaign performance metrics
         6. Detailed analysis for EVERY ARI metric that specifically references ACTUAL CONTENT from the brief
         
-        For the metric details section, you MUST:
-        - Directly reference specific phrases, statistics, audience details, or tactics mentioned in the brief
-        - Explain how specific elements in the brief affected each metric score
-        - Include brief quotes or paraphrases from the actual brief for each metric
-        - Connect the metric scores to specific targeting approaches mentioned in the brief
-        - Refer to specific audience segments, channels, or creative approaches mentioned in the brief
-        - DO NOT use generic descriptions - ONLY use content that appears in this specific brief
+        For the metric details section, you MUST provide CRITICAL ANALYSIS:
+        - Identify which expected key terms ARE PRESENT in the brief (quote them)
+        - Identify which expected key terms are MISSING that hurt the score
+        - Be critical, not generous - if the brief uses vague language, call it out
+        - If the brief claims something (e.g., "diverse audience") but doesn't specify HOW, note the gap
+
+        Expected terms to look for per metric:
+        - Representation: diversity, diverse, inclusive, community, authentic, multicultural
+        - Cultural Relevance: culture, cultural, relevant, trend, lifestyle, entertainment
+        - Platform Relevance: platform, social, digital, channel, TikTok, Instagram, YouTube, streaming
+        - Cultural Vernacular: voice, tone, language, messaging, authentic, relatable
+        - Media Ownership Equity: media, investment, budget, diverse, equity, minority-owned
+        - Cultural Authority: credible, authentic, trust, expert, influencer, partnership
+        - Buzz & Conversation: engagement, conversation, social, viral, trending, community
+        - Commerce Bridge: purchase, conversion, customer, sales, funnel, acquisition
+        - Geo-Cultural Fit: market, audience, target, local, regional, geographic
+
+        Write each metric analysis in this structure (DO NOT use brackets in your output):
+        1. Start by explaining what the score reflects based on the brief content
+        2. Quote or reference the specific terms/phrases found in the brief
+        3. Identify what key terms are missing that would improve the score
+        4. End with a specific, actionable recommendation
+
+        Example good output: "Score reflects limited diversity messaging. The brief mentions 'creative and engaging' but lacks specific terms like diversity, inclusive, or multicultural. Adding explicit representation strategy would strengthen this metric. Recommendation: Include specific diversity initiatives and community partnerships."
+
+        DO NOT use brackets, placeholders, or generic template language in your response
         
         For the improvement recommendations, focus specifically on digital advertising tactics including:
         - Media mix allocation percentages
@@ -721,13 +740,16 @@ Additional audience data for SiteOne Hispanic campaign:
         
         # Call the OpenAI API with enhanced system prompt
         system_prompt = """
-        You are a digital advertising tactician with expertise in programmatic media buying, platform-specific optimization, 
-        and culturally-relevant campaign execution. Focus on actionable tactics, not general strategy.
-        
-        EXTREMELY IMPORTANT: When analyzing metrics, you MUST reference SPECIFIC content from the brief.
-        Do not use generic descriptions. Each metric analysis should directly quote or mention specific elements 
-        from the brief text. This is not optional - your response will be rejected if it contains generic 
-        descriptions that don't reference actual content from the brief.
+        You are a CRITICAL digital advertising analyst with expertise in programmatic media buying, platform-specific optimization,
+        and culturally-relevant campaign execution. Your role is to scrutinize RFPs and identify gaps, not just strengths.
+
+        EXTREMELY IMPORTANT RULES:
+        1. Be CRITICAL, not generous. If the brief lacks specificity, call it out.
+        2. When analyzing metrics, identify what's MISSING as much as what's present.
+        3. Reference SPECIFIC content from the brief - quote actual phrases.
+        4. If the brief makes claims without evidence (e.g., "diverse" without specifying how), penalize it.
+        5. Each metric analysis MUST include: (a) what terms were found, (b) what expected terms are missing, (c) recommendation.
+        6. Lower scores indicate the brief needs more specificity - this is valuable feedback for the client.
         """
         
         # Use the improved API call with retry logic
