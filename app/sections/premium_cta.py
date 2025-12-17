@@ -4,6 +4,17 @@ from core.utils import (
     create_infographic_download_link,
 )
 
+# Import export functionality
+try:
+    from core.export_orchestrator import export_to_pptx
+    from core.s3_export_service import S3ExportService, export_to_s3_and_stitch
+    EXPORT_AVAILABLE = True
+    S3_EXPORT_AVAILABLE = True
+except ImportError as e:
+    print(f"Export import error: {e}")
+    EXPORT_AVAILABLE = False
+    S3_EXPORT_AVAILABLE = False
+
 def premium_cta(scores, improvement_areas, percentile, brand_name, industry, product_type, brief_text):
   # Create container with custom CSS for styling
     st.markdown('<div class="premium-container"></div>', unsafe_allow_html=True)
@@ -111,11 +122,101 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
         # top_audience = None
         # if st.session_state.audience_segments and 'primary' in st.session_state.audience_segments:
         #     top_audience = st.session_state.audience_segments['primary']
-        
+
         # infographic_link = create_infographic_download_link(scores, improvement_areas, percentile, brand_name, top_audience)
         # st.markdown(f'{infographic_link}', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-        
+
+        # Export to PowerPoint section
+        if EXPORT_AVAILABLE:
+            st.markdown("""
+            <div style="margin-top: 25px; text-align: center;">
+                <div style="background-color: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #86efac;">
+                    <p style="margin: 0; color: #166534; font-weight: 500;">Export your report as a PowerPoint presentation</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Use the export_id from session state (generated early in results.py)
+            # This ensures React components and Streamlit use the same export session
+            export_id = st.session_state.get('export_id')
+            if not export_id:
+                import uuid
+                export_id = str(uuid.uuid4())
+                st.session_state.export_id = export_id
+
+            export_col1, export_col2, export_col3 = st.columns([1, 2, 1])
+            with export_col2:
+                if st.button("📥 Export to PowerPoint", type="secondary", use_container_width=True, key="pptx_export_btn"):
+                    with st.spinner("Generating and uploading presentation..."):
+                        try:
+                            # Create a progress placeholder
+                            progress_placeholder = st.empty()
+
+                            def update_progress(percent, message):
+                                progress_placeholder.progress(percent / 100, text=message)
+
+                            if S3_EXPORT_AVAILABLE:
+                                # Use S3 export pipeline with the session's export_id
+                                result = export_to_s3_and_stitch(
+                                    session_state=dict(st.session_state),
+                                    brand_name=brand_name,
+                                    industry=industry,
+                                    components=['streamlit_complete', 'cultural_moments'],
+                                    progress_callback=update_progress,
+                                    export_id=export_id  # Use the session's export_id
+                                )
+
+                                progress_placeholder.empty()
+
+                                if result.success and result.download_url:
+                                    # Store download URL in session state for persistence
+                                    st.session_state['pptx_download_url'] = result.download_url
+                                    st.session_state['pptx_export_id'] = result.export_id
+
+                                    # Show download link
+                                    st.success("Presentation generated successfully!")
+                                    st.link_button(
+                                        label="⬇️ Download Presentation",
+                                        url=result.download_url,
+                                        type="primary",
+                                        use_container_width=True
+                                    )
+                                else:
+                                    st.error(f"Export failed: {result.error}")
+                            else:
+                                # Fallback to direct download
+                                pptx_bytes = export_to_pptx(
+                                    session_state=dict(st.session_state),
+                                    brand_name=brand_name,
+                                    industry=industry,
+                                    progress_callback=update_progress
+                                )
+
+                                progress_placeholder.empty()
+
+                                st.download_button(
+                                    label="⬇️ Download Presentation",
+                                    data=pptx_bytes,
+                                    file_name=f"ARI_Report_{brand_name.replace(' ', '_')}.pptx",
+                                    mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                                    type="primary"
+                                )
+                                st.success("Presentation generated successfully!")
+
+                        except Exception as e:
+                            print(e)
+                            st.error(f"Error generating presentation: {str(e)}")
+
+                # Show existing download URL if available (persists across reruns)
+                elif st.session_state.get('pptx_download_url'):
+                    st.link_button(
+                        label="⬇️ Download Presentation",
+                        url=st.session_state['pptx_download_url'],
+                        type="primary",
+                        use_container_width=True
+                    )
+
         # Close the outer div
         st.markdown('</div>', unsafe_allow_html=True)
     

@@ -103,6 +103,9 @@ def main():
 
     if 'simulation_results' not in st.session_state:
         st.session_state.simulation_results = None
+    
+    if 'export_id' not in st.session_state:
+        st.session_state.export_id = None
 
     inner_content = None
     # Display results if analysis has been performed
