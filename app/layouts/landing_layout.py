@@ -426,6 +426,12 @@ def landing_layout(inner_content):
                     st.session_state.journey_campaign_objectives = None
                     st.session_state.simulation_results = None
 
+                    # Reset export-related session state for new analysis
+                    # This ensures a fresh export_id is generated for each new brief
+                    st.session_state.export_id = None
+                    st.session_state.pptx_download_url = None
+                    st.session_state.pptx_export_id = None
+
                     with st.spinner(get_random_spinner_message()):
                         # Process psychographic configuration if exists
                         demographics_info = None

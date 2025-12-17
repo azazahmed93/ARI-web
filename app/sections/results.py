@@ -172,7 +172,14 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     # Check if this is a SiteOne Hispanic campaign
     is_siteone_hispanic = is_siteone_hispanic_campaign(brand_name, brief_text)
-    
+
+    # Generate export_id early so React components can use the same ID
+    # This ensures all components (Streamlit + React) upload to the same export session
+    if 'export_id' not in st.session_state or not st.session_state.export_id:
+        import uuid
+        st.session_state.export_id = str(uuid.uuid4())
+        print(f"Generated new export_id: {st.session_state.export_id}")
+
     journey_tab_name = "Consumer Journey" if st.session_state.is_gm_user else "Resonance Pathway"
     # Create tabs for better organization of content
     tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11, tab12 = st.tabs([
@@ -773,6 +780,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             segments_with_insights =  [{'name': "Core Audience", 'audience_insights': core_audience}] + segments_data
 
             html_code = html_code.replace("{{AUDIENCE_SEGMENTS}}", json.dumps(segments_with_insights))
+
+            # Export mode template variables (default to false/null for normal viewing)
+            export_mode = st.session_state.get('export_mode', False)
+            export_id = st.session_state.get('export_id', None)
+            # html_code = html_code.replace("{{EXPORT_MODE}}", "true" if export_mode else "false")
+            html_code = html_code.replace("{{EXPORT_ID}}", f'"{export_id}"' if export_id else "null")
+
             components.html(html_code, height=1200, scrolling=True)
 
         except FileNotFoundError:
