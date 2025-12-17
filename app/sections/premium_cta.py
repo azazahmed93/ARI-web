@@ -147,7 +147,7 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
 
             export_col1, export_col2, export_col3 = st.columns([1, 2, 1])
             with export_col2:
-                if st.button("📥 Export to PowerPoint", type="secondary", use_container_width=True, key="pptx_export_btn"):
+                if st.button("Export to PowerPoint", type="secondary", use_container_width=True, key="pptx_export_btn"):
                     with st.spinner("Generating and uploading presentation..."):
                         try:
                             # Create a progress placeholder
