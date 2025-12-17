@@ -150,14 +150,14 @@ class ExportOrchestrator:
                 logger.info("Skipping competitor tactics slide (no data)")
 
             # 6. Marketing Trends slide (includes benchmark at bottom)
-            update_progress(75, "Creating marketing trends slide...")
+            update_progress(80, "Creating marketing trends slide...")
             logger.info("Creating marketing trends slide...")
             self._add_marketing_trends_slide(prs)
 
-            # 7. Footer slide
-            update_progress(90, "Finalizing presentation...")
-            logger.info("Adding footer slide...")
-            self._add_footer_slide(prs)
+            # # 7. Footer slide
+            # update_progress(90, "Finalizing presentation...")
+            # logger.info("Adding footer slide...")
+            # self._add_footer_slide(prs)
 
             # Save to bytes
             output = BytesIO()
