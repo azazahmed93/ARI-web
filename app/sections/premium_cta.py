@@ -162,7 +162,7 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                                     session_state=dict(st.session_state),
                                     brand_name=brand_name,
                                     industry=industry,
-                                    components=['streamlit_complete', 'cultural_moments'],
+                                    components=['streamlit_complete', 'cultural_moments', 'resonance_pathway'],
                                     progress_callback=update_progress,
                                     export_id=export_id  # Use the session's export_id
                                 )

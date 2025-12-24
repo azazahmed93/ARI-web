@@ -847,6 +847,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                         try:
                             with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
                                 html_code = f.read()
+                            export_id = st.session_state.get('export_id', None)
+                            html_code = html_code.replace("{{EXPORT_ID}}", f'"{export_id}"' if export_id else "null")
                             html_code = html_code.replace("{{RESONANCE_PATHWAY_DATA}}", json.dumps(st.session_state.brief_journey_data))
                             components.html(html_code, height=1000, scrolling=True)
                         except FileNotFoundError:

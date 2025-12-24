@@ -65,6 +65,7 @@ class S3ExportService:
         'cultural_moments',
         'journey_environments',
         'catalyst_partners',
+        'resonance_pathway',
         'consumer_journey',
     ]
 
