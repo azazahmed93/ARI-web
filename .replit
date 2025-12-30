@@ -6,11 +6,10 @@ channel = "stable-24_05"
 packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "pkg-config", "qhull", "tcl", "tk", "zlib", "chromium", "nss", "nspr", "atk", "at-spi2-atk", "cups", "libdrm", "libxkbcommon", "alsa-lib", "pango", "glib", "gdk-pixbuf", "expat", "dbus", "mesa"]
 
 [deployment]
-deploymentTarget = "autoscale"
+deploymentTarget = "gce"
 run = ["sh", "-c", "playwright install chromium && streamlit run app/main.py"]
 
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -39,3 +38,6 @@ waitForPort = 5000
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[agent]
+expertMode = true
