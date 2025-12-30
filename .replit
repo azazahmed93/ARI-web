@@ -1,13 +1,13 @@
 modules = ["python-3.11", "web", "nix"]
-run = "streamlit run app/main.py"
+run = "playwright install chromium && streamlit run app/main.py"
 
 [nix]
 channel = "stable-24_05"
-packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "pkg-config", "qhull", "tcl", "tk", "zlib"]
+packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "pkg-config", "qhull", "tcl", "tk", "zlib", "chromium", "nss", "nspr", "atk", "at-spi2-atk", "cups", "libdrm", "libxkbcommon", "alsa-lib", "pango", "glib", "gdk-pixbuf", "expat", "dbus", "mesa"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "streamlit run app/main.py"]
+run = ["sh", "-c", "playwright install chromium && streamlit run app/main.py"]
 
 [workflows]
 runButton = "Project"
