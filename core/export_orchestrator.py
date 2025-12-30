@@ -1,6 +1,7 @@
 """
 Export Orchestrator - Main coordinator for PowerPoint export functionality.
 Generates presentation slides with the same content as the PDF export.
+Supports both programmatic generation and screenshot-based capture.
 """
 
 import os
@@ -13,7 +14,7 @@ from datetime import datetime
 
 # PowerPoint generation
 from pptx import Presentation
-from pptx.util import Inches, Pt
+from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
@@ -21,6 +22,14 @@ from pptx.enum.shapes import MSO_SHAPE
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(name)s: %(message)s')
+
+# Screenshot service imports (optional - gracefully handle if not available)
+try:
+    from core.streamlit_screenshot import capture_streamlit_screenshots
+    SCREENSHOT_AVAILABLE = True
+except ImportError:
+    SCREENSHOT_AVAILABLE = False
+    logger.warning("Screenshot service not available")
 
 # Metric descriptions for fallback
 METRICS = {
@@ -355,11 +364,13 @@ class ExportOrchestrator:
 
         y_pos += Inches(0.3)
 
+        # Default card height for layout calculations
+        card_height = Inches(0.7)
+
         # Media sites - compact grid (5 per row)
         if media_affinity:
             x_positions = [Inches(0.3), Inches(2.85), Inches(5.4), Inches(7.95), Inches(10.5)]
             card_width = Inches(2.4)
-            card_height = Inches(0.7)
 
             for i, site in enumerate(media_affinity[:5]):
                 x = x_positions[i]
@@ -886,6 +897,139 @@ class ExportOrchestrator:
         p.font.name = self.FONT_NAME
         p.font.color.rgb = self.TEXT_COLOR
 
+    def _add_screenshot_slide(self, prs: Presentation, title: str, image_bytes: bytes):
+        """
+        Add a slide with a screenshot image.
+
+        Args:
+            prs: PowerPoint presentation object
+            title: Slide title
+            image_bytes: PNG image bytes
+        """
+        from PIL import Image
+        import io
+
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        self._set_white_background(slide)
+        self._add_slide_title(slide, title)
+
+        # Load image to get dimensions
+        img = Image.open(io.BytesIO(image_bytes))
+        img_width, img_height = img.size
+
+        # Calculate scaling to fit slide (leaving room for title)
+        # Available area: 13.333" wide x 6.5" tall (after title)
+        max_width = Inches(12.7)  # Leave margins
+        max_height = Inches(6.3)  # Leave room for title
+
+        # Calculate aspect ratio scaling
+        width_ratio = max_width / Emu(img_width * 914400 / 96)  # 96 DPI assumed
+        height_ratio = max_height / Emu(img_height * 914400 / 96)
+        scale = min(width_ratio, height_ratio, 1.0)  # Don't scale up
+
+        # Calculate final dimensions
+        final_width = Emu(img_width * 914400 / 96 * scale)
+        final_height = Emu(img_height * 914400 / 96 * scale)
+
+        # Center horizontally
+        left = (self.SLIDE_WIDTH - final_width) / 2
+        top = Inches(0.9)  # Below title
+
+        # Add image to slide
+        image_stream = io.BytesIO(image_bytes)
+        slide.shapes.add_picture(image_stream, left, top, width=final_width, height=final_height)
+
+        logger.info(f"  ✓ Added screenshot slide: {title} ({img_width}x{img_height}px)")
+
+    def export_presentation_with_screenshots(
+        self,
+        brand_name: str = "Brand",
+        industry: str = "General",
+        app_url: str = "http://localhost:3006",
+        use_live_capture: bool = False,
+        progress_callback: Optional[callable] = None
+    ) -> bytes:
+        """
+        Generate PowerPoint presentation using actual screenshots of the Streamlit app.
+
+        Args:
+            brand_name: Brand name for the cover slide
+            industry: Industry for the cover slide
+            app_url: URL of the running Streamlit app
+            use_live_capture: If True, capture from running app; if False, render HTML
+            progress_callback: Optional callback for progress updates
+
+        Returns:
+            PowerPoint file bytes
+        """
+        if not SCREENSHOT_AVAILABLE:
+            logger.warning("Screenshot service not available, falling back to programmatic export")
+            return self.export_presentation(brand_name, industry, progress_callback)
+
+        prs = Presentation()
+        prs.slide_width = self.SLIDE_WIDTH
+        prs.slide_height = self.SLIDE_HEIGHT
+
+        def update_progress(percent: int, message: str):
+            if progress_callback:
+                progress_callback(min(percent, 100), message)
+
+        try:
+            logger.info("=" * 70)
+            logger.info("POWERPOINT EXPORT WITH SCREENSHOTS STARTED")
+            logger.info(f"Brand: {brand_name} | Industry: {industry}")
+            logger.info(f"Mode: {'Live capture' if use_live_capture else 'HTML rendering'}")
+            logger.info("=" * 70)
+
+            # 1. Cover slide (programmatic - looks better)
+            update_progress(5, "Creating cover slide...")
+            logger.info("Creating cover slide...")
+            self._add_cover_slide(prs, brand_name, industry)
+
+            # 2. Capture Streamlit screenshots
+            update_progress(10, "Capturing Streamlit screenshots...")
+            logger.info("Capturing Streamlit screenshots...")
+
+            screenshots = capture_streamlit_screenshots(
+                self.session_state,
+                use_live_capture=use_live_capture,
+                app_url=app_url
+            )
+
+            if not screenshots:
+                logger.warning("No screenshots captured, falling back to programmatic export")
+                return self.export_presentation(brand_name, industry, progress_callback)
+
+            # 3. Add screenshot slides
+            total_screenshots = len(screenshots)
+            for i, (tab_name, png_bytes) in enumerate(screenshots.items()):
+                progress = 20 + int((i / total_screenshots) * 60)
+                update_progress(progress, f"Adding slide: {tab_name}...")
+                self._add_screenshot_slide(prs, tab_name, png_bytes)
+
+            # 4. Add any additional programmatic slides if needed
+            update_progress(85, "Finalizing presentation...")
+
+            # Save to bytes
+            output = BytesIO()
+            prs.save(output)
+            output.seek(0)
+
+            file_size = len(output.getvalue())
+            slide_count = len(prs.slides)
+            logger.info("=" * 70)
+            logger.info("POWERPOINT EXPORT WITH SCREENSHOTS COMPLETED")
+            logger.info(f"Total slides: {slide_count}")
+            logger.info(f"File size: {file_size:,} bytes ({file_size/1024:.1f} KB)")
+            logger.info("=" * 70)
+
+            return output.getvalue()
+
+        except Exception as e:
+            logger.error(f"Error in screenshot export: {e}")
+            logger.info("Falling back to programmatic export...")
+            return self.export_presentation(brand_name, industry, progress_callback)
+
 
 def export_to_pptx(
     session_state: Dict[str, Any],
@@ -894,11 +1038,43 @@ def export_to_pptx(
     progress_callback: Optional[callable] = None
 ) -> bytes:
     """
-    Convenience function to export presentation.
+    Convenience function to export presentation (programmatic generation).
     """
     orchestrator = ExportOrchestrator(session_state)
     return orchestrator.export_presentation(
         brand_name=brand_name,
         industry=industry,
+        progress_callback=progress_callback
+    )
+
+
+def export_to_pptx_with_screenshots(
+    session_state: Dict[str, Any],
+    brand_name: str = "Brand",
+    industry: str = "General",
+    app_url: str = "http://localhost:3006",
+    use_live_capture: bool = True,
+    progress_callback: Optional[callable] = None
+) -> bytes:
+    """
+    Export presentation using actual screenshots of the Streamlit UI.
+
+    Args:
+        session_state: Streamlit session state dictionary
+        brand_name: Brand name for the cover slide
+        industry: Industry for the cover slide
+        app_url: URL of the running Streamlit app (for live capture)
+        use_live_capture: If True, capture from running app (pixel-perfect); if False, render HTML templates
+        progress_callback: Optional callback for progress updates (percent, message)
+
+    Returns:
+        PowerPoint file bytes
+    """
+    orchestrator = ExportOrchestrator(session_state)
+    return orchestrator.export_presentation_with_screenshots(
+        brand_name=brand_name,
+        industry=industry,
+        app_url=app_url,
+        use_live_capture=use_live_capture,
         progress_callback=progress_callback
     )

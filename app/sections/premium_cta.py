@@ -6,7 +6,7 @@ from core.utils import (
 
 # Import export functionality
 try:
-    from core.export_orchestrator import export_to_pptx
+    from core.export_orchestrator import export_to_pptx, export_to_pptx_with_screenshots
     from core.s3_export_service import S3ExportService, export_to_s3_and_stitch
     EXPORT_AVAILABLE = True
     S3_EXPORT_AVAILABLE = True
@@ -14,6 +14,13 @@ except ImportError as e:
     print(f"Export import error: {e}")
     EXPORT_AVAILABLE = False
     S3_EXPORT_AVAILABLE = False
+
+# Check if screenshot service is available
+try:
+    from core.streamlit_screenshot import capture_streamlit_screenshots
+    SCREENSHOT_AVAILABLE = True
+except ImportError:
+    SCREENSHOT_AVAILABLE = False
 
 def premium_cta(scores, improvement_areas, percentile, brand_name, industry, product_type, brief_text):
   # Create container with custom CSS for styling
@@ -145,6 +152,15 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                 export_id = str(uuid.uuid4())
                 st.session_state.export_id = export_id
 
+            # Export mode toggle (screenshots capture actual UI, programmatic generates native elements)
+            use_screenshots = st.checkbox(
+                "Use visual capture mode",
+                value=SCREENSHOT_AVAILABLE,
+                disabled=not SCREENSHOT_AVAILABLE,
+                help="Captures actual UI screenshots for pixel-perfect slides. Disable for faster programmatic generation.",
+                key="use_screenshot_export"
+            ) if SCREENSHOT_AVAILABLE else False
+
             export_col1, export_col2, export_col3 = st.columns([1, 2, 1])
             with export_col2:
                 if st.button("Export to PowerPoint", type="secondary", use_container_width=True, key="pptx_export_btn"):
@@ -157,6 +173,10 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                                 progress_placeholder.progress(percent / 100, text=message)
 
                             if S3_EXPORT_AVAILABLE:
+                                # Get the app URL from environment or use default
+                                import os
+                                app_url = os.environ.get('STREAMLIT_APP_URL', 'http://localhost:3006')
+
                                 # Use S3 export pipeline with the session's export_id
                                 result = export_to_s3_and_stitch(
                                     session_state=dict(st.session_state),
@@ -164,7 +184,9 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                                     industry=industry,
                                     components=['streamlit_complete', 'cultural_moments', 'resonance_pathway'],
                                     progress_callback=update_progress,
-                                    export_id=export_id  # Use the session's export_id
+                                    export_id=export_id,  # Use the session's export_id
+                                    use_screenshots=use_screenshots,  # Use the toggle value
+                                    app_url=app_url
                                 )
 
                                 progress_placeholder.empty()
@@ -185,13 +207,29 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                                 else:
                                     st.error(f"Export failed: {result.error}")
                             else:
-                                # Fallback to direct download
-                                pptx_bytes = export_to_pptx(
-                                    session_state=dict(st.session_state),
-                                    brand_name=brand_name,
-                                    industry=industry,
-                                    progress_callback=update_progress
-                                )
+                                # Fallback to direct download - use screenshot or programmatic based on toggle
+                                if use_screenshots:
+                                    print("PPTX: Using screenshot export method")
+                                    # Get the app URL from environment or use default
+                                    import os
+                                    app_url = os.environ.get('STREAMLIT_APP_URL', 'http://localhost:3006')
+
+                                    pptx_bytes = export_to_pptx_with_screenshots(
+                                        session_state=dict(st.session_state),
+                                        brand_name=brand_name,
+                                        industry=industry,
+                                        app_url=app_url,
+                                        use_live_capture=True,  # Capture actual Streamlit UI
+                                        progress_callback=update_progress
+                                    )
+                                else:
+                                    print("PPTX: Using programmatic export method")
+                                    pptx_bytes = export_to_pptx(
+                                        session_state=dict(st.session_state),
+                                        brand_name=brand_name,
+                                        industry=industry,
+                                        progress_callback=update_progress
+                                    )
 
                                 progress_placeholder.empty()
 

@@ -224,7 +224,9 @@ class S3ExportService:
         components: Optional[List[str]] = None,
         slide_order: Optional[List[str]] = None,
         progress_callback: Optional[Callable[[int, str], None]] = None,
-        export_id: Optional[str] = None
+        export_id: Optional[str] = None,
+        use_screenshots: bool = False,
+        app_url: str = "http://localhost:3006"
     ) -> ExportResult:
         """
         Complete export pipeline: generate PPTX, upload to S3, stitch, return URL.
@@ -240,6 +242,8 @@ class S3ExportService:
             progress_callback: Optional callback for progress updates (percent, message)
             export_id: Optional pre-generated export ID (useful when React components
                        have already uploaded with this ID)
+            use_screenshots: If True, capture actual UI screenshots instead of programmatic generation
+            app_url: URL of the running Streamlit app (for screenshot mode)
 
         Returns:
             ExportResult with success status and download URL or error
@@ -252,19 +256,32 @@ class S3ExportService:
         # Note: export_id should be set in st.session_state by results.py before calling this
         export_id = export_id or self.generate_export_id()
         logger.info(f"Starting export with ID: {export_id}")
+        logger.info(f"Screenshot mode: {use_screenshots}, App URL: {app_url}")
 
         try:
             # Step 1: Generate PPTX
             update_progress(10, "Generating presentation...")
-            logger.info("Generating PPTX...")
 
-            from core.export_orchestrator import export_to_pptx
-            pptx_bytes = export_to_pptx(
-                session_state=session_state,
-                brand_name=brand_name,
-                industry=industry,
-                progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m)
-            )
+            if use_screenshots:
+                logger.info("Generating PPTX with screenshots...")
+                from core.export_orchestrator import export_to_pptx_with_screenshots
+                pptx_bytes = export_to_pptx_with_screenshots(
+                    session_state=session_state,
+                    brand_name=brand_name,
+                    industry=industry,
+                    app_url=app_url,
+                    use_live_capture=True,
+                    progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m)
+                )
+            else:
+                logger.info("Generating PPTX programmatically...")
+                from core.export_orchestrator import export_to_pptx
+                pptx_bytes = export_to_pptx(
+                    session_state=session_state,
+                    brand_name=brand_name,
+                    industry=industry,
+                    progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m)
+                )
 
             logger.info(f"Generated PPTX: {len(pptx_bytes):,} bytes")
 
@@ -400,7 +417,9 @@ def export_to_s3_and_stitch(
     industry: str = "General",
     components: Optional[List[str]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
-    export_id: Optional[str] = None
+    export_id: Optional[str] = None,
+    use_screenshots: bool = False,
+    app_url: str = "http://localhost:3006"
 ) -> ExportResult:
     """
     Convenience function for the complete export pipeline.
@@ -412,6 +431,8 @@ def export_to_s3_and_stitch(
         components: Components to include in stitch
         progress_callback: Progress callback (percent, message)
         export_id: Optional pre-generated export ID
+        use_screenshots: If True, capture actual UI screenshots instead of programmatic generation
+        app_url: URL of the running Streamlit app (for screenshot mode)
 
     Returns:
         ExportResult with download URL or error
@@ -423,7 +444,9 @@ def export_to_s3_and_stitch(
         industry=industry,
         components=components,
         progress_callback=progress_callback,
-        export_id=export_id
+        export_id=export_id,
+        use_screenshots=use_screenshots,
+        app_url=app_url
     )
 
 

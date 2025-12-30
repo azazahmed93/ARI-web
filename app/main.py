@@ -2,8 +2,58 @@ import streamlit as st
 import os
 import sys
 import json
+import tempfile
+from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+def load_export_session_state():
+    """
+    Load session state from temp file when in export mode.
+    This allows Playwright to capture the actual rendered UI.
+    """
+    export_mode = st.query_params.get('export_mode')
+    export_id = st.query_params.get('export_id')
+
+    print(f"[EXPORT DEBUG] export_mode={export_mode}, export_id={export_id}")
+
+    if export_mode == 'true' and export_id:
+        # Look for the temp state file
+        temp_dir = Path(tempfile.gettempdir()) / "ari_exports"
+        state_file = temp_dir / f"{export_id}.json"
+
+        print(f"[EXPORT DEBUG] Looking for state file: {state_file}")
+        print(f"[EXPORT DEBUG] File exists: {state_file.exists()}")
+
+        if state_file.exists():
+            try:
+                with open(state_file, 'r') as f:
+                    saved_state = json.load(f)
+
+                print(f"[EXPORT DEBUG] Loaded state with {len(saved_state)} keys")
+                print(f"[EXPORT DEBUG] Keys: {list(saved_state.keys())[:10]}...")
+
+                # Load saved state into session state
+                for key, value in saved_state.items():
+                    if key not in ['_streamlit_internal']:  # Skip internal keys
+                        st.session_state[key] = value
+
+                # Ensure has_analyzed is True so results are displayed
+                st.session_state.has_analyzed = True
+                st.session_state._export_mode = True
+
+                print(f"[EXPORT DEBUG] Set has_analyzed=True, session state updated")
+                return True
+            except Exception as e:
+                print(f"[EXPORT DEBUG] Error loading export state: {e}")
+        else:
+            print(f"[EXPORT DEBUG] State file does not exist!")
+            # List files in the directory
+            if temp_dir.exists():
+                files = list(temp_dir.glob("*.json"))
+                print(f"[EXPORT DEBUG] Available files in {temp_dir}: {[f.name for f in files]}")
+
+    return False
 from app.layouts.landing_layout import landing_layout
 from app.sections.results import display_results
 from app.components.restricted_access import is_logged_in
@@ -33,6 +83,9 @@ def main():
         layout="wide",
         initial_sidebar_state="collapsed"
     )
+
+    # Check for export mode FIRST - load saved state if present
+    is_export_mode = load_export_session_state()
 
     # Initialize session state for storing analysis results
     if 'has_analyzed' not in st.session_state:
@@ -112,9 +165,27 @@ def main():
     if st.session_state.has_analyzed:
         inner_content = display_results
 
+    # Check if we're in export mode (set by load_export_session_state)
+    is_export_mode = st.session_state.get('_export_mode', False)
+
     if st.query_params.get('mode') != 'admin':
-        if(is_logged_in()):
-            landing_layout(inner_content)
+        if is_export_mode and st.session_state.has_analyzed:
+            # In export mode, skip landing layout and show results directly
+            # This allows Playwright to capture just the results tabs
+            print("[EXPORT MODE] Skipping landing layout, showing results directly")
+            display_results(
+                st.session_state.get('scores'),
+                st.session_state.get('percentile'),
+                st.session_state.get('improvement_areas'),
+                st.session_state.get('brand_name', 'Brand'),
+                st.session_state.get('industry', 'General'),
+                st.session_state.get('product_type', 'Product'),
+                st.session_state.get('brief_text', ''),
+            )
+        else:
+            # Normal mode - show landing layout
+            if(is_logged_in()):
+                landing_layout(inner_content)
     else:
         admin_uploads()
 
