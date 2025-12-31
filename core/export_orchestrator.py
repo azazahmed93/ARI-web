@@ -987,8 +987,8 @@ class ExportOrchestrator:
             self._add_cover_slide(prs, brand_name, industry)
 
             # 2. Capture Streamlit screenshots
-            update_progress(10, "Capturing Streamlit screenshots...")
-            logger.info("Capturing Streamlit screenshots...")
+            update_progress(10, "Capturing screenshots...")
+            logger.info("Capturing screenshots...")
 
             screenshots = capture_streamlit_screenshots(
                 self.session_state,
