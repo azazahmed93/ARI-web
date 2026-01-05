@@ -66,6 +66,7 @@ TAB_SCREENSHOT_CONFIG = {
         "crop_bottom": 380,     # Reduced by 150px to show "About this heatmap" section (was 300)
         "extra_padding": 0,
     },
+    # Note: Competitor Tactics is generated as a programmatic slide, not screenshot
 }
 
 # Debug mode - set to True to save original + cropped images for comparison
@@ -103,6 +104,8 @@ def capture_streamlit_tabs(
             "Media Affinities",
             "Trend Analysis",
         ]
+
+    # Note: Competitor Tactics is handled as a programmatic slide, not a screenshot
 
     # Save session state to temp file for the export mode
     export_id = f"export_{int(time.time())}"
@@ -155,13 +158,12 @@ def capture_streamlit_tabs(
             page.wait_for_selector('[data-testid="stAppViewContainer"]', timeout=30000)
             time.sleep(3)  # Additional wait for full rendering
 
-            # Find all tab buttons
+            # Find all tab buttons and get their text labels
             tab_buttons = page.query_selector_all('[data-baseweb="tab"]')
-            logger.info(f"Found {len(tab_buttons)} tabs in the app")
+            tab_names_in_page = [btn.inner_text().strip() for btn in tab_buttons]
+            logger.info(f"Found {len(tab_buttons)} tabs in the app: {tab_names_in_page}")
 
-            for i, tab_button in enumerate(tab_buttons):
-                tab_text = tab_button.inner_text().strip()
-
+            for i, tab_text in enumerate(tab_names_in_page):
                 # Check if this tab should be captured
                 if tabs_to_capture and tab_text not in tabs_to_capture:
                     logger.debug(f"Skipping tab: {tab_text}")
@@ -169,8 +171,23 @@ def capture_streamlit_tabs(
 
                 logger.info(f"Capturing tab {i+1}: {tab_text}")
 
-                # Click the tab
-                tab_button.click()
+                # Re-query and click the tab button by finding it fresh each time
+                # This avoids stale element references after DOM changes
+                clicked = page.evaluate(f'''() => {{
+                    const tabs = document.querySelectorAll('[data-baseweb="tab"]');
+                    for (const tab of tabs) {{
+                        if (tab.innerText.trim() === "{tab_text}") {{
+                            tab.click();
+                            return true;
+                        }}
+                    }}
+                    return false;
+                }}''')
+
+                if not clicked:
+                    logger.warning(f"  Could not click tab: {tab_text}")
+                    continue
+
                 time.sleep(2)  # Wait for tab content to fully render
 
                 # Wait for any loading spinners to disappear
@@ -932,6 +949,63 @@ def _generate_tab_html(session_state: Dict[str, Any], tab_name: str) -> Optional
         </html>
         """
 
+    elif tab_name == "Competitor Tactics":
+        competitor_tactics = session_state.get('competitor_tactics', [])
+
+        tactics_html = ""
+        if isinstance(competitor_tactics, list) and len(competitor_tactics) > 0:
+            for i, tactic in enumerate(competitor_tactics, 1):
+                # Handle tactics that might be formatted as "Header: Content"
+                if isinstance(tactic, str):
+                    if ':' in tactic:
+                        parts = tactic.split(':', 1)
+                        header = parts[0].strip()
+                        content = parts[1].strip() if len(parts) > 1 else ''
+                        tactics_html += f"""
+                        <div class="metric-card">
+                            <div class="metric-name">{header}</div>
+                            <div class="audience-desc">{content}</div>
+                        </div>
+                        """
+                    else:
+                        tactics_html += f"""
+                        <div class="metric-card">
+                            <div class="metric-name">Strategy {i}</div>
+                            <div class="audience-desc">{tactic}</div>
+                        </div>
+                        """
+
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>{styles}
+        <style>
+            .audience-desc {{
+                font-size: 16px;
+                line-height: 1.6;
+                color: #475569;
+            }}
+            .strategy-header {{
+                background: linear-gradient(90deg, #6171EA, #3b82f6);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                font-size: 18px;
+                font-weight: 600;
+            }}
+        </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="title">Competitor Strategy Analysis - {brand_name}</div>
+                <div class="strategy-header">Fortune 500 Counter-Strategy Recommendations</div>
+                {tactics_html if tactics_html else '<p>No competitor tactics generated. Enter a competitor brand to generate strategies.</p>'}
+            </div>
+        </body>
+        </html>
+        """
+
     return None
 
 
@@ -953,6 +1027,7 @@ def capture_streamlit_screenshots(
         Dict mapping tab name to PNG bytes
     """
     # Tabs that can be rendered as HTML (have templates)
+    # Note: Competitor Tactics is generated as a programmatic slide, not screenshot
     tabs = ["Detailed Metrics", "Audience Insights", "Media Affinities", "Trend Analysis"]
 
     logger.info("=" * 60)

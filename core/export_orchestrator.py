@@ -1000,12 +1000,21 @@ class ExportOrchestrator:
                 logger.warning("No screenshots captured, falling back to programmatic export")
                 return self.export_presentation(brand_name, industry, progress_callback)
 
-            # 3. Add screenshot slides
+            # 3. Add screenshot slides, inserting Competitor Tactics at position 3
+            competitor_tactics = self.session_state.get('competitor_tactics', [])
             total_screenshots = len(screenshots)
+            slide_index = 0
             for i, (tab_name, png_bytes) in enumerate(screenshots.items()):
                 progress = 20 + int((i / total_screenshots) * 60)
                 update_progress(progress, f"Adding slide: {tab_name}...")
                 self._add_screenshot_slide(prs, tab_name, png_bytes)
+                slide_index += 1
+
+                # Insert Competitor Tactics as slide 3 (after first screenshot)
+                if slide_index == 1 and competitor_tactics and len(competitor_tactics) > 0:
+                    update_progress(progress + 5, "Adding competitor tactics...")
+                    logger.info("Adding Competitor Tactics slide at position 3...")
+                    self._add_competitor_tactics_slide(prs)
 
             # 4. Add any additional programmatic slides if needed
             update_progress(85, "Finalizing presentation...")
