@@ -112,12 +112,28 @@ class ExportOrchestrator:
         self,
         brand_name: str = "Brand",
         industry: str = "General",
-        progress_callback: Optional[callable] = None
+        progress_callback: Optional[callable] = None,
+        include_sections: Optional[Dict[str, bool]] = None
     ) -> bytes:
-        """Generate complete PowerPoint presentation."""
+        """
+        Generate complete PowerPoint presentation.
+
+        Args:
+            brand_name: Brand name for the cover slide
+            industry: Industry for the cover slide
+            progress_callback: Optional callback for progress updates
+            include_sections: Dict of section names to include (True) or exclude (False)
+        """
         prs = Presentation()
         prs.slide_width = self.SLIDE_WIDTH
         prs.slide_height = self.SLIDE_HEIGHT
+
+        # Default to all sections included if not specified
+        if include_sections is None:
+            include_sections = {}
+
+        def should_include(section_key: str) -> bool:
+            return include_sections.get(section_key, True)
 
         def update_progress(percent: int, message: str):
             if progress_callback:
@@ -127,41 +143,57 @@ class ExportOrchestrator:
             logger.info("=" * 70)
             logger.info("POWERPOINT EXPORT STARTED")
             logger.info(f"Brand: {brand_name} | Industry: {industry}")
+            logger.info(f"Include sections: {include_sections}")
             logger.info("=" * 70)
 
-            # 1. Cover slide
+            # 1. Cover slide (always included)
             update_progress(10, "Creating cover slide...")
             logger.info("Creating cover slide...")
             self._add_cover_slide(prs, brand_name, industry)
 
-            # 2. Metric Breakdown slide
-            update_progress(15, "Creating metrics slide...")
-            logger.info("Creating metric breakdown slide...")
-            self._add_metric_breakdown_slide(prs)
-
-            # 3. Competitor Tactics slide (after metrics, only if data exists)
-            competitor_tactics = self.session_state.get('competitor_tactics', [])
-            if competitor_tactics and isinstance(competitor_tactics, list) and len(competitor_tactics) > 0:
-                update_progress(25, "Creating competitor tactics slide...")
-                logger.info("Creating competitor tactics slide...")
-                self._add_competitor_tactics_slide(prs)
+            # 2. Metric Breakdown slide (controlled by 'advanced_metrics')
+            if should_include('advanced_metrics'):
+                update_progress(15, "Creating metrics slide...")
+                logger.info("Creating metric breakdown slide...")
+                self._add_metric_breakdown_slide(prs)
             else:
-                logger.info("Skipping competitor tactics slide (no data)")
+                logger.info("Skipping metric breakdown slide (excluded)")
+
+            # 3. Competitor Tactics slide (after metrics, only if data exists and enabled)
+            if should_include('competitor_tactics'):
+                competitor_tactics = self.session_state.get('competitor_tactics', [])
+                if competitor_tactics and isinstance(competitor_tactics, list) and len(competitor_tactics) > 0:
+                    update_progress(25, "Creating competitor tactics slide...")
+                    logger.info("Creating competitor tactics slide...")
+                    self._add_competitor_tactics_slide(prs)
+                else:
+                    logger.info("Skipping competitor tactics slide (no data)")
+            else:
+                logger.info("Skipping competitor tactics slide (excluded)")
 
             # 4. Media Affinities (all in one slide)
-            update_progress(35, "Creating media affinities slide...")
-            logger.info("Creating media affinities slide...")
-            self._add_media_affinities_combined_slide(prs)
+            if should_include('media_affinities'):
+                update_progress(35, "Creating media affinities slide...")
+                logger.info("Creating media affinities slide...")
+                self._add_media_affinities_combined_slide(prs)
+            else:
+                logger.info("Skipping media affinities slide (excluded)")
 
             # 5. Audience Insights slide (with psychographic highlights)
-            update_progress(50, "Creating audience insights slide...")
-            logger.info("Creating audience insights slide...")
-            self._add_audience_insights_slide(prs)
+            if should_include('psychographic'):
+                update_progress(50, "Creating audience insights slide...")
+                logger.info("Creating audience insights slide...")
+                self._add_audience_insights_slide(prs)
+            else:
+                logger.info("Skipping audience insights slide (excluded)")
 
             # 6. Marketing Trends slide (includes benchmark at bottom)
-            update_progress(80, "Creating marketing trends slide...")
-            logger.info("Creating marketing trends slide...")
-            self._add_marketing_trends_slide(prs)
+            if should_include('trends'):
+                update_progress(80, "Creating marketing trends slide...")
+                logger.info("Creating marketing trends slide...")
+                self._add_marketing_trends_slide(prs)
+            else:
+                logger.info("Skipping marketing trends slide (excluded)")
 
             # # 7. Footer slide
             # update_progress(90, "Finalizing presentation...")
@@ -947,7 +979,8 @@ class ExportOrchestrator:
         industry: str = "General",
         app_url: str = "http://localhost:3006",
         use_live_capture: bool = False,
-        progress_callback: Optional[callable] = None
+        progress_callback: Optional[callable] = None,
+        include_sections: Optional[Dict[str, bool]] = None
     ) -> bytes:
         """
         Generate PowerPoint presentation using actual screenshots of the Streamlit app.
@@ -958,13 +991,14 @@ class ExportOrchestrator:
             app_url: URL of the running Streamlit app
             use_live_capture: If True, capture from running app; if False, render HTML
             progress_callback: Optional callback for progress updates
+            include_sections: Dict of section names to include (True) or exclude (False)
 
         Returns:
             PowerPoint file bytes
         """
         if not SCREENSHOT_AVAILABLE:
             logger.warning("Screenshot service not available, falling back to programmatic export")
-            return self.export_presentation(brand_name, industry, progress_callback)
+            return self.export_presentation(brand_name, industry, progress_callback, include_sections)
 
         prs = Presentation()
         prs.slide_width = self.SLIDE_WIDTH
@@ -993,14 +1027,17 @@ class ExportOrchestrator:
             screenshots = capture_streamlit_screenshots(
                 self.session_state,
                 use_live_capture=use_live_capture,
-                app_url=app_url
+                app_url=app_url,
+                include_sections=include_sections
             )
 
             if not screenshots:
                 logger.warning("No screenshots captured, falling back to programmatic export")
-                return self.export_presentation(brand_name, industry, progress_callback)
+                return self.export_presentation(brand_name, industry, progress_callback, include_sections)
 
             # 3. Add screenshot slides, inserting Competitor Tactics after Advanced Metric Analysis
+            # Check if competitor tactics should be included
+            should_include_competitor = include_sections.get('competitor_tactics', True) if include_sections else True
             competitor_tactics = self.session_state.get('competitor_tactics', [])
             total_screenshots = len(screenshots)
             slide_index = 0
@@ -1011,7 +1048,7 @@ class ExportOrchestrator:
                 slide_index += 1
 
                 # Insert Competitor Tactics after Advanced Metric Analysis (slide 3)
-                if slide_index == 3 and competitor_tactics and len(competitor_tactics) > 0:
+                if slide_index == 3 and should_include_competitor and competitor_tactics and len(competitor_tactics) > 0:
                     update_progress(progress + 5, "Adding competitor tactics...")
                     logger.info("Adding Competitor Tactics slide after Advanced Metric Analysis...")
                     self._add_competitor_tactics_slide(prs)
@@ -1037,23 +1074,32 @@ class ExportOrchestrator:
         except Exception as e:
             logger.error(f"Error in screenshot export: {e}")
             logger.info("Falling back to programmatic export...")
-            return self.export_presentation(brand_name, industry, progress_callback)
+            return self.export_presentation(brand_name, industry, progress_callback, include_sections)
 
 
 def export_to_pptx(
     session_state: Dict[str, Any],
     brand_name: str = "Brand",
     industry: str = "General",
-    progress_callback: Optional[callable] = None
+    progress_callback: Optional[callable] = None,
+    include_sections: Optional[Dict[str, bool]] = None
 ) -> bytes:
     """
     Convenience function to export presentation (programmatic generation).
+
+    Args:
+        session_state: Streamlit session state dictionary
+        brand_name: Brand name for the cover slide
+        industry: Industry for the cover slide
+        progress_callback: Optional callback for progress updates
+        include_sections: Dict of section names to include (True) or exclude (False)
     """
     orchestrator = ExportOrchestrator(session_state)
     return orchestrator.export_presentation(
         brand_name=brand_name,
         industry=industry,
-        progress_callback=progress_callback
+        progress_callback=progress_callback,
+        include_sections=include_sections
     )
 
 
@@ -1063,7 +1109,8 @@ def export_to_pptx_with_screenshots(
     industry: str = "General",
     app_url: str = "http://localhost:3006",
     use_live_capture: bool = True,
-    progress_callback: Optional[callable] = None
+    progress_callback: Optional[callable] = None,
+    include_sections: Optional[Dict[str, bool]] = None
 ) -> bytes:
     """
     Export presentation using actual screenshots of the Streamlit UI.
@@ -1075,6 +1122,7 @@ def export_to_pptx_with_screenshots(
         app_url: URL of the running Streamlit app (for live capture)
         use_live_capture: If True, capture from running app (pixel-perfect); if False, render HTML templates
         progress_callback: Optional callback for progress updates (percent, message)
+        include_sections: Dict of section names to include (True) or exclude (False)
 
     Returns:
         PowerPoint file bytes
@@ -1085,5 +1133,6 @@ def export_to_pptx_with_screenshots(
         industry=industry,
         app_url=app_url,
         use_live_capture=use_live_capture,
-        progress_callback=progress_callback
+        progress_callback=progress_callback,
+        include_sections=include_sections
     )

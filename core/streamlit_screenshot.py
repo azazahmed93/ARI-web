@@ -133,6 +133,21 @@ TAB_SCREENSHOT_CONFIG = {
     "Trend Analysis": SECTION_SCREENSHOT_CONFIG["Trend Analysis"],
 }
 
+# =============================================================================
+# SECTION MAPPING - Maps UI checkbox keys to screenshot section names
+# =============================================================================
+# This maps the include_sections keys from the UI checkboxes to the actual
+# section names in SECTION_SCREENSHOT_CONFIG
+SECTION_MAPPING = {
+    'advanced_metrics': ['Score Card', 'Executive Summary & Detailed Metrics'],  # Score Card + Detailed Metrics
+    'benchmark': ['Advanced Metric Analysis'],  # Advanced Analysis
+    'psychographic': ['Psychographic Highlights & Audience Summary'],
+    'growth_audience': ['Growth Audience Insights'],
+    'emerging_audience': ['Emerging Audience Opportunity'],
+    'media_affinities': ['Media Affinities'],
+    'trends': ['Trend Analysis'],
+}
+
 # Debug mode - set to True to save original + cropped images for comparison
 DEBUG_SCREENSHOTS = False
 DEBUG_OUTPUT_DIR = "/tmp/ari_screenshot_debug"
@@ -2118,7 +2133,8 @@ def capture_streamlit_screenshots(
     session_state: Dict[str, Any],
     use_live_capture: bool = False,
     app_url: str = "http://localhost:3006",
-    use_sections: bool = True
+    use_sections: bool = True,
+    include_sections: Optional[Dict[str, bool]] = None
 ) -> Dict[str, bytes]:
     """
     Capture screenshots of Streamlit content.
@@ -2128,12 +2144,15 @@ def capture_streamlit_screenshots(
         use_live_capture: If True, capture from running app; if False, render HTML
         app_url: URL of the running Streamlit app (only used if use_live_capture=True)
         use_sections: If True, capture 8 sections; if False, capture 4 tabs (legacy)
+        include_sections: Dict of section keys to include (True) or exclude (False)
+            Keys: 'advanced_metrics', 'benchmark', 'psychographic', 'growth_audience',
+                  'emerging_audience', 'media_affinities', 'trends'
 
     Returns:
         Dict mapping section/tab name to PNG bytes
     """
-    # New section-based capture (8 slides from 4 tabs)
-    sections = [
+    # All available sections (8 slides from 4 tabs)
+    all_sections = [
         "Score Card",
         "Executive Summary & Detailed Metrics",
         "Advanced Metric Analysis",
@@ -2144,6 +2163,19 @@ def capture_streamlit_screenshots(
         "Trend Analysis",
     ]
 
+    # Filter sections based on include_sections if provided
+    if include_sections:
+        enabled_sections = set()
+        for key, enabled in include_sections.items():
+            if enabled and key in SECTION_MAPPING:
+                enabled_sections.update(SECTION_MAPPING[key])
+        # Keep only sections that are enabled
+        sections = [s for s in all_sections if s in enabled_sections]
+        logger.info(f"Filtered sections based on include_sections: {sections}")
+    else:
+        # Include all sections if no filter provided
+        sections = all_sections
+
     # Legacy tab-based capture (4 slides)
     tabs = ["Detailed Metrics", "Audience Insights", "Media Affinities", "Trend Analysis"]
 
@@ -2151,6 +2183,7 @@ def capture_streamlit_screenshots(
     logger.info("STREAMLIT SCREENSHOT CAPTURE STARTED")
     logger.info(f"Mode: {'Live capture' if use_live_capture else 'HTML rendering'}")
     logger.info(f"Capture type: {'Sections (8 slides)' if use_sections else 'Tabs (4 slides)'}")
+    logger.info(f"Include sections filter: {include_sections}")
     logger.info(f"Items to capture: {sections if use_sections else tabs}")
     logger.info("=" * 60)
 

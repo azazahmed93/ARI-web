@@ -226,7 +226,8 @@ class S3ExportService:
         progress_callback: Optional[Callable[[int, str], None]] = None,
         export_id: Optional[str] = None,
         use_screenshots: bool = False,
-        app_url: str = "http://localhost:3006"
+        app_url: str = "http://localhost:3006",
+        include_sections: Optional[Dict[str, bool]] = None
     ) -> ExportResult:
         """
         Complete export pipeline: generate PPTX, upload to S3, stitch, return URL.
@@ -244,6 +245,7 @@ class S3ExportService:
                        have already uploaded with this ID)
             use_screenshots: If True, capture actual UI screenshots instead of programmatic generation
             app_url: URL of the running Streamlit app (for screenshot mode)
+            include_sections: Dict of section names to include (True) or exclude (False)
 
         Returns:
             ExportResult with success status and download URL or error
@@ -271,7 +273,8 @@ class S3ExportService:
                     industry=industry,
                     app_url=app_url,
                     use_live_capture=True,
-                    progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m)
+                    progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m),
+                    include_sections=include_sections
                 )
             else:
                 logger.info("Generating PPTX programmatically...")
@@ -280,7 +283,8 @@ class S3ExportService:
                     session_state=session_state,
                     brand_name=brand_name,
                     industry=industry,
-                    progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m)
+                    progress_callback=lambda p, m: update_progress(10 + int(p * 0.3), m),
+                    include_sections=include_sections
                 )
 
             logger.info(f"Generated PPTX: {len(pptx_bytes):,} bytes")
@@ -419,7 +423,8 @@ def export_to_s3_and_stitch(
     progress_callback: Optional[Callable[[int, str], None]] = None,
     export_id: Optional[str] = None,
     use_screenshots: bool = False,
-    app_url: str = "http://localhost:3006"
+    app_url: str = "http://localhost:3006",
+    include_sections: Optional[Dict[str, bool]] = None
 ) -> ExportResult:
     """
     Convenience function for the complete export pipeline.
@@ -433,6 +438,7 @@ def export_to_s3_and_stitch(
         export_id: Optional pre-generated export ID
         use_screenshots: If True, capture actual UI screenshots instead of programmatic generation
         app_url: URL of the running Streamlit app (for screenshot mode)
+        include_sections: Dict of section names to include (True) or exclude (False)
 
     Returns:
         ExportResult with download URL or error
@@ -446,7 +452,8 @@ def export_to_s3_and_stitch(
         progress_callback=progress_callback,
         export_id=export_id,
         use_screenshots=use_screenshots,
-        app_url=app_url
+        app_url=app_url,
+        include_sections=include_sections
     )
 
 
