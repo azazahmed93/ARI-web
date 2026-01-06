@@ -112,16 +112,16 @@ SECTION_SCREENSHOT_CONFIG = {
     "Media Affinities": {
         "source_tab": "Media Affinities",
         "js_setup": None,  # No section hiding needed
-        "crop_top": 80,
-        "crop_bottom": 150,
+        "crop_top": 0,  # Reduced from 80 - was clipping top
+        "crop_bottom": 0,  # Reduced from 150 - was clipping bottom
         "extra_padding": 200,
     },
     "Trend Analysis": {
         "source_tab": "Trend Analysis",
         "js_setup": None,  # No section hiding needed
-        "crop_top": 130,
-        "crop_bottom": 380,
-        "extra_padding": 0,
+        "crop_top": 0,  # Reduced from 130
+        "crop_bottom": 0,  # Reduced from 380 - was clipping bottom
+        "extra_padding": 200,  # Increased from 0
     },
 }
 
