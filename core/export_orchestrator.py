@@ -139,24 +139,24 @@ class ExportOrchestrator:
             logger.info("Creating metric breakdown slide...")
             self._add_metric_breakdown_slide(prs)
 
-            # 3. Media Affinities (all in one slide)
-            update_progress(30, "Creating media affinities slide...")
-            logger.info("Creating media affinities slide...")
-            self._add_media_affinities_combined_slide(prs)
-
-            # 4. Audience Insights slide (with psychographic highlights)
-            update_progress(45, "Creating audience insights slide...")
-            logger.info("Creating audience insights slide...")
-            self._add_audience_insights_slide(prs)
-
-            # 5. Competitor Tactics slide (only if data exists)
+            # 3. Competitor Tactics slide (after metrics, only if data exists)
             competitor_tactics = self.session_state.get('competitor_tactics', [])
             if competitor_tactics and isinstance(competitor_tactics, list) and len(competitor_tactics) > 0:
-                update_progress(55, "Creating competitor tactics slide...")
+                update_progress(25, "Creating competitor tactics slide...")
                 logger.info("Creating competitor tactics slide...")
                 self._add_competitor_tactics_slide(prs)
             else:
                 logger.info("Skipping competitor tactics slide (no data)")
+
+            # 4. Media Affinities (all in one slide)
+            update_progress(35, "Creating media affinities slide...")
+            logger.info("Creating media affinities slide...")
+            self._add_media_affinities_combined_slide(prs)
+
+            # 5. Audience Insights slide (with psychographic highlights)
+            update_progress(50, "Creating audience insights slide...")
+            logger.info("Creating audience insights slide...")
+            self._add_audience_insights_slide(prs)
 
             # 6. Marketing Trends slide (includes benchmark at bottom)
             update_progress(80, "Creating marketing trends slide...")
@@ -1000,7 +1000,7 @@ class ExportOrchestrator:
                 logger.warning("No screenshots captured, falling back to programmatic export")
                 return self.export_presentation(brand_name, industry, progress_callback)
 
-            # 3. Add screenshot slides, inserting Competitor Tactics at position 3
+            # 3. Add screenshot slides, inserting Competitor Tactics after Advanced Metric Analysis
             competitor_tactics = self.session_state.get('competitor_tactics', [])
             total_screenshots = len(screenshots)
             slide_index = 0
@@ -1010,10 +1010,10 @@ class ExportOrchestrator:
                 self._add_screenshot_slide(prs, tab_name, png_bytes)
                 slide_index += 1
 
-                # Insert Competitor Tactics as slide 3 (after first screenshot)
-                if slide_index == 1 and competitor_tactics and len(competitor_tactics) > 0:
+                # Insert Competitor Tactics after Advanced Metric Analysis (slide 3)
+                if slide_index == 3 and competitor_tactics and len(competitor_tactics) > 0:
                     update_progress(progress + 5, "Adding competitor tactics...")
-                    logger.info("Adding Competitor Tactics slide at position 3...")
+                    logger.info("Adding Competitor Tactics slide after Advanced Metric Analysis...")
                     self._add_competitor_tactics_slide(prs)
 
             # 4. Add any additional programmatic slides if needed
