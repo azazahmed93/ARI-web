@@ -1036,7 +1036,41 @@ def capture_streamlit_sections(
     try:
         with sync_playwright() as p:
             logger.info("Launching headless Chromium browser for section capture...")
-            browser = p.chromium.launch(headless=True)
+
+            # Try to launch browser - first try default, then try system chromium
+            browser = None
+            launch_errors = []
+
+            # Attempt 1: Default Playwright-managed browser
+            try:
+                browser = p.chromium.launch(headless=True)
+                logger.info("Launched Playwright-managed Chromium")
+            except Exception as e1:
+                launch_errors.append(f"Playwright browser: {e1}")
+                logger.warning(f"Playwright browser not available: {e1}")
+
+                # Attempt 2: System Chromium (common on Replit/Linux)
+                import shutil
+                system_chromium = shutil.which('chromium') or shutil.which('chromium-browser') or shutil.which('google-chrome')
+                if system_chromium:
+                    try:
+                        browser = p.chromium.launch(headless=True, executable_path=system_chromium)
+                        logger.info(f"Launched system Chromium: {system_chromium}")
+                    except Exception as e2:
+                        launch_errors.append(f"System chromium ({system_chromium}): {e2}")
+                        logger.warning(f"System chromium failed: {e2}")
+
+            if browser is None:
+                logger.error("=" * 60)
+                logger.error("PLAYWRIGHT BROWSER LAUNCH FAILED!")
+                logger.error("All browser launch attempts failed:")
+                for err in launch_errors:
+                    logger.error(f"  - {err}")
+                logger.error("Solutions:")
+                logger.error("  1. Run: playwright install chromium")
+                logger.error("  2. Install system chromium: apt install chromium")
+                logger.error("=" * 60)
+                raise RuntimeError("No browser available for screenshot capture")
             context = browser.new_context(
                 viewport={'width': viewport_width, 'height': viewport_height}
             )
