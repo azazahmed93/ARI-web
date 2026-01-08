@@ -87,6 +87,31 @@ def main():
     # Check for export mode FIRST - load saved state if present
     is_export_mode = load_export_session_state()
 
+    # Playwright diagnostic endpoint - access via ?test_playwright=true
+    if st.query_params.get('test_playwright') == 'true':
+        st.title("Playwright Diagnostic")
+        try:
+            from playwright.sync_api import sync_playwright
+            st.write("✅ Playwright imported successfully")
+
+            with sync_playwright() as p:
+                st.write("✅ sync_playwright context created")
+                st.write("🔄 Launching browser...")
+                browser = p.chromium.launch(headless=True)
+                st.write("✅ Browser launched!")
+                page = browser.new_page()
+                page.goto('data:text/html,<h1>Test</h1>')
+                screenshot = page.screenshot()
+                st.write(f"✅ Screenshot taken: {len(screenshot)} bytes")
+                browser.close()
+                st.write("✅ Browser closed")
+                st.success("🎉 Playwright is working correctly!")
+        except Exception as e:
+            st.error(f"❌ Playwright failed: {e}")
+            import traceback
+            st.code(traceback.format_exc())
+        return
+
     # Initialize session state for storing analysis results
     if 'has_analyzed' not in st.session_state:
         st.session_state.has_analyzed = False
