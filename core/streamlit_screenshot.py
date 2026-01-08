@@ -1037,22 +1037,8 @@ def capture_streamlit_sections(
         with sync_playwright() as p:
             logger.info("Launching headless Chromium browser for section capture...")
 
-            # Launch browser - use channel='chromium' to use the full Chromium
-            # instead of the headless shell which has stricter library requirements
-            logger.info("Attempting to launch Chromium browser...")
-
-            try:
-                # Try using the Nix-provided Chromium directly via channel
-                browser = p.chromium.launch(
-                    headless=True,
-                    channel='chromium'  # Use system Chromium instead of headless shell
-                )
-                logger.info("Launched Chromium via channel='chromium'")
-            except Exception as e1:
-                logger.warning(f"Channel chromium failed: {e1}")
-                # Fall back to default Playwright browser
-                browser = p.chromium.launch(headless=True)
-                logger.info("Launched default Playwright Chromium")
+            # Launch browser
+            browser = p.chromium.launch(headless=True)
             context = browser.new_context(
                 viewport={'width': viewport_width, 'height': viewport_height}
             )
