@@ -96,12 +96,20 @@ def main():
 
             with sync_playwright() as p:
                 st.write("✅ sync_playwright context created")
-                st.write("🔄 Launching browser...")
-                browser = p.chromium.launch(headless=True)
+                st.write("🔄 Launching browser with extra args...")
+                browser = p.chromium.launch(
+                    headless=True,
+                    args=['--disable-gpu', '--disable-software-rasterizer', '--no-sandbox']
+                )
                 st.write("✅ Browser launched!")
-                page = browser.new_page()
+                context = browser.new_context(viewport={'width': 1280, 'height': 720})
+                page = context.new_page()
+                st.write("✅ Page created")
                 page.goto('data:text/html,<h1>Test</h1>')
-                screenshot = page.screenshot()
+                st.write("✅ Page loaded")
+                page.wait_for_timeout(1000)
+                st.write("🔄 Taking screenshot...")
+                screenshot = page.screenshot(type='png')
                 st.write(f"✅ Screenshot taken: {len(screenshot)} bytes")
                 browser.close()
                 st.write("✅ Browser closed")
@@ -209,8 +217,8 @@ def main():
             )
         else:
             # Normal mode - show landing layout
-            if(is_logged_in()):
-                landing_layout(inner_content)
+            # if(is_logged_in()):
+            landing_layout(inner_content)
     else:
         admin_uploads()
 
