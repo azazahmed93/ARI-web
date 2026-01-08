@@ -217,8 +217,8 @@ def main():
             )
         else:
             # Normal mode - show landing layout
-        if(is_logged_in()):
-            landing_layout(inner_content)
+            if(is_logged_in()):
+                landing_layout(inner_content)
     else:
         admin_uploads()
 
