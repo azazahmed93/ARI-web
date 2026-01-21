@@ -804,6 +804,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 html_code = f.read()
 
             html_code = html_code.replace("{{RFP_BRIEF}}", st.session_state.brief_text)
+            html_code = html_code.replace("{{AUDIENCE_INSIGHTS}}", json.dumps(st.session_state.audience_insights))
+            html_code = html_code.replace("{{AUDIENCE_SEGMENTS}}", json.dumps(st.session_state.audience_segments.get('segments', [])))
             components.html(html_code, height=1000, scrolling=True)
 
         except FileNotFoundError:
