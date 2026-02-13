@@ -58,7 +58,7 @@ from app.layouts.landing_layout import landing_layout
 from app.sections.results import display_results
 from app.components.restricted_access import is_logged_in
 from app.sections.admin_uploads import admin_uploads
-from core.ai_insights import generate_audience_insights, generate_media_consumption,generate_media_affinity, generate_pychographic_highlights
+from core.ai_insights import generate_audience_insights, generate_pychographic_highlights
 
 # Import and run warmup on app load
 try:
@@ -226,24 +226,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Note: Psychographic data (audience_insights) is now handled by user input
-# The following are still generated automatically if admin files exist:
 
-# Generate media consumption if admin file exists
-try:
-    media_consumption = generate_media_consumption()
-    if media_consumption:
-        st.session_state.audience_media_consumption = media_consumption
-except:
-    pass
-
-# Generate media affinity if admin file exists
-try:
-    media_affinity = generate_media_affinity()
-    if media_affinity:
-        st.session_state.media_affinity = media_affinity
-except:
-    pass
 
 # Generate psychographic highlights only if audience_insights exists (from user input)
 if 'audience_insights' in st.session_state and st.session_state.audience_insights:

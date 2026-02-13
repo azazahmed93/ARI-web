@@ -142,7 +142,10 @@ def media_affinities(is_siteone_hispanic):
     if is_siteone_hispanic:
         social_media_sites = ensure_valid_url_in_sites(SITEONE_HISPANIC_SOCIAL_MEDIA)
     else:
-        social_media_sites = ensure_valid_url_in_sites(json.loads(st.session_state.media_affinity))
+        media_affinity_data = st.session_state.media_affinity
+        if isinstance(media_affinity_data, str):
+            media_affinity_data = json.loads(media_affinity_data)
+        social_media_sites = ensure_valid_url_in_sites(media_affinity_data)
     
     for i, site in enumerate(social_media_sites):
         with cols[i % 5]:
@@ -179,8 +182,8 @@ def media_affinities(is_siteone_hispanic):
     if is_siteone_hispanic:
         tv_network_data = SITEONE_HISPANIC_TV_NETWORKS
     else:
-        tv_network_data = st.session_state.audience_media_consumption['tv_networks']
-    
+        tv_network_data = st.session_state.audience_media_consumption.get('tv_networks', [])
+
     for i, network in enumerate(tv_network_data):
         with cols[i % 5]:
             # Truncate network name if it's too long
@@ -214,7 +217,7 @@ def media_affinities(is_siteone_hispanic):
     if is_siteone_hispanic:
         streaming_data = SITEONE_HISPANIC_STREAMING
     else:
-        streaming_data = st.session_state.audience_media_consumption['streaming_platforms']
+        streaming_data = st.session_state.audience_media_consumption.get('streaming_platforms', [])
     
     for i, platform in enumerate(streaming_data):
         with cols[i % 3]:

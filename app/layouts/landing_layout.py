@@ -658,7 +658,40 @@ def landing_layout(inner_content):
                                         except Exception as e:
                                             print(f"⚠ Error during Census enrichment: {e}")
                                             # Continue without Census data if there's an error
-                                        
+
+                                        # Phase 1c: AI-Powered Inventory Selection
+                                        try:
+                                            from core.inventory_selector import select_all_inventory
+                                            import json as _json
+
+                                            print("\n" + "=" * 60)
+                                            print("Starting AI-powered inventory selection (Phase 1c)...")
+                                            print("=" * 60)
+
+                                            audience_context = ""
+                                            if st.session_state.get('audience_insights'):
+                                                audience_context = _json.dumps(st.session_state.audience_insights)[:2000]
+
+                                            phase1c_start = time.time()
+                                            inventory_results = select_all_inventory(brief_text, audience_context)
+                                            phase1c_time = time.time() - phase1c_start
+
+                                            if inventory_results.get('media_affinity'):
+                                                st.session_state.media_affinity = inventory_results['media_affinity']
+
+                                            media_consumption = st.session_state.get('audience_media_consumption', {})
+                                            if isinstance(media_consumption, str):
+                                                media_consumption = _json.loads(media_consumption)
+                                            if inventory_results.get('tv_networks'):
+                                                media_consumption['tv_networks'] = inventory_results['tv_networks']
+                                            if inventory_results.get('streaming_platforms'):
+                                                media_consumption['streaming_platforms'] = inventory_results['streaming_platforms']
+                                            st.session_state.audience_media_consumption = media_consumption
+
+                                            print(f"\n✓ Phase 1c completed in {phase1c_time:.2f} seconds")
+                                        except Exception as e:
+                                            print(f"⚠ Inventory selection failed: {e}")
+
                                         # Phase 2: Generate audience summaries and journey data in parallel
                                         # These depend on Phase 1 results (audience_segments)
                                         if 'audience_insights' in st.session_state and 'audience_media_consumption' in st.session_state:
