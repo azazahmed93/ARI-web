@@ -1160,13 +1160,20 @@ Additional audience data for SiteOne Hispanic campaign:
         identify 3 key audience segments for targeted omnichannel digital advertising with specific platform targeting parameters.
         
         IMPORTANT GUIDELINES:
-        1. Focus on OMNICHANNEL digital advertising solutions - including display, video, CTV/OTT, audio, rich media, high impact, 
+        1. Focus on OMNICHANNEL digital advertising solutions - including display, video, CTV/OTT, audio, rich media, high impact,
            interactive, programmatic digital out-of-home (DOOH), etc.
         2. DO NOT focus on search or social media campaigns, which typically have higher CTRs than other digital channels
         3. CTR estimates should reflect realistic omnichannel expectations
-        4. Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned 
+        4. Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned
            in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
            This should be a growth opportunity audience that the campaign isn't currently addressing.
+        5. ETHNICITY/RACE CONSTRAINT (CRITICAL): If the campaign brief specifies a target race or ethnicity
+           (e.g., "Black/African-American", "Hispanic/Latino", "Asian-American", etc.), then ALL three audience
+           segments — including the growth/emerging segment — MUST be sub-segments within that same ethnic group.
+           Do NOT suggest segments targeting a different race or ethnicity. Instead, find diverse sub-segments
+           WITHIN the specified community (e.g., different age cohorts, interest groups, income tiers, geographic
+           concentrations, or behavioral patterns within that ethnic group). The segment names should also reflect
+           the target ethnicity where relevant.
         
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
@@ -1213,8 +1220,9 @@ Additional audience data for SiteOne Hispanic campaign:
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
         - rationale: string with a brief rationale for why it recommends the specific emerging audience, only populate it for emerging audience, max 400 letters. Don't mention that it's not being explicitly targeted.
         
-        Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed 
+        Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
+        IMPORTANT REMINDER: If the brief specifies a target ethnicity/race, ALL three segments must be within that ethnic group. Do not cross ethnic boundaries.
         """
         
         # Use the improved API call with retry logic
