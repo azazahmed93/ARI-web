@@ -1133,14 +1133,14 @@ def generate_audience_segments(brief_text, ari_scores, demographics_info=None):
         # Check if this is the SiteOne Hispanic campaign
         is_siteone_hispanic = False
         audience_data_str = ""
-        
+
         if "SiteOne" in brief_text and ("Hispanic" in brief_text or "Spanish" in brief_text):
             is_siteone_hispanic = True
             audience_data_str = """
 Additional audience data for SiteOne Hispanic campaign:
 - Demographics: 93% male, 39% ages 25-34, 33% income $25-50k, 42% high school degree
 - Values: Maintaining traditions (161), Acquiring wealth (143), Being humble (142)
-- Psychological Drivers: Exciting life (204), Social/professional status (166) 
+- Psychological Drivers: Exciting life (204), Social/professional status (166)
 - Hobbies: Soccer (419), Gambling on sports (265), Basketball (249)
 - Media: Univision (1357), NFL Network (295), Comedy Central (282)
 - Streaming: Disney+ without ads (184), Netflix without ads (164)
@@ -1148,10 +1148,10 @@ Additional audience data for SiteOne Hispanic campaign:
 - Social Media: Twitch (208), Discord (178), TikTok (146), Reddit (140)
 - Magazines: Men's Health (562), Sports Illustrated (455)
 """
-            
+
         # Format the scores for inclusion in the prompt
         scores_str = "\n".join([f"- {metric}: {score}/10" for metric, score in ari_scores.items()])
-        
+
         # Craft a prompt for the OpenAI API
         prompt = f"""
         You are a digital media buying and audience segmentation expert specializing in omnichannel advertising platforms.
@@ -1167,14 +1167,14 @@ Additional audience data for SiteOne Hispanic campaign:
         4. Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned
            in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
            This should be a growth opportunity audience that the campaign isn't currently addressing.
-        5. ETHNICITY/RACE CONSTRAINT (CRITICAL): If the campaign brief specifies a target race or ethnicity
-           (e.g., "Black/African-American", "Hispanic/Latino", "Asian-American", etc.), then ALL three audience
-           segments — including the growth/emerging segment — MUST be sub-segments within that same ethnic group.
-           Do NOT suggest segments targeting a different race or ethnicity. Instead, find diverse sub-segments
-           WITHIN the specified community (e.g., different age cohorts, interest groups, income tiers, geographic
-           concentrations, or behavioral patterns within that ethnic group). The segment names should also reflect
-           the target ethnicity where relevant.
-        
+        5. ETHNICITY/RACE CONSTRAINT: If the campaign brief EXPLICITLY names one or more target races, ethnicities,
+           or cultural groups as the intended audience (e.g., "Black/African-American", "Hispanic market", "AAPI communities"),
+           then ALL three audience segments — including the growth/emerging segment — MUST remain within those specified
+           ethnic/cultural group(s). Do NOT suggest segments outside those groups. Instead, find diverse sub-segments
+           WITHIN the specified communities (e.g., different age cohorts, interest groups, income tiers, geographic
+           concentrations, or behavioral patterns). If the brief does NOT explicitly mention any target ethnicity or race,
+           do NOT introduce ethnicity-based segmentation — segment purely by behavior, interests, and demographics instead.
+
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
         
@@ -1222,7 +1222,7 @@ Additional audience data for SiteOne Hispanic campaign:
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
-        IMPORTANT REMINDER: If the brief specifies a target ethnicity/race, ALL three segments must be within that ethnic group. Do not cross ethnic boundaries.
+        REMINDER: If the brief specifies target ethnicities, all three segments must stay within those groups. If it does not, do not introduce ethnicity-based segmentation.
         """
         
         # Use the improved API call with retry logic
