@@ -1167,13 +1167,14 @@ Additional audience data for SiteOne Hispanic campaign:
         4. Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned
            in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
            This should be a growth opportunity audience that the campaign isn't currently addressing.
-        5. ETHNICITY/RACE CONSTRAINT: If the campaign brief EXPLICITLY names one or more target races, ethnicities,
-           or cultural groups as the intended audience (e.g., "Black/African-American", "Hispanic market", "AAPI communities"),
-           then ALL three audience segments — including the growth/emerging segment — MUST remain within those specified
-           ethnic/cultural group(s). Do NOT suggest segments outside those groups. Instead, find diverse sub-segments
-           WITHIN the specified communities (e.g., different age cohorts, interest groups, income tiers, geographic
-           concentrations, or behavioral patterns). If the brief does NOT explicitly mention any target ethnicity or race,
-           do NOT introduce ethnicity-based segmentation — segment purely by behavior, interests, and demographics instead.
+        5. ETHNICITY/RACE CONSTRAINT: Check whether the campaign brief mentions any target race, ethnicity, or cultural
+           group (e.g., Black, African-American, Hispanic, Latino, Asian, AAPI, Native American, Pacific Islander, or
+           similar terms) anywhere in the audience description or targeting section. If it does, then each of the three
+           audience segments MUST represent one or more of those named ethnic/cultural groups. The segment names MUST
+           include the ethnicity (e.g., "Black Fitness Enthusiasts", "Hispanic Family Shoppers", "Asian-American Tech
+           Adopters"). Do not create generic segments that ignore the ethnic targeting in the brief. If multiple
+           ethnicities are listed, distribute them across the three segments. If the brief does not mention any race
+           or ethnicity at all, then do not introduce ethnicity into the segments.
 
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
@@ -1222,7 +1223,7 @@ Additional audience data for SiteOne Hispanic campaign:
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
-        REMINDER: If the brief specifies target ethnicities, all three segments must stay within those groups. If it does not, do not introduce ethnicity-based segmentation.
+        REMINDER: If the brief mentions target ethnicities/races, every segment name MUST include the relevant ethnicity and represent those groups. If it does not mention any, do not introduce ethnicity.
         """
         
         # Use the improved API call with retry logic
