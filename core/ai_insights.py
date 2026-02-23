@@ -1168,7 +1168,7 @@ Additional audience data for SiteOne Hispanic campaign:
            in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
            This should be a growth opportunity audience that the campaign isn't currently addressing.
         5. ETHNICITY/RACE CONSTRAINT: Check whether the campaign brief mentions any target race, ethnicity, or cultural
-           group (e.g., Black, African-American, Hispanic, Latino, Asian, AAPI, Native American, Pacific Islander, or
+           group (e.g., Black, African-American, Hispanic, Latino, Asian, AAPI, AANHPI, Native American, Pacific Islander, or
            similar terms) anywhere in the audience description or targeting section. If it does, then each of the three
            audience segments MUST represent one or more of those named ethnic/cultural groups. The segment names MUST
            include the ethnicity (e.g., "Black Fitness Enthusiasts", "Hispanic Family Shoppers", "Asian-American Tech

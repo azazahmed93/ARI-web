@@ -464,7 +464,7 @@ def detect_target_race(audience_segment: Dict) -> Optional[str]:
 
     # Race keywords mapping to Census categories
     race_keywords = {
-        'Asian': ['asian', 'asian american', 'aapi', 'pacific islander'],
+        'Asian': ['asian', 'asian american', 'aapi', 'aanhpi', 'pacific islander'],
         'Hispanic or Latino': ['hispanic', 'latino', 'latina', 'latinx', 'latin american'],
         'Black or African American': ['black', 'african american', 'afro-american'],
         'White': ['white', 'caucasian', 'european american'],
