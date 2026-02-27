@@ -1167,14 +1167,26 @@ Additional audience data for SiteOne Hispanic campaign:
         4. Make sure the LAST segment is a high-growth potential audience that might not be explicitly mentioned
            in the brief but would be valuable to target based on adjacent interests, behaviors, or demographic extensions.
            This should be a growth opportunity audience that the campaign isn't currently addressing.
-        5. ETHNICITY/RACE CONSTRAINT: Check whether the campaign brief mentions any target race, ethnicity, or cultural
-           group (e.g., Black, African-American, Hispanic, Latino, Asian, AAPI, AANHPI, Native American, Pacific Islander, or
-           similar terms) anywhere in the audience description or targeting section. If it does, then each of the three
-           audience segments MUST represent one or more of those named ethnic/cultural groups. The segment names MUST
-           include the ethnicity (e.g., "Black Fitness Enthusiasts", "Hispanic Family Shoppers", "Asian-American Tech
-           Adopters"). Do not create generic segments that ignore the ethnic targeting in the brief. If multiple
-           ethnicities are listed, distribute them across the three segments. If the brief does not mention any race
-           or ethnicity at all, then do not introduce ethnicity into the segments.
+        5. ETHNICITY/RACE CONSTRAINT — Read carefully, there are TWO cases:
+
+           CASE A — ETHNIC TARGETING IS REQUESTED: The brief explicitly names a racial or ethnic group in the
+           TARGET AUDIENCE or AUDIENCE DESCRIPTION section (e.g., "Target: African-American consumers",
+           "diverse segments: Black, Hispanic/Latino, Asian American", "culturally relevant content for African Americans").
+           In this case:
+           - Each segment name MUST include the ethnicity (e.g., "Black Fitness Enthusiasts", "Hispanic Family Shoppers")
+           - If multiple ethnicities are listed, distribute them across the three segments
+
+           CASE B — ETHNIC TARGETING IS NOT REQUESTED: The brief does NOT name any racial/ethnic group as
+           a target audience. The following do NOT count as ethnic audience targeting:
+           - Geographic markets (Houston, San Antonio, Dallas, Miami, etc.) — geography is NOT ethnicity
+           - Interest/keyword lists that include cultural terms (e.g., "Hispanic Culture" as a keyword/interest)
+           - Cultural moments, holidays, or events (e.g., Hispanic Heritage Month, Lunar New Year)
+           - Food, music, or lifestyle preferences associated with any culture
+           - Store locations in diverse neighborhoods
+           In this case:
+           - Create behavior-based, interest-based, or need-based segments (e.g., "Health-Conscious Parents", "Budget Family Shoppers")
+           - NEVER introduce ethnicity into segment names, descriptions, or targeting parameters
+           - NEVER infer ethnicity from geography, keywords, or cultural interests
 
         Campaign Information:
         {brief_text[:3000]}  # Limiting to 3000 chars to avoid token limits
@@ -1223,7 +1235,7 @@ Additional audience data for SiteOne Hispanic campaign:
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
-        REMINDER: If the brief mentions target ethnicities/races, every segment name MUST include the relevant ethnicity and represent those groups. If it does not mention any, do not introduce ethnicity.
+        REMINDER — ETHNICITY RULE: If the brief names ethnic/racial groups in the TARGET AUDIENCE (e.g., "Target: African-American consumers", "diverse segments: Black, Hispanic/Latino"), you MUST include ethnicity in every segment name. If the brief only mentions cultural terms as keywords/interests (e.g., "Hispanic Culture" in an interest list) or geographic markets (Houston, Miami), do NOT include ethnicity — keep segments behavior-based.
         """
         
         # Use the improved API call with retry logic
