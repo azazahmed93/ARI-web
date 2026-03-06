@@ -187,8 +187,8 @@ def main():
         st.session_state.user_authenticated = False
     if "is_gm_user" not in st.session_state:
         st.session_state.is_gm_user = False
-    if "is_partner_user" not in st.session_state:
-        st.session_state.is_partner_user = False
+    if "is_political_user" not in st.session_state:
+        st.session_state.is_political_user = False
 
     # Journey Environments resonance scores
     if 'journey_ad_format_scores' not in st.session_state:
@@ -239,7 +239,7 @@ def main():
         else:
             # Normal mode - show landing layout
             if(is_logged_in()):
-                if st.session_state.get('is_partner_user', False):
+                if st.session_state.get('is_political_user', False):
                     _render_partner_view()
                 else:
                     landing_layout(inner_content)
