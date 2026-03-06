@@ -171,3 +171,7 @@ poetry.toml
 pyrightconfig.json
 research/
 secrets.toml
+
+# OpenX confidential taxonomy data
+data/openx_taxonomy.csv
+data/openx_segment_cache.json
