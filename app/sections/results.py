@@ -196,7 +196,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Catalyst Partners",
         "PowerUp",
         "Trailblazer",
-        "OpenX Activation",
+        "Activation",
         journey_tab_name,
         "Next Steps",
     ])
