@@ -11,6 +11,7 @@ import re
 from io import BytesIO
 from typing import Optional, Dict, Any, List
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # PowerPoint generation
 from pptx import Presentation
@@ -254,7 +255,7 @@ class ExportOrchestrator:
         date_box = slide.shapes.add_textbox(Inches(0.5), Inches(6.2), Inches(12.3), Inches(0.5))
         tf = date_box.text_frame
         p = tf.paragraphs[0]
-        p.text = datetime.now().strftime("%B %d, %Y")
+        p.text = datetime.now(ZoneInfo("America/New_York")).strftime("%B %d, %Y")
         p.font.size = Pt(14)
         p.font.name = self.FONT_NAME
         p.font.color.rgb = self.WHITE
