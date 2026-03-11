@@ -214,6 +214,14 @@ def main():
     if 'export_id' not in st.session_state:
         st.session_state.export_id = None
 
+    # OpenX Activation
+    if 'openx_mapping_preview' not in st.session_state:
+        st.session_state.openx_mapping_preview = None
+    if 'openx_audiences' not in st.session_state:
+        st.session_state.openx_audiences = []
+    if 'openx_creation_complete' not in st.session_state:
+        st.session_state.openx_creation_complete = False
+
     inner_content = None
     # Display results if analysis has been performed
     if st.session_state.has_analyzed:

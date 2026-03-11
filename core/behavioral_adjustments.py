@@ -459,8 +459,9 @@ def detect_target_race(audience_segment: Dict) -> Optional[str]:
     description = audience_segment.get('description', '').lower()
     targeting_params = audience_segment.get('targeting_params', {})
 
-    # Combine all text for analysis
-    profile_text = f"{name} {description}".lower()
+    # Combine all text for analysis, normalizing hyphens to spaces so
+    # "African-American" matches the keyword "african american"
+    profile_text = f"{name} {description}".lower().replace("-", " ")
 
     # Race keywords mapping to Census categories
     race_keywords = {

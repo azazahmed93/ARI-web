@@ -17,6 +17,7 @@ from .audience_insights import audience_insights
 from .media_affinities import media_affinities
 from .trend_analysis import trend_analysis
 from .next_steps import next_steps
+from .openx_activation import render_openx_activation
 from .summary import summary
 from .premium_cta import premium_cta
 from core.analysis import industry_keywords
@@ -182,10 +183,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
 
     journey_tab_name = "Consumer Journey" if st.session_state.is_gm_user else "Resonance Pathway"
     # Create tabs for better organization of content
-    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
-        "Detailed Metrics", 
-        "Audience Insights", 
-        "Media Affinities", 
+    tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs([
+        "Detailed Metrics",
+        "Audience Insights",
+        "Media Affinities",
         "Trend Analysis",
         "Transaction Data",
         # "DMA Insights",
@@ -195,8 +196,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Catalyst Partners",
         "PowerUp",
         "Trailblazer",
+        "Activation",
         journey_tab_name,
-        "Next Steps"
+        "Next Steps",
     ])
     
     # TAB 1: DETAILED METRICS
@@ -857,8 +859,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
-
     with tab13:
+            render_openx_activation()
+
+    with tab14:
         # Journey tab with Lambda polling logic
         # Check if journey generation is in progress or completed
         if st.session_state.get('journey_request_id') or st.session_state.get('journey_task_id'):
@@ -991,12 +995,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     st.rerun()
         else:
             st.info("💡 Journey generation not initiated. Please run a new analysis.")              
-    with tab14:
+    with tab15:
         next_steps()
 
 
-    
-    
     # Premium investor-focused call-to-action section
     st.markdown("---")
     
