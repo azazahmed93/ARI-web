@@ -84,9 +84,8 @@ def render_openx_activation():
     taxonomy = load_taxonomy()
     if not taxonomy:
         st.info(
-            f"**OpenXSelect Taxonomy** not found.\n\n"
-            f"Place the taxonomy CSV at `{TAXONOMY_CSV_PATH}` "
-            f"(download from OpenXSelect UI > Taxonomy > Download Taxonomy)."
+            f"**Segment Taxonomy** not found.\n\n"
+            f"Place the taxonomy CSV at `{TAXONOMY_CSV_PATH}`."
         )
         return
 
@@ -94,20 +93,20 @@ def render_openx_activation():
     api_configured = OpenXService.is_configured()
     if not api_configured:
         st.caption(
-            "OpenX API not configured — mapping preview is available, "
-            "but audience creation requires `OPENX_API_KEY` in env vars."
+            "API not configured — mapping preview is available, "
+            "but audience creation requires API credentials."
         )
 
     # ---------- Phase A: Mapping Preview ----------
     st.subheader("Audience Mapping Preview")
     st.caption(
-        "Review how ARI audience segments map to OpenXSelect taxonomy segments. "
+        "Review how ARI audience segments map to taxonomy segments. "
         "Select the segments you want to activate."
     )
 
     # Generate previews (once)
     if st.session_state.get("openx_mapping_preview") is None:
-        with st.spinner("Matching ARI segments to OpenXSelect taxonomy..."):
+        with st.spinner("Matching ARI segments to taxonomy..."):
             previews = preview_all_segments(dict(st.session_state))
             st.session_state.openx_mapping_preview = previews
 
@@ -303,8 +302,8 @@ def render_openx_activation():
 
     if not api_configured:
         st.info(
-            "Set `OPENX_API_KEY` and `OPENX_PROVIDER_ID` in your environment "
-            "to enable audience creation."
+            "API credentials not configured. "
+            "Contact your administrator to enable audience creation."
         )
         return
 
@@ -314,7 +313,7 @@ def render_openx_activation():
         st.session_state.openx_ping_ok = service.ping()
 
     if not st.session_state.openx_ping_ok:
-        st.error("Could not connect to the OpenX API. Verify your API key and URL.")
+        st.error("Could not connect to the activation API. Verify your API key and URL.")
         if st.button("Retry Connection"):
             st.session_state.openx_ping_ok = service.ping()
             st.rerun()
