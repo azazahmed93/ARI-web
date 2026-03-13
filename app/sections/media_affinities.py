@@ -7,7 +7,51 @@ from assets.content import (
     SITEONE_HISPANIC_STREAMING,
 )
 
+
+def _collect_background_inventory():
+    """Wait for background inventory thread and write results to session_state."""
+    from app.layouts.landing_layout import _inventory_results, _inventory_lock
+
+    # Check if background results are already collected
+    if st.session_state.get('_inventory_collected'):
+        return
+
+    # Check if a background thread was launched
+    inv_thread = st.session_state.get('_inventory_thread')
+    req_id = st.session_state.get('_inventory_request_id')
+    if inv_thread is None or req_id is None:
+        return
+
+    # Wait for thread to finish (with timeout + spinner)
+    if inv_thread.is_alive():
+        with st.spinner("Loading media inventory..."):
+            inv_thread.join(timeout=90)
+
+    # Collect results using session-specific request ID
+    with _inventory_lock:
+        result_entry = _inventory_results.pop(req_id, None)
+
+    if result_entry and result_entry.get('data'):
+        data = result_entry['data']
+        if data.get('media_affinity'):
+            st.session_state.media_affinity = data['media_affinity']
+
+        media_consumption = st.session_state.get('audience_media_consumption', {})
+        if isinstance(media_consumption, str):
+            media_consumption = json.loads(media_consumption)
+        if data.get('tv_networks'):
+            media_consumption['tv_networks'] = data['tv_networks']
+        if data.get('streaming_platforms'):
+            media_consumption['streaming_platforms'] = data['streaming_platforms']
+        st.session_state.audience_media_consumption = media_consumption
+
+    st.session_state._inventory_collected = True
+
+
 def media_affinities(is_siteone_hispanic):
+    # Collect background inventory results before rendering
+    _collect_background_inventory()
+
     if isinstance(st.session_state.audience_media_consumption, str):
         st.session_state.audience_media_consumption = json.loads(st.session_state.audience_media_consumption)
 

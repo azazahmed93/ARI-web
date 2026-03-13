@@ -19,6 +19,10 @@ import threading
 _journey_results = {}
 _journey_lock = threading.Lock()
 
+# Background inventory selection storage
+_inventory_results = {}
+_inventory_lock = threading.Lock()
+
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
 from core.ai_insights import (
@@ -561,6 +565,49 @@ def landing_layout(inner_content):
                                     if phase1_results.get('competitor_analysis'):
                                         st.session_state.competitor_analysis = phase1_results['competitor_analysis']
 
+                                    # Phase 1c: Launch inventory selection in background immediately
+                                    # This runs in parallel with Phase 1b/2/3 — results collected in Media Affinities tab
+                                    st.session_state._inventory_collected = False
+                                    try:
+                                        from core.inventory_selector import select_all_inventory
+                                        import json as _json
+                                        import uuid as _uuid
+
+                                        audience_context = ""
+                                        if st.session_state.get('audience_insights'):
+                                            audience_context = _json.dumps(st.session_state.audience_insights)[:2000]
+
+                                        inv_request_id = str(_uuid.uuid4())[:8]
+
+                                        def _run_inventory_bg(brief, ctx, req_id):
+                                            """Background thread for inventory selection."""
+                                            try:
+                                                print("\n" + "=" * 60)
+                                                print("Starting AI-powered inventory selection (Phase 1c — background)...")
+                                                print("=" * 60)
+                                                phase1c_start = time.time()
+                                                results = select_all_inventory(brief, ctx)
+                                                phase1c_time = time.time() - phase1c_start
+                                                print(f"\n✓ Phase 1c completed in {phase1c_time:.2f} seconds (background)")
+                                                with _inventory_lock:
+                                                    _inventory_results[req_id] = {'data': results, 'done': True}
+                                            except Exception as e:
+                                                print(f"⚠ Background inventory selection failed: {e}")
+                                                with _inventory_lock:
+                                                    _inventory_results[req_id] = {'data': None, 'done': True}
+
+                                        inv_thread = threading.Thread(
+                                            target=_run_inventory_bg,
+                                            args=(brief_text, audience_context, inv_request_id),
+                                            daemon=True
+                                        )
+                                        inv_thread.start()
+                                        st.session_state._inventory_thread = inv_thread
+                                        st.session_state._inventory_request_id = inv_request_id
+                                        print("  ✓ Phase 1c launched in background thread")
+                                    except Exception as e:
+                                        print(f"⚠ Could not launch background inventory selection: {e}")
+
                                     # Only replace audience segments if AI generation was successful
                                     ai_audience_segments = phase1_results.get('audience_segments')
                                     if ai_audience_segments and 'segments' in ai_audience_segments:
@@ -659,38 +706,8 @@ def landing_layout(inner_content):
                                             print(f"⚠ Error during Census enrichment: {e}")
                                             # Continue without Census data if there's an error
 
-                                        # Phase 1c: AI-Powered Inventory Selection
-                                        try:
-                                            from core.inventory_selector import select_all_inventory
-                                            import json as _json
-
-                                            print("\n" + "=" * 60)
-                                            print("Starting AI-powered inventory selection (Phase 1c)...")
-                                            print("=" * 60)
-
-                                            audience_context = ""
-                                            if st.session_state.get('audience_insights'):
-                                                audience_context = _json.dumps(st.session_state.audience_insights)[:2000]
-
-                                            phase1c_start = time.time()
-                                            inventory_results = select_all_inventory(brief_text, audience_context)
-                                            phase1c_time = time.time() - phase1c_start
-
-                                            if inventory_results.get('media_affinity'):
-                                                st.session_state.media_affinity = inventory_results['media_affinity']
-
-                                            media_consumption = st.session_state.get('audience_media_consumption', {})
-                                            if isinstance(media_consumption, str):
-                                                media_consumption = _json.loads(media_consumption)
-                                            if inventory_results.get('tv_networks'):
-                                                media_consumption['tv_networks'] = inventory_results['tv_networks']
-                                            if inventory_results.get('streaming_platforms'):
-                                                media_consumption['streaming_platforms'] = inventory_results['streaming_platforms']
-                                            st.session_state.audience_media_consumption = media_consumption
-
-                                            print(f"\n✓ Phase 1c completed in {phase1c_time:.2f} seconds")
-                                        except Exception as e:
-                                            print(f"⚠ Inventory selection failed: {e}")
+                                        # Phase 1c runs in background (launched earlier after Phase 1)
+                                        # Results will be collected by the Media Affinities tab when rendered
 
                                         # Phase 2: Generate audience summaries and journey data in parallel
                                         # These depend on Phase 1 results (audience_segments)
