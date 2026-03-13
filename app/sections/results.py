@@ -389,16 +389,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     
     
     # TAB 3: MEDIA AFFINITIES
-    with tab3:
-        media_affinities(is_siteone_hispanic)
-    
-    # TAB 4: TREND ANALYSIS
-    with tab4:
-        trend_analysis(brief_text)
-    
     # TAB 2: AUDIENCE INSIGHTS
     with tab2:
         audience_insights(is_siteone_hispanic)
+
+    # TAB 4: TREND ANALYSIS
+    with tab4:
+        trend_analysis(brief_text)
     # TAB 5: Transaction Data
     with tab5:
         CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -861,6 +858,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
 
     with tab13:
             render_openx_activation()
+
+    # Background-dependent tabs rendered last to avoid blocking other tabs
+    with tab3:
+        media_affinities(is_siteone_hispanic)
 
     with tab14:
         # Journey tab with Lambda polling logic
