@@ -7,6 +7,39 @@ from core.ai_insights import (
     fix_grammar_and_duplicates,
 )
 
+
+def _collect_background_phase3():
+    """Wait for background Phase 3 thread and write results to session_state."""
+    from app.layouts.landing_layout import _phase3_results, _phase3_lock
+
+    if st.session_state.get('_phase3_collected'):
+        return
+
+    p3_thread = st.session_state.get('_phase3_thread')
+    req_id = st.session_state.get('_phase3_request_id')
+    if p3_thread is None or req_id is None:
+        return
+
+    if p3_thread.is_alive():
+        with st.spinner("Loading journey environment scores..."):
+            p3_thread.join(timeout=90)
+
+    with _phase3_lock:
+        result_entry = _phase3_results.pop(req_id, None)
+
+    if result_entry:
+        journey_scores = result_entry.get('resonance_scores')
+        retargeting_channels = result_entry.get('retargeting_channels')
+
+        if journey_scores:
+            st.session_state.journey_ad_format_scores = journey_scores.get("ad_format_scores")
+            st.session_state.journey_programming_show_scores = journey_scores.get("programming_show_scores")
+
+        if retargeting_channels:
+            st.session_state.journey_retargeting_channels = retargeting_channels
+
+    st.session_state._phase3_collected = True
+
 from core.utils import (
     create_pdf_download_link,
     create_infographic_download_link,
@@ -735,35 +768,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         # Import and display audience simulation
         from .audience_simulation import display_audience_simulation
         display_audience_simulation()
-    
-    with tab8:
-        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-        PARENT_DIR = os.path.dirname(CURRENT_DIR)
-        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "journey-environments/index.html") 
 
-        try:
-            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                html_code = f.read()
-
-            # Embed the HTML content
-            # You can adjust height and scrolling as needed.
-            # For a full-page-like experience, you might need a large height.
-            # `scrolling=True` allows the component to have its own scrollbar if content overflows.
-            # st.components.v1.html(html_code, height=800)
-
-
-            html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
-            html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
-            html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
-            html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
-            html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
-            components.html(html_code, height=1000, scrolling=True)
-
-        except FileNotFoundError:
-            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-            st.info("Please make sure 'index.html' is in the correct location.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
     with tab9:
         CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
         PARENT_DIR = os.path.dirname(CURRENT_DIR)
@@ -859,9 +864,37 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     with tab13:
             render_openx_activation()
 
+    with tab15:
+        next_steps()
+
     # Background-dependent tabs rendered last to avoid blocking other tabs
     with tab3:
         media_affinities(is_siteone_hispanic)
+
+    with tab8:
+        # Collect background Phase 3 results before rendering
+        _collect_background_phase3()
+
+        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "journey-environments/index.html")
+
+        try:
+            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                html_code = f.read()
+
+            html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
+            html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
+            html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
+            html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
+            html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
+            components.html(html_code, height=1000, scrolling=True)
+
+        except FileNotFoundError:
+            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+            st.info("Please make sure 'index.html' is in the correct location.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
     with tab14:
         # Journey tab with Lambda polling logic
@@ -995,9 +1028,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                     time.sleep(5)
                     st.rerun()
         else:
-            st.info("💡 Journey generation not initiated. Please run a new analysis.")              
-    with tab15:
-        next_steps()
+            st.info("💡 Journey generation not initiated. Please run a new analysis.")
+
 
 
     # Premium investor-focused call-to-action section

@@ -23,6 +23,10 @@ _journey_lock = threading.Lock()
 _inventory_results = {}
 _inventory_lock = threading.Lock()
 
+# Background Phase 3 (journey resonance) storage
+_phase3_results = {}
+_phase3_lock = threading.Lock()
+
 # Import the grammar fix function from ai_insights module
 # This helps clean up grammatical errors and duplicate words
 from core.ai_insights import (
@@ -952,44 +956,71 @@ def landing_layout(inner_content):
                                         primary_audience_summary = st.session_state.audience_summary.get('primary_audience')
                                         secondary_audience_summary = st.session_state.audience_summary.get('secondary_audience')
 
-                                    # Phase 3: Generate resonance scores and retargeting recommendations in parallel
-                                    phase3_tasks = [
-                                        {
-                                            'name': 'resonance_scores',
-                                            'func': generate_resonance_scores,
-                                            'args': (audience_profile, campaign_objectives, core_audience_summary, primary_audience_summary, secondary_audience_summary)
-                                        },
-                                        {
-                                            'name': 'retargeting_channels',
-                                            'func': generate_retargeting_channels,
-                                            'args': (audience_profile, campaign_objectives, core_audience_summary, primary_audience_summary, secondary_audience_summary)
-                                        }
-                                    ]
+                                    # Phase 3: Launch resonance scores in background
+                                    # Results collected by Journey Environments tab when rendered
+                                    import uuid as _uuid3
+                                    p3_request_id = str(_uuid3.uuid4())[:8]
 
-                                    phase3_start = time.time()
-                                    print("\nGenerating journey environments resonance scores and retargeting channels...")
-                                    phase3_results = run_parallel_tasks(phase3_tasks)
-                                    phase3_time = time.time() - phase3_start
-                                    print(f"\n✓ Phase 3 completed in {phase3_time:.2f} seconds")
-                                    print(f"  - Generated: Resonance scores, Programming shows, Retargeting channels")
+                                    # Capture all args now (not from session_state in thread)
+                                    _p3_audience_profile = audience_profile
+                                    _p3_campaign_objectives = campaign_objectives
+                                    _p3_core = core_audience_summary
+                                    _p3_primary = primary_audience_summary
+                                    _p3_secondary = secondary_audience_summary
 
-                                    # Store results in session state
-                                    journey_scores = phase3_results.get('resonance_scores')
-                                    retargeting_channels = phase3_results.get('retargeting_channels')
+                                    def _run_phase3_bg(req_id, profile, objectives, core_sum, primary_sum, secondary_sum):
+                                        """Background thread for Phase 3 resonance scores."""
+                                        try:
+                                            phase3_start = time.time()
+                                            print("\nGenerating journey environments resonance scores and retargeting channels (background)...")
+                                            p3_tasks = [
+                                                {
+                                                    'name': 'resonance_scores',
+                                                    'func': generate_resonance_scores,
+                                                    'args': (profile, objectives, core_sum, primary_sum, secondary_sum)
+                                                },
+                                                {
+                                                    'name': 'retargeting_channels',
+                                                    'func': generate_retargeting_channels,
+                                                    'args': (profile, objectives, core_sum, primary_sum, secondary_sum)
+                                                }
+                                            ]
+                                            p3_results = run_parallel_tasks(p3_tasks)
+                                            phase3_time = time.time() - phase3_start
+                                            print(f"\n✓ Phase 3 completed in {phase3_time:.2f} seconds (background)")
+                                            print(f"  - Generated: Resonance scores, Programming shows, Retargeting channels")
 
-                                    if journey_scores:
-                                        st.session_state.journey_ad_format_scores = journey_scores.get("ad_format_scores")
-                                        st.session_state.journey_programming_show_scores = journey_scores.get("programming_show_scores")
+                                            journey_scores = p3_results.get('resonance_scores')
+                                            retargeting_chs = p3_results.get('retargeting_channels')
 
-                                        ad_count = len(st.session_state.journey_ad_format_scores or {})
-                                        show_count = len(st.session_state.journey_programming_show_scores or {})
+                                            if journey_scores:
+                                                ad_count = len(journey_scores.get("ad_format_scores") or {})
+                                                show_count = len(journey_scores.get("programming_show_scores") or {})
+                                                print(f"Generated scores for {ad_count} ad formats and {show_count} shows")
+                                            if retargeting_chs:
+                                                print(f"Generated {len(retargeting_chs)} retargeting channel recommendations")
 
-                                        print(f"Generated scores for {ad_count} ad formats and {show_count} shows")
+                                            with _phase3_lock:
+                                                _phase3_results[req_id] = {
+                                                    'done': True,
+                                                    'resonance_scores': journey_scores,
+                                                    'retargeting_channels': retargeting_chs,
+                                                }
+                                        except Exception as e:
+                                            print(f"⚠ Background Phase 3 failed: {e}")
+                                            with _phase3_lock:
+                                                _phase3_results[req_id] = {'done': True, 'resonance_scores': None, 'retargeting_channels': None}
 
-                                    if retargeting_channels:
-                                        st.session_state.journey_retargeting_channels = retargeting_channels
-                                        retarget_count = len(retargeting_channels)
-                                        print(f"Generated {retarget_count} retargeting channel recommendations")
+                                    p3_thread = threading.Thread(
+                                        target=_run_phase3_bg,
+                                        args=(p3_request_id, _p3_audience_profile, _p3_campaign_objectives, _p3_core, _p3_primary, _p3_secondary),
+                                        daemon=True
+                                    )
+                                    p3_thread.start()
+                                    st.session_state._phase3_thread = p3_thread
+                                    st.session_state._phase3_request_id = p3_request_id
+                                    st.session_state._phase3_collected = False
+                                    print("  ✓ Phase 3 launched in background thread")
 
                                 except Exception as e:
                                     print(f"Error generating journey environments resonance scores: {e}")
