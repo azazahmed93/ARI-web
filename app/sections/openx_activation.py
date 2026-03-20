@@ -64,11 +64,10 @@ def _render_trait_matches(title: str, matches: list):
         display = seg.get("full_name", seg.get("name", "Unknown"))
         conf = m.get("confidence", 0)
         source = m.get("source_trait", "")
-        qvi = m.get("qvi", 0)
         badge = _confidence_badge(conf)
         source_label = (
             f' <span style="color:#6b7280;font-size:0.75rem;">'
-            f'from "{source}" (QVI: {qvi})</span>'
+            f'from "{source}"</span>'
             if source else ""
         )
         st.markdown(

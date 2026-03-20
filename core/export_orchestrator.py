@@ -93,7 +93,7 @@ class ExportOrchestrator:
     SLIDE_HEIGHT = Inches(7.5)
 
     # Colors (matching PDF)
-    PRIMARY_COLOR = RGBColor(59, 130, 246)    # #3b82f6 - blue for QVI
+    PRIMARY_COLOR = RGBColor(59, 130, 246)    # #3b82f6 - blue for Website Index
     SECONDARY_COLOR = RGBColor(5, 150, 105)   # #059669 - green for streaming
     TEXT_COLOR = RGBColor(0, 0, 0)            # black
     GRAY = RGBColor(100, 116, 139)            # #64748b
@@ -386,11 +386,11 @@ class ExportOrchestrator:
 
         y_pos += Inches(0.35)
 
-        # QVI explanation
+        # Website Index explanation
         qvi_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12), Inches(0.25))
         tf = qvi_box.text_frame
         p = tf.paragraphs[0]
-        p.text = "QVI = Quality Visit Index, a score indicating audience engagement strength"
+        p.text = "Website Index = a score indicating audience engagement strength"
         p.font.size = Pt(8)
         p.font.name = self.FONT_NAME
         p.font.color.rgb = self.GRAY
@@ -433,7 +433,7 @@ class ExportOrchestrator:
                 p2.font.color.rgb = self.GRAY
 
                 p3 = tf.add_paragraph()
-                p3.text = f"QVI: {site.get('qvi', 0)}"
+                p3.text = f"Website Index: {site.get('qvi', 0)}"
                 p3.font.size = Pt(8)
                 p3.font.bold = True
                 p3.font.name = self.FONT_NAME
@@ -482,7 +482,7 @@ class ExportOrchestrator:
                 p2.font.color.rgb = self.GRAY
 
                 p3 = tf.add_paragraph()
-                p3.text = f"QVI: {network.get('qvi', 0)}"
+                p3.text = f"Website Index: {network.get('qvi', 0)}"
                 p3.font.size = Pt(8)
                 p3.font.bold = True
                 p3.font.name = self.FONT_NAME
@@ -533,7 +533,7 @@ class ExportOrchestrator:
                     p1.font.name = self.FONT_NAME
 
                     p2 = tf.add_paragraph()
-                    p2.text = f"{platform.get('category', '')}   QVI: {platform.get('qvi', 0)}"
+                    p2.text = f"{platform.get('category', '')}   Website Index: {platform.get('qvi', 0)}"
                     p2.font.size = Pt(8)
                     p2.font.name = self.FONT_NAME
                     p2.font.color.rgb = self.SECONDARY_COLOR

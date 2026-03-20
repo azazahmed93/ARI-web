@@ -237,7 +237,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
 
         if media_affinity_data and len(media_affinity_data) > 0:
             content.append(Paragraph("Top Media Affinity Sites", heading1_style))
-            content.append(Paragraph("QVI = Quality Visit Index, a score indicating audience engagement strength", description_style))
+            content.append(Paragraph("Website Index = a score indicating audience engagement strength", description_style))
 
             # Create media sites table with 5 columns
             media_site_data = []
@@ -246,7 +246,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, site in enumerate(media_affinity_data):
                 site_cell = f"""<b>{site['name']}</b><br/>
                 {site['category']}<br/>
-                <font color="#3b82f6"><b>QVI: {site['qvi']}</b></font><br/>
+                <font color="#3b82f6"><b>Website Index: {site['qvi']}</b></font><br/>
                 <font color="#3b82f6">Visit Site</font>"""
 
                 row.append(Paragraph(site_cell, normal_style))
@@ -305,7 +305,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, network in enumerate(tv_networks):
                 network_cell = f"""<b>{network['name']}</b><br/>
                 {network['category']}<br/>
-                <font color="#1e88e5"><b>QVI: {network['qvi']}</b></font>"""
+                <font color="#1e88e5"><b>Website Index: {network['qvi']}</b></font>"""
 
                 row.append(Paragraph(network_cell, normal_style))
 
@@ -361,7 +361,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, platform in enumerate(streaming_platforms):
                 platform_cell = f"""<b>{platform['name']}</b><br/>
                 {platform['category']}<br/>
-                <font color="#059669"><b>QVI: {platform['qvi']}</b></font>"""
+                <font color="#059669"><b>Website Index: {platform['qvi']}</b></font>"""
 
                 row.append(Paragraph(platform_cell, normal_style))
 
