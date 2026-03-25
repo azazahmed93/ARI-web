@@ -429,7 +429,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
 
     # TAB 4: TREND ANALYSIS
     with tab4:
-        trend_analysis(brief_text)
+        audience_segments = st.session_state.get('audience_segments', None)
+        trend_analysis(brief_text, audience_segments=audience_segments)
     # TAB 5: Transaction Data
     with tab5:
         CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
