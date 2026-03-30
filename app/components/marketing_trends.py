@@ -446,11 +446,11 @@ def generate_audience_segment_trend_data(brief_text=None, audience_segments=None
     return df, columns
 
 
-def display_audience_segment_heatmap(brief_text=None, audience_segments=None, title="Audience Segment Media Performance"):
+def display_audience_segment_heatmap(brief_text=None, audience_segments=None, title="Audience Segment Media Recommendation"):
     """Display a heatmap of media performance across campaign audience segments."""
     from app.components.learning_tips import display_tip_bubble
 
-    heatmap_tip = display_tip_bubble("methodology", "Audience Segment Media Performance", inline=True)
+    heatmap_tip = display_tip_bubble("methodology", "Audience Segment Media Recommendation", inline=True)
     st.markdown(f'<div style="text-align: center;"><h4>{title} {heatmap_tip}</h4></div>', unsafe_allow_html=True)
 
     df, column_labels = generate_audience_segment_trend_data(brief_text, audience_segments)
