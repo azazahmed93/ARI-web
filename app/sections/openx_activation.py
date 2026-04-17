@@ -1,20 +1,25 @@
 """
-OpenX Activation tab — mapping preview and audience creation UI.
+Activation tab — mapping preview and audience creation UI.
 
-Phase A: Shows how ARI segments map to OpenXSelect taxonomy segments
+Phase A: Shows how ARI segments map to taxonomy segments (Generic or Epsilon)
          across demographics, interests, psychographics, and attitudes.
-Phase B: Creates and activates audiences via the OpenX GraphQL API.
+Phase B: Creates and activates audiences via the OpenX GraphQL API (Generic only).
 """
 
 import streamlit as st
 from core.openx_service import OpenXService
 from core.openx_mapper import (
-    preview_all_segments,
+    preview_all_segments as openx_preview_all_segments,
     build_audience_params,
     build_deal_params,
     resolve_segment_ids,
     load_taxonomy,
     TAXONOMY_CSV_PATH,
+)
+from core.epsilon_mapper import (
+    preview_all_segments as epsilon_preview_all_segments,
+    load_epsilon_taxonomy,
+    EPSILON_CSV_PATH,
 )
 
 
@@ -76,40 +81,184 @@ def _render_trait_matches(title: str, matches: list):
         )
 
 
+def _search_taxonomy(query: str, taxonomy: list, limit: int = 20) -> list:
+    """Case-insensitive substring search over taxonomy rows.
+
+    For Epsilon rows, skips non-targetable values (No/Blank/Unknown).
+    """
+    if not query or not taxonomy:
+        return []
+    q = query.lower().strip()
+    if len(q) < 2:
+        return []
+    skip_values = {"no", "blank", "unknown", "absent", "not available"}
+    results = []
+    for row in taxonomy:
+        # Skip Epsilon negative/unknown flag rows
+        eps_val = (row.get("epsilon_value") or "").lower()
+        if eps_val in skip_values:
+            continue
+        name_lower = row.get("name", "").lower()
+        if name_lower in skip_values:
+            continue
+
+        full_name = row.get("full_name", "")
+        if q in name_lower or q in full_name.lower():
+            results.append(row)
+            if len(results) >= limit:
+                break
+    return results
+
+
+def _collect_ai_matched_full_names(matches: dict) -> set:
+    """Collect full_names of all segments already matched by the AI."""
+    seen = set()
+    for val in matches.values():
+        if not isinstance(val, list):
+            continue
+        for m in val:
+            if not isinstance(m, dict):
+                continue
+            seg = m.get("segment", {}) or {}
+            fn = seg.get("full_name", "")
+            if fn:
+                seen.add(fn)
+            # Handle age match entries with all_segments_in_range
+            for inner in m.get("all_segments_in_range", []) or []:
+                inner_fn = inner.get("full_name", "")
+                if inner_fn:
+                    seen.add(inner_fn)
+    return seen
+
+
+def _render_custom_picks_section(
+    source_key: str,
+    ari_idx: int,
+    taxonomy: list,
+    matches: dict,
+    is_epsilon: bool,
+):
+    """Render the 'Add More Segments' search + picks UI for one ARI segment."""
+    state_key = f"custom_picks_{source_key}"
+    picks_by_idx = st.session_state.get(state_key, {})
+    current_picks = picks_by_idx.get(ari_idx, [])
+    picked_fns = {p.get("full_name", "") for p in current_picks}
+    ai_matched_fns = _collect_ai_matched_full_names(matches)
+
+    label = "PRIZM Clusters" if is_epsilon else "Taxonomy Segments"
+    st.markdown(f"##### Add More {label}")
+    st.caption(
+        "Search the taxonomy to add segments the AI may have missed."
+        + ("" if not is_epsilon else " (Preview only for Epsilon)")
+    )
+
+    search_key = f"search_{source_key}_{ari_idx}"
+    query = st.text_input(
+        "Search",
+        key=search_key,
+        placeholder="Type to search segment name...",
+        label_visibility="collapsed",
+    )
+
+    def _render_row(seg: dict, context: str):
+        """Render a single segment row with an Add or Remove button."""
+        fn = seg.get("full_name", "")
+        is_picked = fn in picked_fns
+        col1, col2 = st.columns([0.85, 0.15])
+        with col1:
+            display = fn or seg.get("name", "?")
+            st.markdown(
+                f"<span style='font-size:0.88rem'>{display}</span>",
+                unsafe_allow_html=True,
+            )
+        with col2:
+            btn_label = "Remove" if is_picked else "Add"
+            btn_key = f"{context}_{source_key}_{ari_idx}_{hash(fn)}"
+            if st.button(btn_label, key=btn_key):
+                if is_picked:
+                    picks_by_idx[ari_idx] = [
+                        p for p in current_picks
+                        if p.get("full_name") != fn
+                    ]
+                else:
+                    picks_by_idx.setdefault(ari_idx, []).append(seg)
+                st.session_state[state_key] = picks_by_idx
+                st.rerun()
+
+    if query:
+        raw_results = _search_taxonomy(query, taxonomy, limit=50)
+        # Drop segments already matched by the AI
+        results = [s for s in raw_results if s.get("full_name", "") not in ai_matched_fns][:15]
+
+        if not results:
+            st.caption("_No new matches found._")
+        else:
+            st.caption(f"Showing {len(results)} match(es):")
+            for seg in results:
+                _render_row(seg, context="search")
+
+    # Always show all currently added picks at the end
+    if current_picks:
+        st.markdown("**Added segments:**")
+        for seg in current_picks:
+            _render_row(seg, context="added")
+
+
 def render_openx_activation():
     """Main entry point — called from the results tab."""
 
+    # ---------- Taxonomy source toggle ----------
+    source = st.radio(
+        "Taxonomy",
+        ["Generic", "Epsilon"],
+        horizontal=True,
+        key="activation_taxonomy_source",
+    )
+    is_epsilon = source == "Epsilon"
+
     # ---------- Taxonomy check ----------
-    taxonomy = load_taxonomy()
+    if is_epsilon:
+        taxonomy = load_epsilon_taxonomy()
+        csv_path = EPSILON_CSV_PATH
+        cache_key = "epsilon_mapping_preview"
+        preview_fn = epsilon_preview_all_segments
+    else:
+        taxonomy = load_taxonomy()
+        csv_path = TAXONOMY_CSV_PATH
+        cache_key = "openx_mapping_preview"
+        preview_fn = openx_preview_all_segments
+
     if not taxonomy:
         st.info(
             f"**Segment Taxonomy** not found.\n\n"
-            f"Place the taxonomy CSV at `{TAXONOMY_CSV_PATH}`."
+            f"Place the taxonomy CSV at `{csv_path}`."
         )
         return
 
-    # ---------- API config check ----------
-    api_configured = OpenXService.is_configured()
-    if not api_configured:
-        st.caption(
-            "API not configured — mapping preview is available, "
-            "but audience creation requires API credentials."
-        )
+    # ---------- API config check (Generic only) ----------
+    api_configured = False
+    if not is_epsilon:
+        api_configured = OpenXService.is_configured()
+        if not api_configured:
+            st.caption(
+                "API not configured — mapping preview is available, "
+                "but audience creation requires API credentials."
+            )
 
     # ---------- Phase A: Mapping Preview ----------
     st.subheader("Audience Mapping Preview")
     st.caption(
         "Review how ARI audience segments map to taxonomy segments. "
-        "Select the segments you want to activate."
+        + ("Select the segments you want to activate." if not is_epsilon else "")
     )
 
-    # Generate previews (once)
-    if st.session_state.get("openx_mapping_preview") is None:
+    # Generate previews (once per source)
+    if st.session_state.get(cache_key) is None:
         with st.spinner("Matching ARI segments to taxonomy..."):
-            previews = preview_all_segments(dict(st.session_state))
-            st.session_state.openx_mapping_preview = previews
+            previews = preview_fn(dict(st.session_state))
+            st.session_state[cache_key] = previews
 
-    previews = st.session_state.openx_mapping_preview or []
+    previews = st.session_state[cache_key] or []
 
     if not previews:
         st.warning("No audience segments found. Please run an analysis first.")
@@ -124,9 +273,10 @@ def render_openx_activation():
         summary = preview["summary"]
         warnings = preview["warnings"]
 
+        prefix = "eps" if is_epsilon else "openx"
         col1, col2 = st.columns([0.05, 0.95])
         with col1:
-            selected[idx] = st.checkbox("", value=True, key=f"openx_sel_{idx}")
+            selected[idx] = st.checkbox("", value=True, key=f"{prefix}_sel_{idx}")
         with col2:
             with st.expander(f"**{label}**: {seg_name}", expanded=False):
                 # --- Summary row ---
@@ -157,18 +307,19 @@ def render_openx_activation():
                 st.markdown("**Gender**")
                 _render_match_section("Gender", matches.get("gender", []))
 
-                # --- 2. Location ---
-                st.markdown("##### Location")
+                # --- 2. Location (Generic only) ---
+                if not is_epsilon:
+                    st.markdown("##### Location")
 
-                st.markdown("**State**")
-                _render_match_section("State", matches.get("location", []))
+                    st.markdown("**State**")
+                    _render_match_section("State", matches.get("location", []))
 
-                st.markdown("**Area Type**")
-                area_matches = matches.get("area_type", [])
-                if area_matches:
-                    _render_match_section("Area Type", area_matches)
-                else:
-                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
+                    st.markdown("**Area Type**")
+                    area_matches = matches.get("area_type", [])
+                    if area_matches:
+                        _render_match_section("Area Type", area_matches)
+                    else:
+                        st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
 
                 # --- 3. Advanced Demographics ---
                 st.markdown("##### Advanced Demographics")
@@ -201,13 +352,14 @@ def render_openx_activation():
                 else:
                     st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
 
-                # --- 4. Language ---
-                st.markdown("##### Language")
-                language_matches = matches.get("language", [])
-                if language_matches:
-                    _render_match_section("Language", language_matches)
-                else:
-                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
+                # --- 4. Language (Generic only) ---
+                if not is_epsilon:
+                    st.markdown("##### Language")
+                    language_matches = matches.get("language", [])
+                    if language_matches:
+                        _render_match_section("Language", language_matches)
+                    else:
+                        st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
 
                 # --- 5. Interests & Activities ---
                 st.markdown("##### Interests & Activities")
@@ -240,11 +392,13 @@ def render_openx_activation():
                 # --- 6. Psychographic ---
                 st.markdown("##### Psychographic")
 
-                st.markdown("**Mosaic Persona**")
-                _render_trait_matches("Mosaic Persona", matches.get("mosaic_persona", []))
+                persona_label = "PRIZM Clusters" if is_epsilon else "Mosaic Persona"
+                st.markdown(f"**{persona_label}**")
+                _render_trait_matches(persona_label, matches.get("mosaic_persona", []))
 
-                st.markdown("**Attitudes** _(Tech Adoption, Health, Mobile Usage)_")
-                _render_trait_matches("Attitudes", matches.get("attitudes", []))
+                if not is_epsilon:
+                    st.markdown("**Attitudes** _(Tech Adoption, Health, Mobile Usage)_")
+                    _render_trait_matches("Attitudes", matches.get("attitudes", []))
 
                 # --- 7. Taxonomy ---
                 st.markdown("##### Taxonomy (Industry)")
@@ -285,6 +439,33 @@ def render_openx_activation():
                         "general market segment_"
                     )
 
+                # --- 9. Epsilon-exclusive sections ---
+                if is_epsilon:
+                    auto_matches = matches.get("automotive", [])
+                    if auto_matches:
+                        st.markdown("##### Automotive")
+                        _render_trait_matches("Automotive", auto_matches)
+
+                    health_matches = matches.get("health", [])
+                    if health_matches:
+                        st.markdown("##### Health")
+                        _render_trait_matches("Health", health_matches)
+
+                    trigger_matches = matches.get("trigger_events", [])
+                    if trigger_matches:
+                        st.markdown("##### Life Events (Triggers)")
+                        _render_trait_matches("Triggers", trigger_matches)
+
+                # --- 10. Custom segment picker (search + add) ---
+                st.markdown("---")
+                _render_custom_picks_section(
+                    source_key="epsilon" if is_epsilon else "openx",
+                    ari_idx=idx,
+                    taxonomy=taxonomy,
+                    matches=matches,
+                    is_epsilon=is_epsilon,
+                )
+
                 # Warnings
                 if warnings:
                     for w in warnings:
@@ -292,6 +473,10 @@ def render_openx_activation():
 
     # ---------- Phase B: Audience Creation ----------
     st.markdown("---")
+
+    if is_epsilon:
+        st.info("Preview only — audience creation is available for Generic taxonomy.")
+        return
 
     selected_indices = [idx for idx, sel in selected.items() if sel]
 
@@ -352,6 +537,9 @@ def _render_summary_row(summary: dict):
         "Mosaic": summary.get("mosaic_matches", 0),
         "Attitudes": summary.get("attitude_matches", 0),
         "Keywords": summary.get("ethnic_keyword_count", 0),
+        "Automotive": summary.get("automotive_matches", 0),
+        "Health": summary.get("health_matches", 0),
+        "Triggers": summary.get("trigger_matches", 0),
     }
     for label, count in new_counts.items():
         if count > 0:
@@ -366,6 +554,15 @@ def _create_audiences(
     """Create and activate audiences for selected segments."""
     created = []
     progress = st.progress(0, text="Resolving segment IDs...")
+
+    # Merge any user-added custom picks into each preview's matches under "custom"
+    custom_picks = st.session_state.get("custom_picks_openx", {})
+    for idx in selected_indices:
+        picks = custom_picks.get(idx, [])
+        if picks:
+            previews[idx]["matches"]["custom"] = [
+                {"segment": seg, "confidence": 1.0} for seg in picks
+            ]
 
     # Resolve all segment IDs upfront (one API batch per category)
     all_matches = {}
@@ -461,4 +658,5 @@ def _render_creation_results():
         st.session_state.openx_mapping_preview = None
         st.session_state.openx_audiences = []
         st.session_state.openx_creation_complete = False
+        st.session_state.custom_picks_openx = {}
         st.rerun()

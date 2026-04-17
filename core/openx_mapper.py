@@ -1215,6 +1215,10 @@ def build_audience_definition(match_results: dict, id_map: Dict[str, str]) -> di
         for r in match_results.get(key, []):
             _add(r.get("segment", {}))
 
+    # --- Custom user-added taxonomy picks ---
+    for r in match_results.get("custom", []):
+        _add(r.get("segment", {}))
+
     # Build the group object — must include "operator" at group level
     group = {"operator": "INTERSECT"}
     for dk, uids in buckets.items():

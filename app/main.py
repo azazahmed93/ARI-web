@@ -221,6 +221,12 @@ def main():
         st.session_state.openx_audiences = []
     if 'openx_creation_complete' not in st.session_state:
         st.session_state.openx_creation_complete = False
+    if 'epsilon_mapping_preview' not in st.session_state:
+        st.session_state.epsilon_mapping_preview = None
+    if 'custom_picks_openx' not in st.session_state:
+        st.session_state.custom_picks_openx = {}
+    if 'custom_picks_epsilon' not in st.session_state:
+        st.session_state.custom_picks_epsilon = {}
 
     inner_content = None
     # Display results if analysis has been performed
