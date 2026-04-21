@@ -249,6 +249,7 @@ def _load_epsilon_csv(csv_path: Path = None) -> List[dict]:
                 value = (row.get("Value") or "").strip()
                 value_def = (row.get("Value Definition") or "").strip()
                 description = (row.get("Description") or "").strip()
+                de_rate_id = (row.get("DE Rate ID") or "").strip()
 
                 if not value or not value_def:
                     continue
@@ -288,8 +289,10 @@ def _load_epsilon_csv(csv_path: Path = None) -> List[dict]:
                     "type": "Epsilon",
                     "source": "Epsilon",
                     "epsilon_value": value,
+                    "epsilon_value_definition": value_def,
                     "epsilon_field_name": field_name,
                     "epsilon_name": name_col,
+                    "epsilon_de_rate_id": de_rate_id,
                 })
     except Exception as exc:
         logger.error("Failed to load Epsilon CSV: %s", exc)

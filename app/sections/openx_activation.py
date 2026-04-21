@@ -81,6 +81,72 @@ def _render_trait_matches(title: str, matches: list):
         )
 
 
+def _build_epsilon_csv_export(
+    previews: list, selected_indices: list, custom_picks: dict
+) -> str:
+    """Build a CSV string of all matched Epsilon segments across selected ARI segments."""
+    import io
+    import csv as _csv
+
+    buf = io.StringIO()
+    writer = _csv.writer(buf)
+    writer.writerow([
+        "ARI Segment Label",
+        "ARI Segment Name",
+        "Match Category",
+        "Dimension",
+        "Sub-Category",
+        "Epsilon Attribute",
+        "Value",
+        "Value Definition",
+        "Field Name",
+        "DE Rate ID",
+        "Confidence",
+        "Source",
+    ])
+
+    def _row(label, seg_name, match_cat, seg_dict, confidence, source):
+        writer.writerow([
+            label,
+            seg_name,
+            match_cat,
+            seg_dict.get("category", ""),
+            seg_dict.get("sub_category", ""),
+            seg_dict.get("epsilon_name", ""),
+            seg_dict.get("epsilon_value", ""),
+            seg_dict.get("epsilon_value_definition", seg_dict.get("name", "")),
+            seg_dict.get("epsilon_field_name", ""),
+            seg_dict.get("epsilon_de_rate_id", ""),
+            f"{confidence:.2f}" if isinstance(confidence, (int, float)) else "",
+            source,
+        ])
+
+    for idx in selected_indices:
+        preview = previews[idx]
+        label = preview.get("label", f"Segment {idx + 1}")
+        seg_name = preview.get("segment_name", "")
+        matches = preview.get("matches", {})
+
+        # AI matches
+        for cat, items in matches.items():
+            if not isinstance(items, list):
+                continue
+            for m in items:
+                if not isinstance(m, dict):
+                    continue
+                seg = m.get("segment") or {}
+                if not seg:
+                    continue
+                conf = m.get("confidence", 0)
+                _row(label, seg_name, cat, seg, conf, "AI")
+
+        # Custom picks
+        for seg in custom_picks.get(idx, []):
+            _row(label, seg_name, "custom", seg, 1.0, "Custom")
+
+    return buf.getvalue()
+
+
 def _search_taxonomy(query: str, taxonomy: list, limit: int = 20) -> list:
     """Case-insensitive substring search over taxonomy rows.
 
@@ -475,7 +541,28 @@ def render_openx_activation():
     st.markdown("---")
 
     if is_epsilon:
-        st.info("Preview only — audience creation is available for Generic taxonomy.")
+        selected_indices = [idx for idx, sel in selected.items() if sel]
+        custom_picks = st.session_state.get("custom_picks_epsilon", {})
+
+        col1, col2 = st.columns([0.6, 0.4])
+        with col1:
+            st.info("Preview only — audience creation is available for Generic taxonomy.")
+        with col2:
+            if selected_indices:
+                csv_content = _build_epsilon_csv_export(
+                    previews, selected_indices, custom_picks
+                )
+                from datetime import datetime
+                filename = f"epsilon_segments_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                st.download_button(
+                    label="Export as CSV",
+                    data=csv_content,
+                    file_name=filename,
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+            else:
+                st.caption("Select at least one segment to enable export.")
         return
 
     selected_indices = [idx for idx, sel in selected.items() if sel]
