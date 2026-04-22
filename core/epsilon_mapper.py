@@ -258,7 +258,8 @@ def _load_epsilon_csv(csv_path: Path = None) -> List[dict]:
                 # - Affirmative flag values (Value in Y/Yes/Present) → use Name column
                 #   (avoids "Condition likely for individual" etc.)
                 # - Propensity-score values (e.g. "01-99, Blank") → use the Name column
-                # - Long descriptive sentences → use the Name column
+                # - Long descriptive sentences → extract a short label (first
+                #   clause stripped of "NN = " prefix) to keep per-value uniqueness
                 # - Otherwise keep the Value Definition (e.g. "25-34 years old", "$50K-$75K")
                 display_name = value_def
                 value_lower = value.lower()
@@ -268,9 +269,14 @@ def _load_epsilon_csv(csv_path: Path = None) -> List[dict]:
                 elif re.match(r"^\d+\s*[-–]\s*\d+", value_lower) and name_col:
                     # Score range value like "01-99" or "1-99"
                     display_name = name_col
-                elif len(value_def) > 60 and name_col:
-                    # Long descriptive sentences
-                    display_name = name_col
+                elif len(value_def) > 60:
+                    # Long descriptive sentences: strip leading "01 = " prefix and
+                    # take first clause so different Values remain distinguishable
+                    cleaned = re.sub(r"^\d+\s*=\s*", "", value_def).strip()
+                    short = re.split(r"[,.]", cleaned, 1)[0].strip()
+                    if len(short) > 80:
+                        short = short[:77].rsplit(" ", 1)[0] + "..."
+                    display_name = short or name_col or value_def
 
                 # Dedupe on (Dimension, Name, Value, display_name).
                 # Epsilon sometimes has multiple source variants (Self Reported
