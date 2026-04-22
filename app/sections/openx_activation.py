@@ -140,9 +140,10 @@ def _build_epsilon_csv_export(
                 conf = m.get("confidence", 0)
                 _row(label, seg_name, cat, seg, conf, "AI")
 
-        # Custom picks
+        # Custom picks (use AI-ranked confidence if available)
         for seg in custom_picks.get(idx, []):
-            _row(label, seg_name, "custom", seg, 1.0, "Custom")
+            conf = seg.get("ai_confidence", 1.0)
+            _row(label, seg_name, "custom", seg, conf, "Custom")
 
     return buf.getvalue()
 
@@ -203,6 +204,8 @@ def _render_custom_picks_section(
     taxonomy: list,
     matches: dict,
     is_epsilon: bool,
+    ari_segment: dict = None,
+    audience_insights: dict = None,
 ):
     """Render the 'Add More Segments' search + picks UI for one ARI segment."""
     state_key = f"custom_picks_{source_key}"
@@ -226,20 +229,28 @@ def _render_custom_picks_section(
         label_visibility="collapsed",
     )
 
-    def _render_row(seg: dict, context: str):
-        """Render a single segment row with an Add or Remove button."""
+    def _render_row(seg: dict, context: str, row_idx: int):
+        """Render a single segment row with Add/Remove + optional AI confidence."""
         fn = seg.get("full_name", "")
         is_picked = fn in picked_fns
         col1, col2 = st.columns([0.85, 0.15])
         with col1:
             display = fn or seg.get("name", "?")
+            conf = seg.get("ai_confidence")
+            badge_html = ""
+            if is_picked and conf is not None:
+                badge_html = f" {_confidence_badge(conf)}"
             st.markdown(
-                f"<span style='font-size:0.88rem'>{display}</span>",
+                f"<span style='font-size:0.88rem'>{display}</span>{badge_html}",
                 unsafe_allow_html=True,
             )
+            if context == "added" and is_picked and seg.get("ai_reasoning"):
+                st.caption(f"{seg['ai_reasoning']}")
         with col2:
             btn_label = "Remove" if is_picked else "Add"
-            btn_key = f"{context}_{source_key}_{ari_idx}_{hash(fn)}"
+            # Include value + field_name + positional index to guarantee uniqueness
+            disambig = f"{seg.get('epsilon_value','')}_{seg.get('epsilon_field_name','')}_{row_idx}"
+            btn_key = f"{context}_{source_key}_{ari_idx}_{hash(fn)}_{hash(disambig)}"
             if st.button(btn_label, key=btn_key):
                 if is_picked:
                     picks_by_idx[ari_idx] = [
@@ -260,14 +271,41 @@ def _render_custom_picks_section(
             st.caption("_No new matches found._")
         else:
             st.caption(f"Showing {len(results)} match(es):")
-            for seg in results:
-                _render_row(seg, context="search")
+            for i, seg in enumerate(results):
+                _render_row(seg, context="search", row_idx=i)
 
     # Always show all currently added picks at the end
     if current_picks:
-        st.markdown("**Added segments:**")
-        for seg in current_picks:
-            _render_row(seg, context="added")
+        col_left, col_right = st.columns([0.7, 0.3])
+        with col_left:
+            st.markdown("**Added segments:**")
+        with col_right:
+            if ari_segment is not None and st.button(
+                "Rank with AI",
+                key=f"rank_{source_key}_{ari_idx}",
+                use_container_width=True,
+            ):
+                with st.spinner("Scoring relevance..."):
+                    from core.ai_ranking import rank_custom_picks
+                    rankings = rank_custom_picks(
+                        ari_segment,
+                        audience_insights or {},
+                        current_picks,
+                    )
+                if rankings:
+                    for seg in current_picks:
+                        fn = seg.get("full_name", "")
+                        if fn in rankings:
+                            seg["ai_confidence"] = rankings[fn]["confidence"]
+                            seg["ai_reasoning"] = rankings[fn]["reasoning"]
+                    picks_by_idx[ari_idx] = current_picks
+                    st.session_state[state_key] = picks_by_idx
+                    st.rerun()
+                else:
+                    st.error("AI ranking failed. Please try again.")
+
+        for i, seg in enumerate(current_picks):
+            _render_row(seg, context="added", row_idx=i)
 
 
 def render_openx_activation():
@@ -524,12 +562,22 @@ def render_openx_activation():
 
                 # --- 10. Custom segment picker (search + add) ---
                 st.markdown("---")
+                # Grab audience_insights from session state for AI ranking context
+                _ai_insights = st.session_state.get("audience_insights", {})
+                if isinstance(_ai_insights, str):
+                    import json as _json
+                    try:
+                        _ai_insights = _json.loads(_ai_insights)
+                    except Exception:
+                        _ai_insights = {}
                 _render_custom_picks_section(
                     source_key="epsilon" if is_epsilon else "openx",
                     ari_idx=idx,
                     taxonomy=taxonomy,
                     matches=matches,
                     is_epsilon=is_epsilon,
+                    ari_segment=preview.get("segment_data", {}),
+                    audience_insights=_ai_insights,
                 )
 
                 # Warnings
@@ -648,7 +696,8 @@ def _create_audiences(
         picks = custom_picks.get(idx, [])
         if picks:
             previews[idx]["matches"]["custom"] = [
-                {"segment": seg, "confidence": 1.0} for seg in picks
+                {"segment": seg, "confidence": seg.get("ai_confidence", 1.0)}
+                for seg in picks
             ]
 
     # Resolve all segment IDs upfront (one API batch per category)
