@@ -594,7 +594,7 @@ def render_openx_activation():
 
         col1, col2 = st.columns([0.6, 0.4])
         with col1:
-            st.info("Preview only — audience creation is available for Generic taxonomy.")
+            st.info("Preview only. Audience creation is available for Generic taxonomy.")
         with col2:
             if selected_indices:
                 csv_content = _build_epsilon_csv_export(
