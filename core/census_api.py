@@ -8,12 +8,53 @@ API Documentation: https://www.census.gov/data/developers/data-sets.html
 """
 
 import os
+import time
 import requests
 from typing import Dict, List, Optional, Any
 from functools import lru_cache
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Retry config for Census API — their public endpoint is flaky with 5xx and timeouts
+CENSUS_TIMEOUT_SEC = 30
+CENSUS_MAX_RETRIES = 3
+CENSUS_RETRY_BACKOFF = 2.0
+
+
+def _census_get_with_retry(url: str, params: dict) -> Optional[requests.Response]:
+    """GET with retries on timeouts and 5xx errors."""
+    last_exc = None
+    for attempt in range(1, CENSUS_MAX_RETRIES + 1):
+        try:
+            resp = requests.get(url, params=params, timeout=CENSUS_TIMEOUT_SEC)
+            if resp.status_code >= 500:
+                logger.warning(
+                    "Census API %d on attempt %d/%d, retrying...",
+                    resp.status_code, attempt, CENSUS_MAX_RETRIES,
+                )
+                last_exc = requests.HTTPError(
+                    f"{resp.status_code} Server Error", response=resp
+                )
+                if attempt < CENSUS_MAX_RETRIES:
+                    time.sleep(CENSUS_RETRY_BACKOFF * attempt)
+                    continue
+                return None
+            resp.raise_for_status()
+            return resp
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            last_exc = e
+            logger.warning(
+                "Census API network error on attempt %d/%d: %s",
+                attempt, CENSUS_MAX_RETRIES, e,
+            )
+            if attempt < CENSUS_MAX_RETRIES:
+                time.sleep(CENSUS_RETRY_BACKOFF * attempt)
+        except requests.exceptions.RequestException as e:
+            logger.error("Census API error (not retrying): %s", e)
+            return None
+    logger.error("Census API failed after %d retries: %s", CENSUS_MAX_RETRIES, last_exc)
+    return None
 
 # State name to FIPS code mapping
 STATE_FIPS_MAPPING = {
@@ -125,8 +166,10 @@ def fetch_census_demographics(state_fips: str, year: int = 2024) -> Optional[Dic
     }
 
     try:
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
+        response = _census_get_with_retry(url, params)
+        if response is None:
+            logger.error(f"Census API unreachable for state {state_fips} (year {year})")
+            return None
 
         data = response.json()
 
