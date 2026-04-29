@@ -1,9 +1,10 @@
 """
 Activation tab — mapping preview and audience creation UI.
 
-Phase A: Shows how ARI segments map to taxonomy segments (Generic or Epsilon)
-         across demographics, interests, psychographics, and attitudes.
-Phase B: Creates and activates audiences via the OpenX GraphQL API (Generic only).
+Phase A: Shows how ARI segments map to taxonomy segments (Generic, Epsilon,
+         or TransUnion) across demographics, interests, and psychographics.
+Phase B: Creates and activates audiences via the OpenX GraphQL API
+         (Generic only — Epsilon and TransUnion are preview-only).
 """
 
 import streamlit as st
@@ -21,6 +22,74 @@ from core.epsilon_mapper import (
     load_epsilon_taxonomy,
     EPSILON_CSV_PATH,
 )
+from core.transunion_mapper import (
+    preview_all_segments as transunion_preview_all_segments,
+    load_transunion_taxonomy,
+    TRANSUNION_CSV_PATH,
+)
+
+
+# ---------- Per-source configuration registry ----------
+#
+# Each source declares which sections the UI should render and how to load it.
+# Adding a future source (LiveRamp, Experian, etc.) means just adding a new
+# entry here and a new mapper module — no edits to the rendering logic below.
+SOURCE_CONFIG = {
+    "openx": {
+        "label": "Generic",
+        "preview_fn": openx_preview_all_segments,
+        "load_fn": load_taxonomy,
+        "csv_path": TAXONOMY_CSV_PATH,
+        "cache_key": "openx_mapping_preview",
+        "preview_only": False,
+        "supports_location": True,
+        "supports_area_type": True,
+        "supports_language": True,
+        "supports_attitudes": True,
+        "persona_label": "Mosaic Persona",
+        "exclusive_sections": [],  # (matches_key, header) pairs
+    },
+    "epsilon": {
+        "label": "Epsilon",
+        "preview_fn": epsilon_preview_all_segments,
+        "load_fn": load_epsilon_taxonomy,
+        "csv_path": EPSILON_CSV_PATH,
+        "cache_key": "epsilon_mapping_preview",
+        "preview_only": True,
+        "supports_location": False,
+        "supports_area_type": False,
+        "supports_language": False,
+        "supports_attitudes": False,
+        "persona_label": "PRIZM Clusters",
+        "exclusive_sections": [
+            ("automotive", "Automotive"),
+            ("health", "Health"),
+            ("trigger_events", "Life Events (Triggers)"),
+        ],
+    },
+    "transunion": {
+        "label": "TransUnion",
+        "preview_fn": transunion_preview_all_segments,
+        "load_fn": load_transunion_taxonomy,
+        "csv_path": TRANSUNION_CSV_PATH,
+        "cache_key": "transunion_mapping_preview",
+        "preview_only": True,
+        "supports_location": True,
+        "supports_area_type": False,
+        "supports_language": True,
+        "supports_attitudes": False,
+        "persona_label": "TruAudience Segments",
+        "exclusive_sections": [
+            ("automotive", "Automotive"),
+            ("consumer_finance", "Consumer Finance"),
+            ("home_property", "Home & Property"),
+            ("political", "Political"),
+            ("life_events", "Life Events"),
+        ],
+    },
+}
+
+SOURCE_KEY_BY_LABEL = {v["label"]: k for k, v in SOURCE_CONFIG.items()}
 
 
 def _confidence_badge(confidence: float) -> str:
@@ -81,45 +150,64 @@ def _render_trait_matches(title: str, matches: list):
         )
 
 
-def _build_epsilon_csv_export(
-    previews: list, selected_indices: list, custom_picks: dict
+def _build_preview_csv_export(
+    previews: list, selected_indices: list, custom_picks: dict, source_key: str
 ) -> str:
-    """Build a CSV string of all matched Epsilon segments across selected ARI segments."""
+    """Build a CSV string of all matched segments for a preview-only source.
+
+    Uses Epsilon-specific columns when source_key == "epsilon" (DE Rate ID,
+    Field Name, Value, Value Definition); generic columns otherwise.
+    """
     import io
     import csv as _csv
 
     buf = io.StringIO()
     writer = _csv.writer(buf)
-    writer.writerow([
-        "ARI Segment Label",
-        "ARI Segment Name",
-        "Match Category",
-        "Dimension",
-        "Sub-Category",
-        "Epsilon Attribute",
-        "Value",
-        "Value Definition",
-        "Field Name",
-        "DE Rate ID",
-        "Confidence",
-        "Source",
-    ])
+    is_epsilon = source_key == "epsilon"
+
+    if is_epsilon:
+        writer.writerow([
+            "ARI Segment Label", "ARI Segment Name", "Match Category",
+            "Dimension", "Sub-Category", "Epsilon Attribute",
+            "Value", "Value Definition", "Field Name", "DE Rate ID",
+            "Confidence", "Source",
+        ])
+    else:
+        writer.writerow([
+            "ARI Segment Label", "ARI Segment Name", "Match Category",
+            "Top Category", "Sub-Category", "Segment Name", "Full Name",
+            "Description", "Confidence", "Source",
+        ])
 
     def _row(label, seg_name, match_cat, seg_dict, confidence, source):
-        writer.writerow([
-            label,
-            seg_name,
-            match_cat,
-            seg_dict.get("category", ""),
-            seg_dict.get("sub_category", ""),
-            seg_dict.get("epsilon_name", ""),
-            seg_dict.get("epsilon_value", ""),
-            seg_dict.get("epsilon_value_definition", seg_dict.get("name", "")),
-            seg_dict.get("epsilon_field_name", ""),
-            seg_dict.get("epsilon_de_rate_id", ""),
-            f"{confidence:.2f}" if isinstance(confidence, (int, float)) else "",
-            source,
-        ])
+        if is_epsilon:
+            writer.writerow([
+                label,
+                seg_name,
+                match_cat,
+                seg_dict.get("category", ""),
+                seg_dict.get("sub_category", ""),
+                seg_dict.get("epsilon_name", ""),
+                seg_dict.get("epsilon_value", ""),
+                seg_dict.get("epsilon_value_definition", seg_dict.get("name", "")),
+                seg_dict.get("epsilon_field_name", ""),
+                seg_dict.get("epsilon_de_rate_id", ""),
+                f"{confidence:.2f}" if isinstance(confidence, (int, float)) else "",
+                source,
+            ])
+        else:
+            writer.writerow([
+                label,
+                seg_name,
+                match_cat,
+                seg_dict.get("category", ""),
+                seg_dict.get("sub_category", ""),
+                seg_dict.get("name", ""),
+                seg_dict.get("full_name", ""),
+                seg_dict.get("description", ""),
+                f"{confidence:.2f}" if isinstance(confidence, (int, float)) else "",
+                source,
+            ])
 
     for idx in selected_indices:
         preview = previews[idx]
@@ -203,7 +291,8 @@ def _render_custom_picks_section(
     ari_idx: int,
     taxonomy: list,
     matches: dict,
-    is_epsilon: bool,
+    is_preview_only: bool,
+    persona_label: str = "Taxonomy Segments",
     ari_segment: dict = None,
     audience_insights: dict = None,
 ):
@@ -214,11 +303,10 @@ def _render_custom_picks_section(
     picked_fns = {p.get("full_name", "") for p in current_picks}
     ai_matched_fns = _collect_ai_matched_full_names(matches)
 
-    label = "PRIZM Clusters" if is_epsilon else "Taxonomy Segments"
-    st.markdown(f"##### Add More {label}")
+    st.markdown(f"##### Add More Taxonomy Segments")
+    suffix = " (Preview only)" if is_preview_only else ""
     st.caption(
-        "Search the taxonomy to add segments the AI may have missed."
-        + ("" if not is_epsilon else " (Preview only for Epsilon)")
+        f"Search the taxonomy to add segments the AI may have missed.{suffix}"
     )
 
     search_key = f"search_{source_key}_{ari_idx}"
@@ -312,25 +400,21 @@ def render_openx_activation():
     """Main entry point — called from the results tab."""
 
     # ---------- Taxonomy source toggle ----------
-    source = st.radio(
+    source_label = st.radio(
         "Taxonomy",
-        ["Generic", "Epsilon"],
+        [SOURCE_CONFIG[k]["label"] for k in ("openx", "epsilon", "transunion")],
         horizontal=True,
         key="activation_taxonomy_source",
     )
-    is_epsilon = source == "Epsilon"
+    source_key = SOURCE_KEY_BY_LABEL[source_label]
+    cfg = SOURCE_CONFIG[source_key]
+    is_preview_only = cfg["preview_only"]
 
     # ---------- Taxonomy check ----------
-    if is_epsilon:
-        taxonomy = load_epsilon_taxonomy()
-        csv_path = EPSILON_CSV_PATH
-        cache_key = "epsilon_mapping_preview"
-        preview_fn = epsilon_preview_all_segments
-    else:
-        taxonomy = load_taxonomy()
-        csv_path = TAXONOMY_CSV_PATH
-        cache_key = "openx_mapping_preview"
-        preview_fn = openx_preview_all_segments
+    taxonomy = cfg["load_fn"]()
+    csv_path = cfg["csv_path"]
+    cache_key = cfg["cache_key"]
+    preview_fn = cfg["preview_fn"]
 
     if not taxonomy:
         st.info(
@@ -339,9 +423,9 @@ def render_openx_activation():
         )
         return
 
-    # ---------- API config check (Generic only) ----------
+    # ---------- API config check (creation-capable sources only) ----------
     api_configured = False
-    if not is_epsilon:
+    if not is_preview_only:
         api_configured = OpenXService.is_configured()
         if not api_configured:
             st.caption(
@@ -353,7 +437,7 @@ def render_openx_activation():
     st.subheader("Audience Mapping Preview")
     st.caption(
         "Review how ARI audience segments map to taxonomy segments. "
-        + ("Select the segments you want to activate." if not is_epsilon else "")
+        + ("Select the segments you want to activate." if not is_preview_only else "")
     )
 
     # Generate previews (once per source)
@@ -377,10 +461,9 @@ def render_openx_activation():
         summary = preview["summary"]
         warnings = preview["warnings"]
 
-        prefix = "eps" if is_epsilon else "openx"
         col1, col2 = st.columns([0.05, 0.95])
         with col1:
-            selected[idx] = st.checkbox("", value=True, key=f"{prefix}_sel_{idx}")
+            selected[idx] = st.checkbox("", value=True, key=f"{source_key}_sel_{idx}")
         with col2:
             with st.expander(f"**{label}**: {seg_name}", expanded=False):
                 # --- Summary row ---
@@ -411,19 +494,21 @@ def render_openx_activation():
                 st.markdown("**Gender**")
                 _render_match_section("Gender", matches.get("gender", []))
 
-                # --- 2. Location (Generic only) ---
-                if not is_epsilon:
+                # --- 2. Location (sources that support it) ---
+                if cfg["supports_location"] or cfg["supports_area_type"]:
                     st.markdown("##### Location")
 
-                    st.markdown("**State**")
-                    _render_match_section("State", matches.get("location", []))
+                    if cfg["supports_location"]:
+                        st.markdown("**State**")
+                        _render_match_section("State", matches.get("location", []))
 
-                    st.markdown("**Area Type**")
-                    area_matches = matches.get("area_type", [])
-                    if area_matches:
-                        _render_match_section("Area Type", area_matches)
-                    else:
-                        st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
+                    if cfg["supports_area_type"]:
+                        st.markdown("**Area Type**")
+                        area_matches = matches.get("area_type", [])
+                        if area_matches:
+                            _render_match_section("Area Type", area_matches)
+                        else:
+                            st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
 
                 # --- 3. Advanced Demographics ---
                 st.markdown("##### Advanced Demographics")
@@ -456,8 +541,8 @@ def render_openx_activation():
                 else:
                     st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;_No matches_")
 
-                # --- 4. Language (Generic only) ---
-                if not is_epsilon:
+                # --- 4. Language (sources that support it) ---
+                if cfg["supports_language"]:
                     st.markdown("##### Language")
                     language_matches = matches.get("language", [])
                     if language_matches:
@@ -496,11 +581,11 @@ def render_openx_activation():
                 # --- 6. Psychographic ---
                 st.markdown("##### Psychographic")
 
-                persona_label = "PRIZM Clusters" if is_epsilon else "Mosaic Persona"
+                persona_label = cfg["persona_label"]
                 st.markdown(f"**{persona_label}**")
                 _render_trait_matches(persona_label, matches.get("mosaic_persona", []))
 
-                if not is_epsilon:
+                if cfg["supports_attitudes"]:
                     st.markdown("**Attitudes** _(Tech Adoption, Health, Mobile Usage)_")
                     _render_trait_matches("Attitudes", matches.get("attitudes", []))
 
@@ -543,22 +628,12 @@ def render_openx_activation():
                         "general market segment_"
                     )
 
-                # --- 9. Epsilon-exclusive sections ---
-                if is_epsilon:
-                    auto_matches = matches.get("automotive", [])
-                    if auto_matches:
-                        st.markdown("##### Automotive")
-                        _render_trait_matches("Automotive", auto_matches)
-
-                    health_matches = matches.get("health", [])
-                    if health_matches:
-                        st.markdown("##### Health")
-                        _render_trait_matches("Health", health_matches)
-
-                    trigger_matches = matches.get("trigger_events", [])
-                    if trigger_matches:
-                        st.markdown("##### Life Events (Triggers)")
-                        _render_trait_matches("Triggers", trigger_matches)
+                # --- 9. Source-exclusive sections (driven by SOURCE_CONFIG) ---
+                for matches_key, header in cfg["exclusive_sections"]:
+                    items = matches.get(matches_key, [])
+                    if items:
+                        st.markdown(f"##### {header}")
+                        _render_trait_matches(header, items)
 
                 # --- 10. Custom segment picker (search + add) ---
                 st.markdown("---")
@@ -571,11 +646,12 @@ def render_openx_activation():
                     except Exception:
                         _ai_insights = {}
                 _render_custom_picks_section(
-                    source_key="epsilon" if is_epsilon else "openx",
+                    source_key=source_key,
                     ari_idx=idx,
                     taxonomy=taxonomy,
                     matches=matches,
-                    is_epsilon=is_epsilon,
+                    is_preview_only=is_preview_only,
+                    persona_label=cfg["persona_label"],
                     ari_segment=preview.get("segment_data", {}),
                     audience_insights=_ai_insights,
                 )
@@ -588,20 +664,20 @@ def render_openx_activation():
     # ---------- Phase B: Audience Creation ----------
     st.markdown("---")
 
-    if is_epsilon:
+    if is_preview_only:
         selected_indices = [idx for idx, sel in selected.items() if sel]
-        custom_picks = st.session_state.get("custom_picks_epsilon", {})
+        custom_picks = st.session_state.get(f"custom_picks_{source_key}", {})
 
         col1, col2 = st.columns([0.6, 0.4])
         with col1:
             st.info("Preview only. Audience creation is available for Generic taxonomy.")
         with col2:
             if selected_indices:
-                csv_content = _build_epsilon_csv_export(
-                    previews, selected_indices, custom_picks
+                csv_content = _build_preview_csv_export(
+                    previews, selected_indices, custom_picks, source_key
                 )
                 from datetime import datetime
-                filename = f"epsilon_segments_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                filename = f"{source_key}_segments_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
                 st.download_button(
                     label="Export as CSV",
                     data=csv_content,

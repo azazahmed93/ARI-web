@@ -227,6 +227,10 @@ def main():
         st.session_state.custom_picks_openx = {}
     if 'custom_picks_epsilon' not in st.session_state:
         st.session_state.custom_picks_epsilon = {}
+    if 'transunion_mapping_preview' not in st.session_state:
+        st.session_state.transunion_mapping_preview = None
+    if 'custom_picks_transunion' not in st.session_state:
+        st.session_state.custom_picks_transunion = {}
 
     inner_content = None
     # Display results if analysis has been performed
