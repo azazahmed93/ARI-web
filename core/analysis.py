@@ -103,13 +103,6 @@ def extract_brand_info(brief_text):
         if word_count:
             brand_name = max(word_count.items(), key=lambda x: x[1])[0]
 
-    # Special case handling for Apple TV+ (before AI classification)
-    if ("apple" in text) and any(tv_term in text for tv_term in ["tv+", "tv plus", "apple tv", "streaming", "original series"]):
-        brand_name = "Apple"
-        industry = "Entertainment"
-        product_type = "Streaming"
-        return brand_name, industry, product_type
-
     # =====================================================================
     # AI-FIRST INDUSTRY CLASSIFICATION
     # Uses GPT-4o for accurate industry detection, falls back to keywords

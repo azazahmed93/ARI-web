@@ -100,15 +100,6 @@ SITEONE_HISPANIC_TV_NETWORKS = [
     {"name": "HBO", "category": "Premium", "qvi": 195}
 ]
 
-# Streaming platforms - Updated based on Audience_06fef464_Media_Consumption data
-# STREAMING_PLATFORMS = [
-#     {"name": "Apple TV+", "category": "Entertainment", "qvi": 189},
-#     {"name": "Disney+ (without ads)", "category": "Entertainment", "qvi": 130},
-#     {"name": "Netflix (without ads)", "category": "Entertainment", "qvi": 130},
-#     {"name": "HBO Max (Without Ads)", "category": "Entertainment", "qvi": 129},
-#     {"name": "ESPN+", "category": "Sports", "qvi": 122},
-#     {"name": "Paramount+ (without ads)", "category": "Entertainment", "qvi": 120}
-# ]
 
 # STREAMING_PLATFORMS = [
 #     {"name": "Peacock Premium (without ads)", "category": "Entertainment", "qvi": 216},
