@@ -57,6 +57,7 @@ def load_export_session_state():
 from app.layouts.landing_layout import landing_layout
 from app.sections.results import display_results
 from app.components.restricted_access import is_logged_in
+from app.components.clarity_analytics import clarity_analytics
 from app.sections.admin_uploads import admin_uploads
 from core.ai_insights import generate_audience_insights, generate_pychographic_highlights
 
@@ -102,6 +103,8 @@ def main():
         layout="wide",
         initial_sidebar_state="collapsed"
     )
+
+    clarity_analytics()
 
     # Check for export mode FIRST - load saved state if present
     is_export_mode = load_export_session_state()
