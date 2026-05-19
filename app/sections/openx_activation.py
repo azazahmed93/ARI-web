@@ -27,6 +27,11 @@ from core.transunion_mapper import (
     load_transunion_taxonomy,
     TRANSUNION_CSV_PATH,
 )
+from core.aristotle_mapper import (
+    preview_all_segments as aristotle_preview_all_segments,
+    load_aristotle_taxonomy,
+    ARISTOTLE_CSV_PATH,
+)
 
 
 # ---------- Per-source configuration registry ----------
@@ -87,6 +92,28 @@ SOURCE_CONFIG = {
             ("life_events", "Life Events"),
         ],
     },
+    "aristotle": {
+        "label": "Aristotle",
+        "preview_fn": aristotle_preview_all_segments,
+        "load_fn": load_aristotle_taxonomy,
+        "csv_path": ARISTOTLE_CSV_PATH,
+        "cache_key": "aristotle_mapping_preview",
+        "preview_only": True,
+        "supports_location": False,
+        "supports_area_type": False,
+        "supports_language": False,
+        "supports_attitudes": False,
+        "persona_label": "Aristotle Top Segments",
+        "exclusive_sections": [
+            ("ethnicity", "Ethnicity"),
+            ("automotive", "Automotive"),
+            ("medical", "Medical & Healthcare"),
+            ("political", "Political"),
+            ("donors", "Donors"),
+            ("holiday", "Holiday & Seasonal"),
+            ("education_alumni", "Education & Alumni"),
+        ],
+    },
 }
 
 SOURCE_KEY_BY_LABEL = {v["label"]: k for k, v in SOURCE_CONFIG.items()}
@@ -107,6 +134,20 @@ def _confidence_badge(confidence: float) -> str:
     )
 
 
+def _format_description(desc: str, max_len: int = 180) -> str:
+    """Render a segment description as a small grayed caption, truncated."""
+    if not desc:
+        return ""
+    desc = desc.strip()
+    if len(desc) > max_len:
+        desc = desc[: max_len - 1].rsplit(" ", 1)[0] + "…"
+    return (
+        f'<div style="color:#6b7280;font-size:0.78rem;'
+        f'margin-left:1.5rem;margin-top:-0.25rem;margin-bottom:0.3rem;">'
+        f'{desc}</div>'
+    )
+
+
 def _render_match_section(title: str, matches: list):
     """Render a list of matched segments with confidence badges."""
     if not matches:
@@ -118,12 +159,14 @@ def _render_match_section(title: str, matches: list):
         full_name = seg.get("full_name", "")
         conf = m.get("confidence", 0)
         note = m.get("note", "")
+        # desc = seg.get("description", "")  # description rendering disabled for now
 
         display = full_name if full_name else name
         badge = _confidence_badge(conf)
         extra = f' <span style="color:#6b7280;font-size:0.8rem;">({note})</span>' if note else ""
         st.markdown(
             f"&nbsp;&nbsp;&nbsp;&nbsp;{display} {badge}{extra}",
+            # + _format_description(desc),
             unsafe_allow_html=True,
         )
 
@@ -138,6 +181,7 @@ def _render_trait_matches(title: str, matches: list):
         display = seg.get("full_name", seg.get("name", "Unknown"))
         conf = m.get("confidence", 0)
         source = m.get("source_trait", "")
+        # desc = seg.get("description", "")  # description rendering disabled for now
         badge = _confidence_badge(conf)
         source_label = (
             f' <span style="color:#6b7280;font-size:0.75rem;">'
@@ -146,6 +190,7 @@ def _render_trait_matches(title: str, matches: list):
         )
         st.markdown(
             f"&nbsp;&nbsp;&nbsp;&nbsp;{display} {badge}{source_label}",
+            # + _format_description(desc),
             unsafe_allow_html=True,
         )
 
@@ -155,8 +200,10 @@ def _build_preview_csv_export(
 ) -> str:
     """Build a CSV string of all matched segments for a preview-only source.
 
-    Uses Epsilon-specific columns when source_key == "epsilon" (DE Rate ID,
-    Field Name, Value, Value Definition); generic columns otherwise.
+    Uses source-specific columns:
+    - epsilon → DE Rate ID, Field Name, Value, Value Definition
+    - aristotle → Data Dictionary Naming
+    - generic → Segment Name, Full Name, Description only
     """
     import io
     import csv as _csv
@@ -164,12 +211,20 @@ def _build_preview_csv_export(
     buf = io.StringIO()
     writer = _csv.writer(buf)
     is_epsilon = source_key == "epsilon"
+    is_aristotle = source_key == "aristotle"
 
     if is_epsilon:
         writer.writerow([
             "ARI Segment Label", "ARI Segment Name", "Match Category",
             "Dimension", "Sub-Category", "Epsilon Attribute",
             "Value", "Value Definition", "Field Name", "DE Rate ID",
+            "Confidence", "Source",
+        ])
+    elif is_aristotle:
+        writer.writerow([
+            "ARI Segment Label", "ARI Segment Name", "Match Category",
+            "Top Category", "Sub-Category", "Segment Name", "Full Name",
+            "Description", "Data Dictionary Naming",
             "Confidence", "Source",
         ])
     else:
@@ -192,6 +247,20 @@ def _build_preview_csv_export(
                 seg_dict.get("epsilon_value_definition", seg_dict.get("name", "")),
                 seg_dict.get("epsilon_field_name", ""),
                 seg_dict.get("epsilon_de_rate_id", ""),
+                f"{confidence:.2f}" if isinstance(confidence, (int, float)) else "",
+                source,
+            ])
+        elif is_aristotle:
+            writer.writerow([
+                label,
+                seg_name,
+                match_cat,
+                seg_dict.get("category", ""),
+                seg_dict.get("sub_category", ""),
+                seg_dict.get("name", ""),
+                seg_dict.get("full_name", ""),
+                seg_dict.get("description", ""),
+                seg_dict.get("aristotle_dd_name", ""),
                 f"{confidence:.2f}" if isinstance(confidence, (int, float)) else "",
                 source,
             ])
@@ -402,7 +471,7 @@ def render_openx_activation():
     # ---------- Taxonomy source toggle ----------
     source_label = st.radio(
         "Taxonomy",
-        [SOURCE_CONFIG[k]["label"] for k in ("openx", "epsilon", "transunion")],
+        [SOURCE_CONFIG[k]["label"] for k in ("openx", "epsilon", "transunion", "aristotle")],
         horizontal=True,
         key="activation_taxonomy_source",
     )

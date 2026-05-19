@@ -234,6 +234,10 @@ def main():
         st.session_state.transunion_mapping_preview = None
     if 'custom_picks_transunion' not in st.session_state:
         st.session_state.custom_picks_transunion = {}
+    if 'aristotle_mapping_preview' not in st.session_state:
+        st.session_state.aristotle_mapping_preview = None
+    if 'custom_picks_aristotle' not in st.session_state:
+        st.session_state.custom_picks_aristotle = {}
 
     inner_content = None
     # Display results if analysis has been performed
