@@ -128,7 +128,7 @@ def media_affinities(is_siteone_hispanic):
             <div style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{network['category']}</div>
-                <div style="font-weight:bold; color:#3b82f6;">Index: {network['qvi']}</div>
+                <div style="font-weight:bold; color:#3b82f6;">Audience Index: {network['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
     
@@ -163,6 +163,6 @@ def media_affinities(is_siteone_hispanic):
             <div style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform['category']}</div>
-                <div style="font-weight:bold; color:#10b981;">Index: {platform['qvi']}</div>
+                <div style="font-weight:bold; color:#10b981;">Audience Index: {platform['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)

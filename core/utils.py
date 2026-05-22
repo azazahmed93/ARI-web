@@ -305,7 +305,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, network in enumerate(tv_networks):
                 network_cell = f"""<b>{network['name']}</b><br/>
                 {network['category']}<br/>
-                <font color="#1e88e5"><b>Index: {network['qvi']}</b></font>"""
+                <font color="#1e88e5"><b>Audience Index: {network['qvi']}</b></font>"""
 
                 row.append(Paragraph(network_cell, normal_style))
 
@@ -361,7 +361,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, platform in enumerate(streaming_platforms):
                 platform_cell = f"""<b>{platform['name']}</b><br/>
                 {platform['category']}<br/>
-                <font color="#059669"><b>Index: {platform['qvi']}</b></font>"""
+                <font color="#059669"><b>Audience Index: {platform['qvi']}</b></font>"""
 
                 row.append(Paragraph(platform_cell, normal_style))
 
