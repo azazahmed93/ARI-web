@@ -295,7 +295,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             tv_networks = st.session_state.audience_media_consumption['tv_networks']
 
         if tv_networks and len(tv_networks) > 0:
-            content.append(Paragraph("Top TV Network Affinities", heading1_style))
+            content.append(Paragraph("Top TV & Network Affinities", heading1_style))
 
             # Create TV networks table with 5 columns
             tv_network_data = []
@@ -305,7 +305,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, network in enumerate(tv_networks):
                 network_cell = f"""<b>{network['name']}</b><br/>
                 {network['category']}<br/>
-                <font color="#1e88e5"><b>Website Index: {network['qvi']}</b></font>"""
+                <font color="#1e88e5"><b>Index: {network['qvi']}</b></font>"""
 
                 row.append(Paragraph(network_cell, normal_style))
 
@@ -352,7 +352,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             streaming_platforms = st.session_state.audience_media_consumption['streaming_platforms']
 
         if streaming_platforms and len(streaming_platforms) > 0:
-            content.append(Paragraph("Top Streaming Platforms", heading1_style))
+            content.append(Paragraph("Top Streaming & Digital Video Affinities", heading1_style))
 
             # Create streaming platforms table with 3 columns
             streaming_data = []
@@ -361,7 +361,7 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
             for i, platform in enumerate(streaming_platforms):
                 platform_cell = f"""<b>{platform['name']}</b><br/>
                 {platform['category']}<br/>
-                <font color="#059669"><b>Website Index: {platform['qvi']}</b></font>"""
+                <font color="#059669"><b>Index: {platform['qvi']}</b></font>"""
 
                 row.append(Paragraph(platform_cell, normal_style))
 

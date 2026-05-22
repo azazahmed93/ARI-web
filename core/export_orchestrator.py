@@ -446,7 +446,7 @@ class ExportOrchestrator:
             sub_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12), Inches(0.35))
             tf = sub_box.text_frame
             p = tf.paragraphs[0]
-            p.text = "Top TV Network Affinities"
+            p.text = "Top TV & Network Affinities"
             p.font.size = Pt(12)
             p.font.bold = True
             p.font.name = self.FONT_NAME
@@ -482,7 +482,7 @@ class ExportOrchestrator:
                 p2.font.color.rgb = self.GRAY
 
                 p3 = tf.add_paragraph()
-                p3.text = f"Website Index: {network.get('qvi', 0)}"
+                p3.text = f"Index: {network.get('qvi', 0)}"
                 p3.font.size = Pt(8)
                 p3.font.bold = True
                 p3.font.name = self.FONT_NAME
@@ -495,7 +495,7 @@ class ExportOrchestrator:
             sub_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12), Inches(0.35))
             tf = sub_box.text_frame
             p = tf.paragraphs[0]
-            p.text = "Top Streaming Platforms"
+            p.text = "Top Streaming & Digital Video Affinities"
             p.font.size = Pt(12)
             p.font.bold = True
             p.font.name = self.FONT_NAME
@@ -533,7 +533,7 @@ class ExportOrchestrator:
                     p1.font.name = self.FONT_NAME
 
                     p2 = tf.add_paragraph()
-                    p2.text = f"{platform.get('category', '')}   Website Index: {platform.get('qvi', 0)}"
+                    p2.text = f"{platform.get('category', '')}   Index: {platform.get('qvi', 0)}"
                     p2.font.size = Pt(8)
                     p2.font.name = self.FONT_NAME
                     p2.font.color.rgb = self.SECONDARY_COLOR

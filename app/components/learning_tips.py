@@ -145,13 +145,13 @@ LEARNING_TIPS = {
             "content": "Publications and websites that index highest with your target audience, indicating where your audience is most likely to be receptive to advertising messages.",
             "learn_more": "These sites typically offer 2.2x higher engagement than generic high-traffic alternatives."
         },
-        "Top TV Network Affinities": {
-            "title": "Top TV Network Affinities",
+        "Top TV & Network Affinities": {
+            "title": "Top TV & Network Affinities",
             "content": "Television networks and channels that have the strongest connection to your target audience based on viewership patterns and content alignment.",
             "learn_more": "Network affinity correlates with 1.7x higher ad recall compared to demographic-only targeting."
         },
-        "Top Streaming Platforms": {
-            "title": "Top Streaming Platforms",
+        "Top Streaming & Digital Video Affinities": {
+            "title": "Top Streaming & Digital Video Affinities",
             "content": "Digital video and audio streaming services that have high usage and engagement among your target audience segments.",
             "learn_more": "Platform-specific creative optimization can increase performance by 35%."
         }

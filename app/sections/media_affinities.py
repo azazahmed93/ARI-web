@@ -103,7 +103,7 @@ def media_affinities(is_siteone_hispanic):
             <path d="M21 3H3C1.9 3 1 3.9 1 5V17C1 18.1 1.9 19 3 19H8V21H16V19H21C22.1 19 23 18.1 23 17V5C23 3.9 22.1 3 21 3ZM21 17H3V5H21V17Z" fill="#5865f2"/>
             <path d="M16 11L10 15V7L16 11Z" fill="#5865f2"/>
         </svg>
-        Top TV Network Affinities
+        Top TV & Network Affinities
     </h3>
     """, unsafe_allow_html=True)
 
@@ -128,7 +128,7 @@ def media_affinities(is_siteone_hispanic):
             <div style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{network['category']}</div>
-                <div style="font-weight:bold; color:#3b82f6;">Website Index: {network['qvi']}</div>
+                <div style="font-weight:bold; color:#3b82f6;">Index: {network['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
     
@@ -138,7 +138,7 @@ def media_affinities(is_siteone_hispanic):
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 16.5V7.5L16 12L10 16.5Z" fill="#5865f2"/>
         </svg>
-        Top Streaming Platforms
+        Top Streaming & Digital Video Affinities
     </h3>
     """, unsafe_allow_html=True)
     
@@ -163,6 +163,6 @@ def media_affinities(is_siteone_hispanic):
             <div style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform['category']}</div>
-                <div style="font-weight:bold; color:#10b981;">Website Index: {platform['qvi']}</div>
+                <div style="font-weight:bold; color:#10b981;">Index: {platform['qvi']}</div>
             </div>
             """, unsafe_allow_html=True)
