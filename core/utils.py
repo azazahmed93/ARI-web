@@ -206,23 +206,6 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
         content.append(metrics_table)
         content.append(Spacer(1, 12))
     
-    # Benchmark section
-    if include_sections.get('benchmark', True):
-        content.append(Paragraph("Benchmark Comparison", heading1_style))
-        
-        # Simplified benchmark text without industry references
-        benchmark_text = (f"This campaign ranks in the top {percentile}% of all campaigns "
-                        f"for Audience Resonance Index (ARI). That means it outperforms the majority of "
-                        f"campaigns in relevance, authenticity, and emotional connection — based on "
-                        f"Digital Culture Group's analysis of 300+ marketing efforts.")
-        
-        improvement_text = f"<b>Biggest opportunity areas:</b> {', '.join(improvement_areas)}"
-        
-        content.append(Paragraph(benchmark_text, normal_style))
-        content.append(Spacer(1, 6))
-        content.append(Paragraph(improvement_text, normal_style))
-        content.append(Spacer(1, 12))
-    
     # Media Affinity section - use the same title_style for consistent centering
     if any([include_sections.get('media_affinities', True), 
             include_sections.get('tv_networks', True),

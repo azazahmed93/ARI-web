@@ -48,7 +48,6 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                     with pptx_col1:
                         st.markdown('<p style="font-weight: 600; color: #166534; font-size: 0.85rem; margin-bottom: 8px;">CORE ANALYTICS</p>', unsafe_allow_html=True)
                         pptx_include_metrics = st.checkbox("Advanced Metrics", value=True, key="pptx_metrics", help="Score Card + Detailed Metrics")
-                        pptx_include_benchmark = st.checkbox("Benchmark", value=True, key="pptx_benchmark", help="Advanced Analysis")
                         pptx_include_media = st.checkbox("Media Affinities", value=True, key="pptx_media")
                         pptx_include_trends = st.checkbox("Marketing Trends", value=True, key="pptx_trends")
                         pptx_include_cultural = st.checkbox("Cultural Moments", value=True, key="pptx_cultural")
@@ -63,7 +62,6 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                 # Build include_sections dict for PPTX export
                 pptx_include_sections = {
                     'advanced_metrics': pptx_include_metrics,
-                    'benchmark': pptx_include_benchmark,
                     'psychographic': pptx_include_psychographic,
                     'growth_audience': pptx_include_growth,
                     'emerging_audience': pptx_include_emerging,
@@ -186,7 +184,6 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
                 with col1:
                     st.markdown('<p style="font-weight: 600; color: #0369a1; font-size: 0.85rem; margin-bottom: 8px;">CORE ANALYTICS</p>', unsafe_allow_html=True)
                     include_metrics = st.checkbox("Advanced Metrics", value=True, key="metrics")
-                    include_benchmark = st.checkbox("Benchmark Comparison", value=True, key="benchmark")
                     include_media = st.checkbox("Media Affinities", value=True, key="media")
                     include_tv = st.checkbox("TV Networks", value=True, key="tv")
                     include_streaming = st.checkbox("Streaming Platforms", value=True, key="streaming")
@@ -200,7 +197,6 @@ def premium_cta(scores, improvement_areas, percentile, brand_name, industry, pro
             # Create dictionary of sections to include
             include_sections = {
                 'metrics': include_metrics,
-                'benchmark': include_benchmark,
                 'media_affinities': include_media,
                 'tv_networks': include_tv,
                 'streaming': include_streaming,

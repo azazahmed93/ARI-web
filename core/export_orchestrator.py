@@ -188,7 +188,7 @@ class ExportOrchestrator:
             else:
                 logger.info("Skipping audience insights slide (excluded)")
 
-            # 6. Marketing Trends slide (includes benchmark at bottom)
+            # 6. Marketing Trends slide
             if should_include('trends'):
                 update_progress(80, "Creating marketing trends slide...")
                 logger.info("Creating marketing trends slide...")
@@ -850,47 +850,6 @@ class ExportOrchestrator:
                     p.font.color.rgb = self.TEXT_COLOR
                     y_pos += Inches(box_height)
 
-        # Benchmark Comparison section at bottom
-        y_pos += Inches(0.2)
-        percentile = self.session_state.get('percentile', 50)
-        improvement_areas = self.session_state.get('improvement_areas', [])
-
-        # Benchmark header
-        bench_header = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12.7), Inches(0.3))
-        tf = bench_header.text_frame
-        p = tf.paragraphs[0]
-        p.text = "Benchmark Comparison"
-        p.font.size = Pt(11)
-        p.font.bold = True
-        p.font.name = self.FONT_NAME
-        p.font.color.rgb = self.TEXT_COLOR
-
-        y_pos += Inches(0.3)
-
-        # Benchmark text
-        bench_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12.7), Inches(0.8))
-        tf = bench_box.text_frame
-        tf.word_wrap = True
-        p = tf.paragraphs[0]
-        p.text = (f"This campaign ranks in the top {percentile}% of all campaigns for "
-                  f"Audience Resonance Index (ARI), outperforming the majority in relevance, "
-                  f"authenticity, and emotional connection.")
-        p.font.size = Pt(9)
-        p.font.name = self.FONT_NAME
-        p.font.color.rgb = self.TEXT_COLOR
-
-        y_pos += Inches(0.25)
-
-        # Improvement areas
-        if improvement_areas:
-            imp_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12.7), Inches(0.3))
-            tf = imp_box.text_frame
-            p = tf.paragraphs[0]
-            p.text = f"Biggest opportunity areas: {', '.join(improvement_areas[:4])}"
-            p.font.size = Pt(9)
-            p.font.bold = True
-            p.font.name = self.FONT_NAME
-            p.font.color.rgb = self.TEXT_COLOR
 
     def _add_footer_slide(self, prs: Presentation):
         """Add footer/closing slide."""
