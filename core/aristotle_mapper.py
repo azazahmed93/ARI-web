@@ -12,6 +12,7 @@ import re
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Any
+from core.generations import resolve_generation_age_range
 
 logger = logging.getLogger(__name__)
 
@@ -98,17 +99,10 @@ def _parse_age_range_from_segment(name: str) -> Optional[Tuple[int, int]]:
     m = re.search(r"(\d{1,2})\s*\+", name)
     if m:
         return int(m.group(1)), 99
-    # Generation labels approximation (2026 baseline ages):
-    lower = name.lower()
-    if "boomer" in lower:
-        return 62, 80
-    if "millennial" in lower:
-        return 30, 45
-    if "generation x" in lower or "gen x" in lower:
-        return 46, 61
-    if "generation z" in lower or "gen z" in lower:
-        return 12, 29
-    if "traditionalist" in lower:
+    gen_range = resolve_generation_age_range(name)
+    if gen_range:
+        return gen_range
+    if "traditionalist" in name.lower():
         return 80, 99
     return None
 
