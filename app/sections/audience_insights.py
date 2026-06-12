@@ -284,31 +284,33 @@ def audience_insights(is_siteone_hispanic):
                     
                     # Display the HTML content
                     st.markdown(html_content, unsafe_allow_html=True)
-                    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-                    PARENT_DIR = os.path.dirname(CURRENT_DIR)
-                    HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html") 
 
-                    try:
-                        with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                            html_code = f.read()
+                    # Census demographics may be absent (UK campaigns / census
+                    # hidden) — skip the breakdown iframe rather than render it empty
+                    if growth_segment.get('demographics'):
+                        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+                        PARENT_DIR = os.path.dirname(CURRENT_DIR)
+                        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html")
 
-                        # Calculate dynamic height based on demographics count
-                        demographics_count = 6  # Default: all races
-                        if 'demographics' in growth_segment:
+                        try:
+                            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                                html_code = f.read()
+
+                            # Calculate dynamic height based on demographics count
                             demographics_count = len(growth_segment['demographics'])
 
-                        # Dynamic height calculation
-                        # Base: 200px, Per demographic: 60px
-                        dynamic_height = 500 + (demographics_count * 80)
+                            # Dynamic height calculation
+                            # Base: 200px, Per demographic: 60px
+                            dynamic_height = 500 + (demographics_count * 80)
 
-                        html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
-                        components.html(html_code, height=dynamic_height, scrolling=True)
+                            html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
+                            components.html(html_code, height=dynamic_height, scrolling=True)
 
-                    except FileNotFoundError:
-                        st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-                        st.info("Please make sure 'index.html' is in the correct location.")
-                    except Exception as e:
-                        st.error(f"An error occurred: {e}")
+                        except FileNotFoundError:
+                            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                            st.info("Please make sure 'index.html' is in the correct location.")
+                        except Exception as e:
+                            st.error(f"An error occurred: {e}")
 
         except Exception as e:
             # Silent fail - don't show error if there's an issue with the growth audience
