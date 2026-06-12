@@ -215,7 +215,11 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         print(f"Generated new export_id: {st.session_state.export_id}")
 
     journey_tab_name = "Consumer Journey" if st.session_state.is_gm_user else "Resonance Pathway"
-    # Create tabs for better organization of content
+    # Create tabs for better organization of content.
+    # Journey Environments and Trailblazer are US-only — for UK campaigns the
+    # tabs stay visible but are greyed out and show a notice instead of content.
+    is_uk_market = st.session_state.get("campaign_market", "US") == "UK"
+    US_ONLY_TABS = ("Journey Environments", "Trailblazer")
     tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs([
         "Detailed Metrics",
         "Audience Insights",
@@ -234,6 +238,27 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         journey_tab_name,
         "Next Steps",
     ])
+
+    if is_uk_market:
+        # Grey out the US-only tabs (matched by label text so the styling
+        # survives tab reordering and doesn't touch other st.tabs on the page)
+        components.html(f"""
+        <script>
+        const labels = {json.dumps(list(US_ONLY_TABS))};
+        const apply = () => {{
+            window.parent.document.querySelectorAll('button[data-baseweb="tab"]').forEach(b => {{
+                if (labels.includes(b.innerText.trim())) {{
+                    b.style.opacity = '0.35';
+                    b.style.filter = 'grayscale(1)';
+                    b.title = 'Available for US campaigns only';
+                }}
+            }});
+        }};
+        apply();
+        setTimeout(apply, 500);
+        setTimeout(apply, 2000);
+        </script>
+        """, height=0)
     
     # TAB 1: DETAILED METRICS
     with tab1:
@@ -847,23 +872,26 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.error(f"An error occurred: {e}")
     
     with tab12:
-        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-        PARENT_DIR = os.path.dirname(CURRENT_DIR)
-        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "trailblazer/index.html") 
+        if is_uk_market:
+            st.info("🇺🇸 Trailblazer is available for US campaigns only.")
+        else:
+            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+            PARENT_DIR = os.path.dirname(CURRENT_DIR)
+            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "trailblazer/index.html")
 
-        try:
-            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                html_code = f.read()
+            try:
+                with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                    html_code = f.read()
 
-            html_code = html_code.replace("{{RFP_BRIEF}}", json.dumps(st.session_state.brief_text))
-            
-            components.html(html_code, height=1200, scrolling=True)
+                html_code = html_code.replace("{{RFP_BRIEF}}", json.dumps(st.session_state.brief_text))
 
-        except FileNotFoundError:
-            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-            st.info("Please make sure 'index.html' is in the correct location.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+                components.html(html_code, height=1200, scrolling=True)
+
+            except FileNotFoundError:
+                st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                st.info("Please make sure 'index.html' is in the correct location.")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
     
     with tab13:
         CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -895,29 +923,32 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         media_affinities(is_siteone_hispanic)
 
     with tab8:
-        # Collect background Phase 3 results before rendering
-        _collect_background_phase3()
+        if is_uk_market:
+            st.info("🇺🇸 Journey Environments is available for US campaigns only.")
+        else:
+            # Collect background Phase 3 results before rendering
+            _collect_background_phase3()
 
-        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-        PARENT_DIR = os.path.dirname(CURRENT_DIR)
-        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "journey-environments/index.html")
+            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+            PARENT_DIR = os.path.dirname(CURRENT_DIR)
+            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "journey-environments/index.html")
 
-        try:
-            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                html_code = f.read()
+            try:
+                with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                    html_code = f.read()
 
-            html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
-            html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
-            html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
-            html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
-            html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
-            components.html(html_code, height=1000, scrolling=True)
+                html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
+                html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
+                html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
+                html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
+                html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
+                components.html(html_code, height=1000, scrolling=True)
 
-        except FileNotFoundError:
-            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-            st.info("Please make sure 'index.html' is in the correct location.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+            except FileNotFoundError:
+                st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                st.info("Please make sure 'index.html' is in the correct location.")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
     with tab15:
         # Journey tab with Lambda polling logic
