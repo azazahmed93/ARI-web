@@ -835,6 +835,8 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             html_code = html_code.replace("{{BRIEF_CONTENT}}", json.dumps(st.session_state.brief_text))
             html_code = html_code.replace("{{AUDIENCE_SEGMENTS}}", json.dumps(st.session_state.audience_segments))
             html_code = html_code.replace("{{CORE_AUDIENCE}}", json.dumps(core_audience))
+            # Raw value (not json.dumps): the token sits inside backticks in the bundle
+            html_code = html_code.replace("{{CAMPAIGN_MARKET}}", st.session_state.get("campaign_market", "US"))
 
             components.html(html_code, height=1200, scrolling=True)
 
