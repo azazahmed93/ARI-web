@@ -40,6 +40,31 @@ INVENTORY_FILES = {
     'streaming_platforms': 'ARI Media_Affinity_Sites_Complete_All_Audiences_FINAL - Top Streaming Platforms.csv',
 }
 
+# UK CSV variants (same column layout as the US files, sourced from the
+# client's DCG UK inventory export). If a UK file is missing, UK requests fall
+# back to the US file (websites: filtered to UK domains) with UK market
+# context in the GPT prompts.
+UK_INVENTORY_FILES = {
+    'websites': 'ARI Media_Affinity_Sites_Complete_All_Audiences_FINAL - Top Media Affinity Sites UK.csv',
+    'tv_networks': 'ARI Media_Affinity_Sites_Complete_All_Audiences_FINAL - Top TV Network Affinities UK.csv',
+    'streaming_platforms': 'ARI Media_Affinity_Sites_Complete_All_Audiences_FINAL - Top Streaming Platforms UK.csv',
+}
+
+
+def _has_uk_file(inventory_type: str) -> bool:
+    filename = UK_INVENTORY_FILES.get(inventory_type)
+    return bool(filename) and os.path.exists(os.path.join(INVENTORY_DIR, filename))
+
+# UK publishers in the global websites CSV that don't use a .uk TLD.
+# Matched as domain suffixes, so subdomains (amp.theguardian.com,
+# bestof.dailymail.com) match their base entries.
+UK_WEBSITE_ALLOWLIST = (
+    'theguardian.com',
+    'bbc.com',
+    'bbcgoodfood.com',
+    'dailymail.com',
+)
+
 CHUNK_SIZE = 5000  # entries per website chunk
 MAX_WORKERS = 4
 
@@ -48,14 +73,25 @@ MAX_WORKERS = 4
 # Inventory loading
 # ---------------------------------------------------------------------------
 
-def _load_inventory(inventory_type: str) -> Optional[pd.DataFrame]:
-    """Load and cache an inventory CSV. Returns None if file not found."""
-    if inventory_type in _inventory_cache:
-        return _inventory_cache[inventory_type]
+def _load_inventory(inventory_type: str, market: str = "US") -> Optional[pd.DataFrame]:
+    """Load and cache an inventory CSV (cache keyed by type + market).
+
+    For UK, tries the UK CSV variant first and falls back to the US file
+    (with a logged warning) when no UK file exists yet.
+    """
+    cache_key = f"{inventory_type}:{market}"
+    if cache_key in _inventory_cache:
+        return _inventory_cache[cache_key]
 
     filename = INVENTORY_FILES.get(inventory_type)
     if not filename:
         return None
+
+    if market == "UK":
+        if _has_uk_file(inventory_type):
+            filename = UK_INVENTORY_FILES[inventory_type]
+        else:
+            print(f"  [inventory] No UK file for {inventory_type} — falling back to US inventory with UK prompt context")
 
     filepath = os.path.join(INVENTORY_DIR, filename)
     if not os.path.exists(filepath):
@@ -63,9 +99,30 @@ def _load_inventory(inventory_type: str) -> Optional[pd.DataFrame]:
         return None
 
     df = pd.read_csv(filepath)
-    _inventory_cache[inventory_type] = df
-    print(f"  [inventory] Loaded {inventory_type}: {len(df)} entries, columns={list(df.columns)}")
+    _inventory_cache[cache_key] = df
+    print(f"  [inventory] Loaded {cache_key}: {len(df)} entries, columns={list(df.columns)}")
     return df
+
+
+def _filter_websites_for_market(df: pd.DataFrame, market: str) -> pd.DataFrame:
+    """Filter the global websites inventory to a market-relevant subset.
+
+    Only used as a FALLBACK when no dedicated UK websites file exists: the
+    global CSV has no country column, so UK relevance is inferred from the
+    domain (.uk TLDs plus an allowlist of UK publishers on other TLDs).
+    """
+    if market != "UK" or _has_uk_file('websites'):
+        return df
+
+    def _is_uk_domain(domain) -> bool:
+        d = str(domain).strip().lower()
+        if d.endswith('.uk'):
+            return True
+        return any(d == allowed or d.endswith('.' + allowed) for allowed in UK_WEBSITE_ALLOWLIST)
+
+    filtered = df[df['Domain Name'].apply(_is_uk_domain)]
+    print(f"  [inventory] UK website filter: {len(df)} → {len(filtered)} entries")
+    return filtered
 
 
 # ---------------------------------------------------------------------------
@@ -137,6 +194,17 @@ def _format_inventory_block(df: pd.DataFrame, formatter, max_rows: int = None) -
 # GPT-4o selection calls
 # ---------------------------------------------------------------------------
 
+def _market_prompt_section(market: str) -> str:
+    """Extra prompt context for non-US markets."""
+    if market == "UK":
+        return (
+            "\n## Market\n"
+            "This is a UNITED KINGDOM campaign. Prefer UK-relevant publishers, "
+            "networks and platforms available to UK audiences; deprioritise US-only inventory.\n"
+        )
+    return ""
+
+
 def _select_from_chunk(
     brief_text: str,
     audience_context: str,
@@ -144,6 +212,7 @@ def _select_from_chunk(
     inventory_type: str,
     top_n: int,
     chunk_label: str = "",
+    market: str = "US",
 ) -> List[dict]:
     """Ask GPT-4o to select the top N most relevant items from a chunk."""
 
@@ -172,6 +241,7 @@ def _select_from_chunk(
     user_prompt = (
         f"## RFP Brief\n{brief_text[:3000]}\n"
         f"{audience_section}"
+        f"{_market_prompt_section(market)}"
         f"\n## Available {type_label} inventory ({column_hint})\n"
         f"{chunk_text}\n\n"
         f"Select the top {top_n} most relevant {type_label} entries for this campaign. "
@@ -258,6 +328,7 @@ def _aggregate_website_winners(
     audience_context: str,
     all_winners: List[dict],
     top_n: int = 5,
+    market: str = "US",
 ) -> List[dict]:
     """Final aggregation pass: select top 5 from all chunk winners."""
 
@@ -287,6 +358,7 @@ def _aggregate_website_winners(
     user_prompt = (
         f"## RFP Brief\n{brief_text[:3000]}\n"
         f"{audience_section}"
+        f"{_market_prompt_section(market)}"
         f"\n## Pre-screened website candidates ({len(all_winners)} total)\n"
         f"{winner_text}\n\n"
         f"Select the final top {top_n} websites. Ensure category diversity. "
@@ -348,13 +420,18 @@ def _aggregate_website_winners(
 # Per-inventory-type selection
 # ---------------------------------------------------------------------------
 
-def select_websites(brief_text: str, audience_context: str = "") -> Optional[str]:
+def select_websites(brief_text: str, audience_context: str = "", market: str = "US") -> Optional[str]:
     """
     Select top 5 websites via batch chunking.
     Returns JSON string matching session_state.media_affinity format.
     """
-    df = _load_inventory('websites')
+    df = _load_inventory('websites', market)
     if df is None:
+        return None
+
+    df = _filter_websites_for_market(df, market)
+    if df.empty:
+        print(f"  [inventory] No website inventory left after {market} filter")
         return None
 
     # Split into chunks
@@ -370,7 +447,7 @@ def select_websites(brief_text: str, audience_context: str = "") -> Optional[str
             future = pool.submit(
                 _select_from_chunk,
                 brief_text, audience_context, chunk_text,
-                'websites', 10, f"chunk {idx+1}/{len(chunks)}"
+                'websites', 10, f"chunk {idx+1}/{len(chunks)}", market
             )
             futures[future] = idx
 
@@ -386,7 +463,7 @@ def select_websites(brief_text: str, audience_context: str = "") -> Optional[str
         return None
 
     # Final aggregation
-    final = _aggregate_website_winners(brief_text, audience_context, all_winners, top_n=5)
+    final = _aggregate_website_winners(brief_text, audience_context, all_winners, top_n=5, market=market)
 
     # Format to match session_state.media_affinity contract
     output = []
@@ -403,12 +480,12 @@ def select_websites(brief_text: str, audience_context: str = "") -> Optional[str
     return json.dumps(output)
 
 
-def select_tv_networks(brief_text: str, audience_context: str = "") -> Optional[List[dict]]:
+def select_tv_networks(brief_text: str, audience_context: str = "", market: str = "US") -> Optional[List[dict]]:
     """
     Select top 5 TV networks in a single pass.
     Returns list matching session_state.audience_media_consumption['tv_networks'] format.
     """
-    df = _load_inventory('tv_networks')
+    df = _load_inventory('tv_networks', market)
     if df is None:
         return None
 
@@ -417,7 +494,7 @@ def select_tv_networks(brief_text: str, audience_context: str = "") -> Optional[
 
     results = _select_from_chunk(
         brief_text, audience_context, inventory_text,
-        'tv_networks', 5, "single pass"
+        'tv_networks', 5, "single pass", market
     )
 
     if not results:
@@ -433,12 +510,12 @@ def select_tv_networks(brief_text: str, audience_context: str = "") -> Optional[
     return output
 
 
-def select_streaming_platforms(brief_text: str, audience_context: str = "") -> Optional[List[dict]]:
+def select_streaming_platforms(brief_text: str, audience_context: str = "", market: str = "US") -> Optional[List[dict]]:
     """
     Select top 6 streaming platforms in a single pass.
     Returns list matching session_state.audience_media_consumption['streaming_platforms'] format.
     """
-    df = _load_inventory('streaming_platforms')
+    df = _load_inventory('streaming_platforms', market)
     if df is None:
         return None
 
@@ -447,7 +524,7 @@ def select_streaming_platforms(brief_text: str, audience_context: str = "") -> O
 
     results = _select_from_chunk(
         brief_text, audience_context, inventory_text,
-        'streaming_platforms', 6, "single pass"
+        'streaming_platforms', 6, "single pass", market
     )
 
     if not results:
@@ -467,27 +544,27 @@ def select_streaming_platforms(brief_text: str, audience_context: str = "") -> O
 # Caching helpers
 # ---------------------------------------------------------------------------
 
-def _cache_key(brief_text: str) -> str:
-    """Generate a stable cache key from brief text."""
-    return hashlib.md5(brief_text.encode('utf-8')).hexdigest()[:16]
+def _cache_key(brief_text: str, market: str = "US") -> str:
+    """Generate a stable cache key from market + brief text."""
+    return hashlib.md5(f"{market}:{brief_text}".encode('utf-8')).hexdigest()[:16]
 
 
-def _get_cached(brief_text: str) -> Optional[dict]:
+def _get_cached(brief_text: str, market: str = "US") -> Optional[dict]:
     """Check session_state cache for previous results."""
     if not HAS_STREAMLIT:
         return None
     cache = st.session_state.get('_inventory_cache', {})
-    key = _cache_key(brief_text)
+    key = _cache_key(brief_text, market)
     return cache.get(key)
 
 
-def _set_cached(brief_text: str, results: dict):
+def _set_cached(brief_text: str, results: dict, market: str = "US"):
     """Store results in session_state cache."""
     if not HAS_STREAMLIT:
         return
     if '_inventory_cache' not in st.session_state:
         st.session_state._inventory_cache = {}
-    key = _cache_key(brief_text)
+    key = _cache_key(brief_text, market)
     st.session_state._inventory_cache[key] = results
 
 
@@ -495,9 +572,12 @@ def _set_cached(brief_text: str, results: dict):
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def select_all_inventory(brief_text: str, audience_context: str = "") -> dict:
+def select_all_inventory(brief_text: str, audience_context: str = "", market: str = "US") -> dict:
     """
     Select relevant inventory across all three types.
+
+    Args:
+        market: "US" (default) or "UK" — selects market-specific inventory.
 
     Returns dict with keys:
         'media_affinity': JSON string (websites) or None
@@ -505,7 +585,7 @@ def select_all_inventory(brief_text: str, audience_context: str = "") -> dict:
         'streaming_platforms': list of dicts or None
     """
     # Check cache first
-    cached = _get_cached(brief_text)
+    cached = _get_cached(brief_text, market)
     if cached:
         print("  [inventory] Cache hit — returning cached inventory results")
         return cached
@@ -531,9 +611,9 @@ def select_all_inventory(brief_text: str, audience_context: str = "") -> dict:
     # Run all three in parallel using one shared pool
     start = time.time()
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        future_websites = pool.submit(select_websites, brief_text, audience_context)
-        future_tv = pool.submit(select_tv_networks, brief_text, audience_context)
-        future_streaming = pool.submit(select_streaming_platforms, brief_text, audience_context)
+        future_websites = pool.submit(select_websites, brief_text, audience_context, market)
+        future_tv = pool.submit(select_tv_networks, brief_text, audience_context, market)
+        future_streaming = pool.submit(select_streaming_platforms, brief_text, audience_context, market)
 
         # Collect results
         try:
@@ -555,6 +635,6 @@ def select_all_inventory(brief_text: str, audience_context: str = "") -> dict:
     print(f"  [inventory] All selections completed in {elapsed:.1f}s")
 
     # Cache results
-    _set_cached(brief_text, results)
+    _set_cached(brief_text, results, market)
 
     return results
