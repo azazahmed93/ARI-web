@@ -109,6 +109,10 @@ def call_lambda_journey_sync_in_background(lambda_url, token, payload, journey_t
 
                 # Get task_id from Lambda response
                 task_id = result.get("task_id")
+                print("resonance pathway result:")
+                print("resonance pathway result:")
+                print("resonance pathway result:")
+                print(result["result"])
 
                 # Store result in GLOBAL dict (thread-safe)
                 with _journey_lock:
@@ -372,10 +376,11 @@ def landing_layout(inner_content):
                     input_brief_text = input_brief_text.replace(keyword, "[FILTERED]")
                 brief_text = input_brief_text
         
-        # Campaign market selection (drives census enrichment + media inventory market)
+        # Campaign market selection (drives census enrichment + media inventory market).
+        # Global = US + UK inventory combined; like UK it skips US-only features.
         st.radio(
             "Campaign Market",
-            ["US", "UK"],
+            ["US", "UK", "Global"],
             horizontal=True,
             key="campaign_market_selector",
         )
@@ -636,10 +641,10 @@ def landing_layout(inner_content):
                                         segments = st.session_state.audience_segments.get('segments', [])
 
                                         # Phase 1b: Enrich segments with Census Bureau demographics in parallel
-                                        # Skipped entirely for UK campaigns (US Census data is irrelevant)
-                                        skip_census = st.session_state.get("campaign_market", "US") == "UK"
+                                        # Skipped for any non-US market (UK / Global) — US Census data is irrelevant
+                                        skip_census = st.session_state.get("campaign_market", "US") != "US"
                                         if skip_census:
-                                            print("\n⚠ Skipping US Census enrichment (Phase 1b) — UK market selected")
+                                            print(f"\n⚠ Skipping US Census enrichment (Phase 1b) — {st.session_state.get('campaign_market', 'US')} market selected")
                                         else:
                                             print("\n" + "=" * 60)
                                             print("Starting Census API integration (Phase 1b)...")
