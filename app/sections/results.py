@@ -216,9 +216,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
 
     journey_tab_name = "Consumer Journey" if st.session_state.is_gm_user else "Resonance Pathway"
     # Create tabs for better organization of content.
-    # Journey Environments and Trailblazer are US-only — for UK campaigns the
-    # tabs stay visible but are greyed out and show a notice instead of content.
-    is_uk_market = st.session_state.get("campaign_market", "US") == "UK"
+    # Journey Environments and Trailblazer are US-only — for non-US campaigns
+    # (UK / Global) the tabs stay visible but are greyed out and show a notice
+    # instead of content.
+    is_non_us_market = st.session_state.get("campaign_market", "US") != "US"
     US_ONLY_TABS = ("Journey Environments", "Trailblazer")
     tab1, tab2, tab3, tab4, tab5, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs([
         "Detailed Metrics",
@@ -239,7 +240,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         "Next Steps",
     ])
 
-    if is_uk_market:
+    if is_non_us_market:
         # Grey out the US-only tabs (matched by label text so the styling
         # survives tab reordering and doesn't touch other st.tabs on the page)
         components.html(f"""
@@ -872,7 +873,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.error(f"An error occurred: {e}")
     
     with tab12:
-        if is_uk_market:
+        if is_non_us_market:
             st.info("🇺🇸 Trailblazer is available for US campaigns only.")
         else:
             CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -923,7 +924,7 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         media_affinities(is_siteone_hispanic)
 
     with tab8:
-        if is_uk_market:
+        if is_non_us_market:
             st.info("🇺🇸 Journey Environments is available for US campaigns only.")
         else:
             # Collect background Phase 3 results before rendering
