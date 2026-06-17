@@ -55,6 +55,14 @@ def _has_uk_file(inventory_type: str) -> bool:
     filename = UK_INVENTORY_FILES.get(inventory_type)
     return bool(filename) and os.path.exists(os.path.join(INVENTORY_DIR, filename))
 
+
+# Column used to de-duplicate when combining markets (Global = US + UK).
+_DEDUP_KEY = {
+    'websites': 'Domain Name',
+    'tv_networks': 'App/Platform Name',
+    'streaming_platforms': 'App/Platform Name',
+}
+
 # UK publishers in the global websites CSV that don't use a .uk TLD.
 # Matched as domain suffixes, so subdomains (amp.theguardian.com,
 # bestof.dailymail.com) match their base entries.
@@ -76,12 +84,28 @@ MAX_WORKERS = 4
 def _load_inventory(inventory_type: str, market: str = "US") -> Optional[pd.DataFrame]:
     """Load and cache an inventory CSV (cache keyed by type + market).
 
-    For UK, tries the UK CSV variant first and falls back to the US file
-    (with a logged warning) when no UK file exists yet.
+    - UK: tries the UK CSV variant first, falling back to the US file (with a
+      logged warning) when no UK file exists yet.
+    - Global: combines the US and UK inventories (de-duplicated), per the
+      client's definition that Global inventory = US + UK.
     """
     cache_key = f"{inventory_type}:{market}"
     if cache_key in _inventory_cache:
         return _inventory_cache[cache_key]
+
+    if market == "Global":
+        us_df = _load_inventory(inventory_type, "US")
+        uk_df = _load_inventory(inventory_type, "UK")
+        frames = [df for df in (us_df, uk_df) if df is not None]
+        if not frames:
+            return None
+        combined = pd.concat(frames, ignore_index=True)
+        key = _DEDUP_KEY.get(inventory_type)
+        if key and key in combined.columns:
+            combined = combined.drop_duplicates(subset=[key], keep='first').reset_index(drop=True)
+        _inventory_cache[cache_key] = combined
+        print(f"  [inventory] Loaded {cache_key}: {len(combined)} entries (US+UK combined)")
+        return combined
 
     filename = INVENTORY_FILES.get(inventory_type)
     if not filename:
@@ -201,6 +225,12 @@ def _market_prompt_section(market: str) -> str:
             "\n## Market\n"
             "This is a UNITED KINGDOM campaign. Prefer UK-relevant publishers, "
             "networks and platforms available to UK audiences; deprioritise US-only inventory.\n"
+        )
+    if market == "Global":
+        return (
+            "\n## Market\n"
+            "This is a GLOBAL campaign spanning US and UK markets. Select a mix of "
+            "publishers, networks and platforms with broad reach across both markets.\n"
         )
     return ""
 
@@ -577,7 +607,8 @@ def select_all_inventory(brief_text: str, audience_context: str = "", market: st
     Select relevant inventory across all three types.
 
     Args:
-        market: "US" (default) or "UK" — selects market-specific inventory.
+        market: "US" (default), "UK", or "Global" (US + UK combined) —
+            selects market-specific inventory.
 
     Returns dict with keys:
         'media_affinity': JSON string (websites) or None
