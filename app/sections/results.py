@@ -938,11 +938,16 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
                 with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
                     html_code = f.read()
 
-                html_code = html_code.replace("{{JOURNEY_AD_FORMAT_SCORES}}", json.dumps(st.session_state.journey_ad_format_scores))
-                html_code = html_code.replace("{{JOURNEY_PROGRAMMING_SHOW_SCORES}}", json.dumps(st.session_state.journey_programming_show_scores))
-                html_code = html_code.replace("{{JOURNEY_RETARGETING_CHANNELS}}", json.dumps(st.session_state.journey_retargeting_channels))
-                html_code = html_code.replace("{{JOURNEY_AUDIENCE_PROFILE}}", json.dumps(st.session_state.journey_audience_profile))
-                html_code = html_code.replace("{{JOURNEY_CAMPAIGN_OBJECTIVES}}", json.dumps(st.session_state.journey_campaign_objectives))
+                # New model: ari-api computes all journey scoring. We only inject
+                # the RFP brief; the embedded app calls ari-api for everything else.
+                _audience_profile = st.session_state.get("journey_audience_profile") or {}
+                _audience_label = (_audience_profile.get("demographics", {}) or {}).get("profession", "")
+                html_code = html_code.replace('"{{JOURNEY_BRIEF}}"', json.dumps({
+                    "rfpBrief": st.session_state.get("brief_text") or "",
+                    "audience": _audience_label,
+                    "industry": st.session_state.get("industry", "General"),
+                }))
+                html_code = html_code.replace("{{API_BASE_URL}}", "https://api.ariplatform.ai")
                 components.html(html_code, height=1000, scrolling=True)
 
             except FileNotFoundError:
