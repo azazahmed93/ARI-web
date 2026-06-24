@@ -427,33 +427,21 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                         demo_text = "Demographics: " + " | ".join(demo_parts)
                         content.append(Paragraph(demo_text, normal_style))
                 
-                # Add platform information with appropriate metrics
-                platform_targeting = primary.get('platform_targeting', [])
-                if platform_targeting and len(platform_targeting) > 0:
-                    platform = platform_targeting[0].get('platform', '')
-                    
-                    # Determine appropriate metric based on platform type
-                    performance = primary.get('expected_performance', {})
-                    metric_value = performance.get('CTR', 'N/A')
-                    metric_name = "Expected CTR"
-                    
-                    # Check for video platforms
-                    if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
-                                    or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
-                        metric_name = "Expected VCR"
-                        metric_value = "90-100%"  # Dynamic range for video completion
-                    
-                    # Check for audio platforms
-                    elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
-                                      or 'music' in platform.lower()):
-                        metric_name = "Expected LTR"
-                        metric_value = "80-95%"  # Dynamic range for audio listen-through
-                    
+                # Recommended platform — single source of truth shared with the UI card
+                # and the "Audience Segment Media Recommendation" heatmap
+                # (marketing_trends.resolve_segment_platform); KPI via benchmark config.
+                from app.components.marketing_trends import resolve_segment_platform
+                from core.benchmark_config import get_platform_benchmark
+                platform = resolve_segment_platform(primary)
+                if platform:
+                    benchmark = get_platform_benchmark(platform)
+                    metric_name = benchmark.get('metric_name', 'Expected CTR')
+                    metric_value = benchmark.get('metric_value', 'N/A')
                     platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
                     content.append(Paragraph(platform_text, normal_style))
-                
+
                 content.append(Spacer(1, 8))
-            
+
             # Add Secondary Growth Audience
             if len(segments) > 1:
                 secondary = segments[1]
@@ -464,33 +452,19 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                 secondary_text = f"{secondary.get('name', 'Secondary Growth Audience')}: {secondary.get('description', 'Additional target audience')}"
                 content.append(Paragraph(secondary_text, normal_style))
                 
-                # Add platform information with appropriate metrics
-                platform_targeting = secondary.get('platform_targeting', [])
-                if platform_targeting and len(platform_targeting) > 0:
-                    platform = platform_targeting[0].get('platform', '')
-                    
-                    # Determine appropriate metric based on platform type
-                    performance = secondary.get('expected_performance', {})
-                    metric_value = performance.get('CTR', 'N/A')
-                    metric_name = "Expected CTR"
-                    
-                    # Check for video platforms
-                    if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
-                                    or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
-                        metric_name = "Expected VCR"
-                        metric_value = "90-100%"  # Dynamic range for video completion
-                    
-                    # Check for audio platforms
-                    elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
-                                      or 'music' in platform.lower()):
-                        metric_name = "Expected LTR"
-                        metric_value = "80-95%"  # Dynamic range for audio listen-through
-                    
+                # Recommended platform — single source of truth (see primary block).
+                from app.components.marketing_trends import resolve_segment_platform
+                from core.benchmark_config import get_platform_benchmark
+                platform = resolve_segment_platform(secondary)
+                if platform:
+                    benchmark = get_platform_benchmark(platform)
+                    metric_name = benchmark.get('metric_name', 'Expected CTR')
+                    metric_value = benchmark.get('metric_value', 'N/A')
                     platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
                     content.append(Paragraph(platform_text, normal_style))
-                
+
                 content.append(Spacer(1, 8))
-            
+
             # Add Emerging Audience Opportunity
             if len(segments) > 2:
                 growth = segments[-1]  # Use the last segment as growth opportunity
@@ -508,31 +482,17 @@ def create_pdf_download_link(scores, improvement_areas, percentile, brand_name="
                     interests_text = "Key Interests: " + ", ".join(interests)
                     content.append(Paragraph(interests_text, normal_style))
                 
-                # Add platform information with appropriate metrics
-                platform_targeting = growth.get('platform_targeting', [])
-                if platform_targeting and len(platform_targeting) > 0:
-                    platform = platform_targeting[0].get('platform', '')
-                    
-                    # Determine appropriate metric based on platform type
-                    performance = growth.get('expected_performance', {})
-                    metric_value = performance.get('CTR', 'N/A')
-                    metric_name = "Expected CTR"
-                    
-                    # Check for video platforms
-                    if platform and ('video' in platform.lower() or 'ott' in platform.lower() 
-                                    or 'ctv' in platform.lower() or 'streaming' in platform.lower()):
-                        metric_name = "Expected VCR"
-                        metric_value = "90-100%"  # Dynamic range for video completion
-                    
-                    # Check for audio platforms
-                    elif platform and ('audio' in platform.lower() or 'podcast' in platform.lower() 
-                                      or 'music' in platform.lower()):
-                        metric_name = "Expected LTR"
-                        metric_value = "80-95%"  # Dynamic range for audio listen-through
-                    
+                # Recommended platform — single source of truth (see primary block).
+                from app.components.marketing_trends import resolve_segment_platform
+                from core.benchmark_config import get_platform_benchmark
+                platform = resolve_segment_platform(growth)
+                if platform:
+                    benchmark = get_platform_benchmark(platform)
+                    metric_name = benchmark.get('metric_name', 'Expected CTR')
+                    metric_value = benchmark.get('metric_value', 'N/A')
                     platform_text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
                     content.append(Paragraph(platform_text, normal_style))
-                
+
                 if rationale:
                     rationale_text = "Rationale: " + rationale
                     content.append(Paragraph(rationale_text, normal_style))

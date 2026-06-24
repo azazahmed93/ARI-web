@@ -123,10 +123,15 @@ class AudienceSegmentComponent:
         print(bg_color)
 
 
-        # Get platform recommendation
-        platform_rec = ""
-        if segment.platform_targeting and len(segment.platform_targeting) > 0:
-            platform_rec = segment.platform_targeting[0].get('platform', '')
+        # Recommended platform — single source of truth shared with the heatmap and
+        # the PDF/PPTX exporters (marketing_trends.resolve_segment_platform), so the
+        # card's "Recommended Platform" can never disagree with the heatmap. Falls back
+        # to the segment generator's own platform_targeting only when scores are absent.
+        try:
+            from app.components.marketing_trends import resolve_segment_platform
+            platform_rec = resolve_segment_platform(segment)
+        except Exception:
+            platform_rec = segment.platform_targeting[0].get('platform', '') if segment.platform_targeting else ''
 
         # Get benchmark metrics from configuration
         benchmark = get_platform_benchmark(platform_rec)

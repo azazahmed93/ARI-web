@@ -140,8 +140,32 @@ def audience_insights(is_siteone_hispanic):
                     interests_str = ", ".join(interests) if interests else "Identified through AI pattern recognition"
                     rationale = growth_segment.get('rationale', "")
                     
-                    # Get platform strategy
-                    platform_targeting = growth_segment.get('platform_targeting', [])
+                    # Recommended platform + strategy — aligned with the "Audience Segment
+                    # Media Recommendation" heatmap (single source of truth). The headline
+                    # recommendation is the segment's top-scoring channel; the strategy detail
+                    # below is reordered so the strongest-aligned platform leads (no longer
+                    # leading with a platform the heatmap scores low).
+                    platform_targeting = growth_segment.get('platform_targeting', []) or []
+                    recommended_platform = ""
+                    try:
+                        from app.components.marketing_trends import (
+                            resolve_segment_platform, get_segment_channel_scores,
+                        )
+                        from core.platform_channel_map import normalize_platform_to_channel
+                        recommended_platform = resolve_segment_platform(growth_segment)
+                        _chan_scores = get_segment_channel_scores(
+                            growth_segment.get('name'),
+                            st.session_state.get('brief_text'),
+                            st.session_state.get('audience_segments'),
+                        )
+                        if _chan_scores and platform_targeting:
+                            def _pt_score(pt):
+                                ch = normalize_platform_to_channel(pt.get('platform', '')).get('primary')
+                                return _chan_scores.get(ch, -1)
+                            platform_targeting = sorted(platform_targeting, key=_pt_score, reverse=True)
+                    except Exception:
+                        recommended_platform = ""
+
                     platform_strategy = ""
                     if platform_targeting:
                         strategies = []
@@ -149,7 +173,7 @@ def audience_insights(is_siteone_hispanic):
                             if 'platform' in platform and 'targeting_approach' in platform:
                                 strategies.append(f"{platform['platform']}: {platform['targeting_approach']}")
                         platform_strategy = " | ".join(strategies)
-                    
+
                     if not platform_strategy:
                         platform_strategy = "Multi-platform approach with custom audience development"
                     
@@ -182,9 +206,10 @@ def audience_insights(is_siteone_hispanic):
                     performance = growth_segment.get('expected_performance', {})
                     performance_str = ""
 
-                    # Get benchmark metrics from configuration
+                    # Get benchmark metrics from configuration (keyed on the aligned
+                    # recommended platform, falling back to the strategy text)
                     if platform_strategy:
-                        benchmark = get_platform_benchmark(platform_strategy)
+                        benchmark = get_platform_benchmark(recommended_platform or platform_strategy)
                         metrics = []
 
                         # Add primary completion/click metric from benchmark
@@ -234,6 +259,14 @@ def audience_insights(is_siteone_hispanic):
 </p>
 </div>"""
                     
+                    # Aligned headline recommendation (matches the heatmap + the other cards)
+                    recommended_platform_html = ""
+                    if recommended_platform:
+                        recommended_platform_html = f"""<p style="margin-bottom: 8px;">
+<span style="font-weight:600; margin-right:5px; display:inline-block;">Recommended Platform {platform_strategy_tip}</span>
+{recommended_platform}
+</p>"""
+
                     # Create the emerging audience HTML content
                     html_content = f"""<div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
 <h4 style="margin-top: 0; color: #4338ca; display: flex; align-items: center;">
@@ -258,6 +291,7 @@ def audience_insights(is_siteone_hispanic):
 <span style="font-weight:600; margin-right:5px; display:inline-block;">Key Interests {interests_tip}</span>
 {interests_str}
 </p>
+{recommended_platform_html}
 <p style="margin-bottom: 8px;">
 <span style="font-weight:600; margin-right:5px; display:inline-block;">Platform Strategy {platform_strategy_tip}</span>
 {platform_strategy}

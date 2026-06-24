@@ -653,31 +653,25 @@ class ExportOrchestrator:
                     p.font.color.rgb = self.TEXT_COLOR
                     y_pos += Inches(0.25)
 
-            # Platform recommendation
-            platform_targeting = segment.get('platform_targeting', [])
-            if platform_targeting:
-                platform = platform_targeting[0].get('platform', '')
-                if platform:
-                    # Determine metric type based on platform
-                    performance = segment.get('expected_performance', {})
-                    metric_value = performance.get('CTR', '0.05-0.7%')
-                    metric_name = "Expected CTR"
+            # Platform recommendation — single source of truth shared with the UI card
+            # and the "Audience Segment Media Recommendation" heatmap
+            # (marketing_trends.resolve_segment_platform); KPI via benchmark config.
+            from app.components.marketing_trends import resolve_segment_platform
+            from core.benchmark_config import get_platform_benchmark
+            platform = resolve_segment_platform(segment)
+            if platform:
+                benchmark = get_platform_benchmark(platform)
+                metric_name = benchmark.get('metric_name', 'Expected CTR')
+                metric_value = benchmark.get('metric_value', 'N/A')
 
-                    if 'video' in platform.lower() or 'ott' in platform.lower() or 'ctv' in platform.lower():
-                        metric_name = "Expected VCR"
-                        metric_value = "90-100%"
-                    elif 'audio' in platform.lower() or 'podcast' in platform.lower():
-                        metric_name = "Expected LTR"
-                        metric_value = "80-95%"
-
-                    plat_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12.7), Inches(0.25))
-                    tf = plat_box.text_frame
-                    p = tf.paragraphs[0]
-                    p.text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
-                    p.font.size = Pt(9)
-                    p.font.name = self.FONT_NAME
-                    p.font.color.rgb = self.TEXT_COLOR
-                    y_pos += Inches(0.25)
+                plat_box = slide.shapes.add_textbox(Inches(0.3), y_pos, Inches(12.7), Inches(0.25))
+                tf = plat_box.text_frame
+                p = tf.paragraphs[0]
+                p.text = f"Recommended Platform: {platform} ({metric_name}: {metric_value})"
+                p.font.size = Pt(9)
+                p.font.name = self.FONT_NAME
+                p.font.color.rgb = self.TEXT_COLOR
+                y_pos += Inches(0.25)
 
             # Interests (for emerging audience)
             if i == 2:  # Emerging audience
