@@ -329,19 +329,19 @@ Return a JSON object with this exact structure:
 }}
 
 Rules:
-- Scores must be integers between 10 and 95
-- CRITICAL: You MUST use the FULL range. Not everything is high-performing.
-  * At least 5 scores must be ≤ 30 (low performers)
-  * At least 8 scores must be ≤ 45 (below average)
-  * At least 5 scores must be ≥ 75 (strong performers)
-  * No more than 10 of the 40 total scores should be above 70
-  * The difference between the highest and lowest score must be at least 50 points
-- Every media channel must appear for every audience segment
-- Base scores on realistic media buying performance expectations
-- Consider audience demographics, interests, and media consumption habits
-- Channels that are irrelevant to a segment should score LOW (15-30), not medium
-- The Core RFP audience should score highest on channels that match the brief's objectives
-- Emerging audiences should score higher on newer/innovative channels (In-Game Ads, Interactive Video, DOOH) but LOW on traditional channels
+- Each score is an integer 10-95 reflecting how well that channel GENUINELY fits that segment,
+  based on the segment's demographics, interests and media-consumption habits.
+- Score on real fit, not on appearance: channels that strongly match a segment score high;
+  channels that genuinely don't fit score low (roughly 15-30).
+- Do NOT force a spread or hit score quotas. If a segment genuinely fits many channels, score
+  many of them high; if it fits few, score few high. Let the audience drive the numbers — it is
+  fine if a strong segment has several high channels or a narrow segment has several low ones.
+- Differentiate the segments from one another where their behavior actually differs; where two
+  segments behave alike it is fine for their scores to be similar.
+- The single highest-scoring channel for a segment is treated as that segment's RECOMMENDED
+  channel, so make sure the top score is the channel you would actually recommend for that
+  audience (do not let a tie-breaker or filler channel outrank the genuine best fit).
+- Every media channel must appear for every audience segment.
 - Use these exact media channel names: {categories_str}
 - Use these exact audience keys: {", ".join(column_keys)}"""
 
@@ -444,6 +444,134 @@ def generate_audience_segment_trend_data(brief_text=None, audience_segments=None
     df = _generate_audience_trend_data_fallback(brief_text, categories, columns, segments)
     st.session_state.audience_trend_heatmap_data = {'df': df, 'columns': columns}
     return df, columns
+
+
+def get_segment_recommended_channels(brief_text=None, audience_segments=None):
+    """Source-of-truth recommended media channel per segment.
+
+    Derives each segment's recommended channel as the HIGHEST-scoring channel in the
+    very same scoring pass that powers the "Audience Segment Media Recommendation"
+    heatmap. generate_audience_segment_trend_data() is cached per session, so this
+    triggers at most one GPT call and guarantees the segment card's "Recommended
+    Platform" and the heatmap can never disagree (single source of truth).
+
+    Returns {segment_name: channel, "Core RFP Audience": channel}, or {} when no
+    data/segments are available (callers fall back to their own platform value).
+    """
+    try:
+        df, columns = generate_audience_segment_trend_data(brief_text, audience_segments)
+        if df is None or not columns:
+            return {}
+        _, segments = _build_audience_columns(audience_segments)
+        pivot = df.pivot(index="Category", columns="Segment", values="Value").reindex(columns=columns)
+
+        recs = {}
+        # columns[0] = Core RFP audience; columns[1:] = the segment tiers, in order.
+        if columns[0] in pivot.columns:
+            recs["Core RFP Audience"] = str(pivot[columns[0]].idxmax())
+        for i, seg in enumerate(segments[:3]):
+            col = columns[i + 1] if (i + 1) < len(columns) else None
+            name = seg.get("name") if isinstance(seg, dict) else None
+            if col is not None and name and col in pivot.columns:
+                recs[name] = str(pivot[col].idxmax())
+        return recs
+    except Exception as e:
+        print(f"get_segment_recommended_channels failed: {e}")
+        return {}
+
+
+def get_segment_channel_scores(segment_name=None, brief_text=None, audience_segments=None):
+    """Return {channel: score} for one segment column, from the same cached heatmap
+    scoring pass. segment_name=None => the Core RFP column. Used to order the Emerging
+    "Platform Strategy" entries by genuine fit. Returns {} on failure.
+    """
+    try:
+        if brief_text is None:
+            brief_text = st.session_state.get("brief_text")
+        if audience_segments is None:
+            audience_segments = st.session_state.get("audience_segments")
+        df, columns = generate_audience_segment_trend_data(brief_text, audience_segments)
+        if df is None or not columns:
+            return {}
+        _, segments = _build_audience_columns(audience_segments)
+        col = None
+        if segment_name is None:
+            col = columns[0]
+        else:
+            for i, seg in enumerate(segments[:3]):
+                if isinstance(seg, dict) and seg.get("name") == segment_name:
+                    col = columns[i + 1] if (i + 1) < len(columns) else None
+                    break
+        if not col:
+            return {}
+        pivot = df.pivot(index="Category", columns="Segment", values="Value").reindex(columns=columns)
+        if col not in pivot.columns:
+            return {}
+        return {str(ch): int(pivot.loc[ch, col]) for ch in pivot.index}
+    except Exception as e:
+        print(f"get_segment_channel_scores failed: {e}")
+        return {}
+
+
+def resolve_segment_platform(segment, brief_text=None, audience_segments=None):
+    """Single source-of-truth 'Recommended Platform' LABEL for one segment.
+
+    Used by the UI segment card AND the PDF/PPTX exporters so every surface stays
+    consistent with the "Audience Segment Media Recommendation" heatmap.
+
+    The RANKING is sourced from the heatmap scoring pass (the segment's top-scoring
+    channel), but the displayed LABEL uses the media-buy vocabulary the cards expect
+    (e.g. "CTV/OTT" rather than the heatmap's "Connected TV"):
+      1. if one of the segment's own platform_targeting entries maps to that top
+         channel, show that entry's original wording (keeps the generator's name);
+      2. otherwise show a clean buy-type label for the top channel
+         (platform_channel_map.channel_to_display_label);
+      3. fall back to platform_targeting[0] only when heatmap scores are unavailable.
+
+    `segment` may be a dict (export paths) or an AudienceSegment object (UI card).
+    """
+    if isinstance(segment, dict):
+        name = segment.get("name")
+        pts = segment.get("platform_targeting") or []
+    else:
+        name = getattr(segment, "name", None)
+        pts = getattr(segment, "platform_targeting", None) or []
+
+    def _pt_name(entry):
+        return entry.get("platform", "") if isinstance(entry, dict) else ""
+
+    top_channel = None
+    try:
+        recs = get_segment_recommended_channels(
+            brief_text if brief_text is not None else st.session_state.get("brief_text"),
+            audience_segments if audience_segments is not None else st.session_state.get("audience_segments"),
+        )
+        if name:
+            top_channel = recs.get(name)
+    except Exception:
+        top_channel = None
+
+    if top_channel:
+        try:
+            from core.platform_channel_map import normalize_platform_to_channel, channel_to_display_label
+            # 1) if the segment's own wording maps EXACTLY (primary) to the top channel,
+            #    show that wording — keeps the generator's phrasing (e.g. "CTV/OTT").
+            for entry in pts:
+                pname = _pt_name(entry)
+                if pname and normalize_platform_to_channel(pname).get("primary") == top_channel:
+                    return pname
+            # 2) otherwise a PRECISE buy-type label for the actual top channel. We avoid
+            #    loose umbrella matches (e.g. "Video" spans Connected TV) because an
+            #    ambiguous umbrella label re-creates the "recommended platform looks low"
+            #    confusion — "CTV/OTT" is unambiguous, "Video" is not.
+            return channel_to_display_label(top_channel)
+        except Exception:
+            return top_channel  # safe: at least the aligned channel name
+
+    # 3) heatmap unavailable — original behavior
+    if pts:
+        return _pt_name(pts[0])
+    return ""
 
 
 def display_audience_segment_heatmap(brief_text=None, audience_segments=None, title="Audience Segment Media Recommendation"):
