@@ -257,7 +257,13 @@ def display_trend_heatmap(brief_text=None, title="Marketing Trend Heatmap"):
         """)
 
 def _build_audience_columns(audience_segments):
-    """Build the 4 column labels and extract segments list."""
+    """Build the 4 column labels and extract segments list.
+
+    Long segment names are WRAPPED onto multiple lines (not truncated) so they render
+    in full on the heatmap x-axis. Uses <br> — Plotly's tick-label line break (a raw
+    "\\n" is not honored in tick text, which is why long names looked cut off).
+    """
+    import textwrap
     segments = []
     if audience_segments and isinstance(audience_segments, dict):
         segments = audience_segments.get('segments', [])
@@ -266,13 +272,13 @@ def _build_audience_columns(audience_segments):
     segment_columns = []
     for i, label in enumerate(tier_labels):
         if i < len(segments):
-            name = segments[i].get('name', label)
-            if len(name) > 25:
-                name = name[:22] + "..."
-            segment_columns.append(f"{label}:\n{name}")
+            name = (segments[i].get('name') or label).strip()
+            # width 28 keeps most names to <=2 lines with whole-word breaks
+            wrapped = "<br>".join(textwrap.wrap(name, width=28)) or name
+            segment_columns.append(f"{label}:<br>{wrapped}")
         else:
             segment_columns.append(label)
-    columns = ["Core RFP\nAudience"] + segment_columns
+    columns = ["Core RFP<br>Audience"] + segment_columns
     return columns, segments
 
 
@@ -616,7 +622,9 @@ def display_audience_segment_heatmap(brief_text=None, audience_segments=None, ti
         height=500,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#333333")
+        font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#333333"),
+        xaxis=dict(automargin=True, tickangle=0, tickfont=dict(size=11)),  # auto-expand; full names show
+        yaxis=dict(automargin=True)
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -636,6 +644,203 @@ def display_audience_segment_heatmap(brief_text=None, audience_segments=None, ti
         - **Hotter colors (pink/purple)** indicate stronger predicted performance for that channel + audience combination
         - **Cooler colors (light blue)** indicate weaker predicted performance
         - Use this to inform which media formats to prioritize for each audience tier
+        """)
+
+
+# Social platforms shown in the dedicated "Social Platform Affinity" heatmap.
+# INFORMATIONAL ONLY — this heatmap does NOT feed resolve_segment_platform / the card
+# "Recommended Platform" (which stays on the 10 ad-format channels). Keeping social on a
+# separate axis avoids mixing platform-level items with the format-level channels.
+SOCIAL_PLATFORMS = ["TikTok", "LinkedIn", "Instagram", "X (Twitter)", "Reddit"]
+
+
+def _generate_social_trend_data_ai(brief_text, audience_segments, columns, segments):
+    """GPT-4o: rate each social platform's fit (10-95) per audience segment.
+    Returns a DataFrame or None on failure."""
+    from core.ai_utils import make_openai_request
+
+    tier_names = ["Core RFP Audience", "Primary Growth Audience", "Secondary Growth Audience", "Emerging Audience"]
+    segment_descs = []
+    for i, tier in enumerate(tier_names):
+        if i == 0:
+            segment_descs.append(f"- {tier}: The primary target audience defined in the campaign brief")
+        else:
+            seg_idx = i - 1
+            if seg_idx < len(segments):
+                seg = segments[seg_idx]
+                name = seg.get('name', tier)
+                age = seg.get('targeting_params', {}).get('age_range', 'N/A')
+                income = seg.get('targeting_params', {}).get('income_targeting', 'N/A')
+                interests = ", ".join(seg.get('interest_categories', [])[:5])
+                segment_descs.append(f"- {tier} ({name}): Age {age}, Income {income}, Interests: {interests}")
+            else:
+                segment_descs.append(f"- {tier}: No segment data available")
+
+    segments_str = "\n".join(segment_descs)
+    platforms_str = ", ".join(SOCIAL_PLATFORMS)
+
+    prompt = f"""You are a social media planning expert. Based on the campaign brief and audience
+segments below, rate how well each SOCIAL PLATFORM fits each audience segment (10-95).
+
+Campaign Brief (excerpt):
+{brief_text[:2000] if brief_text else "No brief provided"}
+
+Audience Segments:
+{segments_str}
+
+Social Platforms: {platforms_str}
+
+Return a JSON object with this exact structure:
+{{
+  "scores": {{
+    "Core RFP Audience": {{"TikTok": 78, "LinkedIn": 40, "Instagram": 82, "X (Twitter)": 55, "Reddit": 50}},
+    "Primary Growth Audience": {{"TikTok": 70, "LinkedIn": 45, "Instagram": 75, "X (Twitter)": 58, "Reddit": 60}},
+    "Secondary Growth Audience": {{"TikTok": 60, "LinkedIn": 72, "Instagram": 68, "X (Twitter)": 65, "Reddit": 55}},
+    "Emerging Audience": {{"TikTok": 85, "LinkedIn": 38, "Instagram": 76, "X (Twitter)": 60, "Reddit": 80}}
+  }}
+}}
+
+Rules:
+- Each score is an integer 10-95 reflecting how well that platform GENUINELY fits that segment,
+  based on the segment's demographics, interests and platform-usage habits (e.g. LinkedIn skews
+  professional/older; TikTok skews younger; Reddit skews interest-community driven).
+- Score on real fit, not appearance. Do NOT force a spread or hit quotas — if a segment genuinely
+  lives on several platforms, score several high; if its presence is narrow, score few high.
+- Differentiate segments where their behavior differs; similar segments may score similarly.
+- Every platform must appear for every audience segment.
+- Use these exact platform names: {platforms_str}
+- Use these exact audience keys: {", ".join(tier_names)}"""
+
+    result = make_openai_request(
+        messages=[
+            {"role": "system", "content": "You are a social media planning and audience analytics expert. Return only valid JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        model="gpt-4o",
+        response_format={"type": "json_object"},
+        max_tokens=900,
+        max_retries=2
+    )
+
+    if not result or 'scores' not in result:
+        return None
+
+    scores = result['scores']
+    tier_to_column = dict(zip(tier_names, columns))
+
+    data = []
+    for platform in SOCIAL_PLATFORMS:
+        for tier_name, col_label in tier_to_column.items():
+            tier_scores = scores.get(tier_name, {})
+            score = tier_scores.get(platform)
+            if score is None or not isinstance(score, (int, float)):
+                return None  # incomplete -> fall back
+            score = max(10, min(95, int(score)))
+            data.append({"Platform": platform, "Segment": col_label, "Value": score})
+
+    return pd.DataFrame(data)
+
+
+def _generate_social_trend_data_fallback(columns):
+    """Synthetic social-platform scores when the AI call fails."""
+    tier_profiles = {
+        0: {"TikTok": 72, "LinkedIn": 52, "Instagram": 78, "X (Twitter)": 60, "Reddit": 55},
+        1: {"TikTok": 82, "LinkedIn": 44, "Instagram": 80, "X (Twitter)": 56, "Reddit": 62},
+        2: {"TikTok": 60, "LinkedIn": 74, "Instagram": 66, "X (Twitter)": 66, "Reddit": 54},
+        3: {"TikTok": 85, "LinkedIn": 40, "Instagram": 74, "X (Twitter)": 58, "Reddit": 80},
+    }
+    data = []
+    for platform in SOCIAL_PLATFORMS:
+        for tier_idx, label in enumerate(columns):
+            base = tier_profiles.get(tier_idx, {}).get(platform, 50)
+            noise = random.normalvariate(0, 4)
+            score = np.clip(base + noise, 10, 95)
+            data.append({"Platform": platform, "Segment": label, "Value": score})
+    return pd.DataFrame(data)
+
+
+def generate_social_platform_trend_data(brief_text=None, audience_segments=None):
+    """Social-platform × audience-segment affinity scores, cached per session.
+    Falls back to synthetic data if the AI call fails. Returns (DataFrame, column labels)."""
+    columns, segments = _build_audience_columns(audience_segments)
+
+    if st.session_state.get('social_platform_heatmap_data') is not None:
+        cached = st.session_state.social_platform_heatmap_data
+        return cached['df'], cached['columns']
+
+    try:
+        df = _generate_social_trend_data_ai(brief_text, audience_segments, columns, segments)
+        if df is not None:
+            st.session_state.social_platform_heatmap_data = {'df': df, 'columns': columns}
+            return df, columns
+    except Exception as e:
+        print(f"AI social trend generation failed: {e}")
+
+    df = _generate_social_trend_data_fallback(columns)
+    st.session_state.social_platform_heatmap_data = {'df': df, 'columns': columns}
+    return df, columns
+
+
+def display_social_platform_heatmap(brief_text=None, audience_segments=None, title="Social Platform Affinity"):
+    """Display a heatmap of social-platform affinity across campaign audience segments.
+    Informational — does NOT affect the card 'Recommended Platform' logic."""
+    from app.components.learning_tips import display_tip_bubble
+
+    heatmap_tip = display_tip_bubble("methodology", "Social Platform Affinity", inline=True)
+    st.markdown(f'<div style="text-align: center;"><h4>{title} {heatmap_tip}</h4></div>', unsafe_allow_html=True)
+
+    df, column_labels = generate_social_platform_trend_data(brief_text, audience_segments)
+
+    pivot_df = df.pivot(index="Platform", columns="Segment", values="Value")
+    pivot_df = pivot_df.reindex(index=SOCIAL_PLATFORMS, columns=column_labels)
+
+    colorscale = [
+        [0.0, "#f0f9ff"],
+        [0.3, "#93c5fd"],
+        [0.5, "#3b82f6"],
+        [0.7, "#6366f1"],
+        [0.85, "#a855f7"],
+        [1.0, "#ec4899"]
+    ]
+
+    fig = go.Figure(data=go.Heatmap(
+        z=pivot_df.values,
+        x=pivot_df.columns.tolist(),
+        y=pivot_df.index.tolist(),
+        colorscale=colorscale,
+        colorbar=dict(
+            title=dict(text="Affinity", side="right"),
+            tickmode="array",
+            tickvals=[10, 30, 50, 70, 90],
+            ticktext=["Very Low", "Low", "Medium", "High", "Very High"],
+            ticks="outside"
+        ),
+        hoverongaps=False,
+        hovertemplate='<b>%{y}</b> × <b>%{x}</b><br>Affinity: %{z:.1f}<extra></extra>'
+    ))
+
+    fig.update_layout(
+        margin=dict(l=30, r=30, t=10, b=30),
+        height=380,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#333333"),
+        xaxis=dict(automargin=True, tickangle=0, tickfont=dict(size=11)),  # auto-expand; full names show
+        yaxis=dict(automargin=True)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    with st.expander("About This Heatmap"):
+        st.markdown("""
+        This heatmap shows the predicted affinity of each **social platform**
+        (TikTok, LinkedIn, Instagram, X (Twitter), Reddit) for your campaign's audience segments.
+
+        **How to read this heatmap:**
+        - **Hotter colors (pink/purple)** indicate a stronger fit between that platform and audience.
+        - **Cooler colors (light blue)** indicate a weaker fit.
+        - Use this to prioritise social platforms per audience tier. This view is informational and
+          does not change the "Recommended Platform" shown on the audience cards.
         """)
 
 
