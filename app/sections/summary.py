@@ -20,7 +20,7 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
             scores, brief_text, sum(scores.values()) / len(scores)
         )
         st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">
                 RESONANCE CONVERGENCE COEFFICIENT
             </div>
@@ -50,7 +50,7 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
                         roi_potential = f"+{roi_potential}"
         
         st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981;">EXPECTED IMPACT</div>
             <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">{roi_potential}</div>
             <div style="font-size: 0.85rem; color: #555;">Projected KPI increase</div>
@@ -59,19 +59,13 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
     
     with col3:
         st.markdown(f"""
-        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #f43f5e;">ACTION ITEMS</div>
             <div style="font-size: 2.5rem; font-weight: 700; color: #f43f5e; margin: 10px 0;">{len(improvement_areas)}</div>
             <div style="font-size: 0.85rem; color: #555;">Priority improvement areas</div>
         </div>
         """, unsafe_allow_html=True)
     
-    # Hyperdimensional Campaign Performance Matrix section header
-    st.markdown("""
-    <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
-        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
-    """, unsafe_allow_html=True)
-
     # Priority Improvement Areas heading (introduces the tabs below)
     st.markdown("""
     <div style="margin-top: 1.5rem;">
