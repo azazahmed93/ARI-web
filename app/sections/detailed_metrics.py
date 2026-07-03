@@ -42,7 +42,7 @@ def detailed_metrics(is_siteone_hispanic, scores, improvement_areas, brief_text,
     analysis += '<div class="metric-box">'
     analysis += f'<div class="strength-box"><strong>Top Strength:</strong><br/>{top_strength}</div>'
     analysis += f'<div class="opportunity-box"><strong>Key Opportunity:</strong><br/>{key_opportunity}</div>'
-    analysis += f'<div class="roi-box"><strong>ROI Potential:</strong><br/>{roi_potential}</div>'
+    analysis += f'<div class="roi-box"><strong>KPI Potential:</strong><br/>{roi_potential}</div>'
     analysis += '</div>'
     analysis += '<h3>Detailed Metrics</h3>'
     analysis += '<div class="metrics-container">'

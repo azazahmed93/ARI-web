@@ -661,7 +661,7 @@ def get_audience_profiles(analysis_data: Optional[Dict] = None) -> List[Dict]:
                 traits.append(f"{st.session_state.brand_name} aligned")
             
             # Ensure we have at least 4 traits
-            default_core_traits = ['Results oriented', 'Performance driven', 'ROI focused', 'Value seeking']
+            default_core_traits = ['Results oriented', 'Performance driven', 'KPI focused', 'Value seeking']
             while len(traits) < 4 and default_core_traits:
                 traits.append(default_core_traits.pop(0))
             

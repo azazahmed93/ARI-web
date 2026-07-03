@@ -36,7 +36,7 @@ LEARNING_TIPS = {
         "Commerce Bridge": {
             "title": "Commerce Bridge",
             "content": "Assesses how effectively your campaign connects cultural engagement to commercial action, measuring the strength of the pathway from awareness to consideration and purchase intent.",
-            "learn_more": "This metric is strongly correlated with ROI and conversion performance."
+            "learn_more": "This metric is strongly correlated with KPI and conversion performance."
         },
         "Geo-Cultural Fit": {
             "title": "Geo-Cultural Fit",
@@ -124,7 +124,7 @@ LEARNING_TIPS = {
         "Growth Audience Insights": {
             "title": "Growth Audience Insights",
             "content": "Analysis of high-potential audience segments beyond your current core targeting, helping identify new growth opportunities to expand campaign reach and effectiveness.",
-            "learn_more": "Brands that successfully engage growth audiences typically see 1.7x higher overall campaign ROI."
+            "learn_more": "Brands that successfully engage growth audiences typically see 1.7x higher overall campaign KPI."
         },
         "Emerging Audience Opportunity": {
             "title": "Emerging Audience Opportunity",

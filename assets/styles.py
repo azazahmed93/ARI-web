@@ -294,7 +294,7 @@ def header_section():
     with col3:
         st.markdown("""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">ROI IMPACT</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">KPI IMPACT</div>
             <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">23%</div>
             <div style="font-size: 0.8rem; color: #555;">Avg. Increase</div>
         </div>
@@ -313,7 +313,7 @@ def header_section():
     st.markdown("""
     <div class="description">
         Our proprietary <strong>Audience Resonance Index</strong> combines advanced AI, cultural analytics, and marketing science to predict campaign effectiveness with 93% accuracy. 
-        By measuring how campaigns connect with relevant audience signals, strategic platforms, and cultural values, we help Fortune 500 brands increase marketing ROI by an 
+        By measuring how campaigns connect with relevant audience signals, strategic platforms, and cultural values, we help Fortune 500 brands increase marketing KPI by an
         average of 23%.
     </div>
     """, unsafe_allow_html=True)

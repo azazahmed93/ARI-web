@@ -49,7 +49,7 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #10b981;">EXPECTED IMPACT</div>
             <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 10px 0;">{roi_potential}</div>
-            <div style="font-size: 0.85rem; color: #555;">Projected ROI increase</div>
+            <div style="font-size: 0.85rem; color: #555;">Projected KPI increase</div>
         </div>
         """, unsafe_allow_html=True)
     

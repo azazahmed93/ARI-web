@@ -118,7 +118,7 @@ class MetricsComponent:
         """Generate HTML for ROI potential display."""
         return f"""
         <div style="background: #fff8f0; border-radius: 6px; padding: 10px 15px; margin: 15px 0;">
-            <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">ROI Potential: {roi_potential}</div>
+            <div style="font-weight: 600; color: #f43f5e; font-size: 0.9rem;">KPI Potential: {roi_potential}</div>
         </div>
         """
 

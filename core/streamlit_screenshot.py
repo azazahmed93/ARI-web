@@ -1846,7 +1846,7 @@ def _generate_tab_html(session_state: Dict[str, Any], tab_name: str) -> Optional
                         <div class="kpi-value">{key_opportunity}</div>
                     </div>
                     <div class="kpi-box roi">
-                        <div class="kpi-title">ROI Potential</div>
+                        <div class="kpi-title">KPI Potential</div>
                         <div class="kpi-value">{roi_potential}</div>
                     </div>
                 </div>
