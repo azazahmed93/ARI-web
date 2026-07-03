@@ -65,7 +65,7 @@ def media_affinities(is_siteone_hispanic):
         Top Media Affinity Sites
     </h3>
     """, unsafe_allow_html=True)
-    st.markdown("*Website Index = a score indicating audience engagement strength*")
+    st.markdown("*Audience Index = a score indicating audience engagement strength*")
     
     # Display media affinity sites in a grid
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -91,7 +91,7 @@ def media_affinities(is_siteone_hispanic):
             <div style="background:#e0edff; padding:10px; border-radius:10px; height:130px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px;">{site['category']}</div>
-                <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">Website Index: {site['qvi']}</div>
+                <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">Audience Index: {site['qvi']}</div>
                 {f'<div style="font-size:0.8rem;"><a href="{site["url"]}" target="_blank">Visit Site</a></div>' if 'url' in site else ''}
             </div>
             """, unsafe_allow_html=True)
