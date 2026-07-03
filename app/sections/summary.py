@@ -14,13 +14,17 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
     col1, col2, col3 = st.columns(3)
     
     with col1:
+        # Resonance Convergence Coefficient - canonical RCC formula (MetricsService)
+        from core.services.metrics import MetricsService
+        rcc_score = MetricsService()._calculate_rcc_score(
+            scores, brief_text, sum(scores.values()) / len(scores)
+        )
         st.markdown(f"""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px; text-align: center;">
             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">
-                PERCENTILE RANK
+                RESONANCE CONVERGENCE COEFFICIENT
             </div>
-            <div style="font-size: 2.5rem; font-weight: 700; color: #5865f2; margin: 10px 0;">Top {percentile}%</div>
-            <div style="font-size: 0.85rem; color: #555;">Among all analyzed campaigns</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #5865f2; margin: 10px 0;">{rcc_score:.1f}<span style="font-size: 1.2rem; color: #777;">/10</span></div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -62,123 +66,20 @@ def summary(percentile, scores, improvement_areas, brand_name, brief_text, indus
         </div>
         """, unsafe_allow_html=True)
     
-    # Add an informative benchmark section using the Hyperdimensional Matrix HTML template
-    
-    # Read the HTML template file
-    with open("attached_assets/ARI_Hyperdimensional_Matrix.html", "r") as file:
-        matrix_template_html = file.read()
-    
-    # Start the custom section 
+    # Hyperdimensional Campaign Performance Matrix section header
     st.markdown("""
     <div style="margin-top: 25px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 20px;">
         <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2; margin-bottom: 15px; text-align: center;">Hyperdimensional Campaign Performance Matrix</div>
     """, unsafe_allow_html=True)
-    
-    # Display benchmark text with dynamic AI-driven content
-    if 'ai_insights' in st.session_state and st.session_state.ai_insights:
-        ai_insights = st.session_state.ai_insights
-        
-        # Get strengths from AI if available
-        strengths = ai_insights.get('strengths', [])
-        
-        # Create a dynamic strength list if available
-        strength_areas = []
-        for strength in strengths[:2]:  # Get up to 2 top strengths
-            if 'area' in strength:
-                strength_areas.append(strength['area'].lower())
-        
-        # Default strengths if none found
-        if not strength_areas:
-            strength_areas = ['relevance', 'authenticity']
-            
-        # Format strengths for display
-        if len(strength_areas) > 1:
-            strength_text = f"{strength_areas[0]} and {strength_areas[1]}"
-        else:
-            strength_text = f"{strength_areas[0]}" if strength_areas else "cultural relevance"
-            
-        # Determine audience type based on the brief content
-        audience_type = "Hispanic" if "SiteOne" in brand_name and is_siteone_hispanic_campaign(brand_name, brief_text) else "general market"
-        
-        # Dynamic audience detection
-        if brief_text:
-            if "Gen Z" in brief_text or "GenZ" in brief_text or "Generation Z" in brief_text:
-                audience_type = "Gen Z"
-            elif "Millennial" in brief_text:
-                audience_type = "Millennial"
-            elif "Hispanic" in brief_text or "Latino" in brief_text or "Spanish" in brief_text:
-                audience_type = "Hispanic"
-            elif "Black" in brief_text or "African American" in brief_text:
-                audience_type = "African American"
-            elif "Asian" in brief_text:
-                audience_type = "Asian American"
-            elif "LGBTQ" in brief_text or "LGBT" in brief_text:
-                audience_type = "LGBTQ+"
-            
-        st.markdown(f"""
-        <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
-            for Audience Resonance Index. The campaign outperforms the majority of peer initiatives in {strength_text} — 
-            based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{300 + (hash(brand_name) % 100)}</span> national marketing efforts.
-        </div>
-        <div style="margin-top: 2rem;">
-            <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Priority Improvement Areas</div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        # Determine audience type based on the brief content (fallback case)
-        audience_type = "Hispanic" if "SiteOne" in brand_name and is_siteone_hispanic_campaign(brand_name, brief_text) else "general market"
-        
-        # Dynamic audience detection
-        if brief_text:
-            if "Gen Z" in brief_text or "GenZ" in brief_text or "Generation Z" in brief_text:
-                audience_type = "Gen Z"
-            elif "Millennial" in brief_text:
-                audience_type = "Millennial"
-            elif "Hispanic" in brief_text or "Latino" in brief_text or "Spanish" in brief_text:
-                audience_type = "Hispanic"
-            elif "Black" in brief_text or "African American" in brief_text:
-                audience_type = "African American"
-            elif "Asian" in brief_text:
-                audience_type = "Asian American"
-            elif "LGBTQ" in brief_text or "LGBT" in brief_text:
-                audience_type = "LGBTQ+"
-            
-        # Get the strength areas dynamically from the scores
-        metric_scores = list(scores.items())
-        metric_scores.sort(key=lambda x: x[1], reverse=True)
-        
-        # Get top 3 metrics as strengths
-        top_metrics = metric_scores[:3] if len(metric_scores) >= 3 else metric_scores
-        strength_areas = [m[0].lower() for m in top_metrics]
-        
-        # Format strengths for a natural language sentence
-        if len(strength_areas) >= 3:
-            strength_text = f"{strength_areas[0]}, {strength_areas[1]}, and {strength_areas[2]}"
-        elif len(strength_areas) == 2:
-            strength_text = f"{strength_areas[0]} and {strength_areas[1]}"
-        else:
-            strength_text = strength_areas[0] if strength_areas else "relevance, authenticity, and emotional connection"
-            
-        # For industry-specific sample size, calculate based on brand_name and industry/product
-        sample_size = 300 + (hash(brand_name) % 100)
-        if industry and product_type:
-            # Adjust sample size based on industry and product
-            industry_modifier = len(industry) % 20
-            product_modifier = len(product_type) % 15
-            sample_size = 300 + (hash(brand_name) % 100) + industry_modifier + product_modifier
-        
-        st.markdown(f"""
-        <div style="color: #333; font-size: 1rem; line-height: 1.6;">
-            This campaign ranks in the top <span style="font-weight: 600; color: #5865f2;">{percentile}%</span> of {audience_type}-facing national campaigns
-            for Audience Resonance Index. The campaign outperforms the majority of peer initiatives in {strength_text} — 
-            based on Digital Culture Group's comprehensive analysis of <span style="font-weight: 600; color: #5865f2;">{sample_size}</span> national marketing efforts.
-        </div>
-        <div style="margin-top: 2rem;">
-            <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Priority Improvement Areas</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
+
+    # Priority Improvement Areas heading (introduces the tabs below)
+    st.markdown("""
+    <div style="margin-top: 1.5rem;">
+        <div style="font-size: 0.9rem; font-weight: 600; color: #5865f2; margin-bottom: 10px;">Priority Improvement Areas</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
     # Create tabs for each improvement area (for clickable detailed view)
     if len(improvement_areas) > 0 and st.session_state.use_openai and st.session_state.ai_insights:
         # Check if AI insights are available
