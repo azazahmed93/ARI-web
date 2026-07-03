@@ -285,9 +285,9 @@ def header_section():
     with col2:
         st.markdown("""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">DEVICES</div>
-            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">600M+</div>
-            <div style="font-size: 0.8rem; color: #555;">Connected Devices</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">DEVICE TOUCHPOINTS</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">5+</div>
+            <div style="font-size: 0.8rem; color: #555;">Mapped</div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -303,9 +303,9 @@ def header_section():
     with col4:
         st.markdown("""
         <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; text-align: center;">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">DATA POINTS</div>
-            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">250M+</div>
-            <div style="font-size: 0.8rem; color: #555;">Analyzed Daily</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #5865f2;">AI SIGNALS</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 5px 0;">100+</div>
+            <div style="font-size: 0.8rem; color: #555;">Analyzed Per Brief</div>
         </div>
         """, unsafe_allow_html=True)
     
