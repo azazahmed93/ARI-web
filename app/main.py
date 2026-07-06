@@ -263,11 +263,11 @@ def main():
             )
         else:
             # Normal mode - show landing layout
-            # if(is_logged_in()):
-            if st.session_state.get('is_political_user', False):
-                _render_partner_view()
-            else:
-                landing_layout(inner_content)
+            if(is_logged_in()):
+                if st.session_state.get('is_political_user', False):
+                    _render_partner_view()
+                else:
+                    landing_layout(inner_content)
     else:
         admin_uploads()
 
