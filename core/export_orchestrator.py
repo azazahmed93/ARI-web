@@ -261,6 +261,18 @@ class ExportOrchestrator:
         p.font.color.rgb = self.WHITE
         p.alignment = PP_ALIGN.CENTER
 
+        # RCC disclaimer - must accompany the metrics in every exported deck
+        from core.disclaimer import RCC_DISCLAIMER
+        disc_box = slide.shapes.add_textbox(Inches(0.5), Inches(6.8), Inches(12.3), Inches(0.6))
+        tf = disc_box.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = RCC_DISCLAIMER
+        p.font.size = Pt(9)
+        p.font.name = self.FONT_NAME
+        p.font.color.rgb = self.WHITE
+        p.alignment = PP_ALIGN.CENTER
+
     def _add_metric_breakdown_slide(self, prs: Presentation):
         """Add detailed metrics table slide."""
         slide = prs.slides.add_slide(prs.slide_layouts[6])

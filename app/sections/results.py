@@ -55,6 +55,7 @@ from .summary import summary
 from .premium_cta import premium_cta
 from core.analysis import industry_keywords
 from app.components.psychographic_input import psychographic_input_section
+from app.components.disclaimer import display_rcc_disclaimer
 import os
 import streamlit.components.v1 as components
 import jwt
@@ -76,7 +77,10 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
     # Import the marketing trend heatmap functionality
     from app.components.marketing_trends import display_trend_heatmap
     st.markdown("---")
-    
+
+    # Persistent across all tabs — RCC/metrics appear throughout
+    display_rcc_disclaimer()
+
     # Initialize values that will be set based on scores or AI insights
     summary_text = ""
     # These will be dynamically set based on actual metric scores, ensuring no static data
