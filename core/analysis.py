@@ -560,119 +560,24 @@ def calculate_benchmark_percentile(scores):
 
 def get_improvement_areas(scores, brief_text=None, brand_name=None, industry=None):
     """
-    Identify the top areas for improvement based on the scores and brief content.
-    
-    This enhanced function considers not just the raw scores but also keywords and
-    themes in the brief text to better prioritize improvement areas that will have
-    the most impact for this specific campaign.
-    
-    The function now guarantees that the lowest scoring metric (key_opportunity) is 
-    always included as the first improvement area to ensure consistency with the 
-    executive summary.
-    
-    Args:
-        scores (dict): Dictionary of metric scores
-        brief_text (str, optional): The campaign brief text to analyze for keywords
-        brand_name (str, optional): Brand name for context-specific improvements
-        industry (str, optional): Industry for sector-specific improvements
-        
-    Returns:
-        list: List of metrics that need improvement, prioritized by impact
+    Identify the priority improvement areas: strictly the three lowest-scoring
+    metrics, followed by a fixed "Competitor Tactics" entry.
+
+    Score-driven to match the dashboard. The previous brief-keyword / industry
+    weighting (which could surface a metric that was not actually among the
+    lowest scorers) has been removed. brief_text / brand_name / industry are
+    accepted for backward compatibility but no longer affect the selection.
     """
-    # Ensure we have scores to work with
     if not scores:
         # Default fallback if no scores are available
         return ["Cultural Relevance", "Platform Relevance", "Buzz & Conversation", "Competitor Tactics"]
-    
-    # First get the bottom scores (initial candidates for improvement)
+
+    # Strictly the three lowest-scoring metrics, ascending.
     sorted_scores = sorted(scores.items(), key=lambda x: x[1])
-    
-    # Get the lowest scoring metric - this will always be included as the first improvement area
-    # This ensures the key_opportunity in the executive summary is always included in improvement areas
-    key_opportunity = sorted_scores[0][0] if sorted_scores else "Platform Relevance"
-    
-    # Take more candidates to filter from
-    candidate_areas = sorted_scores[:5]  
-    
-    # Initialize improvement areas list with key_opportunity as first element
-    improvement_areas = [key_opportunity]
-    
-    # Keywords that indicate importance of specific metrics
-    importance_keywords = {
-        "Platform Relevance": ["platform", "channel", "tiktok", "instagram", "social", "digital", "mobile"],
-        "Cultural Relevance": ["culture", "trend", "music", "fashion", "lifestyle", "generation"],
-        "Representation": ["diversity", "inclusive", "representation", "community", "minority"],
-        "Cultural Vernacular": ["language", "slang", "authentic", "voice", "speak", "tone", "vernacular"],
-        "Media Ownership Equity": ["diverse media", "minority owned", "equity", "representation", "ownership"],
-        "Cultural Authority": ["authority", "expert", "influencer", "authentic voice", "credibility"],
-        "Buzz & Conversation": ["viral", "share", "engagement", "conversation", "buzz", "talk"],
-        "Commerce Bridge": ["conversion", "purchase", "buy", "sale", "revenue", "attribution"],
-        "Geo-Cultural Fit": ["local", "regional", "geographic", "location", "community"]
-    }
-    
-    # If we have brief text, use it to prioritize improvement areas
-    if brief_text:
-        brief_lower = brief_text.lower()
-        
-        # Calculate priority scores based on keyword mentions
-        priority_scores = {}
-        for area, keywords in importance_keywords.items():
-            if area != key_opportunity:  # Skip key_opportunity as it's already included
-                # Count keyword mentions in the brief
-                mention_count = sum(1 for keyword in keywords if keyword.lower() in brief_lower)
-                # Adjust score based on mentions (more mentions means higher priority)
-                priority_scores[area] = mention_count * 2
-        
-        # Adjust priorities based on industry if available
-        if industry:
-            industry_lower = industry.lower()
-            # Industry-specific adjustments
-            if "retail" in industry_lower and "Commerce Bridge" != key_opportunity:
-                priority_scores["Commerce Bridge"] = priority_scores.get("Commerce Bridge", 0) + 3
-            elif "technology" in industry_lower and "Platform Relevance" != key_opportunity:
-                priority_scores["Platform Relevance"] = priority_scores.get("Platform Relevance", 0) + 3
-            elif ("fashion" in industry_lower or "beauty" in industry_lower):
-                if "Cultural Relevance" != key_opportunity:
-                    priority_scores["Cultural Relevance"] = priority_scores.get("Cultural Relevance", 0) + 3
-                if "Buzz & Conversation" != key_opportunity:
-                    priority_scores["Buzz & Conversation"] = priority_scores.get("Buzz & Conversation", 0) + 2
-        
-        # Adjust scores based on the original ARI scores
-        for area, score in scores.items():
-            if area != key_opportunity:  # Skip key_opportunity as it's already included
-                # Inverse relationship - lower scores get higher priority
-                priority_scores[area] = priority_scores.get(area, 0) + (10 - score) * 1.5
-        
-        # Get the next 2 priority areas based on combined factors (since key_opportunity is already added)
-        sorted_priorities = sorted(priority_scores.items(), key=lambda x: x[1], reverse=True)
-        
-        # Add top 2 priorities that aren't already in improvement_areas
-        for area, _ in sorted_priorities:
-            if area not in improvement_areas:
-                improvement_areas.append(area)
-                if len(improvement_areas) >= 3:  # We want exactly 3 metrics
-                    break
-    else:
-        # Fallback to simple score-based improvement areas if no brief text
-        # Start from the second lowest as the lowest is already included
-        for area, _ in sorted_scores[1:]:  
-            if area not in improvement_areas:
-                improvement_areas.append(area)
-                if len(improvement_areas) >= 3:  # We want exactly 3 metrics
-                    break
-    
-    # Ensure we have exactly 3 improvement areas
-    while len(improvement_areas) < 3:
-        # Add missing areas from the lowest scores
-        for area, _ in candidate_areas:
-            if area not in improvement_areas:
-                improvement_areas.append(area)
-                break
-    
-    # If we somehow have more than 3, trim
-    improvement_areas = improvement_areas[:3]
-    
-    # Always add "Competitor Tactics" as the 4th item
+    improvement_areas = [area for area, _ in sorted_scores[:3]]
+
+    # "Competitor Tactics" is always appended as a non-metric 4th entry - the UI
+    # renders it as a dedicated tab (the Competitor Strategy tool), not a metric.
     improvement_areas.append("Competitor Tactics")
-    
+
     return improvement_areas

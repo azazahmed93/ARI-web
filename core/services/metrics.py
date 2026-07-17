@@ -181,10 +181,12 @@ class MetricsService:
             return f"+{roi_percent}%"
     
     def _get_top_strengths(self, scores: Dict[str, float], ai_insights: Optional[Dict]) -> List[str]:
-        """Get top campaign strengths."""
-        if ai_insights and 'strengths' in ai_insights:
-            strengths = ai_insights['strengths']
-            return [s.get('area', 'Cultural Alignment') for s in strengths[:2]]
+        """Get top campaign strengths: the two highest-scoring metrics.
+
+        Score-driven to match the dashboard's Campaign Strengths panel; the LLM's
+        narrative strengths[0:2] are no longer used. ai_insights is accepted for
+        signature compatibility but unused.
+        """
         
         metric_scores = list(scores.items())
         metric_scores.sort(key=lambda x: x[1], reverse=True)

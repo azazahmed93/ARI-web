@@ -125,18 +125,13 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
         strengths = ai_insights.get('strengths', [])
         improvements = ai_insights.get('improvements', [])
         
-        # Extract the first strength and improvement for the executive summary
-        if strengths:
-            top_strength = strengths[0].get('area', 'Cultural Relevance')
-        else:
-            # Fall back to calculated top strength - fully dynamic
-            top_strength = metric_scores[0][0] if metric_scores and len(metric_scores) > 0 else None
+        # Top strength is score-driven (highest metric), matching the dashboard.
+        # We no longer use the LLM's narrative strengths[0], which could name a
+        # metric that isn't the actual top scorer. (metric_scores sorted desc.)
+        top_strength = metric_scores[0][0] if metric_scores and len(metric_scores) > 0 else None
             
-        if improvements:
-            key_opportunity = improvements[0].get('area', 'Audience Engagement')
-        else:
-            # Fall back to calculated bottom metric - fully dynamic
-            key_opportunity = metric_scores[-1][0] if metric_scores and len(metric_scores) > 0 else None
+        # Key opportunity is score-driven (lowest metric), mirroring Top Strength.
+        key_opportunity = metric_scores[-1][0] if metric_scores and len(metric_scores) > 0 else None
         
         # Track values internally
         internal_tracking = {
