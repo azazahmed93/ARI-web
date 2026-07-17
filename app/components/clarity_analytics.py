@@ -9,6 +9,8 @@ def clarity_analytics():
         f"""
         <script>
         (function() {{
+            var host = window.parent.location.hostname;
+            if (["localhost", "127.0.0.1", "0.0.0.0"].indexOf(host) !== -1) return;
             var parentDoc = window.parent.document;
             if (parentDoc.getElementById("clarity-{CLARITY_ID}")) return;
             var c = window.parent;
