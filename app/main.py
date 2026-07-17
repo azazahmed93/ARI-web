@@ -58,6 +58,7 @@ from app.layouts.landing_layout import landing_layout
 from app.sections.results import display_results
 from app.components.restricted_access import is_logged_in
 from app.components.clarity_analytics import clarity_analytics
+from app.components.rollbar_monitoring import init_rollbar, report_exception
 from app.sections.admin_uploads import admin_uploads
 from core.ai_insights import generate_audience_insights, generate_pychographic_highlights
 
@@ -104,6 +105,7 @@ def main():
         initial_sidebar_state="collapsed"
     )
 
+    init_rollbar()
     clarity_analytics()
 
     # Check for export mode FIRST - load saved state if present
@@ -273,7 +275,12 @@ def main():
 
 # Run the app
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        # Report to Rollbar, then let Streamlit render its own error UI.
+        report_exception()
+        raise
 
 
 

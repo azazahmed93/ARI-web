@@ -13,5 +13,6 @@ python-docx>=1.1.2
 python-pptx>=1.0.0
 reportlab>=4.3.1
 requests>=2.32.3
+rollbar>=1.0.0
 streamlit>=1.44.0
 twilio>=9.5.1
