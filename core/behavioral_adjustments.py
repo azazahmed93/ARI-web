@@ -467,7 +467,7 @@ def detect_target_race(audience_segment: Dict) -> Optional[str]:
     race_keywords = {
         'Asian': ['asian', 'asian american', 'aapi', 'aanhpi', 'pacific islander'],
         'Hispanic or Latino': ['hispanic', 'latino', 'latina', 'latinx', 'latin american'],
-        'Black or African American': ['black', 'african american', 'afro-american'],
+        'Black or African American': ['black', 'african american', 'afro american'],
         'White': ['white', 'caucasian', 'european american'],
         'Native Hawaiian/Pacific Islander': ['hawaiian', 'pacific islander', 'polynesian'],
         'Two or More Races': ['mixed', 'multiracial', 'biracial']
