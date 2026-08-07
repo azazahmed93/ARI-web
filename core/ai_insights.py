@@ -1164,7 +1164,7 @@ Additional audience data for SiteOne Hispanic campaign:
             * education_targeting: string (e.g., "College degree", "High school or above")
             * location_targeting: descriptive text about geographic preferences
         - primary_state: string - ONE US state name where this audience is most concentrated
-        - interest_categories: array of strings (specific interests to target in ad platforms)
+        - interest_categories: array of EXACTLY 5 distinct, specific interests to target in ad platforms
         - platform_targeting: array of objects with 'platform' and 'targeting_approach'
         - expected_performance: object with CTR (click-through rate or video completion rate for video content), CPA (cost per acquisition), and engagement_rate
         - bidding_strategy: object with bid_adjustments, dayparting, and placement_priorities
@@ -1172,6 +1172,7 @@ Additional audience data for SiteOne Hispanic campaign:
         
         Remember, make the THIRD segment a high-potential growth audience that is not currently being addressed
         in the campaign brief but shows strong potential based on trends, adjacent interests, and market opportunities. It should not be the same as the FIRST or SECOND segment.
+        Each segment's interest_categories MUST contain EXACTLY 5 distinct, specific interests.
         REMINDER — ETHNICITY RULE: If the brief names ethnic/racial groups in the TARGET AUDIENCE (e.g., "Target: African-American consumers", "diverse segments: Black, Hispanic/Latino"), you MUST include ethnicity in every segment name. If the brief only mentions cultural terms as keywords/interests (e.g., "Hispanic Culture" in an interest list) or geographic markets (Houston, Miami), do NOT include ethnicity — keep segments behavior-based.
         """
         
