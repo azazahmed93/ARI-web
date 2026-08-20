@@ -26,17 +26,17 @@ def build_top_dmas_html(top_dmas, accent_color="#5865f2"):
             chip_style = "background-color: #e8eaed; color: #4b5563;"
         cells += f"""<div style="font-size: 0.85rem; color: #444; padding: 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><span style="color: #aaa; font-variant-numeric: tabular-nums;">{dma['rank']}.</span> {dma['dma_name']}</div>
 <div style="font-size: 0.78rem; color: #888; padding: 3px 0; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;">{_format_audience(dma['est_audience'])}</div>
-<div style="padding: 2px 0 2px 10px; text-align: right;"><span style="display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 10px; font-variant-numeric: tabular-nums; {chip_style}" title="Concentration index: {dma['index']} (100 = US average)">{dma['index']}</span></div>"""
+<div style="padding: 2px 0 2px 48px; text-align: right;"><span style="display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 10px; font-variant-numeric: tabular-nums; {chip_style}" title="Concentration index: {dma['index']} (100 = US average)">{dma['index']}</span></div>"""
 
     header_style = (
         "font-size: 0.65rem; font-weight: 600; color: #999; "
         "text-transform: uppercase; letter-spacing: 0.06em; "
         "padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; margin-bottom: 2px;"
     )
-    return f"""<div style="display: grid; grid-template-columns: 1fr auto auto; column-gap: 12px; align-items: center; max-width: 680px;">
+    return f"""<div style="display: grid; grid-template-columns: 1fr auto auto; column-gap: 12px; align-items: center;">
 <div style="{header_style}">Market</div>
 <div style="{header_style} text-align: right;">Est. Audience</div>
-<div style="{header_style} text-align: right;">Index</div>
+<div style="{header_style} text-align: right; padding-left: 48px;">Index</div>
 {cells}
 </div>
 <p style="margin: 8px 0 0 0; font-size: 0.7rem; color: #aaa; line-height: 1.4;">
