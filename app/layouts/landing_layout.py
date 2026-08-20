@@ -737,6 +737,24 @@ def landing_layout(inner_content):
                                                 print(f"⚠ Error during Census enrichment: {e}")
                                                 # Continue without Census data if there's an error
 
+                                        # Phase 1d: Top-DMA ranking per segment (US only — DMAs are a
+                                        # US Nielsen construct; the cards hide the table when absent).
+                                        # Pure synchronous math over the bundled ACS dataset — no API
+                                        # calls, so no parallel fan-out needed.
+                                        if st.session_state.get("campaign_market", "US") == "US":
+                                            try:
+                                                from core.dma_targeting import compute_top_dmas_for_segment
+
+                                                for seg in segments:
+                                                    try:
+                                                        seg['top_dmas'] = compute_top_dmas_for_segment(seg)
+                                                    except Exception as e:
+                                                        print(f"⚠ Top-DMA ranking failed for '{seg.get('name')}' (non-blocking): {e}")
+                                                st.session_state.audience_segments['segments'] = segments
+                                                print(f"✓ Phase 1d: Top-DMA rankings computed for {len(segments)} segments")
+                                            except Exception as e:
+                                                print(f"⚠ Top-DMA ranking skipped: {e}")
+
                                         # Phase 1c runs in background (launched earlier after Phase 1)
                                         # Results will be collected by the Media Affinities tab when rendered
 
