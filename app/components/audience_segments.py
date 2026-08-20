@@ -3,12 +3,14 @@ import streamlit as st
 from core.models.audience import AudienceSegment
 from core.services.audience import AudienceService
 from app.components.learning_tips import display_tip_bubble
+from app.components.top_dmas import display_top_dmas
 from core.benchmark_config import get_platform_benchmark
 from typing import Dict, Optional
 
 import streamlit.components.v1 as components
 import os
 import json
+import re
 
 class AudienceSegmentComponent:
     def __init__(self):
@@ -23,12 +25,24 @@ class AudienceSegmentComponent:
         # Process the segment data
         segment = self.audience_service.process_segment(segment_data, segment_type)
         metrics = self.audience_service.get_metrics(segment)
-        
-        # Display the segment
-        self._display_standard_segment(segment, segment_type, metrics, color, bg_color)
+
+        # Keyed container so the card background extends behind the elements
+        # rendered after the card HTML (Top Markets expander, demographics
+        # iframe) — Streamlit exposes the key as a .st-key-{key} CSS class.
+        container_key = "audience_card_" + re.sub(r'[^a-zA-Z0-9]+', '_', segment_type).lower()
+        st.markdown(
+            f"<style>.st-key-{container_key} {{ background-color: {bg_color}; "
+            f"border-radius: 8px; padding-bottom: 8px; }}</style>",
+            unsafe_allow_html=True,
+        )
+        with st.container(key=container_key):
+            # Display the segment (raw dict passed along for keys the
+            # AudienceSegment dataclass doesn't carry, e.g. top_dmas)
+            self._display_standard_segment(segment, segment_type, metrics, color, bg_color,
+                                           raw_segment=segment_data)
 
     def _display_standard_segment(self, segment: AudienceSegment, segment_type: str, metrics: Dict[str, str],
-                                color: str, bg_color: str):
+                                color: str, bg_color: str, raw_segment: Optional[Dict] = None):
         """Display standard segment."""
         # Create learning tip bubbles
         audience_segment_tip = display_tip_bubble("audience", "Audience Segment", inline=True)
@@ -41,7 +55,10 @@ class AudienceSegmentComponent:
             segment, segment_type, metrics, color, bg_color,
             audience_segment_tip, demographics_tip, interests_tip, platform_tip
         ), unsafe_allow_html=True)
-        
+
+        # Top Markets (DMAs) — present on US-market analyses only
+        display_top_dmas((raw_segment or {}).get('top_dmas'), accent_color=color)
+
         import json
         from dataclasses import asdict
         segment_dict = asdict(segment)
@@ -66,6 +83,12 @@ class AudienceSegmentComponent:
                 dynamic_height = 500 + (demographics_count * 80)
 
                 html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", segment_json)
+                # Let the surrounding card tint show through the iframe
+                # (the bundle paints an opaque near-white body by default)
+                html_code = html_code.replace(
+                    "</head>",
+                    "<style>html, body { background-color: transparent !important; }</style></head>",
+                )
                 components.html(html_code, height=dynamic_height, scrolling=True)
 
             except FileNotFoundError:
