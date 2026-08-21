@@ -73,8 +73,87 @@ UK_WEBSITE_ALLOWLIST = (
     'dailymail.com',
 )
 
-CHUNK_SIZE = 5000  # entries per website chunk
+# 4000 (was 5000): row lines now carry the Market Requests volume, and a 5000-row
+# chunk lands too close to GPT-4o's 128K context limit.
+CHUNK_SIZE = 4000  # entries per website chunk
 MAX_WORKERS = 4
+
+# ---------------------------------------------------------------------------
+# Audience targeting (deterministic, pre-GPT)
+# ---------------------------------------------------------------------------
+# The inventory CSVs carry one measured audience signal: the `Audience` column
+# (General Market, Women Owned, Hispanic/Latino, AAPI, ...). When the brief /
+# audience profile clearly targets one of these segments, rows tagged for it are
+# moved to the front of the inventory so GPT sees them first instead of finding
+# them drowned among ~28K "General Market" rows.
+#
+# Maps detection keywords → the CSV `Audience` values they select.
+_AUDIENCE_TARGET_KEYWORDS = {
+    ('hispanic', 'latino', 'latina', 'latinx', 'spanish-language', 'spanish language'):
+        ('Hispanic/Latino',),
+    ('aapi', 'asian american', 'asian-american', 'pacific islander'):
+        ('AAPI', 'Asian American'),
+    ('african american', 'african-american', 'black audience', 'black consumers', 'black community'):
+        ('African American',),
+    ('lgbtq', 'lgbt+', 'queer audience'):
+        ('LGBTQ+',),
+    ('native american', 'indigenous'):
+        ('Native American',),
+}
+
+# Gender is special-cased: psychographic profiles always quote a gender split
+# (e.g. "57% Female"), so the bare word "female" would match almost every
+# campaign. Only treat the campaign as female-targeted when the split is
+# clearly female-dominant or the brief says so explicitly.
+_FEMALE_EXPLICIT_KEYWORDS = ('women', "women's", 'moms', 'mothers', 'female audience', 'female-focused')
+
+
+def _detect_audience_targets(brief_text: str, audience_context: str) -> List[str]:
+    """Return the CSV `Audience` values this campaign clearly targets."""
+    import re
+    text = f"{brief_text}\n{audience_context}".lower()
+    targets: List[str] = []
+
+    for keywords, csv_values in _AUDIENCE_TARGET_KEYWORDS.items():
+        if any(kw in text for kw in keywords):
+            targets.extend(csv_values)
+
+    female_dominant = any(
+        int(m) >= 55 for m in re.findall(r'(\d{1,2})%\s*female', text)
+    )
+    if female_dominant or any(kw in text for kw in _FEMALE_EXPLICIT_KEYWORDS):
+        targets.append('Women Owned')
+
+    return targets
+
+
+def _prioritize_audience_rows(df: pd.DataFrame, targets: List[str]):
+    """Stable-partition inventory: audience-matched rows first, original order kept.
+
+    Returns (df, n_matched) so callers know how many boosted rows lead the frame.
+    """
+    if not targets or 'Audience' not in df.columns:
+        return df, 0
+    target_set = {t.lower() for t in targets}
+    mask = df['Audience'].astype(str).str.strip().str.lower().isin(target_set)
+    n_matched = int(mask.sum())
+    if n_matched == 0:
+        return df, 0
+    print(f"  [inventory] Audience boost: {n_matched} rows matching {targets} moved to front")
+    return pd.concat([df[mask], df[~mask]], ignore_index=True), n_matched
+
+
+def _format_requests(value) -> str:
+    """Compact human form of the Market Requests volume (e.g. 71158907 → '71M')."""
+    try:
+        n = int(float(str(value).replace(',', '')))
+    except (ValueError, TypeError):
+        return ''
+    if n >= 1_000_000:
+        return f"{n // 1_000_000}M"
+    if n >= 1_000:
+        return f"{n // 1_000}K"
+    return str(n)
 
 
 # ---------------------------------------------------------------------------
@@ -173,6 +252,10 @@ def _format_website_row(row) -> str:
     if pd.notna(audience) and str(audience).strip():
         parts.append(str(audience).strip()[:60])
 
+    requests = _format_requests(row.get('Market Requests', ''))
+    if requests:
+        parts.append(requests)
+
     return ' | '.join(parts)
 
 
@@ -199,6 +282,10 @@ def _format_tv_streaming_row(row) -> str:
     audience = row.get('Audience', '')
     if pd.notna(audience) and str(audience).strip():
         parts.append(str(audience).strip()[:60])
+
+    requests = _format_requests(row.get('Market Requests', ''))
+    if requests:
+        parts.append(requests)
 
     return ' | '.join(parts)
 
@@ -235,6 +322,46 @@ def _market_prompt_section(market: str) -> str:
     return ""
 
 
+_AUDIENCE_KEYWORDS_IN_BRIEF = (
+    'target audience', 'audience', 'demographic', 'consumer', 'shopper',
+    'gen z', 'millennial', 'gen x', 'boomer', 'hhi', 'income', 'aged',
+    'psychographic', 'persona',
+)
+
+
+def _brief_for_prompt(brief_text: str, limit: int = 3000) -> str:
+    """First `limit` chars of the brief, plus any audience-describing paragraphs
+    that fall beyond the cutoff (so a late "Target Audience" section in a long
+    RFP still reaches the selector)."""
+    head = brief_text[:limit]
+    if len(brief_text) <= limit:
+        return head
+
+    extras: List[str] = []
+    budget = 1200
+    pos = 0
+    for para in brief_text.split('\n\n'):
+        start = pos
+        pos += len(para) + 2
+        # Paragraphs fully inside the head are already included
+        if start + len(para) <= limit:
+            continue
+        p = para.strip()
+        if not p:
+            continue
+        lower = p.lower()
+        if any(kw in lower for kw in _AUDIENCE_KEYWORDS_IN_BRIEF):
+            take = p[:budget - sum(len(e) for e in extras)]
+            if take:
+                extras.append(take)
+            if sum(len(e) for e in extras) >= budget:
+                break
+
+    if not extras:
+        return head
+    return head + "\n\n## Audience details (from later in the brief)\n" + "\n\n".join(extras)
+
+
 def _select_from_chunk(
     brief_text: str,
     audience_context: str,
@@ -243,6 +370,7 @@ def _select_from_chunk(
     top_n: int,
     chunk_label: str = "",
     market: str = "US",
+    audience_targets: Optional[List[str]] = None,
 ) -> List[dict]:
     """Ask GPT-4o to select the top N most relevant items from a chunk."""
 
@@ -253,9 +381,9 @@ def _select_from_chunk(
     }.get(inventory_type, 'media')
 
     column_hint = {
-        'websites': 'Domain | Category | Keywords | Audience',
-        'tv_networks': 'Name | Publisher | Category | Keywords | Audience',
-        'streaming_platforms': 'Name | Publisher | Category | Keywords | Audience',
+        'websites': 'Domain | Category | Keywords | Audience | MonthlyRequests',
+        'tv_networks': 'Name | Publisher | Category | Keywords | Audience | MonthlyRequests',
+        'streaming_platforms': 'Name | Publisher | Category | Keywords | Audience | MonthlyRequests',
     }.get(inventory_type, 'Name | Category')
 
     system_prompt = (
@@ -268,16 +396,30 @@ def _select_from_chunk(
     if audience_context:
         audience_section = f"\n## Audience Context\n{audience_context}\n"
 
+    targets_note = ""
+    if audience_targets:
+        targets_note = (
+            f"Inventory tagged for the campaign's target segments "
+            f"({', '.join(sorted(set(audience_targets)))}) is listed FIRST — "
+            f"strongly prefer these entries when they fit the campaign. "
+        )
+
     user_prompt = (
-        f"## RFP Brief\n{brief_text[:3000]}\n"
+        f"## RFP Brief\n{_brief_for_prompt(brief_text)}\n"
         f"{audience_section}"
         f"{_market_prompt_section(market)}"
         f"\n## Available {type_label} inventory ({column_hint})\n"
+        f"Audience = the audience segment this inventory over-indexes with. "
+        f"MonthlyRequests = relative ad request volume (higher = more scale).\n"
+        f"{targets_note}\n"
         f"{chunk_text}\n\n"
         f"Select the top {top_n} most relevant {type_label} entries for this campaign. "
+        f"Prioritize audience fit first, then prefer higher-volume inventory among "
+        f"equally relevant options. "
         f'Return JSON with a "selections" array containing exactly {top_n} items:\n'
         f'{{"selections": [{{"name": "...", "category": "...", "relevance_score": <100-400>, "rationale": "..."}}]}}\n\n'
         f"Score 100-400 where 400 = perfect audience match. "
+        f"In each rationale, state the specific audience attribute the pick serves. "
         f"Ensure variety across categories."
     )
 
@@ -293,7 +435,7 @@ def _select_from_chunk(
         messages=messages,
         model="gpt-4o",
         response_format={"type": "json_object"},
-        temperature=0.3,
+        temperature=0.0,
         max_tokens=2000,
         max_retries=2,
     )
@@ -386,12 +528,13 @@ def _aggregate_website_winners(
         audience_section = f"\n## Audience Context\n{audience_context}\n"
 
     user_prompt = (
-        f"## RFP Brief\n{brief_text[:3000]}\n"
+        f"## RFP Brief\n{_brief_for_prompt(brief_text)}\n"
         f"{audience_section}"
         f"{_market_prompt_section(market)}"
         f"\n## Pre-screened website candidates ({len(all_winners)} total)\n"
         f"{winner_text}\n\n"
         f"Select the final top {top_n} websites. Ensure category diversity. "
+        f"In each rationale, state the specific audience attribute the pick serves. "
         f'Return JSON with a "selections" array containing exactly {top_n} items:\n'
         f'{{"selections": [{{"name": "...", "category": "...", "relevance_score": <100-400>, "rationale": "..."}}]}}'
     )
@@ -407,7 +550,7 @@ def _aggregate_website_winners(
         messages=messages,
         model="gpt-4o",
         response_format={"type": "json_object"},
-        temperature=0.3,
+        temperature=0.0,
         max_tokens=1500,
         max_retries=2,
     )
@@ -464,6 +607,9 @@ def select_websites(brief_text: str, audience_context: str = "", market: str = "
         print(f"  [inventory] No website inventory left after {market} filter")
         return None
 
+    targets = _detect_audience_targets(brief_text, audience_context)
+    df, n_boosted = _prioritize_audience_rows(df, targets)
+
     # Split into chunks
     chunks = [df.iloc[i:i + CHUNK_SIZE] for i in range(0, len(df), CHUNK_SIZE)]
     print(f"  [inventory] Websites: {len(df)} entries → {len(chunks)} chunks of ~{CHUNK_SIZE}")
@@ -474,10 +620,13 @@ def select_websites(brief_text: str, audience_context: str = "", market: str = "
         futures = {}
         for idx, chunk_df in enumerate(chunks):
             chunk_text = _format_inventory_block(chunk_df, _format_website_row)
+            # Only chunks that contain boosted rows get the targets note.
+            chunk_targets = targets if idx * CHUNK_SIZE < n_boosted else None
             future = pool.submit(
                 _select_from_chunk,
                 brief_text, audience_context, chunk_text,
-                'websites', 10, f"chunk {idx+1}/{len(chunks)}", market
+                'websites', 10, f"chunk {idx+1}/{len(chunks)}", market,
+                chunk_targets,
             )
             futures[future] = idx
 
@@ -505,6 +654,7 @@ def select_websites(brief_text: str, audience_context: str = "", market: str = "
             "url": f"https://{domain}" if not domain.startswith('http') else domain,
             "category": item.get('category', ''),
             "qvi": item.get('relevance_score', 200),
+            "rationale": item.get('rationale', ''),
         })
 
     return json.dumps(output)
@@ -519,12 +669,15 @@ def select_tv_networks(brief_text: str, audience_context: str = "", market: str 
     if df is None:
         return None
 
+    targets = _detect_audience_targets(brief_text, audience_context)
+    df, _ = _prioritize_audience_rows(df, targets)
+
     inventory_text = _format_inventory_block(df, _format_tv_streaming_row)
     print(f"  [inventory] TV networks: {len(df)} entries, single pass")
 
     results = _select_from_chunk(
         brief_text, audience_context, inventory_text,
-        'tv_networks', 5, "single pass", market
+        'tv_networks', 5, "single pass", market, targets
     )
 
     if not results:
@@ -536,6 +689,7 @@ def select_tv_networks(brief_text: str, audience_context: str = "", market: str 
             "name": item.get('name', ''),
             "category": item.get('category', ''),
             "qvi": item.get('relevance_score', 200),
+            "rationale": item.get('rationale', ''),
         })
     return output
 
@@ -549,12 +703,15 @@ def select_streaming_platforms(brief_text: str, audience_context: str = "", mark
     if df is None:
         return None
 
+    targets = _detect_audience_targets(brief_text, audience_context)
+    df, _ = _prioritize_audience_rows(df, targets)
+
     inventory_text = _format_inventory_block(df, _format_tv_streaming_row)
     print(f"  [inventory] Streaming platforms: {len(df)} entries, single pass")
 
     results = _select_from_chunk(
         brief_text, audience_context, inventory_text,
-        'streaming_platforms', 6, "single pass", market
+        'streaming_platforms', 6, "single pass", market, targets
     )
 
     if not results:
@@ -566,8 +723,56 @@ def select_streaming_platforms(brief_text: str, audience_context: str = "", mark
             "name": item.get('name', ''),
             "category": item.get('category', ''),
             "qvi": item.get('relevance_score', 200),
+            "rationale": item.get('rationale', ''),
         })
     return output
+
+
+# ---------------------------------------------------------------------------
+# Audience context
+# ---------------------------------------------------------------------------
+
+def build_audience_context(audience_insights: dict) -> str:
+    """Compact, human-readable audience summary for the selection prompts.
+
+    Replaces json.dumps(insights)[:2000], which front-loaded Big Five scores and
+    truncated mid-JSON — the media-relevant fields often never made it in.
+    """
+    if not audience_insights or not isinstance(audience_insights, dict):
+        return ""
+
+    lines: List[str] = []
+
+    def add_list(label: str, key: str, cap: int = 5):
+        values = audience_insights.get(key)
+        if isinstance(values, list) and values:
+            items = [str(v).strip() for v in values[:cap] if str(v).strip()]
+            if items:
+                lines.append(f"{label}: {'; '.join(items)}")
+
+    signals = audience_insights.get('activation_signals') or {}
+    demo = signals.get('demographics')
+    if isinstance(demo, list) and demo:
+        lines.append(f"Demographics: {'; '.join(str(d).strip() for d in demo[:5])}")
+
+    for label, key in (
+        ("Age range", 'age_range'),
+        ("Income", 'income_level'),
+    ):
+        value = audience_insights.get(key)
+        if value and isinstance(value, str):
+            lines.append(f"{label}: {value.strip()}")
+
+    add_list("Media preferences", 'media_preferences')
+    add_list("Interests", 'interests')
+    add_list("Top values", 'top_values')
+    add_list("Lifestyle", 'lifestyle_activities')
+    add_list("Hobbies", 'hobbies')
+    add_list("Shopping behaviors", 'shopping_behaviors')
+    add_list("Motivations", 'motivations')
+    add_list("Preferred brands", 'preferred_brands')
+
+    return "\n".join(lines)[:2000]
 
 
 # ---------------------------------------------------------------------------

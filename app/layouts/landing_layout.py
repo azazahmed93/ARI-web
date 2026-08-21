@@ -592,13 +592,12 @@ def landing_layout(inner_content):
                                     # This runs in parallel with Phase 1b/2/3 — results collected in Media Affinities tab
                                     st.session_state._inventory_collected = False
                                     try:
-                                        from core.inventory_selector import select_all_inventory
-                                        import json as _json
+                                        from core.inventory_selector import select_all_inventory, build_audience_context
                                         import uuid as _uuid
 
                                         audience_context = ""
                                         if st.session_state.get('audience_insights'):
-                                            audience_context = _json.dumps(st.session_state.audience_insights)[:2000]
+                                            audience_context = build_audience_context(st.session_state.audience_insights)
 
                                         inv_request_id = str(_uuid.uuid4())[:8]
                                         # Capture market as a local before the thread starts

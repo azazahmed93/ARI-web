@@ -1,6 +1,15 @@
+import html
 import json
 import streamlit as st
 from core.ai_insights import ensure_valid_url_in_sites
+
+
+def _tooltip(item) -> str:
+    """title="..." attribute carrying the AI's pick rationale (empty if absent)."""
+    rationale = str(item.get('rationale', '') or '').strip()
+    if not rationale:
+        return ''
+    return f' title="{html.escape(rationale, quote=True)}"'
 from assets.content import (
     SITEONE_HISPANIC_SOCIAL_MEDIA,
     SITEONE_HISPANIC_TV_NETWORKS,
@@ -88,7 +97,7 @@ def media_affinities(is_siteone_hispanic):
                 name_display = name_display[:15] + "..."
                 
             st.markdown(f"""
-            <div style="background:#e0edff; padding:10px; border-radius:10px; height:130px; margin-bottom:10px; overflow:hidden;">
+            <div{_tooltip(site)} style="background:#e0edff; padding:10px; border-radius:10px; height:130px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px;">{site['category']}</div>
                 <div style="font-weight:bold; color:#3b82f6; margin-bottom:5px;">Audience Index: {site['qvi']}</div>
@@ -125,7 +134,7 @@ def media_affinities(is_siteone_hispanic):
                 name_display = name_display[:11] + "..."
                 
             st.markdown(f"""
-            <div style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
+            <div{_tooltip(network)} style="background:#dbeafe; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{network['category']}</div>
                 <div style="font-weight:bold; color:#3b82f6;">Audience Index: {network['qvi']}</div>
@@ -160,7 +169,7 @@ def media_affinities(is_siteone_hispanic):
                 name_display = name_display[:15] + "..."
                 
             st.markdown(f"""
-            <div style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
+            <div{_tooltip(platform)} style="background:#d1fae5; padding:10px; border-radius:10px; height:110px; margin-bottom:10px; overflow:hidden;">
                 <div style="font-weight:bold; font-size:0.95rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name_display}</div>
                 <div style="font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{platform['category']}</div>
                 <div style="font-weight:bold; color:#10b981;">Audience Index: {platform['qvi']}</div>
