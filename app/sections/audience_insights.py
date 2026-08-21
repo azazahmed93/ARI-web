@@ -16,6 +16,7 @@ from assets.content import (
     SITEONE_HISPANIC_SUMMARY,
 )
 from .audience_segment import display_audience_segment
+from app.components.top_dmas import display_top_dmas
 
 
 def audience_insights(is_siteone_hispanic):
@@ -267,8 +268,11 @@ def audience_insights(is_siteone_hispanic):
 {recommended_platform}
 </p>"""
 
-                    # Create the emerging audience HTML content
-                    html_content = f"""<div style="margin-top: 20px; padding: 20px; border-left: 4px solid #5865f2; background-color: #f5f7ff;">
+                    # Create the emerging audience HTML content. Background and
+                    # accent border live on the keyed container below so the
+                    # tint also covers the Top Markets expander and the
+                    # demographics iframe rendered after this HTML block.
+                    html_content = f"""<div style="padding: 20px 20px 8px 20px;">
 <h4 style="margin-top: 0; color: #4338ca; display: flex; align-items: center;">
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
 <path d="M17.5 12C17.5 15.0376 15.0376 17.5 12 17.5C8.96243 17.5 6.5 15.0376 6.5 12M17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C8.96243 6.5 6.5 8.96243 6.5 12M17.5 12H20.5M6.5 12H3.5M12 6.5V3.5M12 20.5V17.5M18.3 18.3L16.15 16.15M7.85 7.85L5.7 5.7M18.3 5.7L16.15 7.85M7.85 16.15L5.7 18.3" stroke="#4338ca" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -316,35 +320,52 @@ def audience_insights(is_siteone_hispanic):
 {rationale}
 </p>"""
                     
-                    # Display the HTML content
-                    st.markdown(html_content, unsafe_allow_html=True)
+                    # Keyed container so the card tint + accent border also sit
+                    # behind the Top Markets expander and demographics iframe
+                    st.markdown(
+                        "<style>.st-key-audience_card_emerging { background-color: #f5f7ff; "
+                        "border-left: 4px solid #5865f2; margin-top: 20px; padding-bottom: 8px; }</style>",
+                        unsafe_allow_html=True,
+                    )
+                    with st.container(key="audience_card_emerging"):
+                        # Display the HTML content
+                        st.markdown(html_content, unsafe_allow_html=True)
 
-                    # Census demographics may be absent (UK campaigns / census
-                    # hidden) — skip the breakdown iframe rather than render it empty
-                    if growth_segment.get('demographics'):
-                        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-                        PARENT_DIR = os.path.dirname(CURRENT_DIR)
-                        HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html")
+                        # Top Markets (DMAs) — present on US-market analyses only
+                        display_top_dmas(growth_segment.get('top_dmas'), accent_color='#5865f2')
 
-                        try:
-                            with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
-                                html_code = f.read()
+                        # Census demographics may be absent (UK campaigns / census
+                        # hidden) — skip the breakdown iframe rather than render it empty
+                        if growth_segment.get('demographics'):
+                            CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+                            PARENT_DIR = os.path.dirname(CURRENT_DIR)
+                            HTML_FILE_PATH = os.path.join(PARENT_DIR, "static", "demographics-breakdown/index.html")
 
-                            # Calculate dynamic height based on demographics count
-                            demographics_count = len(growth_segment['demographics'])
+                            try:
+                                with open(HTML_FILE_PATH, 'r', encoding='utf-8') as f:
+                                    html_code = f.read()
 
-                            # Dynamic height calculation
-                            # Base: 200px, Per demographic: 60px
-                            dynamic_height = 500 + (demographics_count * 80)
+                                # Calculate dynamic height based on demographics count
+                                demographics_count = len(growth_segment['demographics'])
 
-                            html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
-                            components.html(html_code, height=dynamic_height, scrolling=True)
+                                # Dynamic height calculation
+                                # Base: 200px, Per demographic: 60px
+                                dynamic_height = 500 + (demographics_count * 80)
 
-                        except FileNotFoundError:
-                            st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
-                            st.info("Please make sure 'index.html' is in the correct location.")
-                        except Exception as e:
-                            st.error(f"An error occurred: {e}")
+                                html_code = html_code.replace("{{DEMOGRAPHICS_BREAKDOWN}}", json.dumps(growth_segment))
+                                # Let the card tint show through the iframe (the
+                                # bundle paints an opaque near-white body)
+                                html_code = html_code.replace(
+                                    "</head>",
+                                    "<style>html, body { background-color: transparent !important; }</style></head>",
+                                )
+                                components.html(html_code, height=dynamic_height, scrolling=True)
+
+                            except FileNotFoundError:
+                                st.error(f"ERROR: The HTML file was not found at '{HTML_FILE_PATH}'.")
+                                st.info("Please make sure 'index.html' is in the correct location.")
+                            except Exception as e:
+                                st.error(f"An error occurred: {e}")
 
         except Exception as e:
             # Silent fail - don't show error if there's an issue with the growth audience
