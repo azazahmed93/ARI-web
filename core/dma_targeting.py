@@ -13,11 +13,11 @@ into census buckets; unparseable attributes are simply omitted from scoring,
 so the worst case (nothing parseable) degrades to a population ranking with
 every index at 100 — never a throw, never empty.
 """
-import json
 import math
-import os
 import re
-from functools import lru_cache
+
+from core.dma_targeting_data import load_dma_dataset
+from core.geo_scope import NATIONAL_SCOPE, dma_in_scope_share
 
 # ACS age tables top-code at 85+; treat parsed ranges within [18, 99].
 AGE_MIN = 18
@@ -60,17 +60,13 @@ POPULATION_FLOOR = 150_000
 EST_AUDIENCE_FLOOR = 30_000
 RELAXED_POPULATION_FLOOR = 50_000
 
-_DATASET_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "data", "dma_demographics.json"
-)
-
-
-@lru_cache(maxsize=1)
-def load_dma_dataset():
-    """Load (and cache) the DMA demographics dataset."""
-    with open(_DATASET_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
+# Under a regional scope a DMA qualifies when a meaningful slice of it lies in
+# scope: DMAs cross state lines (Yuma-El Centro is half Arizona, half
+# California), so require either a sizeable in-scope population or a
+# non-trivial share of the market.
+MIN_IN_SCOPE_POPULATION = 100_000
+MIN_IN_SCOPE_SHARE = 0.05
+MIN_IN_SCOPE_POPULATION_FOR_SHARE = 25_000
 
 def _round_half_up(x):
     """JS Math.round parity (Python's round() is banker's rounding)."""
@@ -303,16 +299,34 @@ def _score_dma(dma, national, profile):
     return {"dma": dma, "index": index, "est_audience": est_audience}
 
 
-def compute_top_dmas_for_segment(segment, dataset=None, limit=15):
+def compute_top_dmas_for_segment(segment, dataset=None, limit=15, scope=None):
     """
-    Rank all DMAs for a segment dict (needs 'name' and 'targeting_params').
+    Rank DMAs for a segment dict (needs 'name' and 'targeting_params'),
+    optionally restricted to a geographic scope (see core/geo_scope.py).
     Returns a list of dicts: rank, dma_code, dma_name, index, est_audience,
     population — matching ari-api's TopDma shape.
     """
     if dataset is None:
         dataset = load_dma_dataset()
+    if scope is None:
+        scope = NATIONAL_SCOPE
     profile = parse_segment_profile(segment)
-    scored = [_score_dma(d, dataset["national"], profile) for d in dataset["dmas"]]
+    scored = []
+    for d in dataset["dmas"]:
+        in_scope_share = dma_in_scope_share(d, scope)
+        if scope["type"] != "national":
+            in_scope_population = d["population"] * in_scope_share
+            qualifies = in_scope_population >= MIN_IN_SCOPE_POPULATION or (
+                in_scope_population >= MIN_IN_SCOPE_POPULATION_FOR_SHARE
+                and in_scope_share >= MIN_IN_SCOPE_SHARE
+            )
+            if not qualifies:
+                continue
+        s = _score_dma(d, dataset["national"], profile)
+        # Size the audience to the part of the market that is actually in scope
+        # (the index stays market-level: concentration is a property of the DMA).
+        s["est_audience"] *= in_scope_share
+        scored.append(s)
 
     floor_ladder = [
         (POPULATION_FLOOR, EST_AUDIENCE_FLOOR),

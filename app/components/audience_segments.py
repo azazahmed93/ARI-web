@@ -57,7 +57,8 @@ class AudienceSegmentComponent:
         ), unsafe_allow_html=True)
 
         # Top Markets (DMAs) — present on US-market analyses only
-        display_top_dmas((raw_segment or {}).get('top_dmas'), accent_color=color)
+        display_top_dmas((raw_segment or {}).get('top_dmas'), accent_color=color,
+                         scope=(raw_segment or {}).get('top_dmas_scope'))
 
         import json
         from dataclasses import asdict

@@ -45,7 +45,7 @@ Est. audience: people in the market matching this segment's profile (directional
 </p>"""
 
 
-def display_top_dmas(top_dmas, accent_color="#5865f2"):
+def display_top_dmas(top_dmas, accent_color="#5865f2", scope=None):
     """
     Render the ranked Top-DMA list for a segment. No-op when the segment
     carries no ranking (non-US campaigns, older analyses) — mirrors how the
@@ -57,5 +57,14 @@ def display_top_dmas(top_dmas, accent_color="#5865f2"):
     if not top_dmas:
         return
 
-    with st.expander("Top Markets (DMAs)", expanded=True):
+    scope_label = scope.get("label") if scope and scope.get("type") == "regional" else None
+    title = f"Top Markets (DMAs) · {scope_label}" if scope_label else "Top Markets (DMAs)"
+    with st.expander(title, expanded=True):
+        if scope_label:
+            st.markdown(
+                f'<p style="margin: 0 0 6px 0; font-size: 0.75rem; color: #777;">'
+                f'Limited to the campaign geography in the brief (<b>{scope_label}</b>); '
+                f'est. audience counts only the in-scope part of each market.</p>',
+                unsafe_allow_html=True,
+            )
         st.markdown(build_top_dmas_html(top_dmas, accent_color), unsafe_allow_html=True)

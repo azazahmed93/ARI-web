@@ -744,10 +744,15 @@ def landing_layout(inner_content):
                                         if st.session_state.get("campaign_market", "US") == "US":
                                             try:
                                                 from core.dma_targeting import compute_top_dmas_for_segment
+                                                from core.geo_scope_extract import extract_geo_scope
 
+                                                # Where the brief says the campaign runs — an Arizona RFP
+                                                # must not list nationwide markets.
+                                                geo_scope = extract_geo_scope(st.session_state.get('brief_text', ''))
                                                 for seg in segments:
                                                     try:
-                                                        seg['top_dmas'] = compute_top_dmas_for_segment(seg)
+                                                        seg['top_dmas'] = compute_top_dmas_for_segment(seg, scope=geo_scope)
+                                                        seg['top_dmas_scope'] = geo_scope
                                                     except Exception as e:
                                                         print(f"⚠ Top-DMA ranking failed for '{seg.get('name')}' (non-blocking): {e}")
                                                 st.session_state.audience_segments['segments'] = segments
