@@ -332,7 +332,8 @@ def audience_insights(is_siteone_hispanic):
                         st.markdown(html_content, unsafe_allow_html=True)
 
                         # Top Markets (DMAs) — present on US-market analyses only
-                        display_top_dmas(growth_segment.get('top_dmas'), accent_color='#5865f2')
+                        display_top_dmas(growth_segment.get('top_dmas'), accent_color='#5865f2',
+                                         scope=growth_segment.get('top_dmas_scope'))
 
                         # Census demographics may be absent (UK campaigns / census
                         # hidden) — skip the breakdown iframe rather than render it empty
