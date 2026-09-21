@@ -52,6 +52,11 @@ from .trend_analysis import trend_analysis
 from .next_steps import next_steps
 from .openx_activation import render_openx_activation
 from .summary import summary
+
+# Trailblazer is locked (2026-09-21): the tab stays clickable but shows a
+# maintenance notice instead of the module. Flip to False to restore it.
+TRAILBLAZER_LOCKED = True
+LOCKED_TAB_MESSAGE = "Under maintenance"
 from .premium_cta import premium_cta
 from core.analysis import industry_keywords
 from app.components.psychographic_input import psychographic_input_section
@@ -872,7 +877,9 @@ def display_results(scores, percentile, improvement_areas, brand_name="Unknown",
             st.error(f"An error occurred: {e}")
     
     with tab12:
-        if is_non_us_market:
+        if TRAILBLAZER_LOCKED:
+            st.warning(f"Trailblazer is {LOCKED_TAB_MESSAGE.lower()}. It will be back shortly.")
+        elif is_non_us_market:
             st.info("🇺🇸 Trailblazer is available for US campaigns only.")
         else:
             CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
