@@ -55,7 +55,7 @@ def load_export_session_state():
 
     return False
 from app.layouts.landing_layout import landing_layout
-from app.sections.results import display_results
+from app.sections.results import display_results, TRAILBLAZER_LOCKED, LOCKED_TAB_MESSAGE
 from app.components.restricted_access import is_logged_in
 from app.components.clarity_analytics import clarity_analytics
 from app.components.rollbar_monitoring import init_rollbar, report_exception
@@ -78,6 +78,9 @@ except Exception as e:
 def _render_partner_view():
     """Render only the Trailblazer component for partner users."""
     import streamlit.components.v1 as components
+    if TRAILBLAZER_LOCKED:
+        st.warning(f"Trailblazer is {LOCKED_TAB_MESSAGE.lower()}. It will be back shortly.")
+        return
     CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
     HTML_FILE_PATH = os.path.join(CURRENT_DIR, "static", "trailblazer", "index.html")
 
