@@ -53,9 +53,10 @@ from .next_steps import next_steps
 from .openx_activation import render_openx_activation
 from .summary import summary
 
-# Trailblazer is locked (2026-09-21): the tab stays clickable but shows a
-# maintenance notice instead of the module. Flip to False to restore it.
-TRAILBLAZER_LOCKED = True
+# When True, the Trailblazer tab (and the partner-only view) shows a
+# maintenance notice instead of the module. Locked 2026-09-21, unlocked
+# 2026-09-25 after its model calls moved off OpenAI to Amazon Bedrock.
+TRAILBLAZER_LOCKED = False
 LOCKED_TAB_MESSAGE = "Under maintenance"
 from .premium_cta import premium_cta
 from core.analysis import industry_keywords
